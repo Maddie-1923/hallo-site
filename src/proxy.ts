@@ -17,6 +17,17 @@ export async function proxy(request: NextRequest) {
 
   let response = NextResponse.next({ request });
 
+  // Without the two Supabase variables `createServerClient` throws, and this
+  // runs on every request — so a missing variable took down robots.txt and
+  // the landing page along with the parts that actually need an account.
+  // Letting the request through instead keeps the public side of the site
+  // readable and confines the damage to /app, which is the only place that
+  // can't work without a session.
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.error("Supabase env missing: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are both required.");
+    return response;
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
