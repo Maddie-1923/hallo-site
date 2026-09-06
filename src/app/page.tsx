@@ -32,11 +32,11 @@ export default function Home() {
     <>
       <SiteNav />
 
-      <header id="top" className="py-[clamp(56px,9vw,120px)]">
+      <header id="top" className="py-[clamp(40px,6vw,80px)]">
         <div className="wrap grid gap-[clamp(28px,5vw,64px)] items-center md:grid-cols-[1.15fr_.85fr]">
           <div>
             <div className="mb-7">
-              <LogoMark size={80} label="Kodigo" />
+              <LogoMark size={56} label="Kodigo" />
             </div>
             <h1>
               Everything
@@ -44,7 +44,7 @@ export default function Home() {
               you watch
               <span className="block text-accent transition-colors duration-500">stays yours</span>
             </h1>
-            <p className="text-[clamp(17px,2.2vw,21px)] max-w-[34ch] mt-6 text-bone">
+            <p className="text-[clamp(16px,1.6vw,18px)] max-w-[42ch] mt-5 text-bone">
               Kodigo tracks your shows and films on your iPhone. Your library lives on your device, and
               a Kodigo account carries it to your iPad and to this site when you want that.
             </p>
@@ -54,7 +54,7 @@ export default function Home() {
             </div>
             <p className="text-sm text-dim mt-4">iPhone and iPad · iOS 18 and later · 7-day free trial</p>
           </div>
-          <div className="mx-auto w-[min(300px,80vw)] aspect-[1170/2532] rounded-[44px] bg-card border border-hair flex items-center justify-center text-center text-[13px] text-dim leading-normal">
+          <div className="mx-auto w-[min(240px,70vw)] aspect-[1170/2532] rounded-[44px] bg-card border border-hair flex items-center justify-center text-center text-[13px] text-dim leading-normal">
             Home screen
             <br />
             screenshot goes here
