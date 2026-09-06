@@ -3,6 +3,9 @@ import { LogoMark } from "@/components/Logo";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ThemeRow } from "@/components/ThemeRow";
+import { LandingFrame, type FrameSlide } from "@/components/LandingFrame";
+import { movieRails, showRails, image } from "@/lib/tmdb";
+import { year } from "@/lib/archive";
 
 const features = [
   ["Up next", "A queue, not a feed", "Shows waiting on you, shows you have finished, and films you have not started, each in their own run."],
@@ -27,42 +30,51 @@ function Shot({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function Home() {
+// The week's trending, shows and films taking turns, for the frame at the top.
+// A failed fetch costs the carousel and nothing else — the frame still draws,
+// the page still reads, because `showRails`/`movieRails` return empty rather
+// than throwing.
+async function frameSlides(): Promise<FrameSlide[]> {
+  const [shows, movies] = await Promise.all([showRails.trending(), movieRails.trending()]);
+  const out: FrameSlide[] = [];
+  for (let i = 0; i < 5; i++) {
+    const s = shows[i];
+    if (s?.backdrop_path) out.push({ key: `s${s.id}`, backdrop: image.backdrop(s.backdrop_path)!, title: s.name, kind: "Show", year: year(s.first_air_date) });
+    const m = movies[i];
+    if (m?.backdrop_path) out.push({ key: `m${m.id}`, backdrop: image.backdrop(m.backdrop_path)!, title: m.title, kind: "Film", year: year(m.release_date) });
+  }
+  return out.slice(0, 8);
+}
+
+export default async function Home() {
+  const slides = await frameSlides();
+
   return (
     <div className="scheme-dark min-h-screen flex flex-col">
         <SiteNav />
 
-        <header id="top" className="py-[clamp(40px,6vw,80px)]">
-          <div className="wrap grid gap-[clamp(28px,5vw,64px)] items-center md:grid-cols-[1.15fr_.85fr]">
-            <div>
-              <div className="mb-7">
-                <LogoMark size={56} label="Kodigo" />
+        <header id="top">
+          <LandingFrame slides={slides}>
+            <div className="max-w-[46ch]">
+              <div className="mb-5">
+                <LogoMark size={48} label="Kodigo" />
               </div>
-              <h1>
+              <h1 className="!text-[clamp(34px,5.5vw,64px)] text-white drop-shadow-[0_3px_16px_rgba(0,0,0,.8)]">
                 Everything
                 <br />
                 you watch
                 <span className="block text-accent transition-colors duration-500">stays yours</span>
               </h1>
-              <p className="text-[clamp(16px,1.6vw,18px)] max-w-[42ch] mt-5 text-bone">
+              <p className="text-[clamp(15px,1.4vw,17px)] max-w-[40ch] mt-4 text-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,.8)]">
                 Kodigo tracks your shows and films on your iPhone. Your library lives on your device, and
                 a Kodigo account carries it to your iPad and to this site when you want that.
               </p>
-              <div className="flex flex-wrap gap-3 mt-8">
+              <div className="flex flex-wrap gap-3 mt-7">
                 <a className="btn" href="#">Download on the App Store</a>
-                <a className="btn ghost" href="#import">Coming from TV Time?</a>
+                <a className="btn ghost !text-white !border-white/40" href="#import">Coming from TV Time?</a>
               </div>
-              <p className="text-sm text-dim mt-4">iPhone and iPad · iOS 18 and later · 7-day free trial</p>
             </div>
-            <div className="mx-auto w-[min(240px,70vw)] aspect-[1170/2532] rounded-[44px] bg-card border border-hair flex items-center justify-center text-center text-[13px] text-dim leading-normal">
-              Home screen
-              <br />
-              screenshot goes here
-              <br />
-              <br />
-              1170 × 2532
-            </div>
-          </div>
+          </LandingFrame>
         </header>
 
         <section id="features" className="band">
