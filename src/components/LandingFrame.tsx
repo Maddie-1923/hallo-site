@@ -60,12 +60,17 @@ export function LandingFrame({ slides, children }: { slides: FrameSlide[]; child
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--page) 55%, transparent), var(--page))" }} />
       </div>
 
-      <div className="wrap relative pt-6 pb-14">
+      {/* Wider than the page's text column and clear of the bar above it:
+          the frame is the picture, not a paragraph. */}
+      <div className="relative mx-auto w-full max-w-[1320px] px-[var(--pad)] pt-10 sm:pt-16 pb-16">
         <div
           className="relative rounded-[28px] overflow-hidden border border-white/15 shadow-[0_40px_120px_rgba(0,0,0,.55)]"
           style={{ background: "var(--graphite)" }}
         >
-          <div className="relative aspect-[16/10] sm:aspect-[16/8] lg:aspect-[16/6.5]">
+          {/* A floor rather than a fixed ratio. The words sit inside the frame,
+              and a ratio that looked right empty cropped the buttons off the
+              bottom the moment the copy grew. */}
+          <div className="relative min-h-[clamp(460px,46vw,680px)]">
             {slides.map((s, i) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -82,7 +87,7 @@ export function LandingFrame({ slides, children }: { slides: FrameSlide[]; child
             <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(0,0,0,.85) 0%, rgba(0,0,0,.55) 42%, rgba(0,0,0,.15) 70%, transparent 100%)" }} />
             <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(0,0,0,.7) 0%, transparent 45%)" }} />
 
-            <div className="absolute inset-0 flex flex-col justify-center p-[clamp(20px,4vw,56px)]">{children}</div>
+            <div className="relative flex flex-col justify-center min-h-[inherit] p-[clamp(24px,4vw,60px)] pb-[clamp(64px,7vw,96px)]">{children}</div>
 
             {/* What you're looking at, bottom right, so the artwork is never
                 anonymous. */}
