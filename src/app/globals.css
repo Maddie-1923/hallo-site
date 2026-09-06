@@ -1,0 +1,204 @@
+@import "tailwindcss";
+
+/* The app's neutrals, both schemes, from KodigoNeutral in Theme.swift. The
+   scheme is stamped on <html> as data-scheme by the pre-paint script in the
+   head (and by the appearance menu after that), so there is no flash of the
+   wrong one. Night is the default for the moment before the script runs.
+
+   Two accent tokens, the way the app has two: --accent is the accent as type
+   (the raw hex at night, halved by day so it can carry on Bone), and
+   --accent-fill is the accent as a filled surface (raw by day, scaled toward
+   black at night to the 4.5:1 floor). --accent-raw is the theme's own hex for
+   swatches. All three are set on <html> by the script; the values here are
+   Lagune's night pair for the same moment-before-the-script reason. */
+:root {
+  --page: #1a1a19;
+  --graphite: #1a1a19;
+  --bone: #e6e0d6;
+  --ink: #e6e0d6;
+  --card: #30302e;
+  --card-hi: #383836;
+  --dim: #918e88;
+  --hair: #42423f;
+  --shows: #ffc300;
+  --movies: #ff5a6e;
+  /* The app's `loved` and `badgeOn` pairs — the heart and the watched tick. */
+  --loved: #ff5a6e;
+  --seen: #32e75b;
+  --accent: #5a97d7;
+  --accent-fill: #4f85be;
+  --accent-raw: #5a97d7;
+  --pad: clamp(20px, 5vw, 64px);
+  color-scheme: dark;
+}
+
+:root[data-scheme="light"] {
+  --page: #e6e0d6;
+  --ink: #1a1a19;
+  --card: #f4f1ea;
+  --card-hi: #fdfaf3;
+  --dim: #6b665d;
+  --hair: #b4aea2;
+  --movies: #a3122b;
+  --loved: #a3122b;
+  --seen: #17752f;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-graphite: var(--graphite);
+  --color-card: var(--card);
+  --color-card-hi: var(--card-hi);
+  --color-bone: var(--bone);
+  --color-ink: var(--ink);
+  --color-dim: var(--dim);
+  --color-hair: var(--hair);
+  --color-shows: var(--shows);
+  --color-movies: var(--movies);
+  --color-loved: var(--loved);
+  --color-seen: var(--seen);
+  --color-accent: var(--accent);
+  --color-accent-fill: var(--accent-fill);
+  --color-accent-raw: var(--accent-raw);
+  --font-display: var(--font-bebas), Impact, sans-serif;
+  --font-body: var(--font-runde), ui-rounded, -apple-system, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  /* width: 100% matters when .wrap is itself a flex item: auto side margins
+     on a column-flex child switch off stretching and shrink it to fit. */
+  width: 100%;
+  max-width: 1080px;
+  /* Inline only: a shorthand `margin` here would sit outside Tailwind's
+     layers and beat any mt-* utility put on the same element. */
+  margin-inline: auto;
+  padding: 0 var(--pad);
+}
+
+.display,
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 0.92;
+  margin: 0;
+}
+h1 { font-size: clamp(58px, 12vw, 132px); }
+h2 { font-size: clamp(34px, 6vw, 60px); }
+h3 { font-size: clamp(22px, 3vw, 28px); }
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  transition: color 0.45s ease;
+}
+.rule {
+  height: 2px;
+  background: var(--accent-fill);
+  width: 2.5em;
+  margin-bottom: 14px;
+  transition: background 0.45s ease;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: var(--accent-fill);
+  color: var(--graphite);
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background 0.45s ease, transform 0.1s ease;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+}
+.btn:active { transform: scale(0.97); }
+.btn.ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--hair);
+  font-weight: 600;
+}
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 20px;
+  padding: 26px;
+}
+
+.field {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  color: var(--ink);
+  font: inherit;
+  outline: none;
+}
+.field:focus { border-color: var(--accent); }
+
+section.band {
+  padding: clamp(56px, 9vw, 110px) 0;
+  border-top: 1px solid var(--hair);
+}
+
+details.faq { border-bottom: 1px solid var(--hair); padding: 20px 0; }
+details.faq summary {
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+details.faq summary::-webkit-details-marker { display: none; }
+details.faq summary::after { content: "+"; color: var(--accent); font-size: 22px; line-height: 1; }
+details.faq[open] summary::after { content: "–"; }
+details.faq p { margin: 14px 0 0; color: var(--dim); font-size: 15px; max-width: 62ch; }
+
+.prose h2 { font-size: clamp(26px, 4vw, 36px); margin: 40px 0 12px; }
+.prose p, .prose li { color: var(--bone); max-width: 68ch; }
+.prose p { margin: 0 0 1em; }
+.prose ul { padding-left: 1.2em; margin: 0 0 1em; }
+.prose strong { color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+  html { scroll-behavior: auto; }
+}
+
+/* Tailwind's preflight zeroes paragraph margins; the landing page's stacked
+   paragraphs still want a gap between them. */
+section.band p + p { margin-top: 1em; }
+
+/* Body copy on the site was written as text-bone when the site was night-only.
+   By day Bone is the page itself, so those lines read as ink instead. */
+:root[data-scheme="light"] .text-bone { color: var(--ink); }
