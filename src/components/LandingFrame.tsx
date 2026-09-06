@@ -39,8 +39,6 @@ export function LandingFrame({ slides, children }: { slides: FrameSlide[]; child
     return () => q.removeEventListener("change", apply);
   }, []);
 
-  const current = slides[at];
-
   return (
     <div className="relative">
       {/* The ambient wash. Sits behind everything, blurred past recognition,
@@ -84,22 +82,11 @@ export function LandingFrame({ slides, children }: { slides: FrameSlide[]; child
               />
             ))}
             {/* Dark at the left and along the bottom, where the words go. */}
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(0,0,0,.8) 0%, rgba(0,0,0,.55) 50%, rgba(0,0,0,.45) 100%)" }} />
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(0,0,0,.7) 0%, transparent 45%)" }} />
+            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(0,0,0,.7) 0%, rgba(0,0,0,.4) 55%, rgba(0,0,0,.3) 100%)" }} />
+            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.6) 30%, transparent 62%)" }} />
 
-            <div className="relative flex flex-col justify-center min-h-[inherit] p-[clamp(24px,4vw,60px)] pb-[clamp(64px,7vw,96px)]">{children}</div>
+            <div className="relative flex flex-col justify-end min-h-[inherit] p-[clamp(24px,4vw,60px)] pb-[clamp(56px,6vw,80px)]">{children}</div>
 
-            {/* What you're looking at, bottom right, so the artwork is never
-                anonymous. */}
-            {current && (
-              <div className="absolute right-[clamp(16px,3vw,32px)] bottom-[clamp(14px,2.5vw,26px)] text-right">
-                <div className="text-[10px] tracking-[.16em] uppercase text-white/55">{current.kind}</div>
-                <div className="text-sm font-semibold text-white/90">
-                  {current.title}
-                  {current.year && <span className="text-white/50 font-normal"> · {current.year}</span>}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Position bars, small and low-contrast: a hint at how many, not a
