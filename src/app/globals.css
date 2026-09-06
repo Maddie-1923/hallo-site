@@ -45,6 +45,31 @@
   color-scheme: light;
 }
 
+/* The marketing pages are dark whatever the person's appearance setting says.
+   The landing page is the brand's first impression and it was designed in
+   Graphite; following a light system setting there made it a different site
+   from the one in the App Store screenshots. Inside /app the setting rules,
+   because that is somebody reading their own library rather than looking at
+   an advert.
+
+   The dark values are repeated rather than referenced: they live on :root as
+   the default, and a light `data-scheme` has already overridden them by the
+   time this applies. */
+.scheme-dark {
+  --page: #1a1a19;
+  --ink: #e6e0d6;
+  --card: #30302e;
+  --card-hi: #383836;
+  --dim: #918e88;
+  --hair: #42423f;
+  --movies: #ff5a6e;
+  --loved: #ff5a6e;
+  --seen: #32e75b;
+  color-scheme: dark;
+  background: var(--page);
+  color: var(--ink);
+}
+
 @theme inline {
   --color-page: var(--page);
   --color-graphite: var(--graphite);
