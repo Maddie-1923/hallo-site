@@ -84,7 +84,7 @@ export function LandingFrame({ slides, children }: { slides: FrameSlide[]; child
               />
             ))}
             {/* Dark at the left and along the bottom, where the words go. */}
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(0,0,0,.85) 0%, rgba(0,0,0,.55) 42%, rgba(0,0,0,.15) 70%, transparent 100%)" }} />
+            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(0,0,0,.8) 0%, rgba(0,0,0,.55) 50%, rgba(0,0,0,.45) 100%)" }} />
             <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(0,0,0,.7) 0%, transparent 45%)" }} />
 
             <div className="relative flex flex-col justify-center min-h-[inherit] p-[clamp(24px,4vw,60px)] pb-[clamp(64px,7vw,96px)]">{children}</div>
@@ -105,7 +105,7 @@ export function LandingFrame({ slides, children }: { slides: FrameSlide[]; child
           {/* Position bars, small and low-contrast: a hint at how many, not a
               control anybody needs to use. */}
           {slides.length > 1 && (
-            <div className="absolute left-[clamp(20px,4vw,56px)] bottom-[clamp(14px,2.5vw,26px)] flex gap-1.5">
+            <div className="absolute left-1/2 -translate-x-1/2 bottom-[clamp(14px,2.5vw,26px)] flex gap-1.5">
               {slides.map((s, i) => (
                 <button
                   key={s.key}

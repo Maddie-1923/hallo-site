@@ -55,23 +55,27 @@ export default async function Home() {
 
         <header id="top">
           <LandingFrame slides={slides}>
-            <div className="max-w-[46ch]">
-              <div className="mb-5">
-                <LogoMark size={48} label="Kodigo" />
+            <div className="grid gap-[clamp(20px,4vw,56px)] md:grid-cols-2 md:items-center">
+              <div>
+                <div className="mb-5">
+                  <LogoMark size={48} label="Kodigo" />
+                </div>
+                <h1 className="!text-[clamp(34px,5.5vw,64px)] text-white drop-shadow-[0_3px_16px_rgba(0,0,0,.8)]">
+                  Everything
+                  <br />
+                  you watch
+                  <span className="block text-accent transition-colors duration-500">stays yours</span>
+                </h1>
               </div>
-              <h1 className="!text-[clamp(34px,5.5vw,64px)] text-white drop-shadow-[0_3px_16px_rgba(0,0,0,.8)]">
-                Everything
-                <br />
-                you watch
-                <span className="block text-accent transition-colors duration-500">stays yours</span>
-              </h1>
-              <p className="text-[clamp(15px,1.4vw,17px)] max-w-[40ch] mt-4 text-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,.8)]">
-                Kodigo tracks your shows and films on your iPhone. Your library lives on your device, and
-                a Kodigo account carries it to your iPad and to this site when you want that.
-              </p>
-              <div className="flex flex-wrap gap-3 mt-7">
-                <a className="btn" href="#">Download on the App Store</a>
-                <a className="btn ghost !text-white !border-white/40" href="#import">Coming from TV Time?</a>
+              <div>
+                <p className="text-[clamp(15px,1.4vw,17px)] max-w-[40ch] text-white/85 drop-shadow-[0_2px_10px_rgba(0,0,0,.8)] m-0">
+                  Kodigo tracks your shows and films on your iPhone. Your library lives on your device, and
+                  a Kodigo account carries it to your iPad and to this site when you want that.
+                </p>
+                <div className="flex flex-wrap gap-3 mt-7">
+                  <a className="btn" href="#">Download on the App Store</a>
+                  <a className="btn ghost !text-white !border-white/40" href="#import">Coming from TV Time?</a>
+                </div>
               </div>
             </div>
           </LandingFrame>
