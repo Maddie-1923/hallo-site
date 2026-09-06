@@ -4,15 +4,15 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ThemeRow } from "@/components/ThemeRow";
 import { LandingFrame, type FrameSlide } from "@/components/LandingFrame";
+import { PosterFrame } from "@/components/PosterFrame";
 import { movieRails, showRails, image } from "@/lib/tmdb";
 import { year } from "@/lib/archive";
 
 const features = [
-  ["Up next", "A queue, not a feed", "Shows waiting on you, shows you have finished, and films you have not started, each in their own run."],
-  ["Ratings", "Hearts and moods", "Rate an episode out of ten and tag how it felt. Up to three moods, so a rating carries more than a number."],
-  ["Stats", "Time actually spent", "Watch time across everything you have logged, broken down by show, by year, and by run length."],
-  ["Home screen", "Widgets", "Your next episode on the home screen, in the accent you picked, updating as you watch."],
-];
+  ["Track", "Shows and films, one library", "Check an episode off in a tap and the next one moves to the top. Films sit in the same place, waiting or watched."],
+  ["Lists", "Your own shelves", "Build lists for anything — a rewatch run, a director, the films somebody keeps telling you about — and reorder them by hand."],
+  ["Releases", "Know when it lands", "An alert the day an episode airs, and a note when a film you are waiting on reaches cinemas or streaming."],
+]
 
 const faq = [
   ["Where is my data kept?", "On your device. If you sign in to a Kodigo account, a copy of your library is kept on Kodigo's server so your other devices and this website stay in step. Sync is optional and off until you turn it on."],
@@ -46,8 +46,20 @@ async function frameSlides(): Promise<FrameSlide[]> {
   return out.slice(0, 8);
 }
 
+async function framePosters() {
+  const [shows, movies] = await Promise.all([showRails.trending(), movieRails.trending()]);
+  const out: { key: string; src: string }[] = [];
+  for (let i = 0; i < 4; i++) {
+    const s = shows[i];
+    if (s?.poster_path) out.push({ key: `ps${s.id}`, src: image.poster(s.poster_path, "w500")! });
+    const m = movies[i];
+    if (m?.poster_path) out.push({ key: `pm${m.id}`, src: image.poster(m.poster_path, "w500")! });
+  }
+  return out.slice(0, 6);
+}
+
 export default async function Home() {
-  const slides = await frameSlides();
+  const [slides, posters] = await Promise.all([frameSlides(), framePosters()]);
 
   return (
     <div className="scheme-dark min-h-screen flex flex-col">
@@ -82,26 +94,29 @@ export default async function Home() {
         </header>
 
         <section id="features" className="band">
-          <div className="wrap">
-            <div className="rule" />
-            <div className="eyebrow">What it does</div>
-            <h2>
-              Mark an episode in one tap
-              <br />
-              and get on with your evening
-            </h2>
-            <p className="text-[clamp(17px,2.2vw,21px)] max-w-[52ch] mt-6 text-bone">
-              Your next episode sits at the top of every show, so the app opens on the thing you were
-              about to do. Everything else stays out of the way until you go looking for it.
-            </p>
-            <div className="grid gap-4 mt-11 [grid-template-columns:repeat(auto-fit,minmax(230px,1fr))]">
-              {features.map(([tag, title, body]) => (
-                <div key={title} className="card">
-                  <div className="text-[11px] font-bold tracking-[.14em] uppercase text-accent transition-colors duration-500">{tag}</div>
-                  <h3 className="mt-2 mb-2.5">{title}</h3>
-                  <p className="text-[15px] text-dim m-0">{body}</p>
-                </div>
-              ))}
+          <div className="wrap grid gap-[clamp(32px,6vw,80px)] items-center md:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
+            <PosterFrame posters={posters} />
+            <div>
+              <div className="rule" />
+              <div className="eyebrow">What it does</div>
+              <h2>
+                Everything you are
+                <br />
+                watching, in one place
+              </h2>
+              <p className="text-[clamp(16px,1.8vw,19px)] max-w-[52ch] mt-6 text-bone">
+                Shows and films together, so the thing you are halfway through and the film you keep
+                meaning to start are in the same library rather than two apps.
+              </p>
+              <div className="grid gap-5 mt-9">
+                {features.map(([tag, title, body]) => (
+                  <div key={title} className="grid gap-1">
+                    <div className="text-[11px] font-bold tracking-[.14em] uppercase text-accent transition-colors duration-500">{tag}</div>
+                    <h3 className="m-0">{title}</h3>
+                    <p className="text-[15px] text-dim m-0 max-w-[46ch]">{body}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
