@@ -202,12 +202,17 @@ export function ReviewDialog({
               Contains spoilers
             </label>
 
-            {/* The app's moods, three at most — `Library.moodLimit`. Past the
-                cap the unpicked ones go quiet rather than disappearing, so the
-                row doesn't reflow under the cursor. */}
+            {/* The app's moods, drawn the way the app draws them: a grid of
+                tiles with the emoji over its name, rather than a run of pills.
+                Three at most — `Library.moodLimit` — and past the cap the
+                unpicked ones go quiet rather than disappearing, so the grid
+                doesn't reflow under the cursor. */}
             <div>
-              <div className="eyebrow">How it felt</div>
-              <div className="flex flex-wrap gap-1.5 mt-2">
+              <div className="flex items-baseline gap-3">
+                <div className="eyebrow">How it felt</div>
+                <span className="text-xs text-dim">Pick up to {MOOD_LIMIT}</span>
+              </div>
+              <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 mt-2">
                 {MOODS.map((m) => {
                   const on = picked.includes(m.id);
                   const full = picked.length >= MOOD_LIMIT && !on;
@@ -216,22 +221,20 @@ export function ReviewDialog({
                       key={m.id}
                       type="button"
                       aria-pressed={on}
-                      title={m.label}
                       disabled={full}
                       onClick={() => setPicked((p) => (on ? p.filter((x) => x !== m.id) : [...p, m.id].slice(0, MOOD_LIMIT)))}
-                      className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-xs cursor-pointer transition-colors ${
-                        on ? "border-transparent text-graphite" : "border-hair text-dim hover:text-ink"
-                      } ${full ? "opacity-35 cursor-default" : ""}`}
+                      className={`flex flex-col items-center gap-1 rounded-xl border px-1 py-2 cursor-pointer transition-colors ${
+                        on ? "border-transparent text-graphite" : "border-hair text-dim hover:text-ink hover:bg-card-hi"
+                      } ${full ? "opacity-30 cursor-default" : ""}`}
                       style={on ? { background: "var(--accent-fill)" } : undefined}
                     >
-                      <span aria-hidden className="text-[15px] leading-none">{m.emoji}</span>
-                      {m.label}
+                      <span aria-hidden className="text-[22px] leading-none">{m.emoji}</span>
+                      <span className="text-[11px] leading-tight text-center">{m.label}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
-
           </div>
         </div>
 
