@@ -108,9 +108,12 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
         style={{
           width: dim,
           height: dim,
-          background: shown.rewatch ? "var(--seen-plate)" : plate,
-          borderColor: shown.rewatch ? "var(--seen-plate)" : "transparent",
-          color: shown.rewatch ? "var(--bone)" : "var(--ink)",
+          // The accent, which is what `KodigoRewatchButton` lights up in. The
+          // green belongs to the watchlist mark, and two greens side by side
+          // would say the two marks mean the same kind of thing.
+          background: shown.rewatch ? "var(--accent-fill)" : plate,
+          borderColor: shown.rewatch ? "var(--accent-fill)" : "transparent",
+          color: shown.rewatch ? "var(--graphite)" : "var(--ink)",
         }}
       >
         <MarkRewatched size={glyph} />

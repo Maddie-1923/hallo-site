@@ -61,7 +61,7 @@ export function DiaryRow({ e }: { e: DiaryEntry }) {
           <MarkHeart size={22} />
         </span>
       </div>
-      <div className={cell} style={{ color: e.rewatch ? "var(--seen)" : undefined }} title={e.rewatch ? "Rewatch" : "First watch"}>
+      <div className={cell} style={{ color: e.rewatch ? "var(--accent)" : undefined }} title={e.rewatch ? "Rewatch" : "First watch"}>
         <span className={e.rewatch ? "" : empty}>
           <MarkRewatched size={22} />
         </span>

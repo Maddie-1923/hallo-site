@@ -164,7 +164,7 @@ export function ReviewDialog({
                   className={`flex items-center gap-2 h-9 rounded-full border pl-1.5 pr-3.5 cursor-pointer transition-colors ${
                     rewatch ? "border-transparent" : "border-hair text-dim hover:text-ink"
                   }`}
-                  style={rewatch ? { background: "var(--seen-plate)", color: "var(--bone)" } : undefined}
+                  style={rewatch ? { background: "var(--accent-fill)", color: "var(--graphite)" } : undefined}
                 >
                   <MarkRewatched size={22} />
                   Rewatched
