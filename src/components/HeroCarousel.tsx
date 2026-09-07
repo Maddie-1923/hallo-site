@@ -41,7 +41,9 @@ export function HeroCarousel({ slides, label, lists }: { slides: HeroSlide[]; la
   if (count === 0) return null;
 
   return (
-    <section className="wrap pt-5">
+    // Room between the bar and the frame, so the hero reads as a card on the
+    // page rather than something wedged under the nav.
+    <section className="wrap pt-8 sm:pt-10">
       <div className="relative aspect-[16/10] sm:aspect-[16/8] min-h-[420px] max-h-[720px] overflow-hidden rounded-[24px] border border-ink/15 shadow-[0_24px_60px_rgba(0,0,0,.5)]">
         {slides.map((s, i) => (
           <Slide key={s.key} slide={s} label={label} active={i === index} lists={lists} />

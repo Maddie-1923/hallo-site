@@ -254,7 +254,10 @@ const IMG = process.env.NEXT_PUBLIC_TMDB_IMAGE_URL ?? "https://image.tmdb.org/t/
 export const image = {
   poster: (p: string | null | undefined, size = "w342") => (p ? `${IMG}/${size}${p}` : null),
   backdrop: (p: string | null | undefined) => (p ? `${IMG}/w1280${p}` : null),
-  /** The profile banner, which spans the window — w1280 upscales visibly on a big display. */
+  /** A backdrop shown near full width — the profile banner, the Discover hero,
+      the landing frame. w1280 stretched across a 1700px hero is where the
+      "why do the posters look soft" comes from; `original` is the only size
+      TMDB offers above it. */
   banner: (p: string | null | undefined) => (p ? `${IMG}/original${p}` : null),
   profile: (p: string | null | undefined) => (p ? `${IMG}/w185${p}` : null),
   still: (p: string | null | undefined) => (p ? `${IMG}/w300${p}` : null),

@@ -39,9 +39,9 @@ async function frameSlides(): Promise<FrameSlide[]> {
   const out: FrameSlide[] = [];
   for (let i = 0; i < 5; i++) {
     const s = shows[i];
-    if (s?.backdrop_path) out.push({ key: `s${s.id}`, backdrop: image.backdrop(s.backdrop_path)!, title: s.name, kind: "Show", year: year(s.first_air_date) });
+    if (s?.backdrop_path) out.push({ key: `s${s.id}`, backdrop: image.banner(s.backdrop_path)!, title: s.name, kind: "Show", year: year(s.first_air_date) });
     const m = movies[i];
-    if (m?.backdrop_path) out.push({ key: `m${m.id}`, backdrop: image.backdrop(m.backdrop_path)!, title: m.title, kind: "Film", year: year(m.release_date) });
+    if (m?.backdrop_path) out.push({ key: `m${m.id}`, backdrop: image.banner(m.backdrop_path)!, title: m.title, kind: "Film", year: year(m.release_date) });
   }
   return out.slice(0, 8);
 }
