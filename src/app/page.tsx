@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ThemeRow } from "@/components/ThemeRow";
 import { LandingFrame, type FrameSlide } from "@/components/LandingFrame";
 import { PosterFrame } from "@/components/PosterFrame";
+import { AndroidMark, AppleMark } from "@/components/StoreIcons";
 import { movieRails, showRails, image } from "@/lib/tmdb";
 import { year } from "@/lib/archive";
 
@@ -80,13 +81,28 @@ export default async function Home() {
                 </h1>
               </div>
               <div>
-                <p className="text-[clamp(15px,1.4vw,17px)] max-w-[40ch] text-white/85 drop-shadow-[0_2px_10px_rgba(0,0,0,.8)] m-0">
-                  Kodigo tracks your shows and films on your iPhone. Your library lives on your device, and
-                  a Kodigo account carries it to your iPad and to this site when you want that.
+                <p className="text-[clamp(16px,1.5vw,19px)] max-w-[36ch] text-white/90 drop-shadow-[0_2px_10px_rgba(0,0,0,.85)] m-0">
+                  One library for every show and film you watch. Check an episode off in a tap, and
+                  know the day the next one lands.
                 </p>
-                <div className="flex flex-wrap gap-3 mt-7">
-                  <a className="btn" href="#">Download on the App Store</a>
-                  <a className="btn ghost !text-white !border-white/40" href="#import">Coming from TV Time?</a>
+                <div className="flex flex-wrap items-center gap-3 mt-7">
+                  <a className="btn !inline-flex items-center gap-2.5" href="#">
+                    <AppleMark />
+                    App Store
+                  </a>
+                  {/* Not a link, because there is nothing to link to yet. It
+                      sits here rather than in the FAQ because "is there an
+                      Android version" is the first thing half the people
+                      reading this will want to know. */}
+                  <span
+                    className="btn ghost !inline-flex items-center gap-2.5 !text-white/60 !border-white/25 cursor-default"
+                    aria-disabled="true"
+                  >
+                    <AndroidMark />
+                    Android
+                    <span className="text-[11px] font-bold tracking-[.12em] uppercase text-white/40">Soon</span>
+                  </span>
+                  <a className="btn ghost !text-white !border-white/40" href="#import">Import your library</a>
                 </div>
               </div>
             </div>
