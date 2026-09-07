@@ -28,6 +28,16 @@
   --accent: #5a97d7;
   --accent-fill: #4f85be;
   --accent-raw: #5a97d7;
+  /* The app's status chips (KodigoStatusChip): blue for a show still going
+     somewhere, grey for one that is complete, red for one that was stopped.
+     Night values here, day values in the light block — the pairs are the app's
+     own, so a RETURNING pill is the same colour on both. */
+  --chip-going: #9cc8e4;
+  --chip-going-ink: #143f58;
+  --chip-done: #cfcac0;
+  --chip-done-ink: #3a3833;
+  --chip-cut: #f2b4a2;
+  --chip-cut-ink: #6a2314;
   --pad: clamp(20px, 5vw, 64px);
   color-scheme: dark;
 }
@@ -42,6 +52,10 @@
   --movies: #a3122b;
   --loved: #a3122b;
   --seen: #17752f;
+  --chip-going: #c0ccd4;
+  --chip-going-ink: #2a4453;
+  --chip-cut: #e2c3bc;
+  --chip-cut-ink: #6b2a22;
   color-scheme: light;
 }
 

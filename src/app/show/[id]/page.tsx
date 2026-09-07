@@ -8,6 +8,7 @@ import { TrackControls } from "@/components/TrackControls";
 import { EpisodeList } from "@/components/EpisodeList";
 import { CastRow, Hero } from "@/components/TitleHero";
 import { TitleActivity } from "@/components/TitleActivity";
+import { SeriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
 import { seasonEpisodes, showDetail } from "@/lib/tmdb";
 import { year } from "@/lib/archive";
@@ -61,7 +62,10 @@ export default async function ShowPage({ params, searchParams }: PageProps<"/sho
           <Poster path={show.poster_path} alt={show.name} />
         </div>
         <div className="min-w-0">
-          <div className="eyebrow">Show</div>
+          <div className="flex items-center gap-2.5">
+            <span className="eyebrow">Show</span>
+            <SeriesBadge status={show.status} />
+          </div>
           <h1 className="!text-[clamp(40px,7vw,72px)]">{show.name}</h1>
           <p className="text-sm text-dim mt-3">{facts.join(" · ")}</p>
           {detail.genres.length > 0 && <p className="text-sm text-dim mt-1">{detail.genres.join(", ")}</p>}

@@ -9,6 +9,7 @@ import { saveReview } from "@/lib/library-actions";
 import { HeartRating } from "./HeartRating";
 import { MarkHeart } from "./marks";
 import { MOODS, MOOD_LIMIT } from "@/lib/moods";
+import { SeriesBadge } from "./SeriesBadge";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 
@@ -136,6 +137,7 @@ export function ReviewDialog({
                     read as part of the name. */}
                 <span className="display text-[clamp(26px,3.4vw,38px)] leading-[0.8] text-ink">{title}</span>
                 {when && <span className="text-[15px] text-dim" style={{ fontFamily: "var(--font-body)" }}>{when}</span>}
+                {target.kind === "show" && <SeriesBadge status={target.show.status} />}
               </div>
 
               {/* One size and one height across the row — the date control was
@@ -166,6 +168,13 @@ export function ReviewDialog({
                 maxLength={10_000}
                 onChange={(e) => setText(e.target.value)}
               />
+
+              {/* Under the box it applies to, on the side the eye ends up on
+                  after reading a line. */}
+              <label className="flex items-center gap-2.5 text-sm text-dim cursor-pointer self-end">
+                <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={spoilers} onChange={(e) => setSpoilers(e.target.checked)} />
+                Contains spoilers
+              </label>
             </div>
           </div>
 
@@ -197,10 +206,6 @@ export function ReviewDialog({
               </div>
             </div>
 
-            <label className="flex items-center gap-2.5 text-sm text-dim cursor-pointer">
-              <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={spoilers} onChange={(e) => setSpoilers(e.target.checked)} />
-              Contains spoilers
-            </label>
 
             {/* The app's moods, drawn the way the app draws them: a grid of
                 tiles with the emoji over its name, rather than a run of pills.
