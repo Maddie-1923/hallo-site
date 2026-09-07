@@ -259,6 +259,8 @@ function ensureTracked(a: LibraryArchive, target: { kind: "show"; show: Show } |
 
 export type ReviewInput = {
   text: string;
+  /** Mood ids, at most three — the app's `Library.moodLimit`. */
+  moods?: string[];
   /** "YYYY-MM-DD" or empty for no date. */
   watchedOn: string;
   rewatch: boolean;
@@ -298,6 +300,13 @@ export async function saveReview(target: { kind: "show"; show: Show } | { kind: 
     a.reactions ??= {};
     if (input.loved) a.reactions[key] = "loved";
     else delete a.reactions[key];
+
+    // Moods are keyed the same way and capped at three, so a library written
+    // here decodes into the app's picker without it having to trim anything.
+    a.moods ??= {};
+    const moods = (input.moods ?? []).slice(0, 3);
+    if (moods.length) a.moods[key] = moods;
+    else delete a.moods[key];
 
     if (target.kind === "movie") {
       const existing = a.movies.find((m) => m.movie.id === target.movie.id);

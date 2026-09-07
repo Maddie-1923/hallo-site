@@ -8,6 +8,7 @@ import { poster as posterURL, year } from "@/lib/archive";
 import { saveReview } from "@/lib/library-actions";
 import { HeartRating } from "./HeartRating";
 import { MarkHeart } from "./marks";
+import { MOODS, MOOD_LIMIT } from "@/lib/moods";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 
@@ -24,12 +25,14 @@ export function ReviewDialog({
   review,
   rating,
   loved,
+  moods,
   onClose,
 }: {
   target: Target;
   review: Review | null;
   rating: number | null;
   loved: boolean;
+  moods: string[];
   onClose: () => void;
 }) {
   const router = useRouter();
@@ -42,6 +45,7 @@ export function ReviewDialog({
   const [spoilers, setSpoilers] = useState(review?.spoilers ?? false);
   const [score, setScore] = useState<number | null>(rating);
   const [heart, setHeart] = useState(loved);
+  const [picked, setPicked] = useState<string[]>(moods.slice(0, MOOD_LIMIT));
   const box = useRef<HTMLDivElement>(null);
 
   const title = target.kind === "show" ? target.show.name : target.movie.title;
@@ -72,6 +76,7 @@ export function ReviewDialog({
         spoilers,
         rating: score,
         loved: heart,
+        moods: picked,
       });
       if (r.error) {
         if (r.error.startsWith("Sign in")) {
@@ -103,13 +108,13 @@ export function ReviewDialog({
         className="w-full max-w-[760px] max-h-[90vh] overflow-y-auto rounded-2xl border border-hair bg-card shadow-[0_40px_120px_rgba(0,0,0,.7)] outline-none"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-hair">
-          <div className="display text-2xl">I watched…</div>
+          <div className="text-[15px] font-semibold tracking-[.02em] text-ink">Review &amp; catalogue</div>
           <button type="button" onClick={onClose} aria-label="Close" className="text-dim hover:text-ink text-xl leading-none cursor-pointer px-2">
             ✕
           </button>
         </div>
 
-        <div className="p-5 grid gap-5 sm:grid-cols-[150px_minmax(0,1fr)]">
+        <div className="p-5 grid gap-5 sm:grid-cols-[150px_minmax(0,1fr)] sm:items-stretch">
           <div className="hidden sm:block">
             <div className="aspect-[2/3] rounded-xl overflow-hidden bg-card-hi border border-hair">
               {art && (
@@ -119,10 +124,13 @@ export function ReviewDialog({
             </div>
           </div>
 
-          <div className="grid gap-4 content-start">
-            <div>
-              <span className="text-xl font-semibold text-ink">{title}</span>
-              {when && <span className="text-dim ml-2">{when}</span>}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-baseline gap-3 flex-wrap">
+              {/* Bebas for the title, the body face for the year: the two are
+                  saying different things, and matching them made the year read
+                  as part of the name. */}
+              <span className="display text-[clamp(26px,3.4vw,38px)] leading-none text-ink">{title}</span>
+              {when && <span className="text-[15px] text-dim" style={{ fontFamily: "var(--font-body)" }}>{when}</span>}
             </div>
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -144,12 +152,42 @@ export function ReviewDialog({
             </div>
 
             <textarea
-              className="field min-h-[150px] resize-y"
+              className="field flex-1 min-h-[120px] resize-y"
               placeholder="Add a review…"
               value={text}
               maxLength={10_000}
               onChange={(e) => setText(e.target.value)}
             />
+
+            {/* The app's moods, three at most — `Library.moodLimit`. Past the
+                cap the unpicked ones go quiet rather than disappearing, so the
+                row doesn't reflow under the cursor. */}
+            <div>
+              <div className="eyebrow">How it felt</div>
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {MOODS.map((m) => {
+                  const on = picked.includes(m.id);
+                  const full = picked.length >= MOOD_LIMIT && !on;
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      aria-pressed={on}
+                      title={m.label}
+                      disabled={full}
+                      onClick={() => setPicked((p) => (on ? p.filter((x) => x !== m.id) : [...p, m.id].slice(0, MOOD_LIMIT)))}
+                      className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-xs cursor-pointer transition-colors ${
+                        on ? "border-transparent text-graphite" : "border-hair text-dim hover:text-ink"
+                      } ${full ? "opacity-35 cursor-default" : ""}`}
+                      style={on ? { background: "var(--accent-fill)" } : undefined}
+                    >
+                      <span aria-hidden className="text-[15px] leading-none">{m.emoji}</span>
+                      {m.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
               <label className="flex items-center gap-2.5 text-sm text-dim cursor-pointer">

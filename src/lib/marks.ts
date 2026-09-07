@@ -15,6 +15,7 @@ export function markLookup(archive: LibraryArchive | null) {
   const reactions = archive?.reactions ?? {};
   const ratings = archive?.ratings ?? {};
   const reviews = archive?.reviews ?? {};
+  const moods = archive?.moods ?? {};
   const shows = new Map(archive?.shows.map((t) => [t.show.id, t.status]) ?? []);
   const movies = new Map(archive?.movies.map((t) => [t.movie.id, t.status]) ?? []);
   const order = archive?.customListOrder ?? [];
@@ -30,6 +31,7 @@ export function markLookup(archive: LibraryArchive | null) {
       rating: ratings[`show:${id}`] ?? null,
       listIDs: custom.filter((l) => (l.showIDs ?? []).includes(id)).map((l) => l.id),
       review: reviews[`show:${id}`] ?? null,
+      moods: moods[`show:${id}`] ?? [],
     }),
     movie: (id: number): MarkState => ({
       loved: reactions[`movie:${id}`] === "loved",
@@ -38,6 +40,7 @@ export function markLookup(archive: LibraryArchive | null) {
       rating: ratings[`movie:${id}`] ?? null,
       listIDs: custom.filter((l) => (l.movieIDs ?? []).includes(id)).map((l) => l.id),
       review: reviews[`movie:${id}`] ?? null,
+      moods: moods[`movie:${id}`] ?? [],
     }),
   };
 }

@@ -8,7 +8,7 @@ import { MarkHeart, MarkList, MarkWatched } from "./marks";
 import { MarkMenu } from "./MarkMenu";
 import type { ListOption } from "@/lib/marks";
 
-export type MarkState = { loved: boolean; watched: boolean; tracked: boolean; rating: number | null; listIDs: string[]; review: Review | null };
+export type MarkState = { loved: boolean; watched: boolean; tracked: boolean; rating: number | null; listIDs: string[]; review: Review | null; moods: string[] };
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 

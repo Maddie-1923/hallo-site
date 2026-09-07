@@ -245,6 +245,7 @@ export function MarkMenu({
           review={state.review}
           rating={rating}
           loved={state.loved}
+          moods={state.moods}
           onClose={() => {
             setLogging(false);
             onClose();
