@@ -7,6 +7,7 @@ import { setLoved, setRewatched, trackMovie, trackShow } from "@/lib/library-act
 import { MarkAdd, MarkBookmark, MarkHeart, MarkList, MarkReview, MarkRewatched } from "./marks";
 import { MarkMenu } from "./MarkMenu";
 import { ReviewDialog } from "./ReviewDialog";
+import { MarkTip } from "./MarkTip";
 import type { ListOption } from "@/lib/marks";
 
 export type MarkState = { loved: boolean; watched: boolean; tracked: boolean; rating: number | null; listIDs: string[]; review: Review | null; moods: string[]; rewatch: boolean };
@@ -54,117 +55,136 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
   const base = `rounded-full flex items-center justify-center shrink-0 transition-colors cursor-pointer border`;
   const plate = "color-mix(in srgb, var(--ink) 15%, transparent)";
 
+  // What each caption says. State-aware, so after a tap it reports where the
+  // mark landed rather than naming the picture on it.
+  const watchTip = target.kind === "movie"
+    ? shown.watched ? "On your watchlist" : "Add to watchlist"
+    : shown.watched ? "Watching" : "Start watching";
+  const rewatchTip = shown.rewatch ? "Rewatched" : "Mark as a rewatch";
+  const heartTip = shown.loved ? "Loved" : "Add to favorites";
+  const reviewTip = shown.review ? "Edit your review" : "Review & catalogue";
+  const listTip = shown.listIDs.length > 0 ? "On your lists" : "Rate, list, and more";
+
   return (
     <div className={`flex items-center ${size === "lg" ? "gap-2" : "gap-1"}`}>
       {/* Watchlist. A plus while it isn't on the list, a bookmark once it is —
           the mark says what happened rather than repeating the offer. For a
           film that's To Watch, for a show it's Watching, since a whole series
           isn't one tick. */}
-      <button
-        type="button"
-        aria-label={
-          target.kind === "movie"
-            ? shown.watched ? `Remove ${title} from your watchlist` : `Add ${title} to your watchlist`
-            : shown.watched ? `Stop watching ${title}` : `Start watching ${title}`
-        }
-        aria-pressed={shown.watched}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const next = !shown.watched;
-          run({ watched: next }, () =>
-            target.kind === "movie" ? trackMovie(target.movie, next ? "Watched" : "To Watch") : trackShow(target.show, next ? "Watching" : "Stopped"),
-          );
-        }}
-        className={base}
-        style={{
-          width: dim,
-          height: dim,
-          // The app's `badgeOnQuiet`, its green for a mark on a plate; the
-          // brighter `badgeOn` is for the glyph as type.
-          background: shown.watched ? "var(--seen-plate)" : plate,
-          borderColor: shown.watched ? "var(--seen-plate)" : "transparent",
-          // Bone rather than Graphite on the green: the bookmark is a solid
-          // shape and a dark one on that green reads as a hole punched in the
-          // disc, where the pale one reads as a mark sitting on it.
-          color: shown.watched ? "var(--bone)" : "var(--ink)",
-        }}
-      >
-        {shown.watched ? <MarkBookmark size={glyph} /> : <MarkAdd size={glyph} />}
-      </button>
+      <MarkTip label={watchTip}>
+        <button
+          type="button"
+          aria-label={
+            target.kind === "movie"
+              ? shown.watched ? `Remove ${title} from your watchlist` : `Add ${title} to your watchlist`
+              : shown.watched ? `Stop watching ${title}` : `Start watching ${title}`
+          }
+          aria-pressed={shown.watched}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const next = !shown.watched;
+            run({ watched: next }, () =>
+              target.kind === "movie" ? trackMovie(target.movie, next ? "Watched" : "To Watch") : trackShow(target.show, next ? "Watching" : "Stopped"),
+            );
+          }}
+          className={base}
+          style={{
+            width: dim,
+            height: dim,
+            // The app's `badgeOnQuiet`, its green for a mark on a plate; the
+            // brighter `badgeOn` is for the glyph as type.
+            background: shown.watched ? "var(--seen-plate)" : plate,
+            borderColor: shown.watched ? "var(--seen-plate)" : "transparent",
+            // Bone rather than Graphite on the green: the bookmark is a solid
+            // shape and a dark one on that green reads as a hole punched in the
+            // disc, where the pale one reads as a mark sitting on it.
+            color: shown.watched ? "var(--bone)" : "var(--ink)",
+          }}
+        >
+          {shown.watched ? <MarkBookmark size={glyph} /> : <MarkAdd size={glyph} />}
+        </button>
+      </MarkTip>
 
       {/* Rewatch. A fact about a viewing rather than about the title, so it
           writes to the review — dated today where none exists yet. */}
-      <button
-        type="button"
-        aria-label={shown.rewatch ? `${title} is not a rewatch` : `Mark ${title} as a rewatch`}
-        aria-pressed={shown.rewatch}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          run({ rewatch: !shown.rewatch }, () => setRewatched(target, !shown.rewatch));
-        }}
-        className={base}
-        style={{
-          width: dim,
-          height: dim,
-          // The accent, which is what `KodigoRewatchButton` lights up in. The
-          // green belongs to the watchlist mark, and two greens side by side
-          // would say the two marks mean the same kind of thing.
-          background: shown.rewatch ? "var(--accent-fill)" : plate,
-          borderColor: shown.rewatch ? "var(--accent-fill)" : "transparent",
-          color: shown.rewatch ? "var(--graphite)" : "var(--ink)",
-        }}
-      >
-        <MarkRewatched size={glyph} />
-      </button>
+      <MarkTip label={rewatchTip}>
+        <button
+          type="button"
+          aria-label={shown.rewatch ? `${title} is not a rewatch` : `Mark ${title} as a rewatch`}
+          aria-pressed={shown.rewatch}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            run({ rewatch: !shown.rewatch }, () => setRewatched(target, !shown.rewatch));
+          }}
+          className={base}
+          style={{
+            width: dim,
+            height: dim,
+            // The accent, which is what `KodigoRewatchButton` lights up in. The
+            // green belongs to the watchlist mark, and two greens side by side
+            // would say the two marks mean the same kind of thing.
+            background: shown.rewatch ? "var(--accent-fill)" : plate,
+            borderColor: shown.rewatch ? "var(--accent-fill)" : "transparent",
+            color: shown.rewatch ? "var(--graphite)" : "var(--ink)",
+          }}
+        >
+          <MarkRewatched size={glyph} />
+        </button>
+      </MarkTip>
 
-      <button
-        type="button"
-        aria-label={shown.loved ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
-        aria-pressed={shown.loved}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          run({ loved: !shown.loved }, () => setLoved(target, !shown.loved));
-        }}
-        className={base}
-        style={{
-          width: dim,
-          height: dim,
-          // The app's `lovedQuiet`, which is the pair it uses for a loved mark
-          // sitting on a plate. The brighter `loved` is for the glyph as type.
-          background: shown.loved ? "var(--loved-plate)" : plate,
-          borderColor: shown.loved ? "var(--loved-plate)" : "transparent",
-          color: shown.loved ? "#fff" : "var(--ink)",
-        }}
-      >
-        <MarkHeart size={glyph} />
-      </button>
+      <MarkTip label={heartTip}>
+        <button
+          type="button"
+          aria-label={shown.loved ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
+          aria-pressed={shown.loved}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            run({ loved: !shown.loved }, () => setLoved(target, !shown.loved));
+          }}
+          className={base}
+          style={{
+            width: dim,
+            height: dim,
+            // The app's `lovedQuiet`, which is the pair it uses for a loved mark
+            // sitting on a plate. The brighter `loved` is for the glyph as type.
+            background: shown.loved ? "var(--loved-plate)" : plate,
+            borderColor: shown.loved ? "var(--loved-plate)" : "transparent",
+            color: shown.loved ? "#fff" : "var(--ink)",
+          }}
+        >
+          <MarkHeart size={glyph} />
+        </button>
+      </MarkTip>
 
       {/* Straight into the log dialog. It was two taps behind the list menu,
           and writing something down is the one thing here that isn't a toggle. */}
-      <button
-        type="button"
-        aria-label={`Review ${title}`}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setLogging(true);
-        }}
-        className={base}
-        style={{
-          width: dim,
-          height: dim,
-          background: shown.review ? "var(--accent-fill)" : plate,
-          borderColor: "transparent",
-          color: shown.review ? "var(--graphite)" : "var(--ink)",
-        }}
-      >
-        <MarkReview size={glyph} />
-      </button>
+      <MarkTip label={reviewTip}>
+        <button
+          type="button"
+          aria-label={`Review ${title}`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setLogging(true);
+          }}
+          className={base}
+          style={{
+            width: dim,
+            height: dim,
+            background: shown.review ? "var(--accent-fill)" : plate,
+            borderColor: "transparent",
+            color: shown.review ? "var(--graphite)" : "var(--ink)",
+          }}
+        >
+          <MarkReview size={glyph} />
+        </button>
+      </MarkTip>
 
       <div className="relative">
+        <MarkTip label={listTip}>
         <button
           ref={setListButton}
           type="button"
@@ -187,6 +207,7 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
         >
           <MarkList size={glyph} />
         </button>
+        </MarkTip>
         {menu && (
           <MarkMenu
             target={target}
