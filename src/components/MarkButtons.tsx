@@ -4,7 +4,7 @@ import { useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Movie, Review, Show } from "@/lib/archive";
 import { setLoved, trackMovie, trackShow } from "@/lib/library-actions";
-import { MarkHeart, MarkList, MarkWatched } from "./marks";
+import { MarkAdd, MarkBookmark, MarkHeart, MarkList, MarkReview } from "./marks";
 import { MarkMenu } from "./MarkMenu";
 import { ReviewDialog } from "./ReviewDialog";
 import type { ListOption } from "@/lib/marks";
@@ -41,41 +41,28 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
     });
   }
 
-  const dim = size === "lg" ? 48 : 32;
+  // The hero's marks used to be half again the size of a card's, which made
+  // them the loudest thing on a full-bleed backdrop. Closer to the card size
+  // now, still a comfortable target.
+  const dim = size === "lg" ? 40 : 32;
   // The Canva glyphs sit inside a lot of padding in their 768 box, so they
   // are drawn larger than the button would suggest to read at the same
   // weight as a line icon.
-  const glyph = size === "lg" ? 32 : 22;
+  const glyph = size === "lg" ? 28 : 22;
   const base = `rounded-full flex items-center justify-center shrink-0 transition-colors cursor-pointer border`;
+  const plate = "color-mix(in srgb, var(--ink) 15%, transparent)";
 
   return (
     <div className="flex items-center gap-2">
-      <button
-        type="button"
-        aria-label={shown.loved ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
-        aria-pressed={shown.loved}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          run({ loved: !shown.loved }, () => setLoved(target, !shown.loved));
-        }}
-        className={base}
-        style={{
-          width: dim,
-          height: dim,
-          background: shown.loved ? "var(--loved)" : "color-mix(in srgb, var(--ink) 15%, transparent)",
-          borderColor: shown.loved ? "var(--loved)" : "transparent",
-          color: shown.loved ? "#fff" : "var(--ink)",
-        }}
-      >
-        <MarkHeart size={glyph} />
-      </button>
-
+      {/* Watchlist. A plus while it isn't on the list, a bookmark once it is —
+          the mark says what happened rather than repeating the offer. For a
+          film that's To Watch, for a show it's Watching, since a whole series
+          isn't one tick. */}
       <button
         type="button"
         aria-label={
           target.kind === "movie"
-            ? shown.watched ? `Mark ${title} as not watched` : `Mark ${title} as watched`
+            ? shown.watched ? `Remove ${title} from your watchlist` : `Add ${title} to your watchlist`
             : shown.watched ? `Stop watching ${title}` : `Start watching ${title}`
         }
         aria-pressed={shown.watched}
@@ -91,12 +78,57 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
         style={{
           width: dim,
           height: dim,
-          background: shown.watched ? "var(--seen)" : "color-mix(in srgb, var(--ink) 15%, transparent)",
+          background: shown.watched ? "var(--seen)" : plate,
           borderColor: shown.watched ? "var(--seen)" : "transparent",
           color: shown.watched ? "var(--graphite)" : "var(--ink)",
         }}
       >
-        <MarkWatched size={glyph} />
+        {shown.watched ? <MarkBookmark size={glyph} /> : <MarkAdd size={glyph} />}
+      </button>
+
+      <button
+        type="button"
+        aria-label={shown.loved ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
+        aria-pressed={shown.loved}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          run({ loved: !shown.loved }, () => setLoved(target, !shown.loved));
+        }}
+        className={base}
+        style={{
+          width: dim,
+          height: dim,
+          // The app's `lovedQuiet`, which is the pair it uses for a loved mark
+          // sitting on a plate. The brighter `loved` is for the glyph as type.
+          background: shown.loved ? "var(--loved-plate)" : plate,
+          borderColor: shown.loved ? "var(--loved-plate)" : "transparent",
+          color: shown.loved ? "#fff" : "var(--ink)",
+        }}
+      >
+        <MarkHeart size={glyph} />
+      </button>
+
+      {/* Straight into the log dialog. It was two taps behind the list menu,
+          and writing something down is the one thing here that isn't a toggle. */}
+      <button
+        type="button"
+        aria-label={`Review ${title}`}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setLogging(true);
+        }}
+        className={base}
+        style={{
+          width: dim,
+          height: dim,
+          background: shown.review ? "var(--accent-fill)" : plate,
+          borderColor: "transparent",
+          color: shown.review ? "var(--graphite)" : "var(--ink)",
+        }}
+      >
+        <MarkReview size={glyph} />
       </button>
 
       <div className="relative">

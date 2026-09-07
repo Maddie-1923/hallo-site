@@ -24,6 +24,10 @@
   --movies: #ff5a6e;
   /* The app's `loved` and `badgeOn` pairs — the heart and the watched tick. */
   --loved: #ff5a6e;
+  /* `lovedQuiet` in Theme.swift — the app's own answer for a loved mark on a
+     plate rather than as type. The bright pair is right for a glyph on the
+     page and reads pink as a filled disc. */
+  --loved-plate: #d9485c;
   --seen: #32e75b;
   --accent: #5a97d7;
   --accent-fill: #4f85be;
@@ -51,6 +55,7 @@
   --hair: #b4aea2;
   --movies: #a3122b;
   --loved: #a3122b;
+  --loved-plate: #a3122b;
   --seen: #17752f;
   --chip-going: #c0ccd4;
   --chip-going-ink: #2a4453;
@@ -78,6 +83,10 @@
   --hair: #42423f;
   --movies: #ff5a6e;
   --loved: #ff5a6e;
+  /* `lovedQuiet` in Theme.swift — the app's own answer for a loved mark on a
+     plate rather than as type. The bright pair is right for a glyph on the
+     page and reads pink as a filled disc. */
+  --loved-plate: #d9485c;
   --seen: #32e75b;
   color-scheme: dark;
   background: var(--page);
