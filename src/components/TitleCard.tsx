@@ -51,7 +51,10 @@ function Card({
         <div className="relative px-3 pt-2.5 pb-3 h-[92px] flex flex-col">
           <div className="text-[15px] font-semibold leading-tight text-ink truncate" title={title}>{title}</div>
           <div className="text-xs text-ink/70 mt-0.5">{sub}</div>
-          <div className="mt-auto flex justify-end pt-2">{action}</div>
+          {/* Left, under the title, rather than pushed to the far edge — the
+              row reads as part of the card's text block that way instead of as
+              a toolbar hung off it. */}
+          <div className="mt-auto flex justify-start pt-2">{action}</div>
         </div>
       </div>
     </Link>

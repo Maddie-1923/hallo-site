@@ -44,11 +44,11 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
   // The hero's marks used to be half again the size of a card's, which made
   // them the loudest thing on a full-bleed backdrop. Closer to the card size
   // now, still a comfortable target.
-  const dim = size === "lg" ? 40 : 32;
+  const dim = size === "lg" ? 40 : 28;
   // The Canva glyphs sit inside a lot of padding in their 768 box, so they
   // are drawn larger than the button would suggest to read at the same
   // weight as a line icon.
-  const glyph = size === "lg" ? 28 : 22;
+  const glyph = size === "lg" ? 28 : 19;
   const base = `rounded-full flex items-center justify-center shrink-0 transition-colors cursor-pointer border`;
   const plate = "color-mix(in srgb, var(--ink) 15%, transparent)";
 
@@ -78,8 +78,10 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
         style={{
           width: dim,
           height: dim,
-          background: shown.watched ? "var(--seen)" : plate,
-          borderColor: shown.watched ? "var(--seen)" : "transparent",
+          // The app's `badgeOnQuiet`, its green for a mark on a plate; the
+          // brighter `badgeOn` is for the glyph as type.
+          background: shown.watched ? "var(--seen-plate)" : plate,
+          borderColor: shown.watched ? "var(--seen-plate)" : "transparent",
           // Bone rather than Graphite on the green: the bookmark is a solid
           // shape and a dark one on that green reads as a hole punched in the
           // disc, where the pale one reads as a mark sitting on it.

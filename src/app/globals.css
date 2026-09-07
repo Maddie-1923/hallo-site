@@ -29,6 +29,9 @@
      page and reads pink as a filled disc. */
   --loved-plate: #d9485c;
   --seen: #32e75b;
+  /* `badgeOnQuiet` in Theme.swift — the app's green for a mark on a plate.
+     `badgeOn` is the brighter pair, right for the glyph as type. */
+  --seen-plate: #2fa34a;
   --accent: #5a97d7;
   --accent-fill: #4f85be;
   --accent-raw: #5a97d7;
@@ -57,6 +60,7 @@
   --loved: #a3122b;
   --loved-plate: #a3122b;
   --seen: #17752f;
+  --seen-plate: #17752f;
   --chip-going: #c0ccd4;
   --chip-going-ink: #2a4453;
   --chip-cut: #e2c3bc;
@@ -88,6 +92,7 @@
      page and reads pink as a filled disc. */
   --loved-plate: #d9485c;
   --seen: #32e75b;
+  --seen-plate: #2fa34a;
   color-scheme: dark;
   background: var(--page);
   color: var(--ink);
