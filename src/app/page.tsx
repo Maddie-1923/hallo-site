@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { LogoMark } from "@/components/Logo";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ThemeRow } from "@/components/ThemeRow";
@@ -69,14 +68,15 @@ export default async function Home() {
           <LandingFrame slides={slides}>
             <div className="grid gap-[clamp(20px,4vw,56px)] md:grid-cols-2 md:items-center">
               <div>
-                <div className="mb-5">
-                  <LogoMark size={48} label="Kodigo" />
-                </div>
-                <h1 className="!text-[clamp(34px,5.5vw,64px)] text-white drop-shadow-[0_3px_16px_rgba(0,0,0,.8)]">
-                  Everything
+                {/* Three words for the three things the app is: keep a record,
+                    watch the thing, say what you thought. The accent lands on
+                    the last one because a review is the part nothing else on
+                    your phone does. */}
+                <h1 className="!text-[clamp(38px,6vw,76px)] text-white drop-shadow-[0_3px_16px_rgba(0,0,0,.8)]">
+                  Track
                   <br />
-                  you watch
-                  <span className="block text-accent transition-colors duration-500">stays yours</span>
+                  Watch
+                  <span className="block text-accent transition-colors duration-500">Review</span>
                 </h1>
               </div>
               <div>
