@@ -114,9 +114,9 @@ export function ReviewDialog({
           </button>
         </div>
 
-        <div className="p-5 grid gap-5 sm:grid-cols-[150px_minmax(0,1fr)] sm:items-stretch">
+        <div className="p-5 grid gap-5 sm:grid-cols-[150px_minmax(0,1fr)] sm:items-start">
           <div className="hidden sm:block">
-            <div className="aspect-[2/3] rounded-xl overflow-hidden bg-card-hi border border-hair">
+            <div className="aspect-[2/3] rounded-xl overflow-hidden bg-card-hi border border-hair shadow-[0_18px_40px_rgba(0,0,0,.65)]">
               {art && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={art} alt="" className="w-full h-full object-cover" />
@@ -125,7 +125,7 @@ export function ReviewDialog({
           </div>
 
           <div className="flex flex-col gap-4">
-            <div className="flex items-baseline gap-3 flex-wrap">
+            <div className="flex items-baseline gap-3 flex-wrap -mt-1">
               {/* Bebas for the title, the body face for the year: the two are
                   saying different things, and matching them made the year read
                   as part of the name. */}
@@ -133,31 +133,66 @@ export function ReviewDialog({
               {when && <span className="text-[15px] text-dim" style={{ fontFamily: "var(--font-body)" }}>{when}</span>}
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-              <label className="flex items-center gap-2.5 text-sm cursor-pointer">
+            {/* One size and one height across the row — the date control was
+                a form field among two labels, which made three things that
+                belong together look like three unrelated ones. */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 text-sm">
+              <label className="flex items-center gap-2.5 h-9 cursor-pointer">
                 <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={logDate} onChange={(e) => setLogDate(e.target.checked)} />
                 Watched on
               </label>
               <input
                 type="date"
-                className="field !py-1.5 !px-2.5 !w-auto text-sm disabled:opacity-40"
+                className="field !w-auto !h-9 !py-0 !px-2.5 !text-sm disabled:opacity-40"
                 value={watchedOn}
                 disabled={!logDate}
                 onChange={(e) => setWatchedOn(e.target.value)}
               />
-              <label className="flex items-center gap-2.5 text-sm cursor-pointer">
+              <label className="flex items-center gap-2.5 h-9 cursor-pointer">
                 <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={rewatch} onChange={(e) => setRewatch(e.target.checked)} />
-                I&rsquo;ve watched this before
+                Rewatched
               </label>
             </div>
 
             <textarea
-              className="field flex-1 min-h-[120px] resize-y"
+              className="field flex-1 min-h-[130px] resize-none"
               placeholder="Add a review…"
               value={text}
               maxLength={10_000}
               onChange={(e) => setText(e.target.value)}
             />
+
+            {/* Above the moods: the score is the thing most people came to
+                set, and it was sitting under twelve buttons at the foot of
+                the dialog. */}
+            <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
+              <div>
+                <div className="eyebrow">Rating</div>
+                <HeartRating value={score} onChange={setScore} label={`Rate ${title} out of ten`} size={22} className="!justify-start mt-1.5" />
+              </div>
+              <div>
+                <div className="eyebrow">Loved</div>
+                <button
+                  type="button"
+                  aria-pressed={heart}
+                  aria-label={heart ? "Remove from favorites" : "Add to favorites"}
+                  onClick={() => setHeart((h) => !h)}
+                  className="mt-1.5 rounded-full w-11 h-11 flex items-center justify-center border transition-colors cursor-pointer"
+                  style={{
+                    background: heart ? "var(--loved)" : "color-mix(in srgb, var(--ink) 12%, transparent)",
+                    borderColor: heart ? "var(--loved)" : "transparent",
+                    color: heart ? "#fff" : "var(--ink)",
+                  }}
+                >
+                  <MarkHeart size={28} />
+                </button>
+              </div>
+            </div>
+
+            <label className="flex items-center gap-2.5 text-sm text-dim cursor-pointer">
+              <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={spoilers} onChange={(e) => setSpoilers(e.target.checked)} />
+              Contains spoilers
+            </label>
 
             {/* The app's moods, three at most — `Library.moodLimit`. Past the
                 cap the unpicked ones go quiet rather than disappearing, so the
@@ -189,36 +224,6 @@ export function ReviewDialog({
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <label className="flex items-center gap-2.5 text-sm text-dim cursor-pointer">
-                <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={spoilers} onChange={(e) => setSpoilers(e.target.checked)} />
-                Contains spoilers
-              </label>
-
-              <div className="flex items-end gap-6">
-                <div>
-                  <div className="eyebrow">Rating</div>
-                  <HeartRating value={score} onChange={setScore} label={`Rate ${title} out of ten`} size={20} className="!justify-start mt-1" />
-                </div>
-                <div className="text-center">
-                  <div className="eyebrow">Loved</div>
-                  <button
-                    type="button"
-                    aria-pressed={heart}
-                    aria-label={heart ? "Remove from favorites" : "Add to favorites"}
-                    onClick={() => setHeart((h) => !h)}
-                    className="mt-1 rounded-full w-11 h-11 flex items-center justify-center border transition-colors cursor-pointer"
-                    style={{
-                      background: heart ? "var(--loved)" : "color-mix(in srgb, var(--ink) 12%, transparent)",
-                      borderColor: heart ? "var(--loved)" : "transparent",
-                      color: heart ? "#fff" : "var(--ink)",
-                    }}
-                  >
-                    <MarkHeart size={28} />
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
