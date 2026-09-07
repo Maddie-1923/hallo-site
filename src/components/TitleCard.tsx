@@ -58,7 +58,7 @@ function Card({
   );
 }
 
-const NONE: MarkState = { loved: false, watched: false, tracked: false, rating: null, listIDs: [] };
+const NONE: MarkState = { loved: false, watched: false, tracked: false, rating: null, listIDs: [], review: null };
 
 export function ShowCard({ show, sub, marks = NONE, lists = [] }: { show: Show; sub?: string; marks?: MarkState; lists?: ListOption[] }) {
   return (

@@ -9,6 +9,7 @@ import type { ListOption } from "@/lib/marks";
 import { createList, setOnList, setRating, trackMovie, trackShow, untrackMovie, untrackShow } from "@/lib/library-actions";
 import type { MarkState } from "./MarkButtons";
 import { HeartRating } from "./HeartRating";
+import { ReviewDialog } from "./ReviewDialog";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 
@@ -36,6 +37,7 @@ export function MarkMenu({
   const [pending, start] = useTransition();
   const [error, setError] = useState<string>();
   const [showLists, setShowLists] = useState(false);
+  const [logging, setLogging] = useState(false);
   const [newName, setNewName] = useState("");
   const [rating, setRatingShown] = useState<number | null>(state.rating);
   const [onLists, setOnLists] = useState<Set<string>>(new Set(state.listIDs));
@@ -137,9 +139,12 @@ export function MarkMenu({
       <Link href={`${href}#activity`} className={row} onClick={onClose}>
         Recent activity
       </Link>
-      <Link href={`${href}#review`} className={row} onClick={onClose}>
+      {/* Opens over whatever you were looking at rather than jumping to a
+          section further down the title page — writing two sentences should
+          not cost you your place. */}
+      <button type="button" className={row} onClick={() => setLogging(true)}>
         Review &amp; catalogue
-      </Link>
+      </button>
 
       {/* The watchlist for this kind: Watching for a show, To Watch for a
           film. Once it's there the row reads as a tick and clicking takes it
@@ -233,6 +238,19 @@ export function MarkMenu({
       </a>
 
       {error && <p className="px-4 pb-3 text-xs m-0" style={{ color: "var(--movies)" }} role="alert">{error}</p>}
+
+      {logging && (
+        <ReviewDialog
+          target={target}
+          review={state.review}
+          rating={rating}
+          loved={state.loved}
+          onClose={() => {
+            setLogging(false);
+            onClose();
+          }}
+        />
+      )}
     </div>,
     document.body,
   );

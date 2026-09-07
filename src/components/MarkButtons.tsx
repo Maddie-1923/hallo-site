@@ -2,13 +2,13 @@
 
 import { useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { Movie, Show } from "@/lib/archive";
+import type { Movie, Review, Show } from "@/lib/archive";
 import { setLoved, trackMovie, trackShow } from "@/lib/library-actions";
 import { MarkHeart, MarkList, MarkWatched } from "./marks";
 import { MarkMenu } from "./MarkMenu";
 import type { ListOption } from "@/lib/marks";
 
-export type MarkState = { loved: boolean; watched: boolean; tracked: boolean; rating: number | null; listIDs: string[] };
+export type MarkState = { loved: boolean; watched: boolean; tracked: boolean; rating: number | null; listIDs: string[]; review: Review | null };
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 
