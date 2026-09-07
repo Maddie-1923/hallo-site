@@ -17,6 +17,7 @@ export default async function Movies() {
   const runs = [
     { title: "Ready to Start", items: piles.readyToStart, empty: "No films waiting." },
     { title: "Entering the Void", items: piles.theVoid, empty: "Nothing has sat unwatched that long." },
+    { title: "Watched", items: piles.watched, empty: "Nothing watched yet." },
   ];
 
   return (

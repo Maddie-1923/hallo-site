@@ -12,9 +12,11 @@ export function NavLinks({ links }: { links: [string, string][] }) {
   const path = usePathname();
   const active = (href: string) => {
     if (href.startsWith("/#")) return false;
-    if (href === "/app/lists") return path.startsWith("/app");
-    if (href === "/shows") return path.startsWith("/shows") || path.startsWith("/show/");
-    if (href === "/movies") return path.startsWith("/movies") || path.startsWith("/movie/");
+    // A title page belongs to the tab it was reached from as far as the bar
+    // is concerned: a show's page lights Shows, a film's lights Movies.
+    if (href === "/app/shows") return path.startsWith("/app/shows") || path.startsWith("/show/");
+    if (href === "/app/movies") return path.startsWith("/app/movies") || path.startsWith("/movie/");
+    if (href === "/app/profile") return path.startsWith("/app/profile") || path.startsWith("/app/history");
     return path === href || path.startsWith(`${href}/`);
   };
   return (

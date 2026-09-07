@@ -20,6 +20,7 @@ export interface DiaryEntry {
   rewatch: boolean;
   review: string | null;
   spoilers: boolean;
+  moods: string[];
 }
 
 function day(iso: string) {
@@ -37,6 +38,7 @@ export function diaryEntries(a: LibraryArchive): DiaryEntry[] {
   const ratings = a.ratings ?? {};
   const reactions = a.reactions ?? {};
   const reviews = a.reviews ?? {};
+  const moods = a.moods ?? {};
 
   for (const t of a.movies) {
     const id = t.movie.id;
@@ -58,6 +60,7 @@ export function diaryEntries(a: LibraryArchive): DiaryEntry[] {
       rewatch: rev?.rewatch ?? false,
       review: rev?.text || null,
       spoilers: rev?.spoilers ?? false,
+      moods: moods[key] ?? [],
     });
   }
 
@@ -86,6 +89,7 @@ export function diaryEntries(a: LibraryArchive): DiaryEntry[] {
       rewatch: rev?.rewatch ?? false,
       review: rev?.text || null,
       spoilers: rev?.spoilers ?? false,
+      moods: moods[key] ?? [],
     });
   }
 

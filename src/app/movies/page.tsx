@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import { BrowsePage } from "@/components/BrowsePage";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Movies — Kodigo" };
-
-export default function Movies() {
-  return <BrowsePage kind="movie" />;
+// Explore took over browsing when the site's words were lined up with the
+// app's. These paths were public and may be linked from outside, so they
+// forward rather than 404.
+export default function Moved() {
+  redirect("/explore?kind=movie");
 }

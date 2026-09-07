@@ -18,9 +18,7 @@ import { NavLinks } from "./NavLinks";
 // themes, the marketing pages, sign out — out of the way.
 
 const marketing: [string, string][] = [
-  ["/discover", "Discover"],
-  ["/shows", "Shows"],
-  ["/movies", "Movies"],
+  ["/explore", "Explore"],
   ["/#features", "Features"],
   ["/#import", "Import"],
   ["/#themes", "Themes"],
@@ -28,16 +26,18 @@ const marketing: [string, string][] = [
   ["/#faq", "FAQ"],
 ];
 
+// The phone's four, in the phone's order: somewhere to find things, the two
+// piles you are working through, and the page that holds everything settled.
 const product: [string, string][] = [
-  ["/discover", "Discover"],
-  ["/shows", "Shows"],
-  ["/movies", "Movies"],
-  ["/app/lists", "My Lists"],
+  ["/explore", "Explore"],
+  ["/app/shows", "Shows"],
+  ["/app/movies", "Movies"],
+  ["/app/profile", "Profile"],
 ];
 
 const menuLinks = [
-  ["/app/lists", "My Lists"],
   ["/app/profile", "Profile"],
+  ["/app/history", "History"],
   ["/app/account", "Account"],
   ["/app/import", "Import a backup"],
   ["/#features", "Features"],

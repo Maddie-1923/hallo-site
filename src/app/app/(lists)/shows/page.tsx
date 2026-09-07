@@ -18,6 +18,7 @@ export default async function Shows() {
     { title: "Up Next", items: piles.upNext, empty: "Nothing waiting. Check something off and it lands here." },
     { title: "Ready to Start", items: piles.readyToStart, empty: "No series waiting to be begun." },
     { title: "Entering the Void", items: piles.theVoid, empty: "Nothing has gone quiet." },
+    { title: "Watched", items: piles.watched, empty: "Nothing finished yet." },
   ];
 
   return (

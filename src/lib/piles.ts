@@ -40,6 +40,8 @@ export interface ShowPiles {
   upNext: TrackedShow[];
   readyToStart: TrackedShow[];
   theVoid: TrackedShow[];
+  /** Settled, and drawn at the foot of the list rather than on the profile. */
+  watched: TrackedShow[];
 }
 
 /**
@@ -48,8 +50,12 @@ export interface ShowPiles {
  * have their shelves on the profile.
  */
 export function showPiles(a: LibraryArchive | null, now = new Date()): ShowPiles {
-  const piles: ShowPiles = { upNext: [], readyToStart: [], theVoid: [] };
+  const piles: ShowPiles = { upNext: [], readyToStart: [], theVoid: [], watched: [] };
   for (const t of a?.shows ?? []) {
+    if (t.status === "Finished") {
+      piles.watched.push(t);
+      continue;
+    }
     if (t.status !== "Watching") continue;
     const started = hasStarted(a!, t.show.id);
     // Started shows are measured from the last check-off, unstarted ones from
@@ -66,12 +72,17 @@ export function showPiles(a: LibraryArchive | null, now = new Date()): ShowPiles
 export interface MoviePiles {
   readyToStart: TrackedMovie[];
   theVoid: TrackedMovie[];
+  watched: TrackedMovie[];
 }
 
 /** The film halves of the same two piles. A film has no middle, so there is no Up Next. */
 export function moviePiles(a: LibraryArchive | null, now = new Date()): MoviePiles {
-  const piles: MoviePiles = { readyToStart: [], theVoid: [] };
+  const piles: MoviePiles = { readyToStart: [], theVoid: [], watched: [] };
   for (const t of a?.movies ?? []) {
+    if (t.status === "Watched") {
+      piles.watched.push(t);
+      continue;
+    }
     if (t.status !== "To Watch") continue;
     if (daysSince(t.added ?? t.modified, now) >= VOID_AFTER_DAYS) piles.theVoid.push(t);
     else piles.readyToStart.push(t);
@@ -142,6 +153,15 @@ export function profileShelves(a: LibraryArchive | null): Shelf[] {
     pair("finished", "Finished", "Finished", "Watched"),
     pair("onHold", "On Hold", "Stopped", "On Hold"),
     pair("dnf", "Did Not Finish", "Dropped", "Dropped"),
+    {
+      id: "rewatched",
+      kind: "default",
+      name: "Rewatched",
+      items: [
+        ...shows.filter((t) => a.reviews?.[`show:${t.show.id}`]?.rewatch).map((t) => showItem(t.show)),
+        ...movies.filter((t) => a.reviews?.[`movie:${t.movie.id}`]?.rewatch).map((t) => movieItem(t.movie)),
+      ],
+    },
   ];
 
   const showByID = new Map(shows.map((t) => [t.show.id, t.show]));
