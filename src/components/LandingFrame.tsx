@@ -81,9 +81,23 @@ export function LandingFrame({ slides, children }: { slides: FrameSlide[]; child
                 style={{ opacity: i === at ? 1 : 0 }}
               />
             ))}
-            {/* Dark at the left and along the bottom, where the words go. */}
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(0,0,0,.7) 0%, rgba(0,0,0,.4) 55%, rgba(0,0,0,.3) 100%)" }} />
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.6) 30%, transparent 62%)" }} />
+            {/* All the weight is in the lower half, where the words are. There
+                is no blur on the artwork — the top used to look soft because a
+                diagonal wash covered the whole frame, so the picture was being
+                dimmed everywhere to make one corner readable. The top half is
+                left alone now and the shade climbs only as far as it has to. */}
+            <div
+              aria-hidden
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(0deg, rgba(0,0,0,.94) 0%, rgba(0,0,0,.8) 20%, rgba(0,0,0,.45) 38%, rgba(0,0,0,.12) 50%, transparent 60%)" }}
+            />
+            {/* A little extra behind the big words, kept to the bottom-left so
+                it never reaches the part of the picture somebody is looking at. */}
+            <div
+              aria-hidden
+              className="absolute inset-0"
+              style={{ background: "radial-gradient(120% 80% at 0% 100%, rgba(0,0,0,.75) 0%, rgba(0,0,0,.35) 40%, transparent 70%)" }}
+            />
 
             <div className="relative flex flex-col justify-end min-h-[inherit] p-[clamp(24px,4vw,60px)] pb-[clamp(56px,6vw,80px)]">{children}</div>
 
