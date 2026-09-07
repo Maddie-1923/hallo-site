@@ -72,7 +72,7 @@ export default async function Home() {
                     watch the thing, say what you thought. The accent lands on
                     the last one because a review is the part nothing else on
                     your phone does. */}
-                <h1 className="!text-[clamp(38px,6vw,76px)] text-white drop-shadow-[0_3px_16px_rgba(0,0,0,.8)]">
+                <h1 className="!text-[clamp(46px,7.5vw,104px)] leading-[0.86] text-white drop-shadow-[0_3px_16px_rgba(0,0,0,.8)]">
                   Track
                   <br />
                   Watch
