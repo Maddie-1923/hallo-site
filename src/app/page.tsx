@@ -67,7 +67,7 @@ export default async function Home() {
 
         <header id="top">
           <LandingFrame slides={slides}>
-            <div className="grid gap-[clamp(20px,4vw,56px)] md:grid-cols-2 md:items-center">
+            <div className="grid gap-[clamp(20px,4vw,56px)] md:grid-cols-2 md:items-end">
               <div>
                 {/* Three words for the three things the app is: keep a record,
                     watch the thing, say what you thought. The accent lands on
@@ -85,8 +85,8 @@ export default async function Home() {
                   One library for every show and film you watch. Check an episode off in a tap, and
                   know the day the next one lands.
                 </p>
-                <div className="flex flex-wrap items-center gap-3 mt-7">
-                  <a className="btn !inline-flex items-center gap-2.5" href="#">
+                <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 mt-7">
+                  <a className="btn !inline-flex items-center gap-2 !py-2.5 !px-4 !text-[15px] whitespace-nowrap" href="#">
                     <AppleMark />
                     App Store
                   </a>
@@ -95,14 +95,14 @@ export default async function Home() {
                       Android version" is the first thing half the people
                       reading this will want to know. */}
                   <span
-                    className="btn ghost !inline-flex items-center gap-2.5 !text-white/60 !border-white/25 cursor-default"
+                    className="btn ghost !inline-flex items-center gap-2 !py-2.5 !px-4 !text-[15px] whitespace-nowrap !text-white/60 !border-white/25 cursor-default"
                     aria-disabled="true"
                   >
                     <AndroidMark />
                     Android
                     <span className="text-[11px] font-bold tracking-[.12em] uppercase text-white/40">Soon</span>
                   </span>
-                  <a className="btn ghost !text-white !border-white/40" href="#import">Import your library</a>
+                  <a className="btn ghost !py-2.5 !px-4 !text-[15px] whitespace-nowrap !text-white !border-white/40" href="#import">Import</a>
                 </div>
               </div>
             </div>
