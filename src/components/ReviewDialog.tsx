@@ -8,6 +8,7 @@ import { poster as posterURL, year } from "@/lib/archive";
 import { saveReview } from "@/lib/library-actions";
 import { HeartRating } from "./HeartRating";
 import { MOODS, MOOD_LIMIT } from "@/lib/moods";
+import { MarkRewatched } from "./marks";
 import { SeriesBadge } from "./SeriesBadge";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
@@ -153,10 +154,21 @@ export function ReviewDialog({
                   disabled={!logDate}
                   onChange={(e) => setWatchedOn(e.target.value)}
                 />
-                <label className="flex items-center gap-2.5 h-9 cursor-pointer">
-                  <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={rewatch} onChange={(e) => setRewatch(e.target.checked)} />
+                {/* A mark rather than a tickbox: this is the same fact the
+                    Diary shows as a glyph, so the two should look like the
+                    same thing. */}
+                <button
+                  type="button"
+                  aria-pressed={rewatch}
+                  onClick={() => setRewatch((r) => !r)}
+                  className={`flex items-center gap-2 h-9 rounded-full border pl-1.5 pr-3.5 cursor-pointer transition-colors ${
+                    rewatch ? "border-transparent" : "border-hair text-dim hover:text-ink"
+                  }`}
+                  style={rewatch ? { background: "var(--seen-plate)", color: "var(--bone)" } : undefined}
+                >
+                  <MarkRewatched size={22} />
                   Rewatched
-                </label>
+                </button>
               </div>
 
               <textarea

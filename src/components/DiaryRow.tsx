@@ -2,8 +2,7 @@ import Link from "next/link";
 import type { DiaryEntry } from "@/lib/diary";
 import { weekday } from "@/lib/diary";
 import { poster } from "@/lib/archive";
-import { TightHeart } from "./marks";
-import { MarkHeart, MarkWatched } from "./marks";
+import { MarkHeart, MarkRewatched, TightHeart } from "./marks";
 
 // One catalogue entry as a card of small tiles: Letterboxd's diary columns,
 // kept in their order, drawn as a bento row. Lit tiles use the app's loved
@@ -64,7 +63,7 @@ export function DiaryRow({ e }: { e: DiaryEntry }) {
       </div>
       <div className={cell} style={{ color: e.rewatch ? "var(--seen)" : undefined }} title={e.rewatch ? "Rewatch" : "First watch"}>
         <span className={e.rewatch ? "" : empty}>
-          <MarkWatched size={22} />
+          <MarkRewatched size={22} />
         </span>
       </div>
       <div className={`${cell} justify-start text-left`}>
