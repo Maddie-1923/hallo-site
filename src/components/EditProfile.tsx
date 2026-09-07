@@ -17,6 +17,7 @@ export function EditProfile({ profile, backdrops, posters, fallbackName }: { pro
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(profile.display_name ?? "");
   const [banner, setBanner] = useState(profile.banner_path);
+  const [focus, setFocus] = useState(profile.banner_focus);
   const [avatar, setAvatar] = useState(profile.avatar_path);
   const [pending, start] = useTransition();
   const [error, setError] = useState<string>();
@@ -24,7 +25,7 @@ export function EditProfile({ profile, backdrops, posters, fallbackName }: { pro
   function save() {
     setError(undefined);
     start(async () => {
-      const r = await saveProfile({ display_name: name, banner_path: banner, avatar_path: avatar });
+      const r = await saveProfile({ display_name: name, banner_path: banner, avatar_path: avatar, banner_focus: focus });
       if (r.error) return setError(r.error);
       setOpen(false);
       router.refresh();
@@ -58,6 +59,40 @@ export function EditProfile({ profile, backdrops, posters, fallbackName }: { pro
                 {backdrops.map((b) => (
                   <Choice key={b.path} on={banner === b.path} onClick={() => setBanner(b.path)} label={b.title} wide src={`${imgBase()}/w300${b.path}`} />
                 ))}
+              </div>
+            )}
+
+            {/* The crop, shown at the size it will be rather than described.
+                Dragging moves the picture inside the frame, which is the only
+                way to know what a number means here. */}
+            {banner && (
+              <div className="mt-3">
+                <div className="relative rounded-xl overflow-hidden aspect-[4/1] bg-card-hi">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`${imgBase()}/w780${banner}`}
+                    alt=""
+                    aria-hidden
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ objectPosition: `50% ${focus}%` }}
+                  />
+                </div>
+                <label className="flex items-center gap-3 mt-2 text-xs text-dim">
+                  Crop
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    step={1}
+                    value={focus}
+                    onChange={(e) => setFocus(Number(e.target.value))}
+                    className="flex-1 accent-[var(--accent-fill)] cursor-pointer"
+                    aria-label="Which part of the banner to show"
+                  />
+                  <button type="button" className="hover:text-ink cursor-pointer" onClick={() => setFocus(40)}>
+                    Reset
+                  </button>
+                </label>
               </div>
             )}
 

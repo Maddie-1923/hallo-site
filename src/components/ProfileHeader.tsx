@@ -48,7 +48,12 @@ export function ProfileHeader({ profile, archive, email }: { profile: Profile; a
             src={banner}
             alt=""
             aria-hidden
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="absolute inset-0 w-full h-full object-cover"
+            // Which band of the picture survives. A backdrop is 16:9 and this
+            // band is 4:1, so most of the height goes whatever happens; the
+            // person who chose the picture is the only one who knows which
+            // part of it mattered.
+            style={{ objectPosition: `50% ${profile.banner_focus}%` }}
           />
         ) : (
           <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--accent-fill) 35%, var(--page)), var(--page))" }} />
