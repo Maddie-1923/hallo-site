@@ -137,10 +137,13 @@ body {
      on a column-flex child switch off stretching and shrink it to fit. */
   width: 100%;
   max-width: 1080px;
-  /* Inline only: a shorthand `margin` here would sit outside Tailwind's
-     layers and beat any mt-* utility put on the same element. */
+  /* Inline only, both of them, and for the same reason: this file is
+     unlayered and Tailwind's utilities live in a layer, so unlayered wins.
+     A shorthand `margin` here beat any mt-* on the same element, and
+     `padding: 0 var(--pad)` did the same to pt-* — silently, since the
+     utility is in the class list and simply does nothing. */
   margin-inline: auto;
-  padding: 0 var(--pad);
+  padding-inline: var(--pad);
 }
 
 .display,

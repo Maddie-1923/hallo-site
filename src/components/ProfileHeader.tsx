@@ -35,7 +35,7 @@ export function ProfileHeader({ profile, archive, email }: { profile: Profile; a
   ].filter((p): p is { path: string; title: string } => !!p.path);
 
   return (
-    <header className="wrap pt-6">
+    <header className="wrap pt-8 sm:pt-10">
       {/* The app's profile banner: a rounded card the width of the page's
           content, not a full-bleed strip. The avatar hangs off its bottom-left
           corner and the name sits on the artwork beside it, which is what
