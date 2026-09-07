@@ -3,13 +3,13 @@
 import { useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Movie, Review, Show } from "@/lib/archive";
-import { setLoved, trackMovie, trackShow } from "@/lib/library-actions";
-import { MarkAdd, MarkBookmark, MarkHeart, MarkList, MarkReview } from "./marks";
+import { setLoved, setRewatched, trackMovie, trackShow } from "@/lib/library-actions";
+import { MarkAdd, MarkBookmark, MarkHeart, MarkList, MarkReview, MarkRewatched } from "./marks";
 import { MarkMenu } from "./MarkMenu";
 import { ReviewDialog } from "./ReviewDialog";
 import type { ListOption } from "@/lib/marks";
 
-export type MarkState = { loved: boolean; watched: boolean; tracked: boolean; rating: number | null; listIDs: string[]; review: Review | null; moods: string[] };
+export type MarkState = { loved: boolean; watched: boolean; tracked: boolean; rating: number | null; listIDs: string[]; review: Review | null; moods: string[]; rewatch: boolean };
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 
@@ -44,16 +44,18 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
   // The hero's marks used to be half again the size of a card's, which made
   // them the loudest thing on a full-bleed backdrop. Closer to the card size
   // now, still a comfortable target.
-  const dim = size === "lg" ? 40 : 28;
+  // Five marks have to fit inside a 160px card, so a card's are smaller and
+  // sit closer than the hero's.
+  const dim = size === "lg" ? 40 : 24;
   // The Canva glyphs sit inside a lot of padding in their 768 box, so they
   // are drawn larger than the button would suggest to read at the same
   // weight as a line icon.
-  const glyph = size === "lg" ? 28 : 19;
+  const glyph = size === "lg" ? 28 : 17;
   const base = `rounded-full flex items-center justify-center shrink-0 transition-colors cursor-pointer border`;
   const plate = "color-mix(in srgb, var(--ink) 15%, transparent)";
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center ${size === "lg" ? "gap-2" : "gap-1"}`}>
       {/* Watchlist. A plus while it isn't on the list, a bookmark once it is —
           the mark says what happened rather than repeating the offer. For a
           film that's To Watch, for a show it's Watching, since a whole series
@@ -89,6 +91,29 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
         }}
       >
         {shown.watched ? <MarkBookmark size={glyph} /> : <MarkAdd size={glyph} />}
+      </button>
+
+      {/* Rewatch. A fact about a viewing rather than about the title, so it
+          writes to the review — dated today where none exists yet. */}
+      <button
+        type="button"
+        aria-label={shown.rewatch ? `${title} is not a rewatch` : `Mark ${title} as a rewatch`}
+        aria-pressed={shown.rewatch}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          run({ rewatch: !shown.rewatch }, () => setRewatched(target, !shown.rewatch));
+        }}
+        className={base}
+        style={{
+          width: dim,
+          height: dim,
+          background: shown.rewatch ? "var(--seen-plate)" : plate,
+          borderColor: shown.rewatch ? "var(--seen-plate)" : "transparent",
+          color: shown.rewatch ? "var(--bone)" : "var(--ink)",
+        }}
+      >
+        <MarkRewatched size={glyph} />
       </button>
 
       <button

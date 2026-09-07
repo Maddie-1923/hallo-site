@@ -341,6 +341,38 @@ export async function saveReview(target: { kind: "show"; show: Show } | { kind: 
   });
 }
 
+/**
+ * The rewatch mark on a card, without opening the dialog.
+ *
+ * Rewatch is a fact about a viewing rather than about a title, so it lives on
+ * the review. Turning it on where no review exists writes one dated today —
+ * that is what somebody means by tapping it. Turning it off on a review that
+ * holds nothing else takes the review with it, so an accidental tap leaves no
+ * empty record behind.
+ */
+export async function setRewatched(target: { kind: "show"; show: Show } | { kind: "movie"; movie: Movie }, on: boolean) {
+  return withArchive((a, stamp) => {
+    const key = target.kind === "show" ? `show:${target.show.id}` : `movie:${target.movie.id}`;
+    a.reviews ??= {};
+    const existing = a.reviews[key];
+    if (on) {
+      a.reviews[key] = {
+        text: existing?.text ?? "",
+        watchedOn: existing?.watchedOn ?? stamp.slice(0, 10),
+        rewatch: true,
+        spoilers: existing?.spoilers,
+        modified: stamp,
+      };
+      ensureTracked(a, target, stamp);
+      return;
+    }
+    if (!existing) return;
+    if (existing.text) a.reviews[key] = { ...existing, rewatch: undefined, modified: stamp };
+    else delete a.reviews[key];
+    touch(a, target, stamp);
+  });
+}
+
 export async function deleteReview(target: { kind: "show"; show: Show } | { kind: "movie"; movie: Movie }) {
   return withArchive((a, stamp) => {
     const key = target.kind === "show" ? `show:${target.show.id}` : `movie:${target.movie.id}`;

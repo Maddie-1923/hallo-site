@@ -31,6 +31,7 @@ export function markLookup(archive: LibraryArchive | null) {
       rating: ratings[`show:${id}`] ?? null,
       listIDs: custom.filter((l) => (l.showIDs ?? []).includes(id)).map((l) => l.id),
       review: reviews[`show:${id}`] ?? null,
+      rewatch: reviews[`show:${id}`]?.rewatch ?? false,
       moods: moods[`show:${id}`] ?? [],
     }),
     movie: (id: number): MarkState => ({
@@ -40,6 +41,7 @@ export function markLookup(archive: LibraryArchive | null) {
       rating: ratings[`movie:${id}`] ?? null,
       listIDs: custom.filter((l) => (l.movieIDs ?? []).includes(id)).map((l) => l.id),
       review: reviews[`movie:${id}`] ?? null,
+      rewatch: reviews[`movie:${id}`]?.rewatch ?? false,
       moods: moods[`movie:${id}`] ?? [],
     }),
   };
