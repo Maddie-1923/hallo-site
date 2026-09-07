@@ -80,7 +80,10 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
           height: dim,
           background: shown.watched ? "var(--seen)" : plate,
           borderColor: shown.watched ? "var(--seen)" : "transparent",
-          color: shown.watched ? "var(--graphite)" : "var(--ink)",
+          // Bone rather than Graphite on the green: the bookmark is a solid
+          // shape and a dark one on that green reads as a hole punched in the
+          // disc, where the pale one reads as a mark sitting on it.
+          color: shown.watched ? "var(--bone)" : "var(--ink)",
         }}
       >
         {shown.watched ? <MarkBookmark size={glyph} /> : <MarkAdd size={glyph} />}
