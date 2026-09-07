@@ -160,6 +160,19 @@ export async function setLoved(target: { kind: "show"; show: Show } | { kind: "m
     a.reactions ??= {};
     if (loved) a.reactions[key] = "loved";
     else delete a.reactions[key];
+    // The heart and the Loved it mood are the same statement, so setting one
+    // sets the other. Without this a title could be a favorite while its
+    // moods said nothing, and the log dialog — which draws the heart from the
+    // mood — would open looking unloved.
+    a.moods ??= {};
+    const current = a.moods[key] ?? [];
+    if (loved) {
+      if (!current.includes("lovedIt")) a.moods[key] = [...current, "lovedIt"].slice(0, 3);
+    } else {
+      const without = current.filter((m) => m !== "lovedIt");
+      if (without.length) a.moods[key] = without;
+      else delete a.moods[key];
+    }
     if (target.kind === "show") {
       const t = a.shows.find((s) => s.show.id === target.show.id);
       if (t) t.modified = stamp;

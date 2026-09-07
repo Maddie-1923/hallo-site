@@ -6,6 +6,7 @@ import type { Movie, Review, Show } from "@/lib/archive";
 import { setLoved, trackMovie, trackShow } from "@/lib/library-actions";
 import { MarkHeart, MarkList, MarkWatched } from "./marks";
 import { MarkMenu } from "./MarkMenu";
+import { ReviewDialog } from "./ReviewDialog";
 import type { ListOption } from "@/lib/marks";
 
 export type MarkState = { loved: boolean; watched: boolean; tracked: boolean; rating: number | null; listIDs: string[]; review: Review | null; moods: string[] };
@@ -22,6 +23,7 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
   // The anchor is state rather than a ref so the menu can read it in render.
   const [listButton, setListButton] = useState<HTMLButtonElement | null>(null);
   const [menu, setMenu] = useState(false);
+  const [logging, setLogging] = useState(false);
   const router = useRouter();
   const [, start] = useTransition();
   const [shown, setShown] = useOptimistic(state, (s: MarkState, patch: Partial<MarkState>) => ({ ...s, ...patch }));
@@ -120,7 +122,28 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
         >
           <MarkList size={glyph} />
         </button>
-        {menu && <MarkMenu target={target} state={shown} lists={lists} anchor={listButton} onClose={() => setMenu(false)} />}
+        {menu && (
+          <MarkMenu
+            target={target}
+            state={shown}
+            lists={lists}
+            anchor={listButton}
+            onClose={() => setMenu(false)}
+            onLog={() => {
+              setMenu(false);
+              setLogging(true);
+            }}
+          />
+        )}
+        {logging && (
+          <ReviewDialog
+            target={target}
+            review={shown.review}
+            rating={shown.rating}
+            moods={shown.moods}
+            onClose={() => setLogging(false)}
+          />
+        )}
       </div>
     </div>
   );

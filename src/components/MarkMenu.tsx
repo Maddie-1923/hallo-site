@@ -9,7 +9,6 @@ import type { ListOption } from "@/lib/marks";
 import { createList, setOnList, setRating, trackMovie, trackShow, untrackMovie, untrackShow } from "@/lib/library-actions";
 import type { MarkState } from "./MarkButtons";
 import { HeartRating } from "./HeartRating";
-import { ReviewDialog } from "./ReviewDialog";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 
@@ -23,12 +22,18 @@ export function MarkMenu({
   state,
   lists,
   onClose,
+  onLog,
   anchor,
 }: {
   target: Target;
   state: MarkState;
   lists: ListOption[];
   onClose: () => void;
+  /** Opens the log dialog. It belongs to `MarkButtons` rather than to this
+      menu: the menu closes on any click outside its own box, and a dialog
+      portalled to the body is outside it, so a dialog owned here died on its
+      own first click. */
+  onLog: () => void;
   /** The button the menu hangs off. Rendered in a portal, positioned from its rect, so no rail or card can clip it. */
   anchor: HTMLElement | null;
 }) {
@@ -37,7 +42,6 @@ export function MarkMenu({
   const [pending, start] = useTransition();
   const [error, setError] = useState<string>();
   const [showLists, setShowLists] = useState(false);
-  const [logging, setLogging] = useState(false);
   const [newName, setNewName] = useState("");
   const [rating, setRatingShown] = useState<number | null>(state.rating);
   const [onLists, setOnLists] = useState<Set<string>>(new Set(state.listIDs));
@@ -142,7 +146,7 @@ export function MarkMenu({
       {/* Opens over whatever you were looking at rather than jumping to a
           section further down the title page — writing two sentences should
           not cost you your place. */}
-      <button type="button" className={row} onClick={() => setLogging(true)}>
+      <button type="button" className={row} onClick={onLog}>
         Review &amp; catalogue
       </button>
 
@@ -239,19 +243,6 @@ export function MarkMenu({
 
       {error && <p className="px-4 pb-3 text-xs m-0" style={{ color: "var(--movies)" }} role="alert">{error}</p>}
 
-      {logging && (
-        <ReviewDialog
-          target={target}
-          review={state.review}
-          rating={rating}
-          loved={state.loved}
-          moods={state.moods}
-          onClose={() => {
-            setLogging(false);
-            onClose();
-          }}
-        />
-      )}
     </div>,
     document.body,
   );

@@ -7,7 +7,6 @@ import type { Movie, Review, Show } from "@/lib/archive";
 import { poster as posterURL, year } from "@/lib/archive";
 import { saveReview } from "@/lib/library-actions";
 import { HeartRating } from "./HeartRating";
-import { MarkHeart } from "./marks";
 import { MOODS, MOOD_LIMIT } from "@/lib/moods";
 import { SeriesBadge } from "./SeriesBadge";
 
@@ -25,14 +24,12 @@ export function ReviewDialog({
   target,
   review,
   rating,
-  loved,
   moods,
   onClose,
 }: {
   target: Target;
   review: Review | null;
   rating: number | null;
-  loved: boolean;
   moods: string[];
   onClose: () => void;
 }) {
@@ -45,7 +42,6 @@ export function ReviewDialog({
   const [rewatch, setRewatch] = useState(review?.rewatch ?? false);
   const [spoilers, setSpoilers] = useState(review?.spoilers ?? false);
   const [score, setScore] = useState<number | null>(rating);
-  const [heart, setHeart] = useState(loved);
   const [picked, setPicked] = useState<string[]>(moods.slice(0, MOOD_LIMIT));
   const box = useRef<HTMLDivElement>(null);
 
@@ -76,7 +72,9 @@ export function ReviewDialog({
         rewatch,
         spoilers,
         rating: score,
-        loved: heart,
+        // The heart and the Loved it mood say the same thing, so the dialog
+        // keeps one control for both rather than two that can disagree.
+        loved: picked.includes("lovedIt"),
         moods: picked,
       });
       if (r.error) {
@@ -182,30 +180,10 @@ export function ReviewDialog({
             {/* Above the moods: the score is the thing most people came to
                 set, and it was sitting under twelve buttons at the foot of
                 the dialog. */}
-            <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
-              <div>
-                <div className="eyebrow">Rating</div>
-                <HeartRating value={score} onChange={setScore} label={`Rate ${title} out of ten`} size={22} className="!justify-start mt-1.5" />
-              </div>
-              <div>
-                <div className="eyebrow">Loved</div>
-                <button
-                  type="button"
-                  aria-pressed={heart}
-                  aria-label={heart ? "Remove from favorites" : "Add to favorites"}
-                  onClick={() => setHeart((h) => !h)}
-                  className="mt-1.5 rounded-full w-11 h-11 flex items-center justify-center border transition-colors cursor-pointer"
-                  style={{
-                    background: heart ? "var(--loved)" : "color-mix(in srgb, var(--ink) 12%, transparent)",
-                    borderColor: heart ? "var(--loved)" : "transparent",
-                    color: heart ? "#fff" : "var(--ink)",
-                  }}
-                >
-                  <MarkHeart size={28} />
-                </button>
-              </div>
+            <div>
+              <div className="eyebrow">Rating</div>
+              <HeartRating value={score} onChange={setScore} label={`Rate ${title} out of ten`} size={22} className="!justify-start mt-1.5" />
             </div>
-
 
             {/* The app's moods, drawn the way the app draws them: a grid of
                 tiles with the emoji over its name, rather than a run of pills.
@@ -249,10 +227,10 @@ export function ReviewDialog({
               {error}
             </span>
           )}
-          <button type="button" className="text-sm text-dim hover:text-ink cursor-pointer" onClick={onClose}>
+          <button type="button" className="text-[15px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" className="btn" disabled={pending} onClick={submit}>
+          <button type="button" className="btn !py-2.5 !px-6 !text-[15px]" disabled={pending} onClick={submit}>
             {pending ? "Saving…" : "Save"}
           </button>
         </div>
