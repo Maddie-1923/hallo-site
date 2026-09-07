@@ -114,54 +114,62 @@ export function ReviewDialog({
           </button>
         </div>
 
-        <div className="p-5 grid gap-5 sm:grid-cols-[150px_minmax(0,1fr)] sm:items-start">
-          <div className="hidden sm:block">
-            <div className="aspect-[2/3] rounded-xl overflow-hidden bg-card-hi border border-hair shadow-[0_18px_40px_rgba(0,0,0,.65)]">
-              {art && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={art} alt="" className="w-full h-full object-cover" />
-              )}
+        <div className="p-5">
+          {/* The poster sets the height of this row and the column beside it
+              stretches to match, so the title starts on the poster's top edge
+              and the review box ends on its bottom one. Anything that isn't
+              those three things goes underneath, full width. */}
+          <div className="grid gap-5 sm:grid-cols-[150px_minmax(0,1fr)] items-stretch">
+            <div className="hidden sm:block">
+              <div className="aspect-[2/3] rounded-xl overflow-hidden bg-card-hi border border-hair shadow-[0_18px_40px_rgba(0,0,0,.65)]">
+                {art && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={art} alt="" className="w-full h-full object-cover" />
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 min-h-0">
+              <div className="flex items-baseline gap-3 flex-wrap">
+                {/* Bebas for the title, the body face for the year: the two are
+                    saying different things, and matching them made the year
+                    read as part of the name. */}
+                <span className="display text-[clamp(26px,3.4vw,38px)] leading-[0.8] text-ink">{title}</span>
+                {when && <span className="text-[15px] text-dim" style={{ fontFamily: "var(--font-body)" }}>{when}</span>}
+              </div>
+
+              {/* One size and one height across the row — the date control was
+                  a form field among two labels, which made three things that
+                  belong together look like three unrelated ones. */}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 text-sm">
+                <label className="flex items-center gap-2.5 h-9 cursor-pointer">
+                  <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={logDate} onChange={(e) => setLogDate(e.target.checked)} />
+                  Watched on
+                </label>
+                <input
+                  type="date"
+                  className="field !w-auto !h-9 !py-0 !px-2.5 !text-sm disabled:opacity-40"
+                  value={watchedOn}
+                  disabled={!logDate}
+                  onChange={(e) => setWatchedOn(e.target.value)}
+                />
+                <label className="flex items-center gap-2.5 h-9 cursor-pointer">
+                  <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={rewatch} onChange={(e) => setRewatch(e.target.checked)} />
+                  Rewatched
+                </label>
+              </div>
+
+              <textarea
+                className="field flex-1 min-h-[90px] resize-none"
+                placeholder="Add a review…"
+                value={text}
+                maxLength={10_000}
+                onChange={(e) => setText(e.target.value)}
+              />
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <div className="flex items-baseline gap-3 flex-wrap -mt-1">
-              {/* Bebas for the title, the body face for the year: the two are
-                  saying different things, and matching them made the year read
-                  as part of the name. */}
-              <span className="display text-[clamp(26px,3.4vw,38px)] leading-none text-ink">{title}</span>
-              {when && <span className="text-[15px] text-dim" style={{ fontFamily: "var(--font-body)" }}>{when}</span>}
-            </div>
-
-            {/* One size and one height across the row — the date control was
-                a form field among two labels, which made three things that
-                belong together look like three unrelated ones. */}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 text-sm">
-              <label className="flex items-center gap-2.5 h-9 cursor-pointer">
-                <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={logDate} onChange={(e) => setLogDate(e.target.checked)} />
-                Watched on
-              </label>
-              <input
-                type="date"
-                className="field !w-auto !h-9 !py-0 !px-2.5 !text-sm disabled:opacity-40"
-                value={watchedOn}
-                disabled={!logDate}
-                onChange={(e) => setWatchedOn(e.target.value)}
-              />
-              <label className="flex items-center gap-2.5 h-9 cursor-pointer">
-                <input type="checkbox" className="accent-[var(--accent-fill)] w-4 h-4" checked={rewatch} onChange={(e) => setRewatch(e.target.checked)} />
-                Rewatched
-              </label>
-            </div>
-
-            <textarea
-              className="field flex-1 min-h-[130px] resize-none"
-              placeholder="Add a review…"
-              value={text}
-              maxLength={10_000}
-              onChange={(e) => setText(e.target.value)}
-            />
-
+          <div className="flex flex-col gap-4 mt-5">
             {/* Above the moods: the score is the thing most people came to
                 set, and it was sitting under twelve buttons at the foot of
                 the dialog. */}
