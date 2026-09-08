@@ -18,7 +18,7 @@ export default function Support() {
 
           <h2>Get in touch</h2>
           <p>
-            <strong>hello@kodigo.app</strong>
+            <strong>hello@kodigo.pro</strong>
           </p>
           <p>I usually reply within two or three days.</p>
 

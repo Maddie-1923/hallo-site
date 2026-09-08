@@ -16,7 +16,7 @@ export function SiteFooter() {
           <div className="flex flex-col gap-2">
             <Link href="/privacy" className="hover:text-ink">Privacy policy</Link>
             <Link href="/support" className="hover:text-ink">Support</Link>
-            <a href="mailto:hello@kodigo.app" className="hover:text-ink">hello@kodigo.app</a>
+            <a href="mailto:hello@kodigo.pro" className="hover:text-ink">hello@kodigo.pro</a>
           </div>
           <div className="flex flex-col gap-2">
             <Link href="/#features" className="hover:text-ink">Features</Link>

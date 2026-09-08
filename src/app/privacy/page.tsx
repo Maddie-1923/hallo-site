@@ -105,7 +105,7 @@ export default function Privacy() {
 
           <h2>Contact</h2>
           <p>
-            Questions about privacy: <strong>hello@kodigo.app</strong>
+            Questions about privacy: <strong>hello@kodigo.pro</strong>
           </p>
           <p className="text-dim">
             <em>Last updated: 5 September 2026</em>
