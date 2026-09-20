@@ -26,8 +26,7 @@ export default function Privacy() {
           <h2>Kodigo accounts and sync</h2>
           <p>
             You can use Kodigo without an account. An account exists for one reason: to keep the same
-            library on more than one device, and to show it to you on this website. Sync is off until
-            you turn it on.
+            library on more than one device. Sync is off until you turn it on.
           </p>
           <p>
             When you turn it on, a copy of your library — the same file Settings → Backup exports — is
@@ -43,17 +42,17 @@ export default function Privacy() {
             same way.
           </p>
           <p>
-            Turning sync off in Settings offers to remove the copy on the server, and deleting your
-            account from this site removes the account, the library copy, and anything else attached
-            to it. There is no waiting period and nothing is kept back.
+            Turning sync off in Settings offers to remove the copy on the server. Deleting your
+            account — <strong>Settings → Kodigo sync → Delete my Kodigo account</strong> — removes the
+            account, the library copy and anything else attached to it. There is no waiting period and
+            nothing is kept back.
           </p>
 
           <h2>What Kodigo sends to other services</h2>
-          <p>To show you anything useful, Kodigo asks three services for information about shows and movies:</p>
+          <p>To show you anything useful, Kodigo asks two services for information about shows and movies:</p>
           <ul>
             <li><strong>TMDB</strong> for show and movie details, posters, episode lists and cast</li>
-            <li><strong>OMDb</strong> for IMDb and Rotten Tomatoes ratings</li>
-            <li><strong>TVMaze</strong> for episode air times</li>
+            <li><strong>TVmaze</strong> for episode air times</li>
           </ul>
           <p>
             These requests carry the title or the ID of the thing being looked up, and nothing else.
@@ -94,7 +93,8 @@ export default function Privacy() {
           <p>
             You can delete everything on your phone by deleting the app. That removes your library,
             your watch history, your settings and the poster cache from your device. If you have an
-            account, delete it from the account page on this site to remove the server copy too.
+            account, delete it in <strong>Settings → Kodigo sync</strong> before you go, which removes
+            the server copy too — deleting the app on its own leaves the account standing.
           </p>
 
           <h2>Children</h2>
@@ -108,7 +108,7 @@ export default function Privacy() {
             Questions about privacy: <strong>hello@kodigo.pro</strong>
           </p>
           <p className="text-dim">
-            <em>Last updated: 5 September 2026</em>
+            <em>Last updated: 20 September 2026</em>
           </p>
         </main>
         <SiteFooter />

@@ -26,7 +26,7 @@ export function SiteFooter() {
         </div>
         <p className="max-w-[52ch] mt-9 text-xs leading-7">
           This product uses the TMDB API but is not endorsed or certified by TMDB. Episode air times
-          provided by TVMaze. Apple, iPhone, iPad and App Store are trademarks of Apple Inc.
+          provided by TVmaze. Apple, iPhone, iPad and App Store are trademarks of Apple Inc.
         </p>
       </div>
     </footer>

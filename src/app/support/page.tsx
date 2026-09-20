@@ -13,7 +13,7 @@ export default function Support() {
           <p className="mt-6">
             Kodigo keeps track of the shows and movies you&apos;re watching — what you&apos;ve seen,
             what&apos;s waiting, and when the next episode airs. It runs on your phone, with show
-            details, ratings and air times pulled from TMDB, OMDb and TVMaze.
+            details and air times pulled from TMDB and TVmaze.
           </p>
 
           <h2>Get in touch</h2>
@@ -38,7 +38,8 @@ export default function Support() {
           <p>
             If you want to keep any of it, export first: <strong>Settings → Backup → Export</strong>{" "}
             writes everything to a JSON file you can save wherever you like, and any copy of Kodigo can
-            read it back in. You can also drop that file onto the import page here after signing in.
+            read it back in. Kodigo can also email the file to you, so a copy lives somewhere other
+            than the phone it came from.
           </p>
 
           <h2>Sync questions</h2>
