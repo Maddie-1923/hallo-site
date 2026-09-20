@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { accountsOpen } from "@/lib/accounts";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ThemeRow } from "@/components/ThemeRow";
@@ -251,9 +252,11 @@ export default async function Home() {
                 </details>
               ))}
             </div>
-            <p className="text-sm text-dim mt-8">
-              Already have an account? <Link href="/login" className="text-accent">Sign in to see your library</Link>.
-            </p>
+            {accountsOpen && (
+              <p className="text-sm text-dim mt-8">
+                Already have an account? <Link href="/login" className="text-accent">Sign in to see your library</Link>.
+              </p>
+            )}
           </div>
         </section>
 

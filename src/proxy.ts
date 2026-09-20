@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { accountsOpen, needsAccount } from "@/lib/accounts";
 
 // Refreshes the Supabase session cookie on every request and keeps /app behind
 // a sign-in. Next 16 calls this file `proxy` (it was `middleware`); the shape is
@@ -9,6 +10,18 @@ export async function proxy(request: NextRequest) {
   // to the Site URL with the code still attached. Catching it anywhere means
   // the link works before the dashboard is fully configured.
   const path = request.nextUrl.pathname;
+
+  // The signed-in half, when it is closed — see `accountsOpen`. First, before
+  // the sign-in link is rescued and before Supabase is touched at all: a closed
+  // door should not be exchanging auth codes behind itself, and the public side
+  // of the site has no business paying for a session lookup it will not use.
+  if (!accountsOpen && needsAccount(path)) {
+    const home = request.nextUrl.clone();
+    home.pathname = "/";
+    home.search = "";
+    return NextResponse.redirect(home);
+  }
+
   if (path !== "/auth/callback" && request.nextUrl.searchParams.has("code")) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/callback";

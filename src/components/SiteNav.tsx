@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { LogoMark } from "./Logo";
 import { Menu } from "./Menu";
 import { Poster } from "./Poster";
@@ -10,6 +11,7 @@ import { loadProfile } from "@/lib/profile";
 import { image } from "@/lib/tmdb";
 import { createClient } from "@/lib/supabase/server";
 import { NavLinks } from "./NavLinks";
+import { accountsOpen } from "@/lib/accounts";
 
 // Two navs in one. Signed out, the bar sells the app: the landing page's
 // sections and a Sign in button. Signed in, it becomes the product: the
@@ -47,10 +49,12 @@ const menuLinks = [
 ];
 
 export async function SiteNav({ overlay = false }: { overlay?: boolean } = {}) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Nobody is signed in while the accounts side is closed, whatever cookie a
+  // browser is still carrying: the proxy turns those requests away, so a nav
+  // drawn from a stale session would offer tabs that redirect straight home.
+  // Asking Supabase at all would also put a session lookup on every public
+  // page for an answer the page cannot use.
+  const user = accountsOpen ? await signedInUser() : null;
 
   return (
     <nav
@@ -73,16 +77,44 @@ export async function SiteNav({ overlay = false }: { overlay?: boolean } = {}) {
           <SignedIn email={user.email ?? ""} />
         ) : (
           <div className="ml-auto flex items-center gap-4 shrink-0">
-            <NavSearch />
+            <SearchBoundary />
             <AppearanceMenu />
-            <Link href="/login" className="btn ghost !py-2 !px-4 text-sm shrink-0 whitespace-nowrap">
-              Sign in
-            </Link>
+            {accountsOpen && (
+              <Link href="/login" className="btn ghost !py-2 !px-4 text-sm shrink-0 whitespace-nowrap">
+                Sign in
+              </Link>
+            )}
           </div>
         )}
       </div>
     </nav>
   );
+}
+
+// `NavSearch` reads the query string, and a component that does that has to sit
+// behind a boundary or the page it is on cannot be rendered ahead of time.
+//
+// It never had to before, and not because it was correct: every page drawing
+// this nav was dynamic, since the nav asked Supabase who was signed in and that
+// reads a cookie. Closing the accounts side took the cookie read away, the
+// public pages became static, and the build stopped on the rule that had been
+// there all along. The boundary is the fix rather than making the pages dynamic
+// again — a privacy policy should be served from the edge, not rendered per
+// request to draw a search box.
+function SearchBoundary() {
+  return (
+    <Suspense fallback={<span className="w-[22px]" />}>
+      <NavSearch />
+    </Suspense>
+  );
+}
+
+async function signedInUser() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user;
 }
 
 async function SignedIn({ email }: { email: string }) {
@@ -93,7 +125,7 @@ async function SignedIn({ email }: { email: string }) {
 
   return (
     <div className="ml-auto flex items-center gap-4 shrink-0">
-      <NavSearch />
+      <SearchBoundary />
 
       <Menu
         label="Upcoming episodes"
