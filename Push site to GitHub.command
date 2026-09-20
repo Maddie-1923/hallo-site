@@ -1,5 +1,6 @@
 #!/bin/bash
-# Double-click to send the site's commits to GitHub.
+# Double-click to send the Kodigo site's commits to GitHub.
+# Vercel deploys whatever lands on main, so this one changes kodigo.pro.
 #
 # The push happens here rather than through Claude because the credentials
 # live in this Mac's keychain, which the sandbox Claude works in can't reach.
