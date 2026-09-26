@@ -89,8 +89,9 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SiteNav />
       <header>
-        <CinemaHero slides={slides} nav={<SiteNav overlay framed />} />
+        <CinemaHero slides={slides} />
       </header>
 
       <main className="flex-1">

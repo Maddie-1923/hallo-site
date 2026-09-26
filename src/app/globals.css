@@ -252,6 +252,12 @@ details.faq p { margin: 14px 0 0; color: var(--dim); font-size: 15px; max-width:
   to { opacity: 1; transform: none; }
 }
 
+/* The home billboard's strip of pictures. */
+@keyframes slide-in-right { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes slide-in-left { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes slide-out-left { from { transform: none; } to { transform: translateX(-100%); } }
+@keyframes slide-out-right { from { transform: none; } to { transform: translateX(100%); } }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
   html { scroll-behavior: auto; }
