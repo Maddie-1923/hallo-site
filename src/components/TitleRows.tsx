@@ -2,6 +2,7 @@ import { WideRow, type WideItem } from "@/components/WideRow";
 import type { CinemaSlide } from "@/components/CinemaHero";
 import { cardBackdrop, image, movieBillboard, showBillboard, titleLogo } from "@/lib/tmdb";
 import { year, type LibraryArchive, type Movie, type Show } from "@/lib/archive";
+import type { markLookup } from "@/lib/marks";
 
 // The pieces the home page and Explore share: the billboard's slides built
 // from a list of trending titles, and rows of wide cards. Explore is the home
@@ -59,22 +60,35 @@ export interface PosterItem {
   href: string;
   title: string;
   backdrop: string | null | undefined;
+  target: { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 }
 
-export const asShows = (xs: Show[]): PosterItem[] => xs.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, backdrop: s.backdrop_path }));
-export const asMovies = (xs: Movie[]): PosterItem[] => xs.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, backdrop: m.backdrop_path }));
+export const asShows = (xs: Show[]): PosterItem[] => xs.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, backdrop: s.backdrop_path, target: { kind: "show" as const, show: s } }));
+export const asMovies = (xs: Movie[]): PosterItem[] => xs.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, backdrop: m.backdrop_path, target: { kind: "movie" as const, movie: m } }));
 
 // Landscape cards need a backdrop, and look like a streaming service's with
 // the title's logo on them. Logos are one request a title, cached for a day,
 // so a row asks only for the cards it draws.
-async function asWide(items: PosterItem[], limit = 16): Promise<WideItem[]> {
+async function asWide(items: PosterItem[], marks: Marks, limit = 16): Promise<WideItem[]> {
   const withArt = items.filter((it) => it.backdrop).slice(0, limit);
-  const logos = await Promise.all(withArt.map((it) => titleLogo(it.key.startsWith("s") ? "show" : "movie", Number(it.key.slice(1)))));
-  return withArt.map((it, i) => ({ key: it.key, href: it.href, title: it.title, backdrop: cardBackdrop(it.backdrop)!, logo: logos[i] }));
+  const logos = await Promise.all(withArt.map((it) => titleLogo(it.target.kind, it.target.kind === "show" ? it.target.show.id : it.target.movie.id)));
+  return withArt.map((it, i) => ({
+    key: it.key,
+    href: it.href,
+    title: it.title,
+    backdrop: cardBackdrop(it.backdrop)!,
+    logo: logos[i],
+    target: it.target,
+    marks: it.target.kind === "show" ? marks.show(it.target.show.id) : marks.movie(it.target.movie.id),
+  }));
 }
 
-export async function Row({ title, href, items }: { title: string; href: string; items: PosterItem[] }) {
-  return <WideRow title={title} href={href} items={await asWide(items)} />;
+type Marks = ReturnType<typeof markLookup>;
+
+/** A row of wide cards. `marks` is the visitor's library read into what each
+    card's hover buttons should show (all off when nobody is signed in). */
+export async function Row({ title, href, items, marks }: { title: string; href: string; items: PosterItem[]; marks: Marks }) {
+  return <WideRow title={title} href={href} items={await asWide(items, marks)} lists={marks.lists} />;
 }
 
 export function interleave<T>(a: T[], b: T[]) {

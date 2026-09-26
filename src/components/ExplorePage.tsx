@@ -5,6 +5,7 @@ import { CinemaHero } from "@/components/CinemaHero";
 import { asMovies, asShows, billboard, Row } from "@/components/TitleRows";
 import { movieRails, showRails } from "@/lib/tmdb";
 import { optionalLibrary } from "@/lib/library";
+import { markLookup } from "@/lib/marks";
 import { accountsOpen } from "@/lib/accounts";
 import { regionName, visitorRegion } from "@/lib/region";
 
@@ -20,6 +21,7 @@ import { regionName, visitorRegion } from "@/lib/region";
 export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
   const lib = accountsOpen ? await optionalLibrary() : { archive: null };
   const region = await visitorRegion();
+  const marks = markLookup(lib.archive);
   const place = regionName(region);
 
   if (kind === "show") {
@@ -34,11 +36,11 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
     const shown = new Set(slides.map((s) => s.key));
     return (
       <Layout slides={slides} kind={kind}>
-        <Row title="Trending this week" href="/explore" items={asShows(trending).filter((x) => !shown.has(x.key))} />
-        <Row title="New episodes this week" href="/explore" items={asShows(airing)} />
-        <Row title="New series coming" href="/explore" items={asShows(upcoming)} />
-        <Row title="Popular now" href="/explore" items={asShows(popular)} />
-        <Row title="Top rated" href="/explore" items={asShows(topRated)} />
+        <Row title="Trending this week" href="/explore" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} />
+        <Row title="New episodes this week" href="/explore" items={asShows(airing)} marks={marks} />
+        <Row title="New series coming" href="/explore" items={asShows(upcoming)} marks={marks} />
+        <Row title="Popular now" href="/explore" items={asShows(popular)} marks={marks} />
+        <Row title="Top rated" href="/explore" items={asShows(topRated)} marks={marks} />
       </Layout>
     );
   }
@@ -54,11 +56,11 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
   const shown = new Set(slides.map((s) => s.key));
   return (
     <Layout slides={slides} kind={kind}>
-      <Row title="Trending this week" href="/explore?kind=movie" items={asMovies(trending).filter((x) => !shown.has(x.key))} />
-      <Row title={`In cinemas · ${place}`} href="/explore?kind=movie" items={asMovies(inCinemas)} />
-      <Row title={`Coming soon · ${place}`} href="/explore?kind=movie" items={asMovies(upcoming)} />
-      <Row title="Popular now" href="/explore?kind=movie" items={asMovies(popular)} />
-      <Row title="Top rated" href="/explore?kind=movie" items={asMovies(topRated)} />
+      <Row title="Trending this week" href="/explore?kind=movie" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} />
+      <Row title={`In cinemas · ${place}`} href="/explore?kind=movie" items={asMovies(inCinemas)} marks={marks} />
+      <Row title={`Coming soon · ${place}`} href="/explore?kind=movie" items={asMovies(upcoming)} marks={marks} />
+      <Row title="Popular now" href="/explore?kind=movie" items={asMovies(popular)} marks={marks} />
+      <Row title="Top rated" href="/explore?kind=movie" items={asMovies(topRated)} marks={marks} />
     </Layout>
   );
 }

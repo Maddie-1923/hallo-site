@@ -7,6 +7,7 @@ import { asMovies, asShows, billboard, interleave, Row } from "@/components/Titl
 import { AppleMark } from "@/components/StoreIcons";
 import { movieRails, showRails } from "@/lib/tmdb";
 import { optionalLibrary } from "@/lib/library";
+import { markLookup } from "@/lib/marks";
 import { regionName, visitorRegion } from "@/lib/region";
 
 // The front door, Netflix-shaped: a billboard of what the world is watching
@@ -18,6 +19,7 @@ export default async function Home() {
   // the accounts side is closed nobody is signed in, so skip the lookup.
   const lib = accountsOpen ? await optionalLibrary() : { archive: null };
   const region = await visitorRegion();
+  const marks = markLookup(lib.archive);
 
   const [trendingShows, trendingMovies, inCinemas, airing, comingFilms, topFilms, topShows] = await Promise.all([
     showRails.trending(),
@@ -45,11 +47,11 @@ export default async function Home() {
         {/* The same gutters as the billboard, so the rows' edges line up with
             the card's. Not .wrap: its padding is unlayered and would win. */}
         <div className="w-full px-[clamp(16px,3.2vw,64px)] pb-16">
-          <Row title="Trending this week" href="/explore" items={trending} />
-          <Row title={`In cinemas · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(inCinemas)} />
-          <Row title="New episodes this week" href="/explore" items={asShows(airing)} />
-          <Row title={`Coming soon · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(comingFilms)} />
-          <Row title="Highest rated" href="/explore?kind=movie" items={interleave(asMovies(topFilms), asShows(topShows))} />
+          <Row title="Trending this week" href="/explore" items={trending} marks={marks} />
+          <Row title={`In cinemas · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(inCinemas)} marks={marks} />
+          <Row title="New episodes this week" href="/explore" items={asShows(airing)} marks={marks} />
+          <Row title={`Coming soon · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(comingFilms)} marks={marks} />
+          <Row title="Highest rated" href="/explore?kind=movie" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
         </div>
 
         {/* The app's pitch, last: the page opens on the posters, and whoever
