@@ -17,6 +17,9 @@ const R = 28;
 // draws it) and the card (which leaves room for it).
 const AVATAR = "clamp(84px, 8vw, 112px)";
 const AVATAR_LEFT = "clamp(16px, 2.2vw, 28px)";
+// The side padding of the quick-glance panels, which the person's card uses
+// to line itself up with the Numbers tiles.
+const PANEL_PAD = "clamp(14px, 1.6vw, 20px)";
 
 export function ProfilePage({ view: v }: { view: PublicProfileView }) {
   const bannerArt = v.banner ?? v.favorites[0]?.backdrop ?? v.diary[0]?.backdrop ?? null;
@@ -318,13 +321,16 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 // here on the left, followers on the right. A bio, when there is one, runs
 // underneath.
 // The person's card: handle and what they have put here, followers on the
-// right. Its left edge is held clear of the photo hanging over it from the
-// banner, so the handle sits beside the photo the way the app sets the name.
+// right. It starts where the Numbers panel's second tile starts, so it sits
+// beside the photo hanging from the banner instead of running under it, and
+// its left edge lines up with a line already on the page. The margin is the
+// tile grid's own arithmetic: the panel's padding, one tile (a quarter of
+// what is left after the padding and three 8px gaps), and one gap.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
     <div
-      className="rounded-[24px] bg-card border border-hair pr-[clamp(14px,1.6vw,20px)] py-3 flex flex-col gap-2"
-      style={{ paddingLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 14px)` }}
+      className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 flex flex-col gap-2"
+      style={{ marginLeft: `calc(${PANEL_PAD} + (100% - 2 * ${PANEL_PAD} - 24px) / 4 + 8px)` }}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 min-w-0">
         <div className="min-w-0 flex-1 basis-[140px]">
