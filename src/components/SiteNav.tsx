@@ -65,7 +65,10 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
           : { backdropFilter: "blur(18px)", background: "color-mix(in srgb, var(--page) 82%, transparent)" }
       }
     >
-      <div className={`${framed ? "w-full px-[clamp(20px,5vw,80px)] h-20" : "wrap h-16"} flex items-center gap-6`}>
+      {/* The bar runs the page's full width with the home billboard's gutters,
+          so the logo lines up with the card's left edge and the profile
+          circle with its right, the way Netflix sets its bar. */}
+      <div className={`w-full ${framed ? "px-[clamp(20px,5vw,80px)] h-20" : "px-[clamp(16px,3.2vw,64px)] h-16"} flex items-center gap-6`}>
         {/* The mark hangs from the top edge of the bar, which is the top of
             the page, so its stripes run off it the way they run off the app
             icon. The k's foot and the wordmark share a baseline. */}
@@ -83,11 +86,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
             <SearchBoundary />
             <DayNightToggle onPicture={framed} />
             <ThemeMenu onPicture={framed} />
-            {accountsOpen && (
-              <Link href="/login" className="btn ghost !py-2 !px-4 text-sm shrink-0 whitespace-nowrap">
-                Sign in
-              </Link>
-            )}
+            <GuestProfile framed={framed} />
           </div>
         )}
       </div>
@@ -184,16 +183,15 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
         width={240}
         button={
           <>
-            <span className="w-9 h-9 rounded-lg overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display text-xl">
+            {/* A circle the height of the day/night pill, like the brush
+                beside it. */}
+            <span className="w-9 h-9 rounded-full overflow-hidden border border-hair bg-accent-fill text-on-accent flex items-center justify-center display text-xl">
               {avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatar} alt="" className="w-full h-full object-cover object-top" />
               ) : (
                 initial
               )}
-            </span>
-            <span className="text-dim text-xs" aria-hidden>
-              ▾
             </span>
           </>
         }
@@ -221,6 +219,53 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
   );
 }
 
+
+// The profile circle for somebody not signed in: the same size and shell as
+// the paintbrush beside it, holding a person glyph. It opens a small panel
+// rather than going straight to a page, because while the accounts side is
+// closed there is no sign-in page to go to, and the circle still has to say
+// something when pressed.
+function GuestProfile({ framed }: { framed: boolean }) {
+  const shell = framed ? "bg-black/35 border-white/25 backdrop-blur-md text-white" : "bg-card border-hair text-ink";
+  return (
+    <Menu
+      label="Profile"
+      width={260}
+      button={
+        <span className={`w-9 h-9 rounded-full border flex items-center justify-center ${shell}`}>
+          <PersonIcon />
+        </span>
+      }
+    >
+      {accountsOpen ? (
+        <div className="p-4 grid gap-3">
+          <p className="m-0 text-sm text-dim">Sign in to keep your diary, ratings, reviews and lists here and on your phone.</p>
+          <Link href="/login" className="btn !py-2 !px-4 text-sm justify-center">
+            Sign in
+          </Link>
+        </div>
+      ) : (
+        <div className="p-4 grid gap-3">
+          <p className="m-0 text-sm text-dim">
+            Kodigo accounts on the web are coming soon. Your profile, diary, reviews and lists will live here.
+          </p>
+          <Link href="/about" className="btn ghost !py-2 !px-4 text-sm justify-center">
+            Get the app meanwhile
+          </Link>
+        </div>
+      )}
+    </Menu>
+  );
+}
+
+function PersonIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" />
+    </svg>
+  );
+}
 
 function BellIcon() {
   return (
