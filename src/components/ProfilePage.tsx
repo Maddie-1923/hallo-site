@@ -37,15 +37,17 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
           rate, what they watch and their calendar on the left; the numbers
           and their favourites on a narrower right. The grid stretches both
           to the taller, and the growable row on each side takes the slack. */}
-      <div className="grid gap-5 mt-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] items-stretch">
-        <div className="flex flex-col gap-4">
-          <ProfileCard v={v} />
-          <Dashboard v={v} />
+      {/* Two rows so the pairs match: the person's card beside the numbers,
+          one height between them, then the rest of each column. */}
+      <div className="grid gap-x-5 gap-y-4 mt-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] items-stretch">
+        <ProfileCard v={v} />
+        <div className="rounded-[24px] bg-card border border-hair p-2.5 flex">
+          <NumberTiles v={v} />
         </div>
         <div className="flex flex-col gap-4">
-          <Panel title="Numbers">
-            <NumberTiles v={v} />
-          </Panel>
+          <Dashboard v={v} />
+        </div>
+        <div className="flex flex-col">
           <FavouriteCard v={v} />
         </div>
       </div>
@@ -178,9 +180,9 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
     ["Avg ♥", s.average ?? "—"],
   ];
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="flex-1 grid grid-cols-4 gap-2">
       {tiles.map(([label, value]) => (
-        <div key={label} className="rounded-[14px] bg-card-hi py-2.5 text-center">
+        <div key={label} className="rounded-[16px] bg-card-hi py-2.5 text-center flex flex-col items-center justify-center">
           <div className="display text-[clamp(24px,2.2vw,32px)] leading-none text-accent">{value}</div>
           <div className="text-[10px] font-bold tracking-[.14em] uppercase text-dim mt-1.5">{label}</div>
         </div>
@@ -288,7 +290,7 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 // so it sits beside the photo instead of running under it.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
-    <div className="relative">
+    <div className="relative flex">
       {/* The photo, as the app draws it: a circle in a ring of the page's own
           colour, crossing the banner's bottom edge so the ring reads as the
           banner being interrupted by the person in front of it. Anchored to
@@ -306,7 +308,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         )}
       </div>
     <div
-      className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 flex flex-col gap-2"
+      className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 flex flex-col justify-center gap-2"
       style={{ marginLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 16px)` }}
     >
       {/* Everything about the person down the left: the handle, what they
