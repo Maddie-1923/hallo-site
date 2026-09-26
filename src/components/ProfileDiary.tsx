@@ -62,9 +62,14 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
       {rows.length === 0 ? (
         <p className="text-sm text-dim m-0">Nothing logged here.</p>
       ) : (
-        <table className="w-full border-collapse text-[14px]">
+        <table className="w-full border-separate border-spacing-y-[6px] -my-[6px] text-[14px]">
+          {/* Each entry is its own shell rather than a row between hairlines:
+            the table is set with space between its rows, and every cell from
+            the day to the last mark is filled, with the ends rounded. The
+            month tag sits outside the shell, in the margin, the way a diary
+            heads a new month. */}
           <thead>
-            <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left border-b border-hair">
+            <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
               <th colSpan={2} className="py-2 pr-3 font-bold w-[132px]">Date</th>
               <th className="py-2 px-3 font-bold">Title</th>
               <th className="py-2 px-3 font-bold hidden md:table-cell w-[140px]">Episodes</th>
@@ -80,17 +85,17 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
               // heads a new month.
               const newMonth = i === 0 || rows[i - 1].date.slice(0, 7) !== e.date.slice(0, 7);
               return (
-                <tr key={`${e.key}${e.date}`} className={`border-b border-hair align-middle ${newMonth && i > 0 ? "border-t-2 border-t-hair" : ""}`}>
-                  <td className="py-2.5 pr-3 align-top">
+                <tr key={`${e.key}${e.date}`} className="align-middle">
+                  <td className="py-1.5 pr-3 align-middle">
                     {newMonth && (
-                      <span className="inline-flex flex-col items-center justify-center w-[64px] rounded-[8px] bg-card-hi border border-hair py-1 leading-none">
+                      <span className="inline-flex flex-col items-center justify-center w-[64px] rounded-[10px] bg-page border border-hair py-1 leading-none">
                         <span className="display text-[20px] text-ink">{month(e.date)}</span>
                         <span className="text-[10.5px] text-dim mt-0.5">{e.date.slice(0, 4)}</span>
                       </span>
                     )}
                   </td>
-                  <td className="py-2.5 pr-3 text-right display text-[26px] leading-none text-dim">{Number(e.date.slice(8, 10))}</td>
-                  <td className="py-2.5 px-3">
+                  <td className={`${SHELL} rounded-l-[14px] py-2 pl-3 pr-3 text-right display text-[26px] leading-none text-dim`}>{Number(e.date.slice(8, 10))}</td>
+                  <td className={`${SHELL} py-2 px-3`}>
                     <Link href={e.href} className="flex items-center gap-3 no-underline text-ink hover:text-accent group">
                       <span className="w-9 shrink-0">
                         {e.poster ? (
@@ -111,8 +116,8 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
                       </span>
                     </Link>
                   </td>
-                  <td className="py-2.5 px-3 text-dim hidden md:table-cell">{e.episodes ?? "—"}</td>
-                  <td className="py-2.5 px-2 text-center hidden sm:table-cell">
+                  <td className={`${SHELL} py-2 px-3 text-dim hidden md:table-cell`}>{e.episodes ?? "—"}</td>
+                  <td className={`${SHELL} py-2 px-2 text-center hidden sm:table-cell`}>
                     {e.rewatch ? (
                       <span className="inline-flex text-accent" title="Rewatch">
                         <MarkRewatched size={22} />
@@ -120,8 +125,8 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
                       </span>
                     ) : null}
                   </td>
-                  <td className="py-2.5 px-3">{e.rating != null ? <Hearts value={e.rating} /> : <span className="text-dim">—</span>}</td>
-                  <td className="py-2.5 px-2 text-center">
+                  <td className={`${SHELL} py-2 px-3`}>{e.rating != null ? <Hearts value={e.rating} /> : <span className="text-dim">—</span>}</td>
+                  <td className={`${SHELL} py-2 px-2 text-center rounded-r-[14px] sm:rounded-r-none`}>
                     {e.loved ? (
                       <span className="inline-flex text-loved" title="Loved">
                         <TightHeart size={15} />
@@ -129,7 +134,7 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
                       </span>
                     ) : null}
                   </td>
-                  <td className="py-2.5 pl-2 text-center hidden sm:table-cell">
+                  <td className={`${SHELL} rounded-r-[14px] py-2 pl-2 pr-3 text-center hidden sm:table-cell`}>
                     {e.reviewed ? (
                       <Link href={e.href} className="inline-flex text-accent" title="Has a review">
                         <MarkReview size={22} />
@@ -149,6 +154,9 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
 
 // A rating out of ten as the app shows it: ten small hearts, lit to the
 // rating, a half heart for a half point.
+// The fill of an entry's shell: the lighter card tone, on the section's card.
+const SHELL = "bg-card-hi";
+
 function Hearts({ value }: { value: number }) {
   return (
     <span className="inline-flex items-center gap-[2px]" title={`${value} out of 10`}>
