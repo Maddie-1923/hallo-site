@@ -6,8 +6,8 @@ import { useMemo, useState } from "react";
 // each day shaded by how much was watched on it, with arrows to step back
 // and forward through the months. It opens on the latest month with any
 // watching in it, so a profile never opens on an empty page just because the
-// person hasn't logged anything yet this month. Days are short bars rather
-// than squares, to keep the box as low as the two beside it.
+// person hasn't logged anything yet this month. Days are small fixed squares,
+// so the box stays as low as the two beside it.
 export function MonthCalendar({ activity }: { activity: Record<string, number> }) {
   const latest = useMemo(() => {
     const days = Object.keys(activity).sort();
@@ -41,27 +41,20 @@ export function MonthCalendar({ activity }: { activity: Record<string, number> }
           <Arrow dir={1} onClick={() => step(1)} />
         </span>
       </div>
-      <div className="grid grid-cols-7 gap-[3px] text-center text-[9.5px] font-bold text-dim mb-[3px]" aria-hidden>
+      {/* Small coloured squares, one a day, a week to a row. The date is in
+          each square's tooltip rather than printed on it. */}
+      <div className="self-center grid grid-cols-7 gap-[4px]" style={{ gridAutoRows: "20px", gridTemplateColumns: "repeat(7, 20px)" }}>
         {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-          <span key={i}>{d}</span>
+          <span key={`w${i}`} aria-hidden className="text-center text-[9.5px] font-bold text-dim leading-[20px]">
+            {d}
+          </span>
         ))}
-      </div>
-      <div className="grid grid-cols-7 gap-[2px]">
         {Array.from({ length: lead }, (_, i) => (
           <span key={`lead${i}`} />
         ))}
         {Array.from({ length: daysIn }, (_, i) => {
           const n = activity[key(i + 1)] ?? 0;
-          return (
-            <span
-              key={i}
-              title={n ? `${key(i + 1)}: ${n} watched` : key(i + 1)}
-              className={`h-[18px] rounded-[4px] flex items-center justify-center text-[9.5px] ${n >= 2 ? "text-on-accent font-semibold" : "text-dim"}`}
-              style={{ background: shade(n) }}
-            >
-              {i + 1}
-            </span>
-          );
+          return <span key={i} title={n ? `${key(i + 1)}: ${n} watched` : key(i + 1)} className="rounded-[4px]" style={{ background: shade(n) }} />;
         })}
       </div>
     </div>
