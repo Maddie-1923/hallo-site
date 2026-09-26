@@ -276,3 +276,71 @@ const GENRES: Record<number, string> = {
 export function genreNames(ids: number[] | null | undefined, limit = 3) {
   return (ids ?? []).map((id) => GENRES[id]).filter(Boolean).slice(0, limit);
 }
+
+// ---- The home page's billboard ----
+
+type RawVideos = { videos?: { results: { key: string; site: string; type: string; official?: boolean }[] } };
+type RawMovieBillboard = RawMovie & RawVideos & { release_dates?: { results: { iso_3166_1: string; release_dates: { certification: string }[] }[] } };
+type RawShowBillboard = RawShow & RawVideos & { episode_run_time?: number[]; content_ratings?: { results: { iso_3166_1: string; rating: string }[] } };
+
+/** What one billboard slide says beyond what a list endpoint carries: the
+    line the studio wrote, the age rating, how long it runs, and a trailer. */
+export interface Billboard {
+  tagline: string | null;
+  certification: string | null;
+  /** "1h 52m" for a film, "45m" an episode for a show. */
+  runtime: string | null;
+  genres: string[];
+  /** A YouTube id. */
+  trailer: string | null;
+}
+
+// US ratings, the ones TMDB fills most reliably; a title without one simply
+// draws without the chip.
+const RATING_REGION = "US";
+
+function pickTrailer(v: RawVideos["videos"]): string | null {
+  const yt = v?.results.filter((x) => x.site === "YouTube") ?? [];
+  const best =
+    yt.find((x) => x.type === "Trailer" && x.official) ??
+    yt.find((x) => x.type === "Trailer") ??
+    yt.find((x) => x.type === "Teaser");
+  return best?.key ?? null;
+}
+
+function duration(minutes: number | null | undefined): string | null {
+  if (!minutes) return null;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
+}
+
+export async function movieBillboard(id: number): Promise<Billboard | null> {
+  const r = await tmdb<RawMovieBillboard>(`/movie/${id}`, { append_to_response: "videos,release_dates" });
+  if (!r) return null;
+  const cert =
+    r.release_dates?.results
+      .find((x) => x.iso_3166_1 === RATING_REGION)
+      ?.release_dates.map((d) => d.certification)
+      .find(Boolean) ?? null;
+  return {
+    tagline: r.tagline || null,
+    certification: cert,
+    runtime: duration(r.runtime),
+    genres: r.genres?.map((g) => g.name).slice(0, 2) ?? [],
+    trailer: pickTrailer(r.videos),
+  };
+}
+
+export async function showBillboard(id: number): Promise<Billboard | null> {
+  const r = await tmdb<RawShowBillboard>(`/tv/${id}`, { append_to_response: "videos,content_ratings" });
+  if (!r) return null;
+  const run = r.episode_run_time?.[0] ?? r.last_episode_to_air?.runtime ?? null;
+  return {
+    tagline: r.tagline || null,
+    certification: r.content_ratings?.results.find((x) => x.iso_3166_1 === RATING_REGION)?.rating || null,
+    runtime: duration(run),
+    genres: r.genres?.map((g) => g.name).slice(0, 2) ?? [],
+    trailer: pickTrailer(r.videos),
+  };
+}

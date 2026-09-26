@@ -20,12 +20,9 @@ import { accountsOpen } from "@/lib/accounts";
 // themes, the marketing pages, sign out — out of the way.
 
 const marketing: [string, string][] = [
+  ["/", "Home"],
   ["/explore", "Explore"],
-  ["/#features", "Features"],
-  ["/#import", "Import"],
-  ["/#themes", "Themes"],
-  ["/#pricing", "Pricing"],
-  ["/#faq", "FAQ"],
+  ["/about", "The app"],
 ];
 
 // The phone's four, in the phone's order: somewhere to find things, the two
@@ -42,13 +39,15 @@ const menuLinks = [
   ["/app/history", "History"],
   ["/app/account", "Account"],
   ["/app/import", "Import a backup"],
-  ["/#features", "Features"],
-  ["/#pricing", "Subscription"],
-  ["/#faq", "FAQ"],
+  ["/about#features", "Features"],
+  ["/about#pricing", "Subscription"],
+  ["/about#faq", "FAQ"],
   ["/support", "Support"],
 ];
 
-export async function SiteNav({ overlay = false }: { overlay?: boolean } = {}) {
+// `framed` is the home page's billboard: the bar sits inside the picture's
+// frame, so it lines up with the billboard's words rather than the page column.
+export async function SiteNav({ overlay = false, framed = false }: { overlay?: boolean; framed?: boolean } = {}) {
   // Nobody is signed in while the accounts side is closed, whatever cookie a
   // browser is still carrying: the proxy turns those requests away, so a nav
   // drawn from a stale session would offer tabs that redirect straight home.
@@ -65,7 +64,7 @@ export async function SiteNav({ overlay = false }: { overlay?: boolean } = {}) {
           : { backdropFilter: "blur(18px)", background: "color-mix(in srgb, var(--page) 82%, transparent)" }
       }
     >
-      <div className="wrap flex items-center gap-6 h-16">
+      <div className={`${framed ? "w-full px-[clamp(20px,5vw,80px)] h-20" : "wrap h-16"} flex items-center gap-6`}>
         <Link href={user ? "/discover" : "/"} className="flex items-center gap-2.5 no-underline">
           <LogoMark />
           <span className="display text-2xl">Kodigo</span>

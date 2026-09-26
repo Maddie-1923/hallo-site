@@ -6,8 +6,13 @@ nothing else.
 
 ## What's here
 
-- `src/app/page.tsx` — the landing page. `privacy/` and `support/` are the
+- `src/app/page.tsx` — the home page, Letterboxd-shaped: `CinemaHero` (a
+  framed billboard of the week's trending titles with the nav inside it) and
+  `PosterRow`s of small posters underneath. The app's pitch (features,
+  themes, pricing, FAQ) lives at `about/`. `privacy/` and `support/` are the
   policy pages (they replaced the Jekyll `privacy.md`/`support.md`).
+- `docs/social-plan.md` — the plan for the social side (public profiles,
+  members' reviews, follows, likes, comments) and its build order.
 - `src/app/login/` — magic-link email sign-in plus a Sign in with Apple button.
   `src/app/auth/callback/route.ts` exchanges the code; `auth/signout` clears it.
 - `src/proxy.ts` — refreshes the Supabase session cookie on every request and
@@ -91,3 +96,13 @@ A `SupabaseSync` next to `CloudSync.swift` that mirrors it:
 5. `npm run dev`.
 
 Deploys to Vercel as-is; set the same env vars there.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
