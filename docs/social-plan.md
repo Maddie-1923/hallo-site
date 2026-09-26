@@ -113,6 +113,9 @@ the live project only once a step is finished, and ask first.
    account is shown until they have picked a username.
 2. **The projection.** Add `public_entries` and `public_lists`, the trigger,
    and a one-off backfill for people who opted in.
+   Also store each person's chosen favourites (top 5 films, top 5 series, in
+   order) on `profiles`. The profile page's editor already works and saves
+   to the browser until this exists.
 3. **Settings page:**
    - profile: name, bio, photo, banner, pinned favourites;
    - privacy;

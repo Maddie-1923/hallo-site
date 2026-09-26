@@ -55,7 +55,7 @@ async function previewFromFile(): Promise<PublicProfileView | null> {
       avatar: pic((raw as Record<string, unknown>).profileAvatar),
       banner: pic((raw as Record<string, unknown>).profileBanner),
       bio: null,
-    });
+    }, true);
   } catch {
     return null;
   }

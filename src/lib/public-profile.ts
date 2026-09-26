@@ -72,6 +72,9 @@ export interface PublicProfileView {
   ratingValues: number[];
   /** Their most-watched genres, with each one's share of the top five. */
   genres: { name: string; share: number }[];
+  /** Present only when the person viewing is the profile's owner: what the
+      Favourites editor offers first, their own library, best first. */
+  owner?: { films: ProfileTitle[]; shows: ProfileTitle[] };
   /** Shown as a ribbon when the page is a preview rather than a real profile. */
   previewNote?: string;
 }
@@ -100,10 +103,13 @@ function movieTitle(m: Movie): ProfileTitle {
   };
 }
 
-/** A library read into a profile. `meta` is the profile's own dressing. */
+/** A library read into a profile. `meta` is the profile's own dressing.
+    `forOwner` adds what only the owner's own view needs (the Favourites
+    editor's suggestions), which a visitor's page never carries. */
 export function profileFromArchive(
   a: LibraryArchive,
   meta: { username: string; displayName: string; avatar: string | null; banner: string | null; bio: string | null },
+  forOwner = false,
 ): PublicProfileView {
   const shows = new Map(a.shows.map((t) => [t.show.id, t.show]));
   const movies = new Map(a.movies.map((t) => [t.movie.id, t.movie]));
@@ -200,8 +206,23 @@ export function profileFromArchive(
   // no episode runtimes.
   const hours = Math.round((a.watched.length * 42 + filmMinutes) / 60);
 
+  // The owner's library, hearts first, then by rating, then by name: what the
+  // Favourites picker offers before anything is searched.
+  const byLiking = (kind: "show" | "movie") => (x: { id: number; name?: string; title?: string }, y: { id: number; name?: string; title?: string }) => {
+    const k = (t: { id: number }) => `${kind}:${t.id}`;
+    const loved = (t: { id: number }) => (reactions[k(t)] === "loved" ? 1 : 0);
+    return loved(y) - loved(x) || (ratings[k(y)] ?? 0) - (ratings[k(x)] ?? 0) || (x.name ?? x.title ?? "").localeCompare(y.name ?? y.title ?? "");
+  };
+  const owner = forOwner
+    ? {
+        films: a.movies.map((t) => t.movie).sort(byLiking("movie")).map(movieTitle),
+        shows: a.shows.map((t) => t.show).sort(byLiking("show")).map(showTitle),
+      }
+    : undefined;
+
   return {
     ...meta,
+    owner,
     followers: 0,
     following: 0,
     stats: {

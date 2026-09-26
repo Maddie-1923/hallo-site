@@ -4,6 +4,7 @@ import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
 import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
+import { FavouritesCard } from "./FavouritesCard";
 
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner left to its picture, then the person's card
@@ -346,52 +347,15 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
   );
 }
 
-// The Favourites card: their top five films, their top five series, and the
-// five things they watched most recently, films and series mixed, all at the
-// same poster size. An empty slot is drawn as an outline so each row keeps
-// its shape while it fills up.
+// The Favourites card (FavouritesCard): top films and series, editable by
+// the owner, and the five most recent watches worked out from the diary.
 function FavouriteCard({ v }: { v: PublicProfileView }) {
-  // The latest five different titles from the diary, newest first.
   const recent: ProfileTitle[] = [];
   for (const e of v.diary) {
     if (recent.length === 5) break;
     if (!recent.some((r) => r.key === e.key)) recent.push(e);
   }
-  return (
-    <div className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col justify-between gap-3">
-      <h2 className="!text-[clamp(22px,2vw,28px)] leading-none">Favourites</h2>
-      <div>
-        <Label>Top 5 films</Label>
-        <FiveRow titles={v.topFilms} />
-      </div>
-      <div>
-        <Label>Top 5 series</Label>
-        <FiveRow titles={v.topShows} />
-      </div>
-      <div>
-        <Label>Recent watches</Label>
-        <FiveRow titles={recent} />
-      </div>
-    </div>
-  );
-}
-
-function Label({ children }: { children: React.ReactNode }) {
-  return <div className="text-[11px] font-bold tracking-[.14em] uppercase text-dim mb-2">{children}</div>;
-}
-
-function FiveRow({ titles }: { titles: ProfileTitle[] }) {
-  return (
-    <div className="grid grid-cols-5 gap-2">
-      {Array.from({ length: 5 }, (_, i) =>
-        titles[i] ? (
-          <PosterLink key={titles[i].key} t={titles[i]} small />
-        ) : (
-          <div key={`empty${i}`} aria-hidden className="aspect-[2/3] rounded-[8px] border border-dashed border-hair" />
-        ),
-      )}
-    </div>
-  );
+  return <FavouritesCard username={v.username} autoFilms={v.topFilms} autoShows={v.topShows} recent={recent} owner={v.owner} />;
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
