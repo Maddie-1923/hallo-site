@@ -9,8 +9,8 @@ import { APPEARANCE_KEY, DEFAULT_THEME, THEMES, THEME_KEY, applyTheme } from "@/
 // what a visitor gets until they touch it (the pill then lights whichever
 // side their system chose).
 //
-// The accent themes that used to share that menu live on the About page's
-// theme row, which writes the same keys.
+// The accent themes that used to share that menu are in the paintbrush menu
+// beside it (ThemeMenu), which writes the same keys.
 export function DayNightToggle({ onPicture = false }: { onPicture?: boolean }) {
   // Unknown until mounted: the server can't see this browser's choice, and
   // guessing would light the wrong half for a frame.

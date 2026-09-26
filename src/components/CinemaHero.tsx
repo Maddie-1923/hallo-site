@@ -78,7 +78,6 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
 
   if (count === 0) return null;
 
-  const s = slides[at];
   const accent = ACCENTS[at % ACCENTS.length];
 
   return (
@@ -109,7 +108,7 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
           onMouseLeave={() => setHover(false)}
         >
           <div
-            className="relative overflow-hidden rounded-[clamp(21px,3vw,43px)] bg-[#141312] min-h-[clamp(620px,52vw,760px)] flex flex-col"
+            className="relative overflow-hidden rounded-[clamp(21px,3vw,43px)] bg-[#141312] min-h-[clamp(700px,52vw,760px)] flex flex-col"
             // The frame is always a darkened photograph, so the words inside
             // it draw in Night's colours whatever the page is.
             style={nightTokens}
@@ -139,88 +138,43 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
             <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.9) 0%, rgba(12,10,9,.55) 26%, transparent 55%)" }} />
             <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(12,10,9,.6) 0%, rgba(12,10,9,.2) 35%, transparent 55%)" }} />
 
-            {/* Both columns sit on the frame's bottom edge: the title on the
-                left, the facts on the right, bottoms aligned, so they read as
-                one line of furniture under the picture rather than things
-                floating in it. */}
-            <div className="relative z-10 flex-1 flex flex-col justify-end">
+            {/* The words ride with their picture: each slide's words are a
+                layer that slides in and out with the same timing as the image,
+                so a change reads as the whole poster moving past rather than
+                a picture moving under words that swap in place. Only the
+                arriving and leaving layers exist at any moment. */}
+            <div className="relative z-10 flex-1">
+              {[at, ...(leaving && leaving.from !== at ? [leaving.from] : [])].map((i) => (
+                <div
+                  key={slides[i].key}
+                  aria-hidden={i !== at}
+                  inert={i !== at}
+                  className="absolute inset-0 flex flex-col justify-end"
+                  style={slideStyle(i, at, leaving)}
+                >
+                  <SlideWords slide={slides[i]} accent={ACCENTS[i % ACCENTS.length]} onTrailer={setTrailer} />
+                </div>
+              ))}
+
+              {/* Where you are. It stays put while the words slide, sitting
+                  where the words leave room for it under the title. */}
               <div
-                key={s.key}
-                className="flex flex-col lg:flex-row lg:items-end gap-8 xl:gap-10 px-[clamp(20px,5vw,80px)] pt-24 pb-[clamp(24px,3vw,44px)] animate-[cinema-in_.7s_ease-out]"
+                className="absolute left-[clamp(20px,5vw,80px)] bottom-[clamp(24px,3vw,44px)] flex gap-1.5"
+                role="tablist"
+                aria-label="Featured titles"
               >
-                <div className="min-w-0 flex-1">
-                  <div className="text-[13px] tracking-[.06em] uppercase text-white/80 mb-3">{s.eyebrow}:</div>
-                  <h1
-                    className="!leading-[.84] drop-shadow-[0_4px_30px_rgba(0,0,0,.55)] break-words"
-                    style={{ color: CREAM, fontSize: titleSize(s.title) }}
-                  >
-                    <Link href={s.href} className="no-underline" style={{ color: "inherit" }}>
-                      <Title text={s.title} accent={accent} />
-                    </Link>
-                  </h1>
-                  <WatchlistChip slide={s} accent={accent} />
-
-                  {/* Where you are, under the title. */}
-                  <div className="flex gap-1.5 mt-7" role="tablist" aria-label="Featured titles">
-                    {slides.map((x, i) => (
-                      <button
-                        key={x.key}
-                        type="button"
-                        role="tab"
-                        aria-selected={i === at}
-                        aria-label={`${i + 1} of ${count}: ${x.title}`}
-                        onClick={() => go(i)}
-                        className="h-[4px] rounded-full transition-all duration-300 cursor-pointer"
-                        style={{ width: i === at ? 30 : 12, background: i === at ? accent : "rgba(255,255,255,.35)" }}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="min-w-0 lg:w-[min(440px,40%)] shrink-0">
-                  {s.tagline && (
-                    <p className="m-0 mb-3 text-white uppercase tracking-[.04em] leading-[1.15] text-[clamp(15px,1.3vw,18px)] [font-family:var(--font-wide)] font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,.7)]">
-                      {s.tagline}
-                    </p>
-                  )}
-                  <p className="m-0 text-[14px] text-white/90 flex flex-wrap items-center gap-x-2">
-                    {[
-                      s.year,
-                      s.certification ? (
-                        <span key="c" className="px-1 rounded-[2px] text-[#141312] font-bold text-[12px] leading-[18px]" style={{ background: accent }}>
-                          {s.certification}
-                        </span>
-                      ) : null,
-                      s.runtime,
-                      s.genres.join(", ") || null,
-                    ]
-                      .filter(Boolean)
-                      .flatMap((x, i) => (i ? [<span key={`d${i}`} className="text-white/50">|</span>, <span key={i}>{x}</span>] : [<span key={i}>{x}</span>]))}
-                  </p>
-                  {s.overview && <p className="m-0 mt-3 text-[14.5px] leading-[1.45] text-white/90 line-clamp-3 drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.overview}</p>}
-                  <div className="flex flex-wrap gap-3 mt-5">
-                    {s.trailer && (
-                      <button
-                        type="button"
-                        onClick={() => setTrailer(s.trailer)}
-                        className="inline-flex items-center gap-2 px-5 py-2 rounded-[3px] text-[14px] font-bold uppercase tracking-[.04em] text-[#141312] cursor-pointer transition-[filter] hover:brightness-110"
-                        style={{ background: accent }}
-                      >
-                        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
-                          <path d="M2 1l9 5-9 5z" fill="currentColor" />
-                        </svg>
-                        Trailer
-                      </button>
-                    )}
-                    <Link
-                      href={s.href}
-                      className="inline-flex items-center px-4 py-2 rounded-[3px] border-2 border-white/85 text-white text-[14px] font-bold uppercase tracking-[.04em] no-underline hover:bg-white hover:text-[#141312] transition-colors"
-                    >
-                      Details
-                    </Link>
-                  </div>
-                </div>
-
+                {slides.map((x, i) => (
+                  <button
+                    key={x.key}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === at}
+                    aria-label={`${i + 1} of ${count}: ${x.title}`}
+                    onClick={() => go(i)}
+                    className="h-[4px] rounded-full transition-all duration-300 cursor-pointer"
+                    style={{ width: i === at ? 30 : 12, background: i === at ? accent : "rgba(255,255,255,.35)" }}
+                  />
+                ))}
               </div>
             </div>
 
@@ -244,9 +198,9 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
   );
 }
 
-// The pictures move as a strip. The incoming one slides in from the side the
-// strip is moving from while the outgoing one slides off the other side; every
-// other picture waits unseen. A slide and not a cross-fade, because a strip
+// The pictures (and their words) move as a strip. The incoming one slides in
+// from the side the strip is moving from while the outgoing one slides off the
+// other side; every other picture waits unseen. A slide and not a cross-fade, because a strip
 // of posters moving right to left is what a carousel says it is.
 function slideStyle(i: number, at: number, leaving: { from: number; dir: 1 | -1 } | null): React.CSSProperties {
   const ease = ".9s cubic-bezier(.65,0,.35,1) both";
@@ -257,6 +211,72 @@ function slideStyle(i: number, at: number, leaving: { from: number; dir: 1 | -1 
     return { zIndex: 0, animation: `${leaving.dir === 1 ? "slide-out-left" : "slide-out-right"} ${ease}` };
   }
   return { opacity: 0 };
+}
+
+// One slide's words. Both columns sit on the frame's bottom edge, the title on
+// the left and the facts on the right, bottoms aligned, so they read as one
+// line of furniture under the picture rather than things floating in it. The
+// empty line under the watchlist button is where the position bars show
+// through; on a phone, where the columns stack, the bars sit under both.
+function SlideWords({ slide: s, accent, onTrailer }: { slide: CinemaSlide; accent: string; onTrailer: (id: string) => void }) {
+  return (
+    <div className="flex flex-col lg:flex-row lg:items-end gap-8 xl:gap-10 px-[clamp(20px,5vw,80px)] pt-24 pb-[calc(clamp(24px,3vw,44px)+32px)] lg:pb-[clamp(24px,3vw,44px)]">
+      <div className="min-w-0 flex-1">
+        <div className="text-[13px] tracking-[.06em] uppercase text-white/80 mb-3">{s.eyebrow}:</div>
+        <h1 className="!leading-[.84] drop-shadow-[0_4px_30px_rgba(0,0,0,.55)] break-words" style={{ color: CREAM, fontSize: titleSize(s.title) }}>
+          <Link href={s.href} className="no-underline" style={{ color: "inherit" }}>
+            <Title text={s.title} accent={accent} />
+          </Link>
+        </h1>
+        <WatchlistChip slide={s} accent={accent} />
+        <div aria-hidden className="hidden lg:block h-[4px] mt-7" />
+      </div>
+
+      <div className="min-w-0 lg:w-[min(440px,40%)] shrink-0">
+        {s.tagline && (
+          <p className="m-0 mb-3 text-white uppercase tracking-[.04em] leading-[1.15] text-[clamp(15px,1.3vw,18px)] [font-family:var(--font-wide)] font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,.7)]">
+            {s.tagline}
+          </p>
+        )}
+        <p className="m-0 text-[14px] text-white/90 flex flex-wrap items-center gap-x-2">
+          {[
+            s.year,
+            s.certification ? (
+              <span key="c" className="px-1 rounded-[2px] text-[#141312] font-bold text-[12px] leading-[18px]" style={{ background: accent }}>
+                {s.certification}
+              </span>
+            ) : null,
+            s.runtime,
+            s.genres.join(", ") || null,
+          ]
+            .filter(Boolean)
+            .flatMap((x, i) => (i ? [<span key={`d${i}`} className="text-white/50">|</span>, <span key={i}>{x}</span>] : [<span key={i}>{x}</span>]))}
+        </p>
+        {s.overview && <p className="m-0 mt-3 text-[14.5px] leading-[1.45] text-white/90 line-clamp-3 drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.overview}</p>}
+        <div className="flex flex-wrap gap-3 mt-5">
+          {s.trailer && (
+            <button
+              type="button"
+              onClick={() => onTrailer(s.trailer!)}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-[3px] text-[14px] font-bold uppercase tracking-[.04em] text-[#141312] cursor-pointer transition-[filter] hover:brightness-110"
+              style={{ background: accent }}
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+                <path d="M2 1l9 5-9 5z" fill="currentColor" />
+              </svg>
+              Trailer
+            </button>
+          )}
+          <Link
+            href={s.href}
+            className="inline-flex items-center px-4 py-2 rounded-[3px] border-2 border-white/85 text-white text-[14px] font-bold uppercase tracking-[.04em] no-underline hover:bg-white hover:text-[#141312] transition-colors"
+          >
+            Details
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // Bebas is tall and narrow, so a short title can be enormous; a long one has

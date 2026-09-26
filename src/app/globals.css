@@ -246,12 +246,6 @@ details.faq p { margin: 14px 0 0; color: var(--dim); font-size: 15px; max-width:
 .prose ul { padding-left: 1.2em; margin: 0 0 1em; }
 .prose strong { color: var(--ink); }
 
-/* A billboard slide's words arriving: a short rise and fade. */
-@keyframes cinema-in {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; }
-}
-
 /* The home billboard's strip of pictures. */
 @keyframes slide-in-right { from { transform: translateX(100%); } to { transform: none; } }
 @keyframes slide-in-left { from { transform: translateX(-100%); } to { transform: none; } }

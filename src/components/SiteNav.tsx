@@ -5,6 +5,7 @@ import { Menu } from "./Menu";
 import { Poster } from "./Poster";
 import { NavSearch } from "./NavSearch";
 import { DayNightToggle } from "./DayNightToggle";
+import { ThemeMenu } from "./ThemeMenu";
 import { optionalLibrary } from "@/lib/library";
 import { upcomingEpisodes, whenLabel } from "@/lib/upcoming";
 import { loadProfile } from "@/lib/profile";
@@ -78,6 +79,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
           <div className="ml-auto flex items-center gap-4 shrink-0">
             <SearchBoundary />
             <DayNightToggle onPicture={framed} />
+            <ThemeMenu />
             {accountsOpen && (
               <Link href="/login" className="btn ghost !py-2 !px-4 text-sm shrink-0 whitespace-nowrap">
                 Sign in
@@ -172,6 +174,7 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
       </Menu>
 
       <DayNightToggle onPicture={framed} />
+      <ThemeMenu />
 
       <Menu
         label="Account menu"
