@@ -5,8 +5,8 @@ import { nightTokens } from "@/lib/theme";
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner left to its picture, a corner of the banner
 // cut away to hold the person's card, pill tabs under it, and a
-// row of cards below — favourites, a headline block with the
-// numbers, and the latest diary entries in a divided list. The full diary,
+// row of cards below: a headline block with the numbers on the left and the
+// favourites card on the right. The full diary,
 // reviews, lists and favourites follow below, and the tabs jump to them.
 //
 // Server-rendered and read-only. Following is drawn but not live until the
@@ -32,9 +32,8 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
       <ProfileTabs />
 
       <div className="grid gap-5 mt-4 lg:grid-cols-12">
-        <FavouriteCard lead={lead} rest={v.favorites.slice(1, 5)} count={v.favorites.length} />
         <HeadlineBlock v={v} />
-        <LatestList entries={v.diary.slice(0, 4)} />
+        <FavouriteCard lead={lead} rest={v.favorites.slice(1, 5)} count={v.favorites.length} />
       </div>
 
       <Section id="diary" title="Diary" count={v.diary.length} empty="Nothing logged yet.">
@@ -199,7 +198,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
 
 function FavouriteCard({ lead, rest, count }: { lead: ProfileTitle | null; rest: ProfileTitle[]; count: number }) {
   return (
-    <div className="lg:col-span-3 rounded-[24px] bg-card border border-hair p-4 flex flex-col gap-3">
+    <div className="lg:col-span-5 rounded-[24px] bg-card border border-hair p-4 flex flex-col gap-3">
       <div className="flex items-baseline justify-between">
         <h2 className="!text-[clamp(26px,2.4vw,34px)] leading-none">Favourites</h2>
         <span className="text-[12px] text-dim">{count}</span>
@@ -239,7 +238,7 @@ function HeadlineBlock({ v }: { v: PublicProfileView }) {
     ["Avg rating", s.average ?? "—"],
   ];
   return (
-    <div className="lg:col-span-4 flex flex-col justify-between gap-6 px-1 py-2">
+    <div className="lg:col-span-7 flex flex-col justify-between gap-6 px-1 py-2">
       <div>
         <h2 className="!text-[clamp(40px,4.4vw,72px)] !leading-[.86]">
           Recently
@@ -258,31 +257,6 @@ function HeadlineBlock({ v }: { v: PublicProfileView }) {
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function LatestList({ entries }: { entries: DiaryEntry[] }) {
-  return (
-    <div className="lg:col-span-5 flex flex-col">
-      {entries.length === 0 && <p className="text-sm text-dim">Nothing logged yet.</p>}
-      {entries.map((e, i) => (
-        <Link key={`${e.key}${e.date}`} href={e.href} className={`group flex gap-4 items-center py-3 no-underline ${i > 0 ? "border-t border-hair" : ""}`}>
-          <div className="w-[clamp(64px,6vw,86px)] aspect-square rounded-[14px] overflow-hidden bg-card shrink-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            {e.backdrop && <img src={e.backdrop} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />}
-          </div>
-          <div className="min-w-0">
-            <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.95] text-ink truncate">{e.title}</div>
-            <div className="text-[13px] text-dim mt-1 flex flex-wrap gap-x-2">
-              <span>{prettyDate(e.date)}</span>
-              {e.episodes && <span>{e.episodes}</span>}
-              {e.rating != null && <Rating value={e.rating} />}
-              {e.loved && <span className="text-loved">♥</span>}
-            </div>
-          </div>
-        </Link>
-      ))}
     </div>
   );
 }
