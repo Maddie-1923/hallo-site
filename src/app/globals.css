@@ -256,6 +256,26 @@ details.faq p { margin: 14px 0 0; color: var(--dim); font-size: 15px; max-width:
 .tone { background: var(--tone-night); }
 :root[data-scheme="light"] .tone { background: var(--tone-day); }
 
+/* The home billboard's height on a desktop, worked out from the window the
+   way Netflix's is: the bar, the billboard and the whole first row of wide
+   cards fit on one screen with nothing cut off. The billboard takes whatever
+   height is left after the rest.
+   --g   the page gutter, the same clamp the bar and the rows use;
+   --pt  the gap above the billboard;
+   --row the first row's height: a card is a quarter-and-a-bit of the strip
+         (four across with the fifth peeking), 16:9, plus its heading;
+   155px the bar, the gap under the billboard and a little air at the foot.
+   Never shorter than the words need, and never taller than 1.9 times as wide
+   as it is wide, so a very tall window doesn't stretch it into a portrait. */
+@media (min-width: 1024px) {
+  .billboard-fit {
+    --g: clamp(16px, 3.2vw, 64px);
+    --pt: clamp(12px, 2.2vw, 40px);
+    --row: calc((100vw - 2 * var(--g) - 36px) / 4.25 * 9 / 16);
+    height: max(360px, min(calc(100svh - var(--pt) - var(--row) - 155px), calc((100vw - 2 * var(--g)) / 1.9)));
+  }
+}
+
 /* The home billboard's strip of pictures. */
 @keyframes slide-in-right { from { transform: translateX(100%); } to { transform: none; } }
 @keyframes slide-in-left { from { transform: translateX(-100%); } to { transform: none; } }

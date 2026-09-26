@@ -4,8 +4,9 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { CinemaHero, type CinemaSlide } from "@/components/CinemaHero";
 import { PosterRow, type PosterItem } from "@/components/PosterRow";
+import { WideRow, type WideItem } from "@/components/WideRow";
 import { AppleMark } from "@/components/StoreIcons";
-import { image, movieBillboard, movieRails, showBillboard, showRails } from "@/lib/tmdb";
+import { cardBackdrop, image, movieBillboard, movieRails, showBillboard, showRails, titleLogo } from "@/lib/tmdb";
 import { year, type LibraryArchive, type Movie, type Show } from "@/lib/archive";
 import { optionalLibrary } from "@/lib/library";
 import { regionName, visitorRegion } from "@/lib/region";
@@ -56,8 +57,27 @@ async function billboard(shows: Show[], movies: Movie[], archive: LibraryArchive
   });
 }
 
-const asShows = (xs: Show[]): PosterItem[] => xs.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, poster: s.poster_path, sub: year(s.first_air_date) }));
-const asMovies = (xs: Movie[]): PosterItem[] => xs.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, poster: m.poster_path, sub: year(m.release_date) }));
+const asShows = (xs: Show[]): PosterItem[] => xs.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, poster: s.poster_path, sub: year(s.first_air_date), backdrop: s.backdrop_path }));
+const asMovies = (xs: Movie[]): PosterItem[] => xs.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, poster: m.poster_path, sub: year(m.release_date), backdrop: m.backdrop_path }));
+
+// Which card the rows use. "wide" is the Netflix-style landscape card with the
+// title's logo on it; "tall" is the original row of small posters. One switch
+// so trying one against the other is a one-word change.
+const ROW_SHAPE: "wide" | "tall" = "wide";
+
+// Landscape cards need a backdrop, and look like a streaming service's with
+// the title's logo on them. Logos are one request a title, cached for a day,
+// so a row asks only for the cards it draws.
+async function asWide(items: PosterItem[], limit = 16): Promise<WideItem[]> {
+  const withArt = items.filter((it) => it.backdrop).slice(0, limit);
+  const logos = await Promise.all(withArt.map((it) => titleLogo(it.key.startsWith("s") ? "show" : "movie", Number(it.key.slice(1)))));
+  return withArt.map((it, i) => ({ key: it.key, href: it.href, title: it.title, backdrop: cardBackdrop(it.backdrop)!, logo: logos[i] }));
+}
+
+async function Row({ title, href, items }: { title: string; href: string; items: PosterItem[] }) {
+  if (ROW_SHAPE === "tall") return <PosterRow title={title} href={href} items={items} />;
+  return <WideRow title={title} href={href} items={await asWide(items)} />;
+}
 
 function interleave<T>(a: T[], b: T[]) {
   const out: T[] = [];
@@ -99,12 +119,12 @@ export default async function Home() {
 
         {/* The same gutters as the billboard, so the rows' edges line up with
             the card's. Not .wrap: its padding is unlayered and would win. */}
-        <div className="w-full px-[clamp(16px,3.2vw,64px)] pb-16 -mt-4">
-          <PosterRow title="Trending this week" href="/explore" items={trending} />
-          <PosterRow title={`In cinemas · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(inCinemas)} />
-          <PosterRow title="New episodes this week" href="/explore" items={asShows(airing)} />
-          <PosterRow title={`Coming soon · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(comingFilms)} />
-          <PosterRow title="Highest rated" href="/explore?kind=movie" items={interleave(asMovies(topFilms), asShows(topShows))} />
+        <div className="w-full px-[clamp(16px,3.2vw,64px)] pb-16">
+          <Row title="Trending this week" href="/explore" items={trending} />
+          <Row title={`In cinemas · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(inCinemas)} />
+          <Row title="New episodes this week" href="/explore" items={asShows(airing)} />
+          <Row title={`Coming soon · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(comingFilms)} />
+          <Row title="Highest rated" href="/explore?kind=movie" items={interleave(asMovies(topFilms), asShows(topShows))} />
         </div>
 
         {/* The app's pitch, last: the page opens on the posters, and whoever

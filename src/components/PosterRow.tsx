@@ -7,6 +7,8 @@ export interface PosterItem {
   title: string;
   poster: string | null | undefined;
   sub?: string;
+  /** The landscape still, for the wide-card version of a row. */
+  backdrop?: string | null;
 }
 
 // A home-page row: a small caps heading over a hairline, "More" on the right,

@@ -351,3 +351,22 @@ export async function showBillboard(id: number, region = RATING_FALLBACK): Promi
     trailer: pickTrailer(r.videos),
   };
 }
+
+// ---- Title logos, for the home page's wide cards ----
+
+type RawImages = { logos?: { file_path: string; iso_639_1: string | null; vote_average?: number; aspect_ratio?: number }[] };
+
+/** The title's own logo artwork (a transparent PNG), English first, or null.
+    One request per title, cached for a day, since a logo almost never changes. */
+export async function titleLogo(kind: "show" | "movie", id: number): Promise<string | null> {
+  const r = await tmdb<RawImages>(`/${kind === "show" ? "tv" : "movie"}/${id}/images`, { include_image_language: "en,null" }, 86400);
+  const logos = r?.logos ?? [];
+  const pick = logos.find((l) => l.iso_639_1 === "en") ?? logos.find((l) => l.iso_639_1 === null);
+  return pick ? `${IMG}/w500${pick.file_path}` : null;
+}
+
+/** A backdrop at card size: sharp at a quarter of a wide screen without
+    fetching the full-width cut. */
+export function cardBackdrop(p: string | null | undefined) {
+  return p ? `${IMG}/w780${p}` : null;
+}

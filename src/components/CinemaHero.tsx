@@ -91,15 +91,15 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
     // meant to spill downward onto the rows below.
     <div className="relative [overflow-x:clip]">
       {/* Netflix's proportions: the card runs nearly the full width of the
-          window with a slim gutter each side, and is about 2.2 times as wide
-          as it is tall. */}
-      <div className="relative w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,40px)] pb-[clamp(28px,3.5vw,56px)]">
+          window with a slim gutter each side, and on a desktop its height is
+          whatever leaves room for the first row below it (.billboard-fit). */}
+      <div className="relative w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,40px)] pb-[clamp(28px,3.5vw,56px)] lg:pb-5">
         {/* The glow, the way Netflix lifts its billboard off the page: the
             picture itself, blurred into a soft light that spills a little way
             out from behind the frame on every side, so the card looks lit by
             what it is showing. It changes with the slide, fading rather than
             sliding, since light doesn't travel sideways. */}
-        <div aria-hidden className="absolute inset-x-[clamp(16px,3.2vw,64px)] top-[clamp(12px,2.2vw,40px)] bottom-[clamp(28px,3.5vw,56px)] pointer-events-none">
+        <div aria-hidden className="absolute inset-x-[clamp(16px,3.2vw,64px)] top-[clamp(12px,2.2vw,40px)] bottom-[clamp(28px,3.5vw,56px)] lg:bottom-5 pointer-events-none">
           {slides.map((x, i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -120,7 +120,7 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
           onMouseLeave={() => setHover(false)}
         >
           <div
-            className="relative overflow-hidden rounded-[calc(clamp(22px,3vw,43px)-1px)] bg-[#141312] min-h-[640px] sm:min-h-[520px] lg:min-h-[480px] lg:aspect-[2.18/1] flex flex-col"
+            className="relative overflow-hidden rounded-[calc(clamp(22px,3vw,43px)-1px)] bg-[#141312] min-h-[640px] sm:min-h-[520px] lg:min-h-0 billboard-fit flex flex-col"
             // The frame is always a darkened photograph, so the words inside
             // it draw in Night's colours whatever the page is.
             style={nightTokens}
@@ -233,7 +233,7 @@ function slideStyle(i: number, at: number, leaving: { from: number; dir: 1 | -1 
 // through, since they stay put while the words slide.
 function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (id: string) => void }) {
   return (
-    <div className="px-[clamp(20px,5vw,80px)] sm:pl-[clamp(84px,7vw,108px)] pt-24 pb-[clamp(24px,3vw,44px)]">
+    <div className="px-[clamp(20px,5vw,80px)] sm:pl-[clamp(84px,7vw,108px)] pt-24 lg:pt-8 pb-[clamp(24px,3vw,44px)]">
       <div className="max-w-[min(520px,100%)]">
         <div className="text-[12px] tracking-[.08em] uppercase text-white/75 mb-2">{s.eyebrow}:</div>
         <h1 className="!leading-[.86] drop-shadow-[0_4px_30px_rgba(0,0,0,.55)] break-words" style={{ color: CREAM, fontSize: titleSize(s.title) }}>
