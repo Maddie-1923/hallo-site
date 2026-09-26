@@ -60,7 +60,13 @@ export function ProfileSections({ sections }: { sections: ProfileSection[] }) {
         })}
       </div>
 
-      <div role="tabpanel" id={`panel-${shown.id}`} aria-labelledby={`tab-${shown.id}`} className="mt-6 min-h-[240px]">
+      {/* The section sits in a shell like every other box on the profile. */}
+      <div
+        role="tabpanel"
+        id={`panel-${shown.id}`}
+        aria-labelledby={`tab-${shown.id}`}
+        className="mt-4 min-h-[240px] rounded-[24px] bg-card border border-hair px-[clamp(14px,2vw,28px)] py-[clamp(14px,1.6vw,22px)]"
+      >
         {shown.content}
       </div>
     </section>

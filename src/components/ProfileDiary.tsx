@@ -25,7 +25,7 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3 mb-5">
-        <div className="inline-flex p-[3px] rounded-full bg-card border border-hair">
+        <div className="inline-flex p-[3px] rounded-full bg-page border border-hair">
           {(
             [
               ["all", "All"],
@@ -46,7 +46,7 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
         </div>
         <label className="inline-flex items-center gap-2 text-[12.5px] text-dim">
           Year
-          <select value={year} onChange={(e) => setYear(e.target.value)} className="rounded-full bg-card border border-hair px-3 py-1 text-ink text-[12.5px] font-semibold cursor-pointer">
+          <select value={year} onChange={(e) => setYear(e.target.value)} className="rounded-full bg-page border border-hair px-3 py-1 text-ink text-[12.5px] font-semibold cursor-pointer">
             {years.map((y) => (
               <option key={y} value={y}>
                 {y}
@@ -83,7 +83,7 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
                 <tr key={`${e.key}${e.date}`} className={`border-b border-hair align-middle ${newMonth && i > 0 ? "border-t-2 border-t-hair" : ""}`}>
                   <td className="py-2.5 pr-3 align-top">
                     {newMonth && (
-                      <span className="inline-flex flex-col items-center justify-center w-[64px] rounded-[8px] bg-card border border-hair py-1 leading-none">
+                      <span className="inline-flex flex-col items-center justify-center w-[64px] rounded-[8px] bg-card-hi border border-hair py-1 leading-none">
                         <span className="display text-[20px] text-ink">{month(e.date)}</span>
                         <span className="text-[10.5px] text-dim mt-0.5">{e.date.slice(0, 4)}</span>
                       </span>

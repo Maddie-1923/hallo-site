@@ -338,7 +338,7 @@ function ActivityList({ v }: { v: PublicProfileView }) {
       {items.map((it, i) => (
         <li key={it.key} className={i > 0 ? "border-t border-hair" : ""}>
           <Link href={it.t.href} className="group flex items-center gap-4 py-3 no-underline text-ink">
-            <span className="w-[72px] aspect-video rounded-[6px] overflow-hidden bg-card shrink-0">
+            <span className="w-[72px] aspect-video rounded-[6px] overflow-hidden bg-card-hi shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {it.t.backdrop && <img src={it.t.backdrop} alt="" className="w-full h-full object-cover" />}
             </span>
@@ -361,7 +361,7 @@ function ActivityList({ v }: { v: PublicProfileView }) {
 
 function ReviewCard({ r }: { r: ReviewEntry }) {
   return (
-    <article className="rounded-[20px] bg-card border border-hair p-4 flex gap-4">
+    <article className="rounded-[20px] bg-card-hi border border-hair p-4 flex gap-4">
       <Link href={r.href} className="w-[72px] shrink-0">
         {r.poster && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -391,7 +391,7 @@ function ReviewCard({ r }: { r: ReviewEntry }) {
 
 function ListCard({ l }: { l: ListEntry }) {
   return (
-    <div className="rounded-[20px] bg-card border border-hair p-4">
+    <div className="rounded-[20px] bg-card-hi border border-hair p-4">
       {/* Four posters fanned, the way a list's cover reads on Letterboxd. */}
       <div className="relative h-[120px] mb-3">
         {l.posters.map((p, i) => (
