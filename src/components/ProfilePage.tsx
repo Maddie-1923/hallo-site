@@ -202,7 +202,7 @@ function RatingsSpread({ values }: { values: number[] }) {
       <div className="text-[12.5px] mb-2.5">
         <b className="text-ink">{values.length}</b> <span className="text-dim">ratings{avg != null ? ` · avg ${avg.toFixed(1)}` : ""}</span>
       </div>
-      <div className="flex items-end gap-1 h-[120px]">
+      <div className="flex items-end gap-1 h-[88px]">
         {buckets.map((n, i) => (
           <div key={i} title={`${i + 1}: ${n}`} className="flex-1 rounded-t-[3px] bg-accent-fill" style={{ height: `${Math.max(4, (n / most) * 100)}%`, opacity: n ? 1 : 0.18 }} />
         ))}

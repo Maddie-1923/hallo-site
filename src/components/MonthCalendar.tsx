@@ -6,7 +6,8 @@ import { useMemo, useState } from "react";
 // each day shaded by how much was watched on it, with arrows to step back
 // and forward through the months. It opens on the latest month with any
 // watching in it, so a profile never opens on an empty page just because the
-// person hasn't logged anything yet this month.
+// person hasn't logged anything yet this month. Days are short bars rather
+// than squares, to keep the box as low as the two beside it.
 export function MonthCalendar({ activity }: { activity: Record<string, number> }) {
   const latest = useMemo(() => {
     const days = Object.keys(activity).sort();
@@ -31,7 +32,10 @@ export function MonthCalendar({ activity }: { activity: Record<string, number> }
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="text-[12.5px] font-semibold text-ink">{label}</span>
+        <span className="text-[12.5px] min-w-0 truncate">
+          <b className="font-semibold text-ink">{label}</b>
+          <span className="text-dim"> · {watchedDays} {watchedDays === 1 ? "day" : "days"}</span>
+        </span>
         <span className="flex gap-1">
           <Arrow dir={-1} onClick={() => step(-1)} />
           <Arrow dir={1} onClick={() => step(1)} />
@@ -42,7 +46,7 @@ export function MonthCalendar({ activity }: { activity: Record<string, number> }
           <span key={i}>{d}</span>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-[3px]">
+      <div className="grid grid-cols-7 gap-[2px]">
         {Array.from({ length: lead }, (_, i) => (
           <span key={`lead${i}`} />
         ))}
@@ -52,16 +56,13 @@ export function MonthCalendar({ activity }: { activity: Record<string, number> }
             <span
               key={i}
               title={n ? `${key(i + 1)}: ${n} watched` : key(i + 1)}
-              className={`aspect-square rounded-[4px] flex items-center justify-center text-[9.5px] ${n >= 2 ? "text-on-accent font-semibold" : "text-dim"}`}
+              className={`h-[18px] rounded-[4px] flex items-center justify-center text-[9.5px] ${n >= 2 ? "text-on-accent font-semibold" : "text-dim"}`}
               style={{ background: shade(n) }}
             >
               {i + 1}
             </span>
           );
         })}
-      </div>
-      <div className="text-[12px] text-dim mt-2">
-        <b className="text-ink">{watchedDays}</b> {watchedDays === 1 ? "day" : "days"} watched
       </div>
     </div>
   );
