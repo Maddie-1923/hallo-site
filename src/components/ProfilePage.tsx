@@ -52,8 +52,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
         <div className="flex flex-col">
           <FavouriteCard v={v} />
         </div>
-        <div className="flex flex-col gap-4">
-          <Dashboard v={v} />
+        <div className="flex flex-col">
           <MiniTracker shows={v.tracker.shows} films={v.tracker.films} owner={!!v.owner} />
         </div>
       </div>
@@ -114,6 +113,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                 <Empty>No favourites yet.</Empty>
               ),
           },
+          { id: "stats", label: "Stats", content: <Dashboard v={v} /> },
         ]}
       />
 
@@ -148,9 +148,8 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
   );
 }
 
-// The quick-glance panels beside the favourites, three in a row: how they
-// rate, what they watch most, and a month of watching. The row grows to take
-// up any slack, so the column ends level with the one beside it.
+// The Stats tab: how they rate, what they watch most, and a month of
+// watching, three in a row.
 function Dashboard({ v }: { v: PublicProfileView }) {
   return (
     <div className="grid gap-4 sm:grid-cols-3">

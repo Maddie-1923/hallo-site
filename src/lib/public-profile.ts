@@ -246,12 +246,12 @@ export function profileFromArchive(
     shows: a.shows
       .filter((t) => t.status === "Watching")
       .sort((x, y) => (lastWatched.get(y.show.id) ?? "").localeCompare(lastWatched.get(x.show.id) ?? ""))
-      .slice(0, 5)
+      .slice(0, 7)
       .map((t): TrackerShow => ({ ...showTitle(t.show), seen: seenBy.get(t.show.id) ?? [], aired: null })),
     films: a.movies
       .filter((t) => t.status === "To Watch")
       .sort((x, y) => (y.added ?? "").localeCompare(x.added ?? ""))
-      .slice(0, 5)
+      .slice(0, 7)
       .map((t) => movieTitle(t.movie)),
   };
 

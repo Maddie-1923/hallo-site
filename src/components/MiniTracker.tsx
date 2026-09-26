@@ -12,9 +12,9 @@ import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 // The owner gets a check on each row: mark the next episode watched, or mark
 // a film watched. Until accounts and the database exist this changes only the
 // page being looked at, to show how it behaves; nothing is saved.
-// Five rows, kept low so they fit beside the Favourites card; the rest is in
-// the full tracker.
-const SHOWN = 5;
+// Seven rows: what fills the column beside Favourites now that it has the
+// whole height; the rest is in the full tracker.
+const SHOWN = 7;
 
 export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; films: ProfileTitle[]; owner: boolean }) {
   const [tab, setTab] = useState<"show" | "movie">("show");
@@ -25,7 +25,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
 
   return (
     <div className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col">
-      <div className="flex items-center justify-between gap-3 mb-1">
+      <div className="flex items-center justify-between gap-3 mb-2">
         <div className="text-[11px] font-bold tracking-[.14em] uppercase text-dim">Watching now</div>
         <div className="inline-flex p-[3px] rounded-full bg-page border border-hair">
           {(
@@ -115,18 +115,18 @@ function Row({
   first: boolean;
 }) {
   return (
-    <li className={`flex items-center gap-3 py-[3px] ${first ? "" : "border-t border-hair"}`}>
-      <Link href={t.href} className="w-[52px] aspect-video rounded-[5px] overflow-hidden bg-card-hi shrink-0">
+    <li className={`flex items-center gap-3 py-[7px] ${first ? "" : "border-t border-hair"}`}>
+      <Link href={t.href} className="w-[76px] aspect-video rounded-[6px] overflow-hidden bg-card-hi shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {(t.backdrop ?? t.poster) && <img src={(t.backdrop ?? t.poster)!} alt="" className="w-full h-full object-cover" />}
       </Link>
       <div className="min-w-0 flex-1">
-        <Link href={t.href} className="block text-[13px] leading-[17px] font-semibold text-ink truncate no-underline hover:text-accent">
+        <Link href={t.href} className="block text-[14px] leading-[19px] font-semibold text-ink truncate no-underline hover:text-accent">
           {t.title}
         </Link>
-        <div className="text-[11.5px] leading-[15px] text-dim truncate">{line}</div>
+        <div className="text-[12.5px] leading-[17px] text-dim truncate">{line}</div>
         {bar && (
-          <span className="block mt-[3px] h-[3px] rounded-full bg-card-hi overflow-hidden">
+          <span className="block mt-1.5 h-[4px] rounded-full bg-card-hi overflow-hidden">
             <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
           </span>
         )}
@@ -137,9 +137,9 @@ function Row({
           onClick={action.run}
           aria-label={action.label}
           title={action.label}
-          className="w-6 h-6 rounded-full border border-hair text-dim hover:bg-accent-fill hover:text-on-accent hover:border-accent-fill flex items-center justify-center cursor-pointer transition-colors shrink-0"
+          className="w-8 h-8 rounded-full border border-hair text-dim hover:bg-accent-fill hover:text-on-accent hover:border-accent-fill flex items-center justify-center cursor-pointer transition-colors shrink-0"
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M5 12l5 5L20 7" />
           </svg>
         </button>
