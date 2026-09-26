@@ -29,7 +29,10 @@ async function billboard(shows: Show[], movies: Movie[], archive: LibraryArchive
     movie: new Set(archive?.movies.map((t) => t.movie.id) ?? []),
   };
 
-  const details = await Promise.all(picks.map((p) => (p.kind === "show" ? showBillboard(p.show.id, region) : movieBillboard(p.movie.id, region))));
+  const [details, logos] = await Promise.all([
+    Promise.all(picks.map((p) => (p.kind === "show" ? showBillboard(p.show.id, region) : movieBillboard(p.movie.id, region)))),
+    Promise.all(picks.map((p) => (p.kind === "show" ? titleLogo("show", p.show.id) : titleLogo("movie", p.movie.id)))),
+  ]);
 
   return picks.map((p, i): CinemaSlide => {
     const d = details[i];
@@ -50,6 +53,7 @@ async function billboard(shows: Show[], movies: Movie[], archive: LibraryArchive
       genres: d?.genres ?? [],
       overview: t.overview ?? null,
       trailer: d?.trailer ?? null,
+      logo: logos[i],
       target: p,
       tracked: isShow ? tracked.show.has(id) : tracked.movie.has(id),
     };

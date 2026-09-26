@@ -23,6 +23,8 @@ export interface CinemaSlide {
   genres: string[];
   overview: string | null;
   trailer: string | null;
+  /** The title's logo artwork, drawn in place of the typed title when there. */
+  logo: string | null;
   target: { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
   tracked: boolean;
 }
@@ -234,20 +236,32 @@ function slideStyle(i: number, at: number, leaving: { from: number; dir: 1 | -1 
 function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (id: string) => void }) {
   return (
     <div className="px-[clamp(20px,5vw,80px)] sm:pl-[clamp(84px,7vw,108px)] pt-24 lg:pt-8 pb-[clamp(24px,3vw,44px)]">
-      <div className="max-w-[min(520px,100%)]">
-        <div className="text-[12px] tracking-[.08em] uppercase text-white/75 mb-2">{s.eyebrow}:</div>
+      <div className="max-w-[min(460px,100%)]">
+        <div className="text-[11px] tracking-[.08em] uppercase text-white/70 mb-2">{s.eyebrow}</div>
+        {/* The title as Netflix sets it: the show's own logo artwork, kept
+            compact so it labels the picture rather than covering it. The
+            typed title stands in when TMDB has no logo. */}
         <h1 className="!leading-[.86] drop-shadow-[0_4px_30px_rgba(0,0,0,.55)] break-words" style={{ color: CREAM, fontSize: titleSize(s.title) }}>
-          <Link href={s.href} className="no-underline" style={{ color: "inherit" }}>
-            <Title text={s.title} />
+          <Link href={s.href} className="no-underline block" style={{ color: "inherit" }}>
+            {s.logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={s.logo}
+                alt={s.title}
+                className="block w-auto h-auto max-w-[min(300px,70%)] max-h-[clamp(56px,11vh,110px)] object-contain object-left-bottom drop-shadow-[0_2px_14px_rgba(0,0,0,.6)]"
+              />
+            ) : (
+              <Title text={s.title} />
+            )}
           </Link>
         </h1>
 
         {s.tagline && (
-          <p className="m-0 mt-4 text-white uppercase tracking-[.04em] leading-[1.2] text-[13px] [font-family:var(--font-wide)] font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,.7)]">
+          <p className="m-0 mt-3 text-white uppercase tracking-[.04em] leading-[1.2] text-[11px] [font-family:var(--font-wide)] font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,.7)]">
             {s.tagline}
           </p>
         )}
-        <p className="m-0 mt-2 text-[13px] text-white/85 flex flex-wrap items-center gap-x-2">
+        <p className="m-0 mt-1.5 text-[12px] text-white/85 flex flex-wrap items-center gap-x-2">
           {[
             s.year,
             s.certification ? (
@@ -261,14 +275,14 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             .filter(Boolean)
             .flatMap((x, i) => (i ? [<span key={`d${i}`} className="text-white/45">|</span>, <span key={i}>{x}</span>] : [<span key={i}>{x}</span>]))}
         </p>
-        {s.overview && <p className="m-0 mt-2.5 text-[13.5px] leading-[1.45] text-white/85 line-clamp-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.overview}</p>}
+        {s.overview && <p className="m-0 mt-2 text-[12.5px] leading-[1.45] text-white/85 line-clamp-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.overview}</p>}
 
-        <div className="flex flex-wrap items-center gap-2.5 mt-4">
+        <div className="flex flex-wrap items-center gap-2 mt-3.5">
           {s.trailer && (
             <button
               type="button"
               onClick={() => onTrailer(s.trailer!)}
-              className="inline-flex items-center gap-2 px-4 py-[7px] rounded-[3px] text-[13px] font-bold uppercase tracking-[.04em] cursor-pointer transition-[filter] hover:brightness-110"
+              className="inline-flex items-center gap-1.5 px-3.5 py-[6px] rounded-[3px] text-[12px] font-bold uppercase tracking-[.04em] cursor-pointer transition-[filter] hover:brightness-110"
               style={{ background: FILL, color: ON_FILL }}
             >
               <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden>
@@ -279,13 +293,13 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
           )}
           <Link
             href={s.href}
-            className="inline-flex items-center px-3.5 py-[5px] rounded-[3px] border-2 border-white/85 text-white text-[13px] font-bold uppercase tracking-[.04em] no-underline hover:bg-white hover:text-[#141312] transition-colors"
+            className="inline-flex items-center px-3 py-[4px] rounded-[3px] border-2 border-white/85 text-white text-[12px] font-bold uppercase tracking-[.04em] no-underline hover:bg-white hover:text-[#141312] transition-colors"
           >
             Details
           </Link>
           <WatchlistChip slide={s} />
         </div>
-        <div aria-hidden className="h-[4px] mt-6" />
+        <div aria-hidden className="h-[4px] mt-5" />
       </div>
     </div>
   );
@@ -295,10 +309,10 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
 // to come down or it runs to five lines.
 function titleSize(title: string) {
   const n = title.length;
-  if (n <= 12) return "clamp(52px, 6vw, 96px)";
-  if (n <= 22) return "clamp(44px, 4.6vw, 76px)";
-  if (n <= 34) return "clamp(38px, 3.8vw, 62px)";
-  return "clamp(34px, 3.2vw, 52px)";
+  if (n <= 12) return "clamp(40px, 4.2vw, 68px)";
+  if (n <= 22) return "clamp(34px, 3.4vw, 54px)";
+  if (n <= 34) return "clamp(30px, 2.8vw, 44px)";
+  return "clamp(26px, 2.4vw, 38px)";
 }
 
 // The last word in the slide's colour, spaced out, the way the reference sets
@@ -360,7 +374,7 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
       type="button"
       onClick={add}
       disabled={pending}
-      className="inline-flex items-center gap-2 px-3.5 py-[7px] rounded-[3px] text-[13px] font-semibold cursor-pointer transition-[filter] hover:brightness-110"
+      className="inline-flex items-center gap-1.5 px-3 py-[6px] rounded-[3px] text-[12px] font-semibold cursor-pointer transition-[filter] hover:brightness-110"
       style={{ background: FILL, color: ON_FILL }}
     >
       <svg width="15" height="15" viewBox="0 0 24 24" fill={on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden>
