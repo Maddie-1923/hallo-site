@@ -96,7 +96,18 @@ export default async function Home() {
       </header>
 
       <main className="flex-1">
-        <section className="wrap !max-w-[1240px] text-center pt-2 pb-4">
+
+        <div className="wrap !max-w-[1240px] pb-16 -mt-4">
+          <PosterRow title="Trending this week" href="/explore" items={trending} />
+          <PosterRow title={`In cinemas · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(inCinemas)} />
+          <PosterRow title="New episodes this week" href="/explore" items={asShows(airing)} />
+          <PosterRow title={`Coming soon · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(comingFilms)} />
+          <PosterRow title="Highest rated" href="/explore?kind=movie" items={interleave(asMovies(topFilms), asShows(topShows))} />
+        </div>
+
+        {/* The app's pitch, last: the page opens on the posters, and whoever
+            has scrolled this far has seen what Kodigo is for. */}
+        <section className="wrap !max-w-[1240px] text-center pt-14 pb-20 border-t border-hair">
           <p className="display text-[clamp(28px,4vw,46px)] leading-[1] m-0">
             Track what you watch. Save what you want to see.
             <br />
@@ -112,14 +123,6 @@ export default async function Home() {
             </Link>
           </div>
         </section>
-
-        <div className="wrap !max-w-[1240px] pb-16">
-          <PosterRow title="Trending this week" href="/explore" items={trending} />
-          <PosterRow title={`In cinemas · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(inCinemas)} />
-          <PosterRow title="New episodes this week" href="/explore" items={asShows(airing)} />
-          <PosterRow title={`Coming soon · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(comingFilms)} />
-          <PosterRow title="Highest rated" href="/explore?kind=movie" items={interleave(asMovies(topFilms), asShows(topShows))} />
-        </div>
       </main>
 
       <SiteFooter />
