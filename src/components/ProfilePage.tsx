@@ -27,8 +27,11 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
       <ProfileTabs />
 
-      <div className="grid gap-5 mt-4 lg:grid-cols-2 items-start">
-        <div className="flex flex-col gap-5">
+      {/* The two columns end on the same line: the grid stretches both to
+          the taller, the left's last row of panels grows to fill, and the
+          Favourites card spaces its rows out. */}
+      <div className="grid gap-5 mt-4 lg:grid-cols-2 items-stretch">
+        <div className="flex flex-col gap-4">
           <ProfileCard v={v} />
           <Dashboard v={v} />
         </div>
@@ -153,7 +156,7 @@ function Dashboard({ v }: { v: PublicProfileView }) {
       <Panel tag="B" title="Watch calendar">
         <WatchCalendar activity={v.activity} />
       </Panel>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 flex-1">
         <Panel tag="C" title="Ratings">
           <RatingsSpread values={v.ratingValues} />
         </Panel>
@@ -167,8 +170,8 @@ function Dashboard({ v }: { v: PublicProfileView }) {
 
 function Panel({ tag, title, children }: { tag: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-[24px] bg-card border border-hair p-[clamp(16px,1.8vw,22px)]">
-      <div className="flex items-center gap-2 mb-3">
+    <div className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col">
+      <div className="flex items-center gap-2 mb-2.5">
         <span className="w-5 h-5 rounded-full bg-accent-fill text-on-accent text-[11px] font-bold flex items-center justify-center" aria-hidden>
           {tag}
         </span>
@@ -190,8 +193,8 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
   return (
     <div className="grid grid-cols-4 gap-2">
       {tiles.map(([label, value]) => (
-        <div key={label} className="rounded-[14px] bg-card-hi py-3 text-center">
-          <div className="display text-[clamp(26px,2.4vw,36px)] leading-none text-accent">{value}</div>
+        <div key={label} className="rounded-[14px] bg-card-hi py-2.5 text-center">
+          <div className="display text-[clamp(24px,2.2vw,32px)] leading-none text-accent">{value}</div>
           <div className="text-[10px] font-bold tracking-[.14em] uppercase text-dim mt-1.5">{label}</div>
         </div>
       ))}
@@ -226,7 +229,7 @@ function WatchCalendar({ activity }: { activity: Record<string, number> }) {
 
   return (
     <div>
-      <div className="flex gap-5 mb-3 text-[13px]">
+      <div className="flex gap-5 mb-2.5 text-[12.5px]">
         <span>
           <b className="text-ink">{active}</b> <span className="text-dim">{active === 1 ? "day" : "days"} watched</span>
         </span>
@@ -234,7 +237,7 @@ function WatchCalendar({ activity }: { activity: Record<string, number> }) {
           <b className="text-ink">{best}</b> <span className="text-dim">{best === 1 ? "day" : "days"} best streak</span>
         </span>
       </div>
-      <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${weeks}, minmax(0, 1fr))`, gridTemplateRows: "repeat(7, auto)", gridAutoFlow: "column" }}>
+      <div className="grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${weeks}, minmax(0, 1fr))`, gridTemplateRows: "repeat(7, auto)", gridAutoFlow: "column" }}>
         {days.map((d) => (
           <div key={d.key} title={`${d.key}: ${d.n}`} className="aspect-square rounded-[2px]" style={{ background: shade(d.n) }} />
         ))}
@@ -255,11 +258,11 @@ function RatingsSpread({ values }: { values: number[] }) {
   const most = Math.max(1, ...buckets);
   const avg = values.length ? values.reduce((x, y) => x + y, 0) / values.length : null;
   return (
-    <div>
-      <div className="text-[13px] mb-3">
+    <div className="flex-1 flex flex-col">
+      <div className="text-[12.5px] mb-2.5">
         <b className="text-ink">{values.length}</b> <span className="text-dim">ratings{avg != null ? ` · avg ${avg.toFixed(1)}` : ""}</span>
       </div>
-      <div className="flex items-end gap-1 h-[72px]">
+      <div className="flex items-end gap-1 flex-1 min-h-[56px]">
         {buckets.map((n, i) => (
           <div key={i} title={`${i + 1}: ${n}`} className="flex-1 rounded-t-[3px] bg-accent-fill" style={{ height: `${Math.max(4, (n / most) * 100)}%`, opacity: n ? 1 : 0.18 }} />
         ))}
@@ -290,12 +293,15 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
   );
 }
 
+// The person's card, kept to one line: photo, handle and what they have put
+// here on the left, followers on the right. A bio, when there is one, runs
+// underneath.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   const initial = (v.displayName[0] ?? "?").toUpperCase();
   return (
-    <div className="rounded-[24px] bg-card border border-hair p-[clamp(16px,1.8vw,24px)] flex flex-col gap-4">
+    <div className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col gap-2.5">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-[clamp(48px,4.6vw,64px)] aspect-square rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display text-3xl shrink-0 border-2 border-page shadow">
+        <div className="w-12 aspect-square rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display text-2xl shrink-0 border-2 border-page shadow">
           {v.avatar ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={v.avatar} alt="" className="w-full h-full object-cover" />
@@ -303,29 +309,22 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             initial
           )}
         </div>
-        {/* The handle is who this is; under it, what the person has put
-            here, and what they say about themselves. */}
-        <div className="min-w-0">
-          <div className="display text-[clamp(20px,1.9vw,28px)] leading-[.9] truncate">@{v.username}</div>
-          <div className="text-[12px] text-dim">
+        <div className="min-w-0 flex-1">
+          <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.9] truncate">@{v.username}</div>
+          <div className="text-[12px] text-dim truncate">
             {v.stats.ratings} ratings · {v.reviews.length} reviews · {v.lists.length} lists
           </div>
         </div>
+        <div className="flex items-center gap-4 text-[12.5px] shrink-0">
+          <span>
+            <b className="text-ink">{v.followers}</b> <span className="text-dim">followers</span>
+          </span>
+          <span>
+            <b className="text-ink">{v.following}</b> <span className="text-dim">following</span>
+          </span>
+        </div>
       </div>
-      {/* What they have watched, in the display face: the card's headline
-          figure, under the handle and above who follows them. */}
-      <div className="display text-[clamp(22px,2vw,30px)] leading-none text-ink">
-        {v.stats.films} films · {v.stats.episodes} episodes
-      </div>
-      {v.bio && <p className="m-0 text-[13px] leading-[1.45] text-dim line-clamp-3">{v.bio}</p>}
-      <div className="flex items-center gap-5 text-[13px]">
-        <span>
-          <b className="text-ink">{v.followers}</b> <span className="text-dim">followers</span>
-        </span>
-        <span>
-          <b className="text-ink">{v.following}</b> <span className="text-dim">following</span>
-        </span>
-      </div>
+      {v.bio && <p className="m-0 text-[13px] leading-[1.45] text-dim line-clamp-2">{v.bio}</p>}
     </div>
   );
 }
@@ -342,7 +341,7 @@ function FavouriteCard({ v }: { v: PublicProfileView }) {
     if (!recent.some((r) => r.key === e.key)) recent.push(e);
   }
   return (
-    <div className="rounded-[24px] bg-card border border-hair p-4 flex flex-col gap-4">
+    <div className="rounded-[24px] bg-card border border-hair p-4 flex flex-col justify-between gap-4">
       <h2 className="!text-[clamp(26px,2.4vw,34px)] leading-none">Favourites</h2>
       <div>
         <Label>Top 5 films</Label>
