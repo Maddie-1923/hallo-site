@@ -21,9 +21,6 @@ const R = 28;
 // draws it) and the card (which leaves room for it).
 const AVATAR = "clamp(92px, 9vw, 128px)";
 const AVATAR_LEFT = "clamp(16px, 2.2vw, 28px)";
-// The side padding of the quick-glance panels, which the person's card uses
-// to line itself up with the Numbers tiles.
-const PANEL_PAD = "clamp(14px, 1.6vw, 20px)";
 
 export function ProfilePage({ view: v }: { view: PublicProfileView }) {
   const bannerArt = v.banner ?? v.favorites[0]?.backdrop ?? v.diary[0]?.backdrop ?? null;
@@ -36,15 +33,21 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
       <Banner v={v} art={bannerArt} />
 
-      {/* The two columns end on the same line: the grid stretches both to
-          the taller, the left's last row of panels grows to fill, and the
-          Favourites card spaces its rows out. */}
-      <div className="grid gap-5 mt-5 lg:grid-cols-2 items-stretch">
+      {/* Two columns that end on the same line: the person's card, how they
+          rate, what they watch and their calendar on the left; the numbers
+          and their favourites on a narrower right. The grid stretches both
+          to the taller, and the growable row on each side takes the slack. */}
+      <div className="grid gap-5 mt-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] items-stretch">
         <div className="flex flex-col gap-4">
           <ProfileCard v={v} />
           <Dashboard v={v} />
         </div>
-        <FavouriteCard v={v} />
+        <div className="flex flex-col gap-4">
+          <Panel title="Numbers">
+            <NumberTiles v={v} />
+          </Panel>
+          <FavouriteCard v={v} />
+        </div>
       </div>
 
       {/* One section at a time under the tabs, swapped in place. */}
@@ -136,15 +139,12 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
   );
 }
 
-// The quick-glance panels under the person's card: the numbers, how they
-// rate beside what they watch most, and a year of watching. The middle row
-// grows to take up any slack, so the column ends level with Favourites.
+// The quick-glance panels under the person's card: how they rate beside what
+// they watch most, and a year of watching. The first row grows to take up
+// any slack, so the column ends level with the one beside it.
 function Dashboard({ v }: { v: PublicProfileView }) {
   return (
     <>
-      <Panel title="Numbers">
-        <NumberTiles v={v} />
-      </Panel>
       <div className="grid gap-4 sm:grid-cols-2 flex-1">
         <Panel title="Ratings">
           <RatingsSpread values={v.ratingValues} />
@@ -283,14 +283,9 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 // The person's card, kept to one line: photo, handle and what they have put
 // here on the left, followers on the right. A bio, when there is one, runs
 // underneath.
-// The person's card: handle and what they have put here, followers on the
-// right. It starts where the Numbers panel's second tile starts, so it sits
-// beside the photo hanging from the banner instead of running under it, and
-// its left edge lines up with a line already on the page. The margin is the
-// tile grid's own arithmetic: the panel's padding, one tile (a quarter of
-// what is left after the padding and three 8px gaps), and one gap. On a
-// phone, where a tile is narrower than the photo, it is the photo's edge
-// instead, so the two never overlap.
+// The person's card: handle and what they have put here, followers below,
+// Follow on the right. It starts just past the photo hanging from the banner,
+// so it sits beside the photo instead of running under it.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
     <div className="relative">
@@ -312,7 +307,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
       </div>
     <div
       className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 flex flex-col gap-2"
-      style={{ marginLeft: `max(calc(${PANEL_PAD} + (100% - 2 * ${PANEL_PAD} - 24px) / 4 + 8px), calc(${AVATAR_LEFT} + ${AVATAR} + 12px))` }}
+      style={{ marginLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 16px)` }}
     >
       {/* Everything about the person down the left: the handle, what they
           have put here, who follows them. The Follow button alone on the
@@ -359,8 +354,8 @@ function FavouriteCard({ v }: { v: PublicProfileView }) {
     if (!recent.some((r) => r.key === e.key)) recent.push(e);
   }
   return (
-    <div className="rounded-[24px] bg-card border border-hair p-4 flex flex-col justify-between gap-4">
-      <h2 className="!text-[clamp(26px,2.4vw,34px)] leading-none">Favourites</h2>
+    <div className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col justify-between gap-3">
+      <h2 className="!text-[clamp(22px,2vw,28px)] leading-none">Favourites</h2>
       <div>
         <Label>Top 5 films</Label>
         <FiveRow titles={v.topFilms} />
