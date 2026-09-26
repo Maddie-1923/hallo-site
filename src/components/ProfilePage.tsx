@@ -5,6 +5,7 @@ import { FollowPill } from "./FollowPill";
 import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
 import { FavouritesCard } from "./FavouritesCard";
+import { MonthCalendar } from "./MonthCalendar";
 
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner left to its picture, then the person's card
@@ -144,24 +145,22 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
   );
 }
 
-// The quick-glance panels under the person's card: how they rate beside what
-// they watch most, and a year of watching. The first row grows to take up
-// any slack, so the column ends level with the one beside it.
+// The quick-glance panels beside the favourites, three in a row: how they
+// rate, what they watch most, and a month of watching. The row grows to take
+// up any slack, so the column ends level with the one beside it.
 function Dashboard({ v }: { v: PublicProfileView }) {
   return (
-    <>
-      <div className="grid gap-4 sm:grid-cols-2 flex-1">
-        <Panel title="Ratings">
-          <RatingsSpread values={v.ratingValues} />
-        </Panel>
-        <Panel title="Top genres">
-          <TopGenres genres={v.genres} />
-        </Panel>
-      </div>
-      <Panel title="Watch calendar">
-        <WatchCalendar activity={v.activity} />
+    <div className="grid gap-4 sm:grid-cols-3">
+      <Panel title="Ratings">
+        <RatingsSpread values={v.ratingValues} />
       </Panel>
-    </>
+      <Panel title="Top genres">
+        <TopGenres genres={v.genres} />
+      </Panel>
+      <Panel title="Watch calendar">
+        <MonthCalendar activity={v.activity} />
+      </Panel>
+    </div>
   );
 }
 
@@ -194,57 +193,6 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
   );
 }
 
-// The last 53 weeks as a grid of days, a column a week, Sunday at the top,
-// each day shaded by how much was watched on it.
-function WatchCalendar({ activity }: { activity: Record<string, number> }) {
-  const today = new Date();
-  const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-  const start = new Date(end);
-  start.setUTCDate(start.getUTCDate() - 52 * 7 - end.getUTCDay());
-  const days: { key: string; n: number; month: number; date: number }[] = [];
-  for (const d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
-    const key = d.toISOString().slice(0, 10);
-    days.push({ key, n: activity[key] ?? 0, month: d.getUTCMonth(), date: d.getUTCDate() });
-  }
-  const weeks = Math.ceil(days.length / 7);
-  const active = days.filter((d) => d.n > 0).length;
-  // Longest run of consecutive watch days in the window.
-  let best = 0;
-  let run = 0;
-  for (const d of days) {
-    run = d.n > 0 ? run + 1 : 0;
-    best = Math.max(best, run);
-  }
-  const shade = (n: number) =>
-    n === 0 ? "var(--card-hi)" : `color-mix(in srgb, var(--accent-fill) ${n === 1 ? 35 : n <= 3 ? 65 : 100}%, var(--card-hi))`;
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-  return (
-    <div>
-      <div className="flex gap-5 mb-2.5 text-[12.5px]">
-        <span>
-          <b className="text-ink">{active}</b> <span className="text-dim">{active === 1 ? "day" : "days"} watched</span>
-        </span>
-        <span>
-          <b className="text-ink">{best}</b> <span className="text-dim">{best === 1 ? "day" : "days"} best streak</span>
-        </span>
-      </div>
-      <div className="grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${weeks}, minmax(0, 1fr))`, gridTemplateRows: "repeat(7, auto)", gridAutoFlow: "column" }}>
-        {days.map((d) => (
-          <div key={d.key} title={`${d.key}: ${d.n}`} className="aspect-square rounded-[2px]" style={{ background: shade(d.n) }} />
-        ))}
-      </div>
-      <div className="grid mt-1.5 text-[10.5px] text-dim" style={{ gridTemplateColumns: `repeat(${weeks}, minmax(0, 1fr))` }}>
-        {Array.from({ length: weeks }, (_, w) => {
-          const first = days[w * 7];
-          return <span key={w}>{first && first.date <= 7 ? months[first.month] : ""}</span>;
-        })}
-      </div>
-    </div>
-  );
-}
-
-// How they rate: a bar for each whole heart from one to ten.
 function RatingsSpread({ values }: { values: number[] }) {
   const buckets = Array.from({ length: 10 }, (_, i) => values.filter((x) => Math.ceil(x) === i + 1).length);
   const most = Math.max(1, ...buckets);
@@ -254,7 +202,7 @@ function RatingsSpread({ values }: { values: number[] }) {
       <div className="text-[12.5px] mb-2.5">
         <b className="text-ink">{values.length}</b> <span className="text-dim">ratings{avg != null ? ` · avg ${avg.toFixed(1)}` : ""}</span>
       </div>
-      <div className="flex items-end gap-1 flex-1 min-h-[56px]">
+      <div className="flex items-end gap-1 h-[120px]">
         {buckets.map((n, i) => (
           <div key={i} title={`${i + 1}: ${n}`} className="flex-1 rounded-t-[3px] bg-accent-fill" style={{ height: `${Math.max(4, (n / most) * 100)}%`, opacity: n ? 1 : 0.18 }} />
         ))}
