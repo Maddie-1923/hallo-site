@@ -4,8 +4,8 @@ import { nightTokens } from "@/lib/theme";
 
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner with the name set huge across it, a corner of
-// the banner cut away to hold the person's card, pill tabs over the picture,
-// and a row of cards under it — favourites, a headline block with the
+// the banner cut away to hold the person's card, pill tabs under it, and a
+// row of cards below — favourites, a headline block with the
 // numbers, and the latest diary entries in a divided list. The full diary,
 // reviews, lists and favourites follow below, and the tabs jump to them.
 //
@@ -29,7 +29,9 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
       <Banner v={v} art={bannerArt} />
 
-      <div className="grid gap-5 mt-5 lg:grid-cols-12">
+      <ProfileTabs />
+
+      <div className="grid gap-5 mt-4 lg:grid-cols-12">
         <FavouriteCard lead={lead} rest={v.favorites.slice(1, 5)} count={v.favorites.length} />
         <HeadlineBlock v={v} />
         <LatestList entries={v.diary.slice(0, 4)} />
@@ -73,13 +75,6 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 }
 
 function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
-  const tabs: [string, string][] = [
-    ["#top", "Profile"],
-    ["#diary", "Diary"],
-    ["#reviews", "Reviews"],
-    ["#lists", "Lists"],
-    ["#favourites", "Favourites"],
-  ];
   // Films and episodes, as the headline's second line: the page says what
   // this person watches before it says anything else.
   const line2 = `${v.stats.films} films · ${v.stats.episodes} episodes`;
@@ -98,19 +93,6 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
         )}
         <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.75) 0%, rgba(12,10,9,.25) 45%, rgba(12,10,9,.15) 100%)" }} />
 
-        {/* The tabs, in a pale pill like the reference's, top left. */}
-        <nav aria-label="Profile sections" className="absolute top-4 left-4 max-w-[calc(100%-130px)] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex items-center gap-1 p-1 rounded-full bg-[#F4F1EA]/92 backdrop-blur text-[#1a1a19] shadow-sm">
-          {tabs.map(([href, label], i) => (
-            <a
-              key={href}
-              href={href}
-              className={`shrink-0 px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold no-underline transition-colors ${i === 0 ? "bg-[#1a1a19] text-[#F4F1EA]" : "text-[#1a1a19]/80 hover:text-[#1a1a19]"}`}
-            >
-              {label}
-            </a>
-          ))}
-        </nav>
-
         {/* Follow, top right. Drawn now, live when accounts open. */}
         <button
           type="button"
@@ -124,21 +106,6 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
           </svg>
           Follow
         </button>
-
-        {/* What they watch most, as chips on the right above the second
-            headline line, like the reference's HOUSE / FARM / FACTORY. */}
-        <div className="hidden md:block absolute right-6 top-[34%] max-w-[380px]">
-          <div className="flex flex-wrap gap-2">
-            {v.topGenres.map((g, i) => (
-              <span
-                key={g}
-                className={`px-3.5 py-1.5 rounded-full text-[11.5px] font-bold uppercase tracking-[.06em] border ${i === 0 ? "bg-[#F4F1EA] text-[#1a1a19] border-[#F4F1EA]" : "border-white/70 text-white"}`}
-              >
-                {g}
-              </span>
-            ))}
-          </div>
-        </div>
 
         {/* The name, huge. Its first line crosses the picture above the
             cut-out corner; its second runs along the bottom to the right of
@@ -172,6 +139,36 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
         <ProfileCard v={v} />
       </div>
     </section>
+  );
+}
+
+// The section tabs, under the banner and the person's card and above the
+// row of cards, as a pill like the reference's nav: the lit tab a solid ink
+// pill, the rest plain. On the page's own colours, so it follows Day and
+// Night. Scrolls sideways on a phone rather than wrapping.
+function ProfileTabs() {
+  const tabs: [string, string][] = [
+    ["#top", "Profile"],
+    ["#diary", "Diary"],
+    ["#reviews", "Reviews"],
+    ["#lists", "Lists"],
+    ["#favourites", "Favourites"],
+  ];
+  return (
+    <nav
+      aria-label="Profile sections"
+      className="mt-5 inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center gap-1 p-1 rounded-full bg-card border border-hair"
+    >
+      {tabs.map(([href, label], i) => (
+        <a
+          key={href}
+          href={href}
+          className={`shrink-0 px-4 py-1.5 rounded-full text-[13px] font-semibold no-underline transition-colors ${i === 0 ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+        >
+          {label}
+        </a>
+      ))}
+    </nav>
   );
 }
 

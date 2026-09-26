@@ -98,7 +98,6 @@ async function sampleProfile(): Promise<PublicProfileView> {
     followers: 128,
     following: 64,
     stats: { films: 214, shows: 37, episodes: 1893, hours: 1702, ratings: 188, average: 7.4 },
-    topGenres: ["Drama", "Thriller", "Sci-Fi", "Comedy"],
     favorites: classics.slice(0, 8),
     diary,
     reviews: diary.slice(0, 4).map((d, i) => ({ ...d, text: blurbs[i], date: d.date, spoilers: i === 3 })),

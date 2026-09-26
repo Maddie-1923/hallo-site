@@ -1,6 +1,6 @@
 import "server-only";
 import type { LibraryArchive, Movie, Show } from "./archive";
-import { genreNames, image } from "./tmdb";
+import { image } from "./tmdb";
 
 // What a public profile page draws, worked out from a library. The page never
 // sees the archive itself: only what is meant to be shared comes through here
@@ -56,7 +56,6 @@ export interface PublicProfileView {
   followers: number;
   following: number;
   stats: { films: number; shows: number; episodes: number; hours: number; ratings: number; average: number | null };
-  topGenres: string[];
   favorites: ProfileTitle[];
   diary: DiaryEntry[];
   reviews: ReviewEntry[];
@@ -154,13 +153,6 @@ export function profileFromArchive(
       return { id: l.id, name: l.name, detail: l.detail ?? null, count: titles.length, posters: titles.slice(0, 4).map((p) => image.poster(p, "w185")) };
     });
 
-  // The genres that come up most across everything tracked, for the chips.
-  const counts = new Map<string, number>();
-  for (const t of [...a.shows.map((x) => x.show), ...a.movies.map((x) => x.movie)]) {
-    for (const g of genreNames(t.genre_ids, 3)) counts.set(g, (counts.get(g) ?? 0) + 1);
-  }
-  const topGenres = [...counts.entries()].sort((x, y) => y[1] - x[1]).slice(0, 4).map(([g]) => g);
-
   const rated = Object.values(ratings);
   const films = new Set([...(a.watchedMovies ?? []), ...Object.keys(a.movieWatchedDates ?? {}).map(Number)]).size;
   const filmMinutes = a.movies.reduce((sum, t) => sum + (t.status === "Watched" ? (t.movie.runtime ?? 110) : 0), 0);
@@ -180,7 +172,6 @@ export function profileFromArchive(
       ratings: rated.length,
       average: rated.length ? Math.round((rated.reduce((x, y) => x + y, 0) / rated.length) * 10) / 10 : null,
     },
-    topGenres,
     favorites,
     diary: diary.slice(0, 24),
     reviews: reviewList.slice(0, 12),
