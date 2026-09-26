@@ -86,34 +86,41 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
 
 
   return (
-    <div className="relative">
-      {/* The room's light: the same picture, blurred past recognition, behind
-          the frame. */}
-      <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
-        {slides.map((x, i) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            key={x.key}
-            src={x.thumb}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover scale-125 blur-[90px] transition-opacity duration-[1400ms]"
-            style={{ opacity: i === at ? 0.5 : 0 }}
-          />
-        ))}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(26,26,25,.35), var(--page) 96%)" }} />
-      </div>
+    // Clipped sideways only: the glow reaches past the window's edges and
+    // would otherwise give the whole page a horizontal scrollbar, but it is
+    // meant to spill downward onto the rows below.
+    <div className="relative [overflow-x:clip]">
+      {/* Netflix's proportions: the card runs nearly the full width of the
+          window with a slim gutter each side, and is about 2.2 times as wide
+          as it is tall. */}
+      <div className="relative w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,40px)] pb-[clamp(28px,3.5vw,56px)]">
+        {/* The glow, the way Netflix lifts its billboard off the page: the
+            picture itself, blurred into a soft light that spills a little way
+            out from behind the frame on every side, so the card looks lit by
+            what it is showing. It changes with the slide, fading rather than
+            sliding, since light doesn't travel sideways. */}
+        <div aria-hidden className="absolute inset-x-[clamp(16px,3.2vw,64px)] top-[clamp(12px,2.2vw,40px)] bottom-[clamp(28px,3.5vw,56px)] pointer-events-none">
+          {slides.map((x, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={x.key}
+              src={x.thumb}
+              alt=""
+              className="absolute -inset-[4%] w-[108%] h-[108%] max-w-none object-cover blur-[70px] saturate-[1.5] brightness-[1.15] transition-opacity duration-[1200ms]"
+              style={{ opacity: i === at ? 0.8 : 0 }}
+            />
+          ))}
+        </div>
 
-      <div className="relative mx-auto w-full max-w-[1400px] px-[clamp(10px,2.4vw,32px)] pt-[clamp(10px,2vw,28px)] pb-[clamp(28px,4vw,56px)]">
-        {/* The bezel: a thick, smoky rim around the picture, like the
-            reference's device frame. */}
+        {/* A hairline round the picture rather than a thick bezel, and a soft
+            shadow falling below it, so the card sits in front of its glow. */}
         <div
-          className="relative rounded-[clamp(26px,3.6vw,52px)] p-[clamp(5px,.7vw,10px)] shadow-[0_50px_140px_rgba(0,0,0,.6)]"
-          style={{ background: "linear-gradient(160deg, rgba(150,138,122,.55), rgba(70,64,58,.55) 45%, rgba(120,110,98,.45))" }}
+          className="relative rounded-[clamp(22px,3vw,43px)] border border-hair shadow-[0_28px_70px_-18px_rgba(0,0,0,.75)]"
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
         >
           <div
-            className="relative overflow-hidden rounded-[clamp(21px,3vw,43px)] bg-[#141312] min-h-[clamp(700px,52vw,760px)] flex flex-col"
+            className="relative overflow-hidden rounded-[calc(clamp(22px,3vw,43px)-1px)] bg-[#141312] min-h-[640px] sm:min-h-[520px] lg:min-h-[480px] lg:aspect-[2.18/1] flex flex-col"
             // The frame is always a darkened photograph, so the words inside
             // it draw in Night's colours whatever the page is.
             style={nightTokens}
@@ -140,8 +147,8 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
             {/* Shade where the words are and nowhere else: up from the bottom,
                 where both columns now sit, and a little down the left behind
                 the title. The top of the picture is left alone. */}
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.9) 0%, rgba(12,10,9,.55) 26%, transparent 55%)" }} />
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(12,10,9,.6) 0%, rgba(12,10,9,.2) 35%, transparent 55%)" }} />
+            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.8) 0%, rgba(12,10,9,.35) 26%, transparent 50%)" }} />
+            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(12,10,9,.7) 0%, rgba(12,10,9,.3) 32%, transparent 52%)" }} />
 
             {/* The words ride with their picture: each slide's words are a
                 layer that slides in and out with the same timing as the image,
@@ -164,7 +171,7 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
               {/* Where you are. It stays put while the words slide, sitting
                   where the words leave room for it under the title. */}
               <div
-                className="absolute left-[clamp(20px,5vw,80px)] bottom-[clamp(24px,3vw,44px)] flex gap-1.5"
+                className="absolute left-[clamp(20px,5vw,80px)] sm:left-[clamp(84px,7vw,108px)] bottom-[clamp(24px,3vw,44px)] flex gap-1.5"
                 role="tablist"
                 aria-label="Featured titles"
               >
@@ -218,36 +225,33 @@ function slideStyle(i: number, at: number, leaving: { from: number; dir: 1 | -1 
   return { opacity: 0 };
 }
 
-// One slide's words. Both columns sit on the frame's bottom edge, the title on
-// the left and the facts on the right, bottoms aligned, so they read as one
-// line of furniture under the picture rather than things floating in it. The
-// empty line under the watchlist button is where the position bars show
-// through; on a phone, where the columns stack, the bars sit under both.
+// One slide's words, all in one column on the left, so the right-hand side of
+// the picture is left clear. Everything is set a size down from the old
+// two-column layout to fit: the title, then the studio's tagline, the facts,
+// a short synopsis, and the buttons in a row. The column sits on the frame's
+// bottom edge. The empty line at the foot is where the position bars show
+// through, since they stay put while the words slide.
 function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (id: string) => void }) {
   return (
-    <div className="flex flex-col lg:flex-row lg:items-end gap-8 xl:gap-10 px-[clamp(20px,5vw,80px)] pt-24 pb-[calc(clamp(24px,3vw,44px)+32px)] lg:pb-[clamp(24px,3vw,44px)]">
-      <div className="min-w-0 flex-1">
-        <div className="text-[13px] tracking-[.06em] uppercase text-white/80 mb-3">{s.eyebrow}:</div>
-        <h1 className="!leading-[.84] drop-shadow-[0_4px_30px_rgba(0,0,0,.55)] break-words" style={{ color: CREAM, fontSize: titleSize(s.title) }}>
+    <div className="px-[clamp(20px,5vw,80px)] sm:pl-[clamp(84px,7vw,108px)] pt-24 pb-[clamp(24px,3vw,44px)]">
+      <div className="max-w-[min(520px,100%)]">
+        <div className="text-[12px] tracking-[.08em] uppercase text-white/75 mb-2">{s.eyebrow}:</div>
+        <h1 className="!leading-[.86] drop-shadow-[0_4px_30px_rgba(0,0,0,.55)] break-words" style={{ color: CREAM, fontSize: titleSize(s.title) }}>
           <Link href={s.href} className="no-underline" style={{ color: "inherit" }}>
             <Title text={s.title} />
           </Link>
         </h1>
-        <WatchlistChip slide={s} />
-        <div aria-hidden className="hidden lg:block h-[4px] mt-7" />
-      </div>
 
-      <div className="min-w-0 lg:w-[min(440px,40%)] shrink-0">
         {s.tagline && (
-          <p className="m-0 mb-3 text-white uppercase tracking-[.04em] leading-[1.15] text-[clamp(15px,1.3vw,18px)] [font-family:var(--font-wide)] font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,.7)]">
+          <p className="m-0 mt-4 text-white uppercase tracking-[.04em] leading-[1.2] text-[13px] [font-family:var(--font-wide)] font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,.7)]">
             {s.tagline}
           </p>
         )}
-        <p className="m-0 text-[14px] text-white/90 flex flex-wrap items-center gap-x-2">
+        <p className="m-0 mt-2 text-[13px] text-white/85 flex flex-wrap items-center gap-x-2">
           {[
             s.year,
             s.certification ? (
-              <span key="c" className="px-1 rounded-[2px] font-bold text-[12px] leading-[18px]" style={{ background: FILL, color: ON_FILL }}>
+              <span key="c" className="px-1 rounded-[2px] font-bold text-[11px] leading-[17px]" style={{ background: FILL, color: ON_FILL }}>
                 {s.certification}
               </span>
             ) : null,
@@ -255,18 +259,19 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             s.genres.join(", ") || null,
           ]
             .filter(Boolean)
-            .flatMap((x, i) => (i ? [<span key={`d${i}`} className="text-white/50">|</span>, <span key={i}>{x}</span>] : [<span key={i}>{x}</span>]))}
+            .flatMap((x, i) => (i ? [<span key={`d${i}`} className="text-white/45">|</span>, <span key={i}>{x}</span>] : [<span key={i}>{x}</span>]))}
         </p>
-        {s.overview && <p className="m-0 mt-3 text-[14.5px] leading-[1.45] text-white/90 line-clamp-3 drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.overview}</p>}
-        <div className="flex flex-wrap gap-3 mt-5">
+        {s.overview && <p className="m-0 mt-2.5 text-[13.5px] leading-[1.45] text-white/85 line-clamp-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.overview}</p>}
+
+        <div className="flex flex-wrap items-center gap-2.5 mt-4">
           {s.trailer && (
             <button
               type="button"
               onClick={() => onTrailer(s.trailer!)}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-[3px] text-[14px] font-bold uppercase tracking-[.04em] cursor-pointer transition-[filter] hover:brightness-110"
+              className="inline-flex items-center gap-2 px-4 py-[7px] rounded-[3px] text-[13px] font-bold uppercase tracking-[.04em] cursor-pointer transition-[filter] hover:brightness-110"
               style={{ background: FILL, color: ON_FILL }}
             >
-              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+              <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden>
                 <path d="M2 1l9 5-9 5z" fill="currentColor" />
               </svg>
               Trailer
@@ -274,11 +279,13 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
           )}
           <Link
             href={s.href}
-            className="inline-flex items-center px-4 py-2 rounded-[3px] border-2 border-white/85 text-white text-[14px] font-bold uppercase tracking-[.04em] no-underline hover:bg-white hover:text-[#141312] transition-colors"
+            className="inline-flex items-center px-3.5 py-[5px] rounded-[3px] border-2 border-white/85 text-white text-[13px] font-bold uppercase tracking-[.04em] no-underline hover:bg-white hover:text-[#141312] transition-colors"
           >
             Details
           </Link>
+          <WatchlistChip slide={s} />
         </div>
+        <div aria-hidden className="h-[4px] mt-6" />
       </div>
     </div>
   );
@@ -288,10 +295,10 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
 // to come down or it runs to five lines.
 function titleSize(title: string) {
   const n = title.length;
-  if (n <= 12) return "clamp(60px, 8vw, 136px)";
-  if (n <= 22) return "clamp(52px, 6.4vw, 108px)";
-  if (n <= 34) return "clamp(44px, 5vw, 84px)";
-  return "clamp(38px, 4.2vw, 68px)";
+  if (n <= 12) return "clamp(52px, 6vw, 96px)";
+  if (n <= 22) return "clamp(44px, 4.6vw, 76px)";
+  if (n <= 34) return "clamp(38px, 3.8vw, 62px)";
+  return "clamp(34px, 3.2vw, 52px)";
 }
 
 // The last word in the slide's colour, spaced out, the way the reference sets
@@ -353,7 +360,7 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
       type="button"
       onClick={add}
       disabled={pending}
-      className="mt-6 inline-flex items-center gap-2 px-3 py-1 rounded-[3px] text-[14px] font-semibold cursor-pointer transition-[filter] hover:brightness-110"
+      className="inline-flex items-center gap-2 px-3.5 py-[7px] rounded-[3px] text-[13px] font-semibold cursor-pointer transition-[filter] hover:brightness-110"
       style={{ background: FILL, color: ON_FILL }}
     >
       <svg width="15" height="15" viewBox="0 0 24 24" fill={on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden>
