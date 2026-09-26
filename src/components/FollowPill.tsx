@@ -47,21 +47,19 @@ function FollowingGlyph() {
         {/* Everything is one colour; the person, the check and a thin gap
             round the badge are cut out of it, so whatever the button sits on
             shows through. Laid out like the symbol: the disc up and to the
-            right, a large badge on its lower left wearing a solid border
-            outside its gap, so the badge reads as its own coin laid over the
-            disc and keeps an edge where it hangs past it. */}
+            right, a large badge on its lower left.
+
+            The shoulders are wide enough to run out through the bottom of
+            the disc, as the symbol's do. Kept inside it, they left a rim of
+            disc under them that read as a border drawn round the circle. */}
         <mask id="follow-glyph-person">
           <circle cx="14" cy="10" r="9.6" fill="white" />
-          <circle cx="14" cy="7.8" r="3.9" fill="black" />
-          <ellipse cx="14" cy="19" rx="7.2" ry="5.6" fill="black" />
-          {/* Room for the badge and its border. */}
-          <circle cx="7.6" cy="16.4" r="7.3" fill="black" />
+          <circle cx="14" cy="7.6" r="3.8" fill="black" />
+          <ellipse cx="14" cy="21.4" rx="9.2" ry="7.6" fill="black" />
+          {/* The gap round the badge. */}
+          <circle cx="7.6" cy="16.4" r="6.6" fill="black" />
         </mask>
         <mask id="follow-glyph-badge">
-          {/* The border ring, then the gap, then the badge's face with the
-              check cut through it. */}
-          <circle cx="7.6" cy="16.4" r="7.3" fill="white" />
-          <circle cx="7.6" cy="16.4" r="6.5" fill="black" />
           <circle cx="7.6" cy="16.4" r="5.8" fill="white" />
           <path d="M4.9 16.5l1.9 1.9 3.6-3.9" fill="none" stroke="black" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
         </mask>
