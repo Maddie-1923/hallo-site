@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { DiaryEntry, ListEntry, ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
+import { FollowPill } from "./FollowPill";
 
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner left to its picture, then the person's card
@@ -95,23 +96,7 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
         ) : (
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, var(--accent-night), #1a1a19)" }} />
         )}
-        {/* Nothing is written on the picture any more, so it is left as it is
-            but for a faint shade at the top behind the Follow button. */}
-        <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(12,10,9,.3) 0%, transparent 25%)" }} />
 
-        {/* Follow, top right. Drawn now, live when accounts open. */}
-        <button
-          type="button"
-          disabled
-          title="Following opens with Kodigo accounts on the web"
-          className="absolute top-4 right-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F4F1EA]/92 backdrop-blur text-[#1a1a19] text-[13px] font-semibold shadow-sm cursor-default"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
-            <circle cx="10" cy="8" r="4" />
-            <path d="M3 21c0-4 3.1-7 7-7s7 3 7 7M19 8v6M16 11h6" />
-          </svg>
-          Follow
-        </button>
 
         {/* No name across the picture: the handle on the card is who this
             is. The page's heading is still the handle, for screen readers
@@ -338,13 +323,17 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             {v.stats.ratings} ratings · {v.reviews.length} reviews · {v.lists.length} lists
           </div>
         </div>
-        <div className="flex items-center gap-4 text-[12.5px] shrink-0">
-          <span>
-            <b className="text-ink">{v.followers}</b> <span className="text-dim">followers</span>
-          </span>
-          <span>
-            <b className="text-ink">{v.following}</b> <span className="text-dim">following</span>
-          </span>
+        {/* Followers, and under them the Follow chip, both to the right. */}
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
+          <div className="flex items-center gap-4 text-[12.5px]">
+            <span>
+              <b className="text-ink">{v.followers}</b> <span className="text-dim">followers</span>
+            </span>
+            <span>
+              <b className="text-ink">{v.following}</b> <span className="text-dim">following</span>
+            </span>
+          </div>
+          <FollowPill />
         </div>
       </div>
       {v.bio && <p className="m-0 text-[13px] leading-[1.45] text-dim line-clamp-2">{v.bio}</p>}
