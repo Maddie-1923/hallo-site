@@ -170,8 +170,10 @@ export const movieRails = {
   trending: () => moviePage("/trending/movie/week"),
   popular: () => moviePage("/movie/popular"),
   topRated: () => moviePage("/movie/top_rated"),
-  nowPlaying: () => moviePage("/movie/now_playing"),
-  upcoming: () => moviePage("/movie/upcoming"),
+  // Both take the visitor's country (see region.ts): release dates differ by
+  // country, and TMDB answers per region when asked.
+  nowPlaying: (region?: string) => moviePage("/movie/now_playing", region ? { region } : {}),
+  upcoming: (region?: string) => moviePage("/movie/upcoming", region ? { region } : {}),
 };
 
 // ---- Search ----
@@ -295,9 +297,10 @@ export interface Billboard {
   trailer: string | null;
 }
 
-// US ratings, the ones TMDB fills most reliably; a title without one simply
-// draws without the chip.
-const RATING_REGION = "US";
+// The visitor's own country's rating when TMDB has one, the US rating when it
+// doesn't (it is the one TMDB fills most reliably), and no chip at all when
+// neither exists.
+const RATING_FALLBACK = "US";
 
 function pickTrailer(v: RawVideos["videos"]): string | null {
   const yt = v?.results.filter((x) => x.site === "YouTube") ?? [];
@@ -315,14 +318,15 @@ function duration(minutes: number | null | undefined): string | null {
   return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
 }
 
-export async function movieBillboard(id: number): Promise<Billboard | null> {
+export async function movieBillboard(id: number, region = RATING_FALLBACK): Promise<Billboard | null> {
   const r = await tmdb<RawMovieBillboard>(`/movie/${id}`, { append_to_response: "videos,release_dates" });
   if (!r) return null;
-  const cert =
+  const certIn = (c: string) =>
     r.release_dates?.results
-      .find((x) => x.iso_3166_1 === RATING_REGION)
+      .find((x) => x.iso_3166_1 === c)
       ?.release_dates.map((d) => d.certification)
       .find(Boolean) ?? null;
+  const cert = certIn(region) ?? certIn(RATING_FALLBACK);
   return {
     tagline: r.tagline || null,
     certification: cert,
@@ -332,13 +336,16 @@ export async function movieBillboard(id: number): Promise<Billboard | null> {
   };
 }
 
-export async function showBillboard(id: number): Promise<Billboard | null> {
+export async function showBillboard(id: number, region = RATING_FALLBACK): Promise<Billboard | null> {
   const r = await tmdb<RawShowBillboard>(`/tv/${id}`, { append_to_response: "videos,content_ratings" });
   if (!r) return null;
   const run = r.episode_run_time?.[0] ?? r.last_episode_to_air?.runtime ?? null;
   return {
     tagline: r.tagline || null,
-    certification: r.content_ratings?.results.find((x) => x.iso_3166_1 === RATING_REGION)?.rating || null,
+    certification:
+      r.content_ratings?.results.find((x) => x.iso_3166_1 === region)?.rating ||
+      r.content_ratings?.results.find((x) => x.iso_3166_1 === RATING_FALLBACK)?.rating ||
+      null,
     runtime: duration(run),
     genres: r.genres?.map((g) => g.name).slice(0, 2) ?? [],
     trailer: pickTrailer(r.videos),

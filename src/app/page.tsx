@@ -8,12 +8,13 @@ import { AppleMark } from "@/components/StoreIcons";
 import { image, movieBillboard, movieRails, showBillboard, showRails } from "@/lib/tmdb";
 import { year, type LibraryArchive, type Movie, type Show } from "@/lib/archive";
 import { optionalLibrary } from "@/lib/library";
+import { regionName, visitorRegion } from "@/lib/region";
 
 // The front door, Letterboxd-shaped: a billboard of what the world is
 // watching this week, then rows of smaller posters to wander through. The
 // pitch for the app itself moved to /about; here it is one line and a button.
 
-async function billboard(shows: Show[], movies: Movie[], archive: LibraryArchive | null): Promise<CinemaSlide[]> {
+async function billboard(shows: Show[], movies: Movie[], archive: LibraryArchive | null, region: string): Promise<CinemaSlide[]> {
   // Films and series taking turns, only titles with artwork behind them.
   const picks: ({ kind: "show"; show: Show } | { kind: "movie"; movie: Movie })[] = [];
   const s = shows.filter((x) => x.backdrop_path);
@@ -28,7 +29,7 @@ async function billboard(shows: Show[], movies: Movie[], archive: LibraryArchive
     movie: new Set(archive?.movies.map((t) => t.movie.id) ?? []),
   };
 
-  const details = await Promise.all(picks.map((p) => (p.kind === "show" ? showBillboard(p.show.id) : movieBillboard(p.movie.id))));
+  const details = await Promise.all(picks.map((p) => (p.kind === "show" ? showBillboard(p.show.id, region) : movieBillboard(p.movie.id, region))));
 
   return picks.map((p, i): CinemaSlide => {
     const d = details[i];
@@ -69,20 +70,20 @@ function interleave<T>(a: T[], b: T[]) {
 
 export default async function Home() {
   // The library only decides whether the watchlist chip reads "added". While
-  // the accounts side is closed nobody is signed in, so skip the lookup and
-  // let the page be built ahead of time.
+  // the accounts side is closed nobody is signed in, so skip the lookup.
   const lib = accountsOpen ? await optionalLibrary() : { archive: null };
+  const region = await visitorRegion();
 
   const [trendingShows, trendingMovies, inCinemas, airing, comingFilms, topFilms, topShows] = await Promise.all([
     showRails.trending(),
     movieRails.trending(),
-    movieRails.nowPlaying(),
+    movieRails.nowPlaying(region),
     showRails.airingNow(),
-    movieRails.upcoming(),
+    movieRails.upcoming(region),
     movieRails.topRated(),
     showRails.topRated(),
   ]);
-  const slides = await billboard(trendingShows, trendingMovies, lib.archive);
+  const slides = await billboard(trendingShows, trendingMovies, lib.archive, region);
   const shown = new Set(slides.map((s) => s.key));
   // Below the billboard, the trending row starts where the billboard stops.
   const trending = interleave(asMovies(trendingMovies), asShows(trendingShows)).filter((x) => !shown.has(x.key));
@@ -114,9 +115,9 @@ export default async function Home() {
 
         <div className="wrap !max-w-[1240px] pb-16">
           <PosterRow title="Trending this week" href="/explore" items={trending} />
-          <PosterRow title="In cinemas now" href="/explore?kind=movie" items={asMovies(inCinemas)} />
+          <PosterRow title={`In cinemas · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(inCinemas)} />
           <PosterRow title="New episodes this week" href="/explore" items={asShows(airing)} />
-          <PosterRow title="Coming soon" href="/explore?kind=movie" items={asMovies(comingFilms)} />
+          <PosterRow title={`Coming soon · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(comingFilms)} />
           <PosterRow title="Highest rated" href="/explore?kind=movie" items={interleave(asMovies(topFilms), asShows(topShows))} />
         </div>
       </main>

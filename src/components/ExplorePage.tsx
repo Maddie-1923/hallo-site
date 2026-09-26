@@ -6,6 +6,7 @@ import { MovieCard, Rail, ShowCard } from "@/components/TitleCard";
 import { movieRails, showRails } from "@/lib/tmdb";
 import { optionalLibrary } from "@/lib/library";
 import { markLookup } from "@/lib/marks";
+import { regionName, visitorRegion } from "@/lib/region";
 
 // Explore, the app's name for the same idea: where you go to find something
 // rather than to work through what you have. One catalogue at a time behind a
@@ -17,17 +18,18 @@ import { markLookup } from "@/lib/marks";
 export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
   const lib = await optionalLibrary();
   const marks = markLookup(lib.archive);
+  const region = await visitorRegion();
 
   const [trending, second, third, fourth, fifth] = await Promise.all(
     kind === "show"
       ? [showRails.trending(), showRails.airingNow(), showRails.upcoming(), showRails.popular(), showRails.topRated()]
-      : [movieRails.trending(), movieRails.nowPlaying(), movieRails.upcoming(), movieRails.popular(), movieRails.topRated()],
+      : [movieRails.trending(), movieRails.nowPlaying(region), movieRails.upcoming(region), movieRails.popular(), movieRails.topRated()],
   );
 
   const titles =
     kind === "show"
       ? ["Trending", "Airing now", "New series coming", "Popular now", "Top rated"]
-      : ["Trending", "In cinemas", "Coming soon", "Popular now", "Top rated"];
+      : ["Trending", `In cinemas · ${regionName(region)}`, `Coming soon · ${regionName(region)}`, "Popular now", "Top rated"];
   const rails = [trending, second, third, fourth, fifth];
 
   return (
