@@ -27,10 +27,16 @@ export interface CinemaSlide {
   tracked: boolean;
 }
 
-// Each slide takes one of the app's theme accents, in turn, so the page
-// changes colour with the picture the way a poster campaign would. Raw hexes:
-// these sit on dark artwork whatever the visitor's own theme is.
-const ACCENTS = ["#E9AF2D", "#88BCBE", "#DE525D", "#A08BD7", "#33BA99", "#BC9876", "#D5708B", "#5A97D7"];
+// The accent is the visitor's theme, the same one the day/night pill, the
+// nav and every button on the site carry. Fills (the watchlist chip, the
+// rating chip, Trailer, the position bar) take the theme's fill for the
+// current scheme and its lettering, so they match the pill exactly; the one
+// accent-coloured word in a title takes the theme's night tone, because it is
+// type on a darkened photograph and a Day tone like Lagune's deep blue would
+// vanish into it.
+const FILL = "var(--accent-fill)";
+const ON_FILL = "var(--on-accent)";
+const TYPE = "var(--accent-night)";
 
 const CREAM = "#F4ECDC";
 
@@ -78,10 +84,9 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
 
   if (count === 0) return null;
 
-  const accent = ACCENTS[at % ACCENTS.length];
 
   return (
-    <div className="relative" style={{ ["--slide" as string]: accent }}>
+    <div className="relative">
       {/* The room's light: the same picture, blurred past recognition, behind
           the frame. */}
       <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -152,7 +157,7 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
                   className="absolute inset-0 flex flex-col justify-end"
                   style={slideStyle(i, at, leaving)}
                 >
-                  <SlideWords slide={slides[i]} accent={ACCENTS[i % ACCENTS.length]} onTrailer={setTrailer} />
+                  <SlideWords slide={slides[i]} onTrailer={setTrailer} />
                 </div>
               ))}
 
@@ -172,7 +177,7 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
                     aria-label={`${i + 1} of ${count}: ${x.title}`}
                     onClick={() => go(i)}
                     className="h-[4px] rounded-full transition-all duration-300 cursor-pointer"
-                    style={{ width: i === at ? 30 : 12, background: i === at ? accent : "rgba(255,255,255,.35)" }}
+                    style={{ width: i === at ? 30 : 12, background: i === at ? FILL : "rgba(255,255,255,.35)" }}
                   />
                 ))}
               </div>
@@ -218,17 +223,17 @@ function slideStyle(i: number, at: number, leaving: { from: number; dir: 1 | -1 
 // line of furniture under the picture rather than things floating in it. The
 // empty line under the watchlist button is where the position bars show
 // through; on a phone, where the columns stack, the bars sit under both.
-function SlideWords({ slide: s, accent, onTrailer }: { slide: CinemaSlide; accent: string; onTrailer: (id: string) => void }) {
+function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (id: string) => void }) {
   return (
     <div className="flex flex-col lg:flex-row lg:items-end gap-8 xl:gap-10 px-[clamp(20px,5vw,80px)] pt-24 pb-[calc(clamp(24px,3vw,44px)+32px)] lg:pb-[clamp(24px,3vw,44px)]">
       <div className="min-w-0 flex-1">
         <div className="text-[13px] tracking-[.06em] uppercase text-white/80 mb-3">{s.eyebrow}:</div>
         <h1 className="!leading-[.84] drop-shadow-[0_4px_30px_rgba(0,0,0,.55)] break-words" style={{ color: CREAM, fontSize: titleSize(s.title) }}>
           <Link href={s.href} className="no-underline" style={{ color: "inherit" }}>
-            <Title text={s.title} accent={accent} />
+            <Title text={s.title} />
           </Link>
         </h1>
-        <WatchlistChip slide={s} accent={accent} />
+        <WatchlistChip slide={s} />
         <div aria-hidden className="hidden lg:block h-[4px] mt-7" />
       </div>
 
@@ -242,7 +247,7 @@ function SlideWords({ slide: s, accent, onTrailer }: { slide: CinemaSlide; accen
           {[
             s.year,
             s.certification ? (
-              <span key="c" className="px-1 rounded-[2px] text-[#141312] font-bold text-[12px] leading-[18px]" style={{ background: accent }}>
+              <span key="c" className="px-1 rounded-[2px] font-bold text-[12px] leading-[18px]" style={{ background: FILL, color: ON_FILL }}>
                 {s.certification}
               </span>
             ) : null,
@@ -258,8 +263,8 @@ function SlideWords({ slide: s, accent, onTrailer }: { slide: CinemaSlide; accen
             <button
               type="button"
               onClick={() => onTrailer(s.trailer!)}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-[3px] text-[14px] font-bold uppercase tracking-[.04em] text-[#141312] cursor-pointer transition-[filter] hover:brightness-110"
-              style={{ background: accent }}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-[3px] text-[14px] font-bold uppercase tracking-[.04em] cursor-pointer transition-[filter] hover:brightness-110"
+              style={{ background: FILL, color: ON_FILL }}
             >
               <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
                 <path d="M2 1l9 5-9 5z" fill="currentColor" />
@@ -292,14 +297,14 @@ function titleSize(title: string) {
 // The last word in the slide's colour, spaced out, the way the reference sets
 // HUNTING under SKIN WALKER. Only when there is a first part to set it under,
 // and only when the word is short enough to stay on one line spaced.
-function Title({ text, accent }: { text: string; accent: string }) {
+function Title({ text }: { text: string }) {
   const cut = text.lastIndexOf(" ");
   const last = cut > 0 ? text.slice(cut + 1) : "";
   if (!last || last.length > 9 || last.length < 3) return <>{text}</>;
   return (
     <>
       {text.slice(0, cut)}
-      <span className="block tracking-[.14em]" style={{ color: accent }}>
+      <span className="block tracking-[.14em]" style={{ color: TYPE }}>
         {last}
       </span>
     </>
@@ -321,7 +326,7 @@ function Chevron({ dir, onClick }: { dir: 1 | -1; onClick: () => void }) {
   );
 }
 
-function WatchlistChip({ slide: s, accent }: { slide: CinemaSlide; accent: string }) {
+function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [on, setOn] = useState(s.tracked);
@@ -348,8 +353,8 @@ function WatchlistChip({ slide: s, accent }: { slide: CinemaSlide; accent: strin
       type="button"
       onClick={add}
       disabled={pending}
-      className="mt-6 inline-flex items-center gap-2 px-3 py-1 rounded-[3px] text-[14px] font-semibold text-[#141312] cursor-pointer transition-[filter] hover:brightness-110"
-      style={{ background: accent }}
+      className="mt-6 inline-flex items-center gap-2 px-3 py-1 rounded-[3px] text-[14px] font-semibold cursor-pointer transition-[filter] hover:brightness-110"
+      style={{ background: FILL, color: ON_FILL }}
     >
       <svg width="15" height="15" viewBox="0 0 24 24" fill={on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden>
         <path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z" />

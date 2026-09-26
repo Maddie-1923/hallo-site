@@ -5,12 +5,12 @@
    head (and by the appearance menu after that), so there is no flash of the
    wrong one. Night is the default for the moment before the script runs.
 
-   Two accent tokens, the way the app has two: --accent is the accent as type
-   (the raw hex at night, halved by day so it can carry on Bone), and
-   --accent-fill is the accent as a filled surface (raw by day, scaled toward
-   black at night to the 4.5:1 floor). --accent-raw is the theme's own hex for
-   swatches. All three are set on <html> by the script; the values here are
-   Lagune's night pair for the same moment-before-the-script reason. */
+   The accent tokens, from the theme's two tones (see lib/theme.ts):
+   --accent is the accent as type, --accent-fill the accent as a filled
+   surface, --on-accent the lettering on that fill, and --accent-night the
+   night tone for the billboards' photographs. All are set on <html> by the
+   script; the values here are Lagune's night ones for the moment before the
+   script runs. */
 :root {
   --page: #1a1a19;
   --graphite: #1a1a19;
@@ -32,9 +32,13 @@
   /* `badgeOnQuiet` in Theme.swift — the app's green for a mark on a plate.
      `badgeOn` is the brighter pair, right for the glyph as type. */
   --seen-plate: #2fa34a;
-  --accent: #5a97d7;
-  --accent-fill: #4f85be;
-  --accent-raw: #5a97d7;
+  --accent: #6faecf;
+  --accent-fill: #6faecf;
+  --accent-raw: #6faecf;
+  --accent-night: #6faecf;
+  /* Lettering on a filled accent: graphite or cream, whichever the theme's
+     tone for the scheme reads better against (`onColor` in Theme.swift). */
+  --on-accent: #1a1a19;
   /* The app's status chips (KodigoStatusChip): blue for a show still going
      somewhere, grey for one that is complete, red for one that was stopped.
      Night values here, day values in the light block — the pairs are the app's
@@ -114,6 +118,7 @@
   --color-accent: var(--accent);
   --color-accent-fill: var(--accent-fill);
   --color-accent-raw: var(--accent-raw);
+  --color-on-accent: var(--on-accent);
   --font-display: var(--font-bebas), Impact, sans-serif;
   --font-body: var(--font-runde), ui-rounded, -apple-system, system-ui, sans-serif;
 }
@@ -184,7 +189,7 @@ h3 { font-size: clamp(20px, 2.4vw, 24px); }
   padding: 14px 22px;
   border-radius: 999px;
   background: var(--accent-fill);
-  color: var(--graphite);
+  color: var(--on-accent);
   font-weight: 700;
   text-decoration: none;
   border: 1px solid transparent;
@@ -245,6 +250,11 @@ details.faq p { margin: 14px 0 0; color: var(--dim); font-size: 15px; max-width:
 .prose p { margin: 0 0 1em; }
 .prose ul { padding-left: 1.2em; margin: 0 0 1em; }
 .prose strong { color: var(--ink); }
+
+/* A theme swatch: its own tone for whichever scheme the page is in. The
+   element carries both tones as --tone-day and --tone-night. */
+.tone { background: var(--tone-night); }
+:root[data-scheme="light"] .tone { background: var(--tone-day); }
 
 /* The home billboard's strip of pictures. */
 @keyframes slide-in-right { from { transform: translateX(100%); } to { transform: none; } }

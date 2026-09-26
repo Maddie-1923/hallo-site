@@ -52,7 +52,7 @@ export function DayNightToggle({ onPicture = false }: { onPicture?: boolean }) {
             aria-label={isDark ? "Night" : "Day"}
             title={isDark ? "Night" : "Day"}
             className={`w-8 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
-              on ? "bg-accent-fill text-graphite" : idle
+              on ? "bg-accent-fill text-on-accent" : idle
             }`}
           >
             {isDark ? <Moon /> : <Sun />}

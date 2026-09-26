@@ -48,3 +48,35 @@ export function LogoMark({ size = 20, label }: { size?: number; label?: string }
     </svg>
   );
 }
+
+// The mark as the app icon draws it: the stripes run straight up and off the
+// top edge instead of ending on rounded caps. Traced from the app's
+// `KodigoLogo` artwork, which is the same k 22 units right and 48 units up
+// from the cut above, with flat-topped stripes starting at the top of the
+// frame.
+//
+// For the nav, where it hangs from the very top of the page so the stripes
+// bleed off the edge the way they bleed off the icon. `height` is the whole
+// mark, stripes included; the k is the bottom 55% of it.
+export function LogoBleed({ height = 48 }: { height?: number }) {
+  return (
+    <svg viewBox="262 0 528 925" height={height} width={(height * 528) / 925} aria-hidden style={{ display: "block" }}>
+      <defs>
+        <linearGradient id="kodigo-bleed-shade" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0" stopColor="#000" stopOpacity=".22" />
+          <stop offset="1" stopColor="#000" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <rect x="361" y="0" width="136" height="560" fill={BLUE} />
+      <rect x="453" y="0" width="14" height="560" fill="url(#kodigo-bleed-shade)" />
+      <rect x="317" y="0" width="136" height="560" fill={PINK} />
+      <rect x="406" y="0" width="14" height="560" fill="url(#kodigo-bleed-shade)" />
+      <rect x="270" y="0" width="136" height="560" fill={YELLOW} />
+      <g stroke="var(--ink)" strokeWidth="226" strokeLinecap="round" fill="none">
+        <path d="M383 520V804" />
+        <path d="M662 520L383 799" />
+        <path d="M670 804L383 517" />
+      </g>
+    </svg>
+  );
+}

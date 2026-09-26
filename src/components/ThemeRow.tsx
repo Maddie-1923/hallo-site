@@ -10,7 +10,9 @@ export function ThemeRow() {
 
   useEffect(() => {
     try {
-      const t = localStorage.getItem(THEME_KEY);
+      // The theme in force, as the pre-paint script settled it: always one of
+      // THEMES, even when what was stored is a theme since retired.
+      const t = document.documentElement.dataset.theme ?? localStorage.getItem(THEME_KEY);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (t && THEMES.some((x) => x.id === t)) setCurrent(t);
     } catch {}
@@ -42,12 +44,12 @@ export function ThemeRow() {
               onClick={() => pick(t.id)}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-sm font-semibold transition-colors cursor-pointer"
               style={{
-                borderColor: on ? t.accent : "var(--hair)",
-                background: on ? t.accent : "transparent",
-                color: on ? "var(--graphite)" : "var(--dim)",
+                borderColor: on ? "var(--accent-fill)" : "var(--hair)",
+                background: on ? "var(--accent-fill)" : "transparent",
+                color: on ? "var(--on-accent)" : "var(--dim)",
               }}
             >
-              <i className="block w-[11px] h-[11px] rounded-full" style={{ background: t.accent }} />
+              <i className="tone block w-[11px] h-[11px] rounded-full ring-1 ring-black/10" style={{ ["--tone-day" as string]: t.day, ["--tone-night" as string]: t.night }} />
               {t.name}
             </button>
           );

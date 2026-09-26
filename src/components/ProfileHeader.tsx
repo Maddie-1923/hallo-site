@@ -74,7 +74,7 @@ export function ProfileHeader({ profile, archive, email }: { profile: Profile; a
             // eslint-disable-next-line @next/next/no-img-element
             <img src={avatar} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center display text-5xl bg-accent-fill text-graphite">{initial}</div>
+            <div className="w-full h-full flex items-center justify-center display text-5xl bg-accent-fill text-on-accent">{initial}</div>
           )}
         </div>
         <div className="min-w-0 pb-1">

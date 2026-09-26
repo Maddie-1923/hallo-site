@@ -7,16 +7,19 @@ import { APPEARANCE_KEY, DEFAULT_THEME, THEMES, THEME_KEY, applyTheme, type Appe
 // The paintbrush beside the day/night pill: a drop-down of the app's accent
 // themes. Same store as the pill and the About page's theme row, so a pick
 // here follows the visitor to every page and the next visit.
-export function ThemeMenu() {
+//
+// The brush sits in a circle the pill's height, and is drawn in the accent
+// fill, the colour the pill's lit half is showing, so the two read as a pair.
+export function ThemeMenu({ onPicture = false }: { onPicture?: boolean }) {
   const [theme, setTheme] = useState(DEFAULT_THEME);
 
   useEffect(() => {
-    try {
-      const t = localStorage.getItem(THEME_KEY);
-      // The server can't know this browser's choice, so it is read after mount.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (t && THEMES.some((x) => x.id === t)) setTheme(t);
-    } catch {}
+    // The theme in force, as the pre-paint script settled it. Read from the
+    // page rather than storage so a retired theme someone had saved (Poppy,
+    // Bloom) still shows the tick on the theme they are actually seeing.
+    const t = document.documentElement.dataset.theme;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (t && THEMES.some((x) => x.id === t)) setTheme(t);
   }, []);
 
   function choose(id: string) {
@@ -30,8 +33,18 @@ export function ThemeMenu() {
     setTheme(id);
   }
 
+  const shell = onPicture ? "bg-black/35 border-white/25 backdrop-blur-md" : "bg-card border-hair";
+
   return (
-    <Menu label="Theme colour" width={230} button={<Brush />}>
+    <Menu
+      label="Theme colour"
+      width={230}
+      button={
+        <span className={`w-9 h-9 rounded-full border flex items-center justify-center text-accent-fill hover:brightness-110 transition-[filter] ${shell}`}>
+          <Brush />
+        </span>
+      }
+    >
       <div className="px-4 pt-3 pb-2 text-[11px] font-bold tracking-[.14em] uppercase text-dim">Theme</div>
       <ul className="m-0 p-0 pb-2 list-none">
         {THEMES.map((t) => {
@@ -44,10 +57,14 @@ export function ThemeMenu() {
                 aria-pressed={on}
                 className="w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-card-hi cursor-pointer text-ink"
               >
-                <span className="w-5 h-5 rounded-full border border-hair" style={{ background: t.accent }} aria-hidden />
+                <span
+                  className="tone w-5 h-5 rounded-full border border-hair"
+                  style={{ ["--tone-day" as string]: t.day, ["--tone-night" as string]: t.night }}
+                  aria-hidden
+                />
                 <span className="flex-1 text-left">{t.name}</span>
                 {on && (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-label="Selected">
                     <path d="M5 12l5 5L20 7" />
                   </svg>
                 )}
@@ -62,7 +79,7 @@ export function ThemeMenu() {
 
 function Brush() {
   return (
-    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       {/* The handle, running up to the top right. */}
       <path d="M20.5 3.5a1.8 1.8 0 0 0-2.5 0l-8.3 8.3 2.5 2.5 8.3-8.3a1.8 1.8 0 0 0 0-2.5z" />
       {/* The bristles, with a curl of paint. */}

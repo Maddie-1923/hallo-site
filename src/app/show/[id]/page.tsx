@@ -105,7 +105,7 @@ export default async function ShowPage({ params, searchParams }: PageProps<"/sho
                     href={`/show/${showID}?season=${s.season_number}`}
                     scroll={false}
                     className={`px-3.5 py-1.5 rounded-full border text-sm font-semibold no-underline ${
-                      on ? "bg-accent-fill text-graphite border-accent-fill" : "border-hair text-dim hover:text-ink"
+                      on ? "bg-accent-fill text-on-accent border-accent-fill" : "border-hair text-dim hover:text-ink"
                     }`}
                     aria-current={on ? "true" : undefined}
                   >

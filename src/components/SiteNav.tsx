@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { LogoMark } from "./Logo";
+import { LogoBleed } from "./Logo";
 import { Menu } from "./Menu";
 import { Poster } from "./Poster";
 import { NavSearch } from "./NavSearch";
@@ -66,9 +66,12 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
       }
     >
       <div className={`${framed ? "w-full px-[clamp(20px,5vw,80px)] h-20" : "wrap h-16"} flex items-center gap-6`}>
-        <Link href={user ? "/discover" : "/"} className="flex items-center gap-2.5 no-underline">
-          <LogoMark />
-          <span className="display text-2xl">Kodigo</span>
+        {/* The mark hangs from the top edge of the bar, which is the top of
+            the page, so its stripes run off it the way they run off the app
+            icon. The k's foot and the wordmark share a baseline. */}
+        <Link href={user ? "/discover" : "/"} className="self-stretch flex items-end gap-2.5 pb-[14px] no-underline">
+          <LogoBleed height={framed ? 60 : 50} />
+          <span className="display text-2xl leading-none -mb-[1px]">Kodigo</span>
         </Link>
         <div className="hidden md:flex gap-5 text-sm text-dim">
           <NavLinks links={user ? product : marketing} />
@@ -79,7 +82,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
           <div className="ml-auto flex items-center gap-4 shrink-0">
             <SearchBoundary />
             <DayNightToggle onPicture={framed} />
-            <ThemeMenu />
+            <ThemeMenu onPicture={framed} />
             {accountsOpen && (
               <Link href="/login" className="btn ghost !py-2 !px-4 text-sm shrink-0 whitespace-nowrap">
                 Sign in
@@ -174,14 +177,14 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
       </Menu>
 
       <DayNightToggle onPicture={framed} />
-      <ThemeMenu />
+      <ThemeMenu onPicture={framed} />
 
       <Menu
         label="Account menu"
         width={240}
         button={
           <>
-            <span className="w-9 h-9 rounded-lg overflow-hidden bg-accent-fill text-graphite flex items-center justify-center display text-xl">
+            <span className="w-9 h-9 rounded-lg overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display text-xl">
               {avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatar} alt="" className="w-full h-full object-cover object-top" />

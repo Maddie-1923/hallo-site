@@ -219,7 +219,7 @@ export function ReviewDialog({
                       disabled={full}
                       onClick={() => setPicked((p) => (on ? p.filter((x) => x !== m.id) : [...p, m.id].slice(0, MOOD_LIMIT)))}
                       className={`flex flex-col items-center gap-1 rounded-xl border px-1 py-2 cursor-pointer transition-colors ${
-                        on ? "border-transparent text-graphite" : "border-hair text-dim hover:text-ink hover:bg-card-hi"
+                        on ? "border-transparent text-on-accent" : "border-hair text-dim hover:text-ink hover:bg-card-hi"
                       } ${full ? "opacity-30 cursor-default" : ""}`}
                       style={on ? { background: "var(--accent-fill)" } : undefined}
                     >
