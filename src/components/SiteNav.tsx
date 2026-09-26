@@ -254,6 +254,19 @@ function GuestProfile({ framed }: { framed: boolean }) {
           </Link>
         </div>
       )}
+      {/* Development only: the way into the profile page before accounts
+          exist. Never drawn in a build that ships. */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="border-t border-hair py-1">
+          <div className="px-4 pt-2 pb-1 text-[10.5px] font-bold tracking-[.14em] uppercase text-dim">Preview</div>
+          <Link href="/u/preview" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
+            Your profile (from your library)
+          </Link>
+          <Link href="/u/sample" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
+            Sample profile
+          </Link>
+        </div>
+      )}
     </Menu>
   );
 }
