@@ -29,6 +29,8 @@ export interface DiaryEntry extends ProfileTitle {
   rating: number | null;
   loved: boolean;
   rewatch: boolean;
+  /** Whether they wrote a review of the title. */
+  reviewed: boolean;
 }
 
 export interface ReviewEntry extends ProfileTitle {
@@ -116,7 +118,7 @@ export function profileFromArchive(
     const m = movies.get(Number(id));
     if (!m) continue;
     const key = `movie:${m.id}`;
-    diary.push({ ...movieTitle(m), date: date.slice(0, 10), rating: ratings[key] ?? null, loved: reactions[key] === "loved", rewatch: reviews[key]?.rewatch ?? false });
+    diary.push({ ...movieTitle(m), date: date.slice(0, 10), rating: ratings[key] ?? null, loved: reactions[key] === "loved", rewatch: reviews[key]?.rewatch ?? false, reviewed: !!reviews[key]?.text?.trim() });
   }
   const byShowDay = new Map<string, { show: Show; date: string; eps: [number, number][] }>();
   for (const [ep, date] of Object.entries(a.watchedDates ?? {})) {
@@ -134,7 +136,7 @@ export function profileFromArchive(
     const [f, l] = [g.eps[0], g.eps[g.eps.length - 1]];
     const label = g.eps.length === 1 ? `S${f[0]} E${f[1]}` : f[0] === l[0] ? `S${f[0]} E${f[1]}–E${l[1]}` : `S${f[0]} E${f[1]} – S${l[0]} E${l[1]}`;
     const key = `show:${g.show.id}`;
-    diary.push({ ...showTitle(g.show), date: g.date, episodes: label, rating: ratings[key] ?? null, loved: reactions[key] === "loved", rewatch: false });
+    diary.push({ ...showTitle(g.show), date: g.date, episodes: label, rating: ratings[key] ?? null, loved: reactions[key] === "loved", rewatch: false, reviewed: !!reviews[key]?.text?.trim() });
   }
   diary.sort((x, y) => y.date.localeCompare(x.date));
 
@@ -216,7 +218,8 @@ export function profileFromArchive(
     activity,
     ratingValues: rated,
     genres,
-    diary: diary.slice(0, 24),
+    // The whole diary: the page shows it a year at a time.
+    diary,
     reviews: reviewList.slice(0, 12),
     lists,
   };

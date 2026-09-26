@@ -1,8 +1,9 @@
 import Link from "next/link";
-import type { DiaryEntry, ListEntry, ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
+import type { ListEntry, ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
 import { BackToTop, ProfileSections } from "./ProfileNav";
+import { ProfileDiary } from "./ProfileDiary";
 
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner left to its picture, then the person's card
@@ -54,7 +55,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             id: "diary",
             label: "Diary",
             count: v.diary.length,
-            content: v.diary.length > 0 ? <DiaryTable entries={v.diary} /> : <Empty>Nothing logged yet.</Empty>,
+            content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} /> : <Empty>Nothing logged yet.</Empty>,
           },
           {
             id: "reviews",
@@ -445,45 +446,6 @@ function ActivityList({ v }: { v: PublicProfileView }) {
   );
 }
 
-function DiaryTable({ entries }: { entries: DiaryEntry[] }) {
-  // Grouped by month, the way a diary reads.
-  const months = new Map<string, DiaryEntry[]>();
-  for (const e of entries) {
-    const m = e.date.slice(0, 7);
-    months.set(m, [...(months.get(m) ?? []), e]);
-  }
-  return (
-    <div className="grid gap-8">
-      {[...months.entries()].map(([month, list]) => (
-        <div key={month} className="grid gap-2 md:grid-cols-[140px_1fr]">
-          <div className="display text-[26px] leading-none text-dim">{monthLabel(month)}</div>
-          <ul className="m-0 p-0 list-none">
-            {list.map((e, i) => (
-              <li key={`${e.key}${e.date}`} className={i > 0 ? "border-t border-hair" : ""}>
-                <Link href={e.href} className="flex items-center gap-4 py-2.5 no-underline text-ink hover:text-accent">
-                  <span className="w-8 text-right display text-[22px] text-dim shrink-0">{Number(e.date.slice(8, 10))}</span>
-                  <span className="w-9 shrink-0">
-                    {e.poster ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={e.poster} alt="" className="w-9 aspect-[2/3] rounded-[4px] object-cover" />
-                    ) : null}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate font-semibold text-[14.5px]">
-                    {e.title} <span className="text-dim font-normal">{e.year}</span>
-                  </span>
-                  {e.episodes && <span className="text-[12.5px] text-dim shrink-0">{e.episodes}</span>}
-                  <span className="w-16 text-right shrink-0">{e.rating != null && <Rating value={e.rating} />}</span>
-                  <span className="w-4 shrink-0 text-loved">{e.loved ? "♥" : ""}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function ReviewCard({ r }: { r: ReviewEntry }) {
   return (
     <article className="rounded-[20px] bg-card border border-hair p-4 flex gap-4">
@@ -564,9 +526,4 @@ function Rating({ value }: { value: number }) {
 function prettyDate(d: string) {
   const [y, m, day] = d.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-}
-
-function monthLabel(ym: string) {
-  const [y, m] = ym.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
 }
