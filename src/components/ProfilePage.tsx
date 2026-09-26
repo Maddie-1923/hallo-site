@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { DiaryEntry, ListEntry, ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
+import { BackToTop, ProfileTabs } from "./ProfileNav";
 
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner left to its picture, then the person's card
@@ -46,7 +47,11 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
       <ProfileTabs />
 
-      <Section id="diary" title="Diary" count={v.diary.length} empty="Nothing logged yet." first>
+      <Section id="activity" title="Recent activity" count={-1} empty="Nothing yet." first>
+        <ActivityList v={v} />
+      </Section>
+
+      <Section id="diary" title="Diary" count={v.diary.length} empty="Nothing logged yet.">
         {v.diary.length > 0 && <DiaryTable entries={v.diary} />}
       </Section>
 
@@ -79,6 +84,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
           </div>
         )}
       </Section>
+      <BackToTop />
     </main>
   );
 }
@@ -106,35 +112,6 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
 
 
     </section>
-  );
-}
-
-// The section tabs, under the quick-glance panels and above the Diary, as a pill like the reference's nav: the lit tab a solid ink
-// pill, the rest plain. On the page's own colours, so it follows Day and
-// Night. Scrolls sideways on a phone rather than wrapping.
-function ProfileTabs() {
-  const tabs: [string, string][] = [
-    ["#top", "Profile"],
-    ["#diary", "Diary"],
-    ["#reviews", "Reviews"],
-    ["#lists", "Lists"],
-    ["#favourites", "Favourites"],
-  ];
-  return (
-    <nav
-      aria-label="Profile sections"
-      className="mt-10 inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center gap-1 p-1 rounded-full bg-card border border-hair"
-    >
-      {tabs.map(([href, label], i) => (
-        <a
-          key={href}
-          href={href}
-          className={`shrink-0 px-4 py-1.5 rounded-full text-[13px] font-semibold no-underline transition-colors ${i === 0 ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
-        >
-          {label}
-        </a>
-      ))}
-    </nav>
   );
 }
 
@@ -402,10 +379,57 @@ function Section({ id, title, count, empty, first = false, children }: { id: str
     <section id={id} className={`${first ? "mt-6" : "mt-14"} scroll-mt-24`}>
       <div className="flex items-baseline gap-3 border-b border-hair pb-2 mb-5">
         <h2 className="!text-[clamp(30px,3vw,44px)]">{title}</h2>
-        <span className="text-[13px] text-dim">{count}</span>
+        {count >= 0 && <span className="text-[13px] text-dim">{count}</span>}
       </div>
       {count === 0 ? <p className="text-sm text-dim m-0">{empty}</p> : children}
     </section>
+  );
+}
+
+// What they have been doing lately, newest first: watches from the diary
+// (with the rating and heart they gave), and reviews they wrote, as one
+// timeline of short sentences.
+function ActivityList({ v }: { v: PublicProfileView }) {
+  type Item = { key: string; date: string; t: ProfileTitle; verb: string; detail?: string; rating?: number | null; loved?: boolean };
+  const items: Item[] = [
+    ...v.diary.map((e): Item => ({
+      key: `w${e.key}${e.date}`,
+      date: e.date,
+      t: e,
+      verb: e.rewatch ? "Rewatched" : "Watched",
+      detail: e.episodes,
+      rating: e.rating,
+      loved: e.loved,
+    })),
+    ...v.reviews.filter((r) => r.date).map((r): Item => ({ key: `r${r.key}`, date: r.date!, t: r, verb: "Reviewed", rating: r.rating })),
+  ]
+    .sort((x, y) => y.date.localeCompare(x.date))
+    .slice(0, 10);
+
+  if (items.length === 0) return <p className="text-sm text-dim m-0">Nothing yet.</p>;
+  return (
+    <ul className="m-0 p-0 list-none">
+      {items.map((it, i) => (
+        <li key={it.key} className={i > 0 ? "border-t border-hair" : ""}>
+          <Link href={it.t.href} className="group flex items-center gap-4 py-3 no-underline text-ink">
+            <span className="w-[72px] aspect-video rounded-[6px] overflow-hidden bg-card shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {it.t.backdrop && <img src={it.t.backdrop} alt="" className="w-full h-full object-cover" />}
+            </span>
+            <span className="min-w-0 flex-1 text-[14.5px]">
+              <span className="text-dim">{it.verb} </span>
+              <span className="font-semibold group-hover:text-accent transition-colors">{it.t.title}</span>
+              {it.detail && <span className="text-dim"> · {it.detail}</span>}
+            </span>
+            <span className="flex items-center gap-2.5 shrink-0 text-[12.5px]">
+              {it.rating != null && <Rating value={it.rating} />}
+              {it.loved && <span className="text-loved">♥</span>}
+              <span className="text-dim w-[92px] text-right">{prettyDate(it.date)}</span>
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
 
