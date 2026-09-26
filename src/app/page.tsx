@@ -3,7 +3,6 @@ import { accountsOpen } from "@/lib/accounts";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { CinemaHero, type CinemaSlide } from "@/components/CinemaHero";
-import { PosterRow, type PosterItem } from "@/components/PosterRow";
 import { WideRow, type WideItem } from "@/components/WideRow";
 import { AppleMark } from "@/components/StoreIcons";
 import { cardBackdrop, image, movieBillboard, movieRails, showBillboard, showRails, titleLogo } from "@/lib/tmdb";
@@ -57,13 +56,16 @@ async function billboard(shows: Show[], movies: Movie[], archive: LibraryArchive
   });
 }
 
-const asShows = (xs: Show[]): PosterItem[] => xs.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, poster: s.poster_path, sub: year(s.first_air_date), backdrop: s.backdrop_path }));
-const asMovies = (xs: Movie[]): PosterItem[] => xs.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, poster: m.poster_path, sub: year(m.release_date), backdrop: m.backdrop_path }));
+// A title on its way into a row, before it is turned into a card.
+interface PosterItem {
+  key: string;
+  href: string;
+  title: string;
+  backdrop: string | null | undefined;
+}
 
-// Which card the rows use. "wide" is the Netflix-style landscape card with the
-// title's logo on it; "tall" is the original row of small posters. One switch
-// so trying one against the other is a one-word change.
-const ROW_SHAPE: "wide" | "tall" = "wide";
+const asShows = (xs: Show[]): PosterItem[] => xs.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, backdrop: s.backdrop_path }));
+const asMovies = (xs: Movie[]): PosterItem[] => xs.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, backdrop: m.backdrop_path }));
 
 // Landscape cards need a backdrop, and look like a streaming service's with
 // the title's logo on them. Logos are one request a title, cached for a day,
@@ -75,7 +77,6 @@ async function asWide(items: PosterItem[], limit = 16): Promise<WideItem[]> {
 }
 
 async function Row({ title, href, items }: { title: string; href: string; items: PosterItem[] }) {
-  if (ROW_SHAPE === "tall") return <PosterRow title={title} href={href} items={items} />;
   return <WideRow title={title} href={href} items={await asWide(items)} />;
 }
 

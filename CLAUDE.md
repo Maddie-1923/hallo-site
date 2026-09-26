@@ -6,9 +6,11 @@ nothing else.
 
 ## What's here
 
-- `src/app/page.tsx` — the home page, Letterboxd-shaped: `CinemaHero` (a
-  framed billboard of the week's trending titles with the nav inside it) and
-  `PosterRow`s of small posters underneath. The app's pitch (features,
+- `src/app/page.tsx` — the home page, Netflix-shaped: `CinemaHero` (a
+  full-width billboard of the week's trending titles, sliding right to left,
+  sized by `.billboard-fit` in globals.css so it and the first row fit one
+  screen) and `WideRow`s of landscape cards with each title's TMDB logo
+  underneath. The app's pitch (features,
   themes, pricing, FAQ) lives at `about/`. `privacy/` and `support/` are the
   policy pages (they replaced the Jekyll `privacy.md`/`support.md`).
 - `docs/social-plan.md` — the plan for the social side (public profiles,
