@@ -13,6 +13,10 @@ import { nightTokens } from "@/lib/theme";
 const GUTTER = "px-[clamp(16px,3.2vw,64px)]";
 // The banner's corner radius.
 const R = 28;
+// The profile photo's size and where it sits, shared by the banner (which
+// draws it) and the card (which leaves room for it).
+const AVATAR = "clamp(84px, 8vw, 112px)";
+const AVATAR_LEFT = "clamp(16px, 2.2vw, 28px)";
 
 export function ProfilePage({ view: v }: { view: PublicProfileView }) {
   const bannerArt = v.banner ?? v.favorites[0]?.backdrop ?? v.diary[0]?.backdrop ?? null;
@@ -110,6 +114,23 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
             is. The page's heading is still the handle, for screen readers
             and search. */}
         <h1 className="sr-only">@{v.username}</h1>
+      </div>
+
+      {/* The photo, as the app draws it: a circle on the banner's bottom-left
+          corner, dropped until about a third of it hangs below the edge, in
+          a ring of the page's own colour. Crossing the seam is the point: the
+          ring reads as the banner being interrupted by the person in front
+          of it, not as an outline stuck on a picture. */}
+      <div
+        className="absolute z-10 rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display shadow-[0_0_0_4px_var(--page),0_10px_28px_rgba(0,0,0,.45)]"
+        style={{ width: AVATAR, height: AVATAR, left: AVATAR_LEFT, bottom: `calc(${AVATAR} * -0.32)`, fontSize: `calc(${AVATAR} * 0.45)` }}
+      >
+        {v.avatar ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={v.avatar} alt="" className="w-full h-full object-cover" />
+        ) : (
+          (v.displayName[0] ?? "?").toUpperCase()
+        )}
       </div>
 
     </section>
@@ -296,20 +317,17 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 // The person's card, kept to one line: photo, handle and what they have put
 // here on the left, followers on the right. A bio, when there is one, runs
 // underneath.
+// The person's card: handle and what they have put here, followers on the
+// right. Its left edge is held clear of the photo hanging over it from the
+// banner, so the handle sits beside the photo the way the app sets the name.
 function ProfileCard({ v }: { v: PublicProfileView }) {
-  const initial = (v.displayName[0] ?? "?").toUpperCase();
   return (
-    <div className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col gap-2.5">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="w-12 aspect-square rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display text-2xl shrink-0 border-2 border-page shadow">
-          {v.avatar ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={v.avatar} alt="" className="w-full h-full object-cover" />
-          ) : (
-            initial
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
+    <div
+      className="rounded-[24px] bg-card border border-hair pr-[clamp(14px,1.6vw,20px)] py-3 flex flex-col gap-2"
+      style={{ paddingLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 14px)` }}
+    >
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 min-w-0">
+        <div className="min-w-0 flex-1 basis-[140px]">
           <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.9] truncate">@{v.username}</div>
           <div className="text-[12px] text-dim truncate">
             {v.stats.ratings} ratings · {v.reviews.length} reviews · {v.lists.length} lists
