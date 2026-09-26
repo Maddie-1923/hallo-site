@@ -5,10 +5,13 @@ import { useMemo, useState } from "react";
 import type { DiaryEntry } from "@/lib/public-profile";
 import { MarkReview, MarkRewatched, TightHeart } from "./marks";
 
-// The profile's Diary: every watch as a row in a table, a year at a time,
-// with column headings the way Letterboxd sets its diary out: month, day,
-// title, released, then the marks. Series get an Episodes column, which a
-// films-only diary has no need for. A switch shows films, series or both.
+// The profile's Diary: every watch as a row in a table, a year at a time.
+// The columns read in the order a diary entry is thought about: when, what,
+// how it was watched (which episodes, whether a rewatch), then what they
+// thought (hearts, a like, a review). The release year rides with the title,
+// the way a title is said aloud. Series get the Episodes column, which a
+// films-only diary like Letterboxd's has no need for. A switch shows films,
+// series or both.
 //
 // The whole diary arrives from the server; showing one year at a time keeps
 // a long one readable without paging.
@@ -62,14 +65,12 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
         <table className="w-full border-collapse text-[14px]">
           <thead>
             <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left border-b border-hair">
-              <th className="py-2 pr-3 font-bold w-[84px]">Month</th>
-              <th className="py-2 pr-3 font-bold w-[48px] text-right">Day</th>
+              <th colSpan={2} className="py-2 pr-3 font-bold w-[132px]">Date</th>
               <th className="py-2 px-3 font-bold">Title</th>
-              <th className="py-2 px-3 font-bold hidden md:table-cell w-[84px]">Released</th>
-              <th className="py-2 px-3 font-bold hidden md:table-cell w-[130px]">Episodes</th>
+              <th className="py-2 px-3 font-bold hidden md:table-cell w-[140px]">Episodes</th>
+              <th className="py-2 px-2 font-bold text-center w-[64px] hidden sm:table-cell">Rewatch</th>
               <th className="py-2 px-3 font-bold w-[128px]">Rating</th>
               <th className="py-2 px-2 font-bold text-center w-[48px]">Like</th>
-              <th className="py-2 px-2 font-bold text-center w-[64px] hidden sm:table-cell">Rewatch</th>
               <th className="py-2 pl-2 font-bold text-center w-[56px] hidden sm:table-cell">Review</th>
             </tr>
           </thead>
@@ -100,31 +101,31 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
                         )}
                       </span>
                       <span className="min-w-0">
-                        <span className="block font-semibold truncate">{e.title}</span>
-                        {/* On a phone the Released and Episodes columns fold
-                            in under the title. */}
-                        <span className="block md:hidden text-[12px] text-dim truncate">
-                          {[e.year, e.episodes].filter(Boolean).join(" · ")}
+                        <span className="block truncate">
+                          <span className="font-semibold">{e.title}</span>
+                          {e.year && <span className="text-dim font-normal"> {e.year}</span>}
                         </span>
+                        {/* On a phone the Episodes column folds in under the
+                            title. */}
+                        {e.episodes && <span className="block md:hidden text-[12px] text-dim truncate">{e.episodes}</span>}
                       </span>
                     </Link>
                   </td>
-                  <td className="py-2.5 px-3 text-dim hidden md:table-cell">{e.year || "—"}</td>
                   <td className="py-2.5 px-3 text-dim hidden md:table-cell">{e.episodes ?? "—"}</td>
+                  <td className="py-2.5 px-2 text-center hidden sm:table-cell">
+                    {e.rewatch ? (
+                      <span className="inline-flex text-accent" title="Rewatch">
+                        <MarkRewatched size={22} />
+                        <span className="sr-only">Rewatch</span>
+                      </span>
+                    ) : null}
+                  </td>
                   <td className="py-2.5 px-3">{e.rating != null ? <Hearts value={e.rating} /> : <span className="text-dim">—</span>}</td>
                   <td className="py-2.5 px-2 text-center">
                     {e.loved ? (
                       <span className="inline-flex text-loved" title="Loved">
                         <TightHeart size={15} />
                         <span className="sr-only">Loved</span>
-                      </span>
-                    ) : null}
-                  </td>
-                  <td className="py-2.5 px-2 text-center hidden sm:table-cell">
-                    {e.rewatch ? (
-                      <span className="inline-flex text-accent" title="Rewatch">
-                        <MarkRewatched size={22} />
-                        <span className="sr-only">Rewatch</span>
                       </span>
                     ) : null}
                   </td>
