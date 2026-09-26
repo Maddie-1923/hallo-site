@@ -25,8 +25,12 @@ export function FollowPill({ initial = false }: { initial?: boolean }) {
       // all, only the mark itself in the accent. Inside a filled circle the
       // mark's own disc read as a second, slightly off-centre ring.
       className={`inline-flex items-center justify-center rounded-full cursor-pointer transition-[filter] hover:brightness-110 ${
-        following ? "text-accent-fill" : "h-9 px-4 bg-accent-fill text-on-accent text-[14px] font-semibold"
+        following ? "text-accent-fill" : "px-3 bg-accent-fill text-on-accent text-[13px] font-semibold"
       }`}
+      // Both states stand as tall as the handle's line and are centred on its
+      // capitals: the line is 0.9 of the handle's size and the capitals 0.7,
+      // so the box starts 0.1 above the capitals' top, where this sits.
+      style={{ height: LINE, marginTop: `calc(${HANDLE} * -0.1)` }}
     >
       {following ? <FollowingGlyph /> : "+ Follow"}
     </button>
@@ -39,15 +43,25 @@ export function FollowPill({ initial = false }: { initial?: boolean }) {
 // and right, the check badge large on its lower left. Drawn here
 // rather than borrowed: SF Symbols are licensed for Apple platforms only, so
 // the web gets its own.
-// Sized to the handle beside it: the disc stands as tall as the handle's
-// capitals (Bebas capitals are 0.7 of its size, clamp(20px, 1.8vw, 26px), and
-// the disc is 0.8 of this box), so the mark reads as part of that line
-// rather than a button bolted to the card.
-const SIZE = "calc(clamp(20px, 1.8vw, 26px) * 0.875)";
+// Sized to the handle beside it, whose size the card sets as
+// clamp(20px, 1.8vw, 26px). The mark's disc (0.8 of its box) is as tall as
+// the handle's whole line, 0.9 of that size, so it looks the same size as the
+// name; the check badge hangs below and isn't counted.
+const HANDLE = "clamp(20px, 1.8vw, 26px)";
+const LINE = `calc(${HANDLE} * 0.9)`;
+const SIZE = `calc(${HANDLE} * 1.125)`;
 
 function FollowingGlyph() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className="block" style={{ width: SIZE, height: SIZE }}>
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden
+      className="block shrink-0"
+      // The disc is centred 2 units above the middle of the drawing (the
+      // badge fills out the bottom), so the drawing is dropped by that much
+      // to put the disc's own centre on the handle's.
+      style={{ width: SIZE, height: SIZE, transform: `translateY(calc(${SIZE} / 12))` }}
+    >
       <defs>
         {/* Everything is one colour; the person, the check and a thin gap
             round the badge are cut out of it, so whatever the button sits on

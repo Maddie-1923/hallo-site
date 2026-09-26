@@ -335,9 +335,11 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             </span>
           </div>
         </div>
-        {/* A pixel down: the handle's capitals start about that far below
-            the top of their line, and it is the letters the eye lines up with. */}
-        <div className="shrink-0 mt-px">
+        {/* A pixel down, to where the handle's capitals start; FollowPill
+            sizes itself to the handle's line and centres on those capitals.
+            A flex box so the button is laid out as a box, not as a word
+            sitting on a text baseline. */}
+        <div className="shrink-0 mt-px flex">
           <FollowPill />
         </div>
       </div>
