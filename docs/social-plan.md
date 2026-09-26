@@ -77,9 +77,15 @@ archive: `follows`, `likes`, `comments`, `blocks` and `reports`.
   person's own history as a read-only archive rather than posting them.
 - **A subscription page on the web** (`/pro`) for people who find the site
   first. It shows the plans, the free week and what Pro unlocks, then sends
-  them to the App Store (and Google Play later). Selling on the web itself
-  (Stripe) is a separate decision with its own rules for whether Pro carries
-  into the app.
+  them to the App Store (and Google Play later). **Decided: also sell on
+  the web through Stripe.** A web purchase is recorded against the Kodigo
+  account (an `entitlements` table fed by a Stripe webhook), and the apps
+  treat Pro as "App Store receipt OR account entitlement". The apps
+  themselves never link to the web checkout, which keeps App Review simple.
+- **Crash and bug monitoring (decided):** Sentry for the website, iOS and
+  later Android. A daily scheduled Claude check reads new issues, finds the
+  cause and prepares a fix for approval. Before it ships, update the privacy
+  policy and App Store privacy labels to mention crash data.
 
 ## Notes
 
