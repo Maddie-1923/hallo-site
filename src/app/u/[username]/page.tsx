@@ -5,7 +5,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProfilePage } from "@/components/ProfilePage";
 import { isArchive } from "@/lib/archive";
-import { profileFromArchive, type PublicProfileView } from "@/lib/public-profile";
+import { profileFromArchive, withAiredEpisodes, type PublicProfileView } from "@/lib/public-profile";
 import { image, movieRails, showRails } from "@/lib/tmdb";
 
 // A public profile at /u/<username>.
@@ -49,13 +49,14 @@ async function previewFromFile(): Promise<PublicProfileView | null> {
     if (!isArchive(raw)) return null;
     // The app keeps its own profile pictures as base64 JPEGs in the archive.
     const pic = (v: unknown) => (typeof v === "string" && v.length > 100 ? `data:image/jpeg;base64,${v}` : null);
-    return profileFromArchive(raw, {
+    const view = profileFromArchive(raw, {
       username: "preview",
       displayName: process.env.PROFILE_PREVIEW_NAME ?? "Your name",
       avatar: pic((raw as Record<string, unknown>).profileAvatar),
       banner: pic((raw as Record<string, unknown>).profileBanner),
       bio: null,
     }, true);
+    return await withAiredEpisodes(view);
   } catch {
     return null;
   }
@@ -99,6 +100,10 @@ async function sampleProfile(): Promise<PublicProfileView> {
     following: 64,
     stats: { films: 214, shows: 37, episodes: 1893, hours: 1702, ratings: 188, average: 7.4 },
     favorites: classics.slice(0, 8),
+    tracker: {
+      shows: series.slice(0, 5).map((x, i) => ({ ...x, seen: Array.from({ length: [6, 14, 3, 20, 9][i] }, (_, e) => `1-${e + 1}`), aired: [[8, 10], [16], [10], [22, 8], [12]][i] })),
+      films: films.slice(4, 9),
+    },
     topFilms: classics.slice(0, 5),
     topShows: series.slice(1, 6),
     diary,

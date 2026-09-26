@@ -6,6 +6,7 @@ import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
 import { FavouritesCard } from "./FavouritesCard";
 import { MonthCalendar } from "./MonthCalendar";
+import { MiniTracker } from "./MiniTracker";
 
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner left to its picture, then the person's card
@@ -53,6 +54,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
         </div>
         <div className="flex flex-col gap-4">
           <Dashboard v={v} />
+          <MiniTracker shows={v.tracker.shows} films={v.tracker.films} owner={!!v.owner} />
         </div>
       </div>
 

@@ -90,8 +90,12 @@ what Pro gates.
   - the user box with Follow;
   - numbers, ratings spread, top genres and a watch calendar;
   - Favourites: top 5 films, top 5 series, recent watches;
-  - Recent activity, Diary, Reviews, Lists and Favourites, with tabs and
-    back-to-top.
+  - a "Watching now" mini tracker (series up next with progress, the film
+    watchlist), with a check for the owner that only changes the page until
+    the database exists;
+  - Recent activity, Diary (a table with columns, a year at a time), Reviews,
+    Lists and Favourites as tabs swapped in place, and back-to-top;
+  - Favourites the owner can edit (saved in the browser for now).
 - **Site-wide:** the day/night toggle, the theme menu with the app's seven
   themes, and the new logo.
 

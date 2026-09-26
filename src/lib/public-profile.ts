@@ -1,6 +1,6 @@
 import "server-only";
 import type { LibraryArchive, Movie, Show } from "./archive";
-import { genreNames, image } from "./tmdb";
+import { genreNames, image, showDetail } from "./tmdb";
 
 // What a public profile page draws, worked out from a library. The page never
 // sees the archive itself: only what is meant to be shared comes through here
@@ -49,6 +49,15 @@ export interface ListEntry {
   posters: (string | null)[];
 }
 
+/** A series in progress, for the profile's mini tracker. */
+export interface TrackerShow extends ProfileTitle {
+  /** Every episode they have watched, as "season-episode". */
+  seen: string[];
+  /** Episodes aired so far in each season, from TMDB, season 1 first; null
+      until filled in. */
+  aired: number[] | null;
+}
+
 export interface PublicProfileView {
   username: string;
   displayName: string;
@@ -72,6 +81,9 @@ export interface PublicProfileView {
   ratingValues: number[];
   /** Their most-watched genres, with each one's share of the top five. */
   genres: { name: string; share: number }[];
+  /** The mini tracker: series they are in the middle of, most recently
+      watched first, and films on their watchlist, newest first. */
+  tracker: { shows: TrackerShow[]; films: ProfileTitle[] };
   /** Present only when the person viewing is the profile's owner: what the
       Favourites editor offers first, their own library, best first. */
   owner?: { films: ProfileTitle[]; shows: ProfileTitle[] };
@@ -220,9 +232,33 @@ export function profileFromArchive(
       }
     : undefined;
 
+  // The mini tracker. Series marked Watching, ordered by the last day an
+  // episode of each was logged; films still To Watch, newest added first.
+  const lastWatched = new Map<number, string>();
+  const seenBy = new Map<number, string[]>();
+  for (const [ep, date] of Object.entries(a.watchedDates ?? {})) {
+    const [sid, season, episode] = ep.split("-").map(Number);
+    if (season === 0) continue;
+    if ((lastWatched.get(sid) ?? "") < date) lastWatched.set(sid, date);
+    seenBy.set(sid, [...(seenBy.get(sid) ?? []), `${season}-${episode}`]);
+  }
+  const tracker = {
+    shows: a.shows
+      .filter((t) => t.status === "Watching")
+      .sort((x, y) => (lastWatched.get(y.show.id) ?? "").localeCompare(lastWatched.get(x.show.id) ?? ""))
+      .slice(0, 5)
+      .map((t): TrackerShow => ({ ...showTitle(t.show), seen: seenBy.get(t.show.id) ?? [], aired: null })),
+    films: a.movies
+      .filter((t) => t.status === "To Watch")
+      .sort((x, y) => (y.added ?? "").localeCompare(x.added ?? ""))
+      .slice(0, 5)
+      .map((t) => movieTitle(t.movie)),
+  };
+
   return {
     ...meta,
     owner,
+    tracker,
     followers: 0,
     following: 0,
     stats: {
@@ -246,3 +282,24 @@ export function profileFromArchive(
   };
 }
 
+/**
+ * Fills in how many episodes of each tracked series have aired, season by
+ * season, which needs TMDB: one request a show, cached for an hour like every
+ * other TMDB call. With it the tracker can say what is up next and how far
+ * along they are.
+ */
+export async function withAiredEpisodes(view: PublicProfileView): Promise<PublicProfileView> {
+  const shows = await Promise.all(
+    view.tracker.shows.map(async (t) => {
+      const d = await showDetail(Number(t.key.slice(1)));
+      const last = d?.lastEpisode;
+      if (!d || !last) return t;
+      const aired = d.seasons
+        .filter((x) => x.season_number > 0 && x.season_number <= last.season_number)
+        .sort((x, y) => x.season_number - y.season_number)
+        .map((x) => (x.season_number === last.season_number ? last.episode_number : x.episode_count));
+      return { ...t, aired };
+    }),
+  );
+  return { ...view, tracker: { ...view.tracker, shows } };
+}
