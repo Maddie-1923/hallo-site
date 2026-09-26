@@ -316,16 +316,16 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
       className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 flex flex-col gap-2"
       style={{ marginLeft: `max(calc(${PANEL_PAD} + (100% - 2 * ${PANEL_PAD} - 24px) / 4 + 8px), calc(${AVATAR_LEFT} + ${AVATAR} + 12px))` }}
     >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 min-w-0">
-        <div className="min-w-0 flex-1 basis-[140px]">
+      {/* Everything about the person down the left: the handle, what they
+          have put here, who follows them. The Follow button alone on the
+          right, centred on the three lines, with room to be a proper size. */}
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.9] truncate">@{v.username}</div>
-          <div className="text-[12px] text-dim truncate">
+          <div className="text-[12px] text-dim truncate mt-0.5">
             {v.stats.ratings} ratings · {v.reviews.length} reviews · {v.lists.length} lists
           </div>
-        </div>
-        {/* Followers, and under them the Follow chip, both to the right. */}
-        <div className="flex flex-col items-end gap-1.5 shrink-0">
-          <div className="flex items-center gap-4 text-[12.5px]">
+          <div className="flex items-center gap-4 text-[12.5px] mt-1">
             <span>
               <b className="text-ink">{v.followers}</b> <span className="text-dim">followers</span>
             </span>
@@ -333,6 +333,8 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
               <b className="text-ink">{v.following}</b> <span className="text-dim">following</span>
             </span>
           </div>
+        </div>
+        <div className="shrink-0">
           <FollowPill />
         </div>
       </div>

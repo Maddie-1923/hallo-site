@@ -5,9 +5,9 @@ import { useState } from "react";
 // Follow, in the theme's accent with its lettering: a pill reading
 // "+ Follow" until you follow, then a circle holding a followed-person mark.
 //
-// In ordinary case rather than the tags' capitals: capitals read a size too
-// big beside the followers line at every size down to 8px, and 11px
-// lowercase stands at about the height those 8px capitals did.
+// In ordinary case rather than the tags' capitals. It stands alone on the
+// right of the person's card, centred on their three lines, so it can be a
+// comfortable size to press.
 //
 // Nothing is saved yet: follows arrive with the public tables and accounts
 // (docs/social-plan.md, step 4). Until then the chip only changes what it
@@ -24,8 +24,8 @@ export function FollowPill({ initial = false }: { initial?: boolean }) {
       // A pill while it offers "+ Follow"; once followed it closes up into a
       // circle the same height, so the mark inside sits centred and round in
       // round rather than lost in a lozenge.
-      className={`inline-flex items-center justify-center h-6 rounded-full bg-accent-fill text-on-accent cursor-pointer transition-[filter] hover:brightness-110 ${
-        following ? "w-6" : "px-2.5 text-[11px] font-semibold"
+      className={`inline-flex items-center justify-center h-9 rounded-full bg-accent-fill text-on-accent cursor-pointer transition-[filter] hover:brightness-110 ${
+        following ? "w-9" : "px-4 text-[14px] font-semibold"
       }`}
     >
       {following ? <FollowingGlyph /> : "+ Follow"}
@@ -39,7 +39,7 @@ export function FollowPill({ initial = false }: { initial?: boolean }) {
 // SF Symbols are licensed for Apple platforms only, so the web gets its own.
 function FollowingGlyph() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden className="block">
+    <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden className="block">
       <defs>
         {/* The person is cut to the circle, and the circle is cut away where
             the badge sits, with a hair of clearance around it. */}
