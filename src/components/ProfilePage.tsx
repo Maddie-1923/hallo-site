@@ -119,22 +119,6 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
         <h1 className="sr-only">@{v.username}</h1>
       </div>
 
-      {/* The photo, as the app draws it: a circle on the banner's bottom-left
-          corner, dropped until half of it hangs below the edge, in
-          a ring of the page's own colour. Crossing the seam is the point: the
-          ring reads as the banner being interrupted by the person in front
-          of it, not as an outline stuck on a picture. */}
-      <div
-        className="absolute z-10 rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display shadow-[0_0_0_4px_var(--page),0_10px_28px_rgba(0,0,0,.45)]"
-        style={{ width: AVATAR, height: AVATAR, left: AVATAR_LEFT, bottom: `calc(${AVATAR} * -0.5)`, fontSize: `calc(${AVATAR} * 0.45)` }}
-      >
-        {v.avatar ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={v.avatar} alt="" className="w-full h-full object-cover" />
-        ) : (
-          (v.displayName[0] ?? "?").toUpperCase()
-        )}
-      </div>
 
     </section>
   );
@@ -330,6 +314,23 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 // instead, so the two never overlap.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
+    <div className="relative">
+      {/* The photo, as the app draws it: a circle in a ring of the page's own
+          colour, crossing the banner's bottom edge so the ring reads as the
+          banner being interrupted by the person in front of it. Anchored to
+          the card rather than the banner, so its foot sits on the card's
+          bottom line whatever the card holds. */}
+      <div
+        className="absolute z-10 rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display shadow-[0_0_0_4px_var(--page),0_10px_28px_rgba(0,0,0,.45)]"
+        style={{ width: AVATAR, height: AVATAR, left: AVATAR_LEFT, bottom: 0, fontSize: `calc(${AVATAR} * 0.45)` }}
+      >
+        {v.avatar ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={v.avatar} alt="" className="w-full h-full object-cover" />
+        ) : (
+          (v.displayName[0] ?? "?").toUpperCase()
+        )}
+      </div>
     <div
       className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 flex flex-col gap-2"
       style={{ marginLeft: `max(calc(${PANEL_PAD} + (100% - 2 * ${PANEL_PAD} - 24px) / 4 + 8px), calc(${AVATAR_LEFT} + ${AVATAR} + 12px))` }}
@@ -351,6 +352,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         </div>
       </div>
       {v.bio && <p className="m-0 text-[13px] leading-[1.45] text-dim line-clamp-2">{v.bio}</p>}
+    </div>
     </div>
   );
 }
