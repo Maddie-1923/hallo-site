@@ -27,12 +27,12 @@ export function MonthCalendar({ activity }: { activity: Record<string, number> }
     n === 0 ? "var(--card-hi)" : `color-mix(in srgb, var(--accent-fill) ${n === 1 ? 40 : n <= 3 ? 70 : 100}%, var(--card-hi))`;
 
   const step = (by: number) => setAt(({ y, m }) => ({ y: y + Math.floor((m + by) / 12), m: (((m + by) % 12) + 12) % 12 }));
-  const label = first.toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+  const label = first.toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="text-[12.5px] min-w-0 truncate">
+      <div className="flex items-center justify-between gap-2 mb-1.5">
+        <span className="text-[12px] min-w-0 truncate">
           <b className="font-semibold text-ink">{label}</b>
           <span className="text-dim"> · {watchedDays} {watchedDays === 1 ? "day" : "days"}</span>
         </span>
@@ -43,9 +43,9 @@ export function MonthCalendar({ activity }: { activity: Record<string, number> }
       </div>
       {/* Small coloured squares, one a day, a week to a row. The date is in
           each square's tooltip rather than printed on it. */}
-      <div className="self-center grid grid-cols-7 gap-[4px]" style={{ gridAutoRows: "20px", gridTemplateColumns: "repeat(7, 20px)" }}>
+      <div className="self-center grid grid-cols-7 gap-[3px]" style={{ gridAutoRows: "16px", gridTemplateColumns: "repeat(7, 16px)" }}>
         {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-          <span key={`w${i}`} aria-hidden className="text-center text-[9.5px] font-bold text-dim leading-[20px]">
+          <span key={`w${i}`} aria-hidden className="text-center text-[9px] font-bold text-dim leading-[16px]">
             {d}
           </span>
         ))}
@@ -54,7 +54,7 @@ export function MonthCalendar({ activity }: { activity: Record<string, number> }
         ))}
         {Array.from({ length: daysIn }, (_, i) => {
           const n = activity[key(i + 1)] ?? 0;
-          return <span key={i} title={n ? `${key(i + 1)}: ${n} watched` : key(i + 1)} className="rounded-[4px]" style={{ background: shade(n) }} />;
+          return <span key={i} title={n ? `${key(i + 1)}: ${n} watched` : key(i + 1)} className="rounded-[3px]" style={{ background: shade(n) }} />;
         })}
       </div>
     </div>
@@ -67,9 +67,9 @@ function Arrow({ dir, onClick }: { dir: 1 | -1; onClick: () => void }) {
       type="button"
       onClick={onClick}
       aria-label={dir === 1 ? "Next month" : "Previous month"}
-      className="w-6 h-6 rounded-full border border-hair text-dim hover:text-accent hover:border-accent flex items-center justify-center cursor-pointer transition-colors"
+      className="w-5 h-5 rounded-full border border-hair text-dim hover:text-accent hover:border-accent flex items-center justify-center cursor-pointer transition-colors"
     >
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d={dir === 1 ? "M9 5l7 7-7 7" : "M15 5l-7 7 7 7"} />
       </svg>
     </button>

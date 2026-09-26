@@ -168,8 +168,8 @@ function Dashboard({ v }: { v: PublicProfileView }) {
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col">
-      <div className="text-[11px] font-bold tracking-[.14em] uppercase text-dim mb-2.5">{title}</div>
+    <div className="rounded-[20px] bg-card border border-hair px-[clamp(12px,1.2vw,16px)] py-3 flex flex-col min-w-0">
+      <div className="text-[10.5px] font-bold tracking-[.14em] uppercase text-dim mb-2">{title}</div>
       {children}
     </div>
   );
@@ -201,10 +201,10 @@ function RatingsSpread({ values }: { values: number[] }) {
   const avg = values.length ? values.reduce((x, y) => x + y, 0) / values.length : null;
   return (
     <div className="flex-1 flex flex-col">
-      <div className="text-[12.5px] mb-2.5">
+      <div className="text-[12px] mb-2">
         <b className="text-ink">{values.length}</b> <span className="text-dim">ratings{avg != null ? ` · avg ${avg.toFixed(1)}` : ""}</span>
       </div>
-      <div className="flex items-end gap-1 h-[88px]">
+      <div className="flex items-end gap-[3px] h-[64px]">
         {buckets.map((n, i) => (
           <div key={i} title={`${i + 1}: ${n}`} className="flex-1 rounded-t-[3px] bg-accent-fill" style={{ height: `${Math.max(4, (n / most) * 100)}%`, opacity: n ? 1 : 0.18 }} />
         ))}
@@ -221,11 +221,11 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
   if (genres.length === 0) return <p className="m-0 text-sm text-dim">Nothing tracked yet.</p>;
   const most = Math.max(...genres.map((g) => g.share));
   return (
-    <ul className="m-0 p-0 list-none grid gap-2">
+    <ul className="m-0 p-0 list-none grid gap-[7px]">
       {genres.map((g) => (
-        <li key={g.name} className="grid grid-cols-[76px_1fr_34px] items-center gap-2 text-[12.5px]">
+        <li key={g.name} className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_30px] items-center gap-1.5 text-[11.5px]">
           <span className="truncate text-ink">{g.name}</span>
-          <span className="h-[7px] rounded-full bg-card-hi overflow-hidden">
+          <span className="h-[5px] rounded-full bg-card-hi overflow-hidden">
             <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${(g.share / most) * 100}%` }} />
           </span>
           <span className="text-right text-dim">{Math.round(g.share * 100)}%</span>
