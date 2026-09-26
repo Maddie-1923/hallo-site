@@ -5,12 +5,12 @@ import { useMemo, useState } from "react";
 import type { DiaryEntry } from "@/lib/public-profile";
 import { MarkReview, MarkRewatched, TightHeart } from "./marks";
 
-// The profile's Diary: every watch as a row in a table, a year at a time.
+// The profile's Watchlog: every watch as a row in a table, a year at a time.
 // The columns read in the order a diary entry is thought about: when, what,
 // how it was watched (which episodes, whether a rewatch), then what they
 // thought (hearts, a like, a review). The release year rides with the title,
 // the way a title is said aloud. Series get the Episodes column, which a
-// films-only diary like Letterboxd's has no need for. A switch shows films,
+// films-only log like Letterboxd's diary has no need for. A switch shows films,
 // series or both.
 //
 // The whole diary arrives from the server; showing one year at a time keeps

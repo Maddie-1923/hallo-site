@@ -78,8 +78,9 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
           },
           { id: "activity", label: "Recent activity", content: <ActivityList v={v} /> },
           {
-            id: "diary",
-            label: "Diary",
+            // Called the Watchlog rather than a diary, which is Letterboxd's word.
+            id: "watchlog",
+            label: "Watchlog",
             count: v.diary.length,
             content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} /> : <Empty>Nothing logged yet.</Empty>,
           },
