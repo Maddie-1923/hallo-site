@@ -25,7 +25,7 @@ export function FollowPill({ initial = false }: { initial?: boolean }) {
       // all, only the mark itself in the accent. Inside a filled circle the
       // mark's own disc read as a second, slightly off-centre ring.
       className={`inline-flex items-center justify-center rounded-full cursor-pointer transition-[filter] hover:brightness-110 ${
-        following ? "w-10 h-10 text-accent-fill" : "h-9 px-4 bg-accent-fill text-on-accent text-[14px] font-semibold"
+        following ? "text-accent-fill" : "h-9 px-4 bg-accent-fill text-on-accent text-[14px] font-semibold"
       }`}
     >
       {following ? <FollowingGlyph /> : "+ Follow"}
@@ -38,11 +38,16 @@ export function FollowPill({ initial = false }: { initial?: boolean }) {
 // match the app's `person.crop.circle.fill.badge.checkmark`: the disc high
 // and right, the check badge large on its lower left. Drawn here
 // rather than borrowed: SF Symbols are licensed for Apple platforms only, so
-// the web gets its own. Lifted a pixel so the disc's top sits level with the
-// handle's capitals.
+// the web gets its own.
+// Sized to the handle beside it: the disc stands as tall as the handle's
+// capitals (Bebas capitals are 0.7 of its size, clamp(20px, 1.8vw, 26px), and
+// the disc is 0.8 of this box), so the mark reads as part of that line
+// rather than a button bolted to the card.
+const SIZE = "calc(clamp(20px, 1.8vw, 26px) * 0.875)";
+
 function FollowingGlyph() {
   return (
-    <svg width="40" height="40" viewBox="0 0 24 24" aria-hidden className="block -translate-y-px">
+    <svg viewBox="0 0 24 24" aria-hidden className="block" style={{ width: SIZE, height: SIZE }}>
       <defs>
         {/* Everything is one colour; the person, the check and a thin gap
             round the badge are cut out of it, so whatever the button sits on
