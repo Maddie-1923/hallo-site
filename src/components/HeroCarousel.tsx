@@ -19,6 +19,8 @@ export interface HeroSlide {
   overview: string | null;
   target: { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
   marks: MarkState;
+  /** The title's logo artwork, drawn in place of the typed title when there. */
+  logo: string | null;
 }
 
 // The billboard as a carousel. One card, the slides cross-fading inside it,
@@ -103,7 +105,18 @@ function Slide({ slide: s, label, active, lists }: { slide: HeroSlide; label: st
           <div className="eyebrow">{label}</div>
           <h1 className="!text-[clamp(40px,7vw,92px)] max-w-[14ch] drop-shadow-[0_2px_24px_rgba(0,0,0,.6)]">
             <Link href={s.href} className="no-underline text-ink hover:text-accent transition-colors" tabIndex={active ? 0 : -1}>
-              {s.title}
+              {/* The show's own logo artwork, as on the home billboard, with
+                  the typed title standing in when TMDB has none. */}
+              {s.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={s.logo}
+                  alt={s.title}
+                  className="block w-auto h-auto max-w-[min(380px,80%)] max-h-[clamp(64px,13vh,130px)] object-contain object-left-bottom drop-shadow-[0_2px_14px_rgba(0,0,0,.6)]"
+                />
+              ) : (
+                s.title
+              )}
             </Link>
           </h1>
           <p className="text-sm text-bone mt-4 flex flex-wrap gap-x-2">

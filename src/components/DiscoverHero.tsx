@@ -1,6 +1,6 @@
 import type { Movie, Show } from "@/lib/archive";
 import { year } from "@/lib/archive";
-import { genreNames, image } from "@/lib/tmdb";
+import { genreNames, image, titleLogo } from "@/lib/tmdb";
 import { HeroCarousel, type HeroSlide } from "./HeroCarousel";
 import type { markLookup } from "@/lib/marks";
 
@@ -10,7 +10,7 @@ type Featured = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 // (URLs built, genres named) and hands them to the client carousel. Only
 // titles with a backdrop make a slide — a hero with nothing behind the type
 // is a grey box.
-export function DiscoverHero({ featured, label, marks, limit = 8 }: { featured: Featured[]; label: string; marks: ReturnType<typeof markLookup>; limit?: number }) {
+export async function DiscoverHero({ featured, label, marks, limit = 8 }: { featured: Featured[]; label: string; marks: ReturnType<typeof markLookup>; limit?: number }) {
   const slides: HeroSlide[] = featured
     .map((f): HeroSlide | null => {
       if (f.kind === "show") {
@@ -27,6 +27,7 @@ export function DiscoverHero({ featured, label, marks, limit = 8 }: { featured: 
           overview: f.show.overview ?? null,
           target: f,
           marks: marks.show(f.show.id),
+          logo: null,
         };
       }
       if (!f.movie.backdrop_path) return null;
@@ -42,11 +43,16 @@ export function DiscoverHero({ featured, label, marks, limit = 8 }: { featured: 
         overview: f.movie.overview ?? null,
         target: f,
         marks: marks.movie(f.movie.id),
+        logo: null,
       };
     })
     .filter((s): s is HeroSlide => s !== null)
     .slice(0, limit);
 
   if (slides.length === 0) return <div className="h-6" />;
+  // Logos only for the slides that are drawn: one request a title, cached for
+  // a day.
+  const logos = await Promise.all(slides.map((sl) => titleLogo(sl.target.kind, sl.target.kind === "show" ? sl.target.show.id : sl.target.movie.id)));
+  slides.forEach((sl, i) => (sl.logo = logos[i]));
   return <HeroCarousel slides={slides} label={label} lists={marks.lists} />;
 }
