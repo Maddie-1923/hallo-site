@@ -10,7 +10,10 @@ nothing else.
   full-width billboard of the week's trending titles, sliding right to left,
   sized by `.billboard-fit` in globals.css so it and the first row fit one
   screen) and `WideRow`s of landscape cards with each title's TMDB logo
-  underneath. The app's pitch (features,
+  underneath. `components/TitleRows.tsx` builds both (billboard slides, wide
+  rows) and is shared with Explore (`components/ExplorePage.tsx`), which is
+  the same layout for one catalogue at a time, with its Shows/Movies switch
+  in the billboard's corner. The app's pitch (features,
   themes, pricing, FAQ) lives at `about/`. `privacy/` and `support/` are the
   policy pages (they replaced the Jekyll `privacy.md`/`support.md`).
 - `docs/social-plan.md` — the plan for the social side (public profiles,

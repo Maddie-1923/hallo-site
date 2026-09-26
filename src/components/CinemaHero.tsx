@@ -46,7 +46,10 @@ const CREAM = "#F4ECDC";
 // one at a time. The big title owns the left and the studio's tagline and the
 // facts sit on the right, both on the frame's bottom edge. Arrows
 // at mid-height on both sides page through, wrapping at the ends.
-export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
+// `corner` is drawn in the frame's top-left corner, over the picture; Explore
+// puts its Shows/Movies switch there so the billboard and the first row still
+// fit one screen.
+export function CinemaHero({ slides, corner }: { slides: CinemaSlide[]; corner?: React.ReactNode }) {
   const [at, setAt] = useState(0);
   const [hover, setHover] = useState(false);
   const [calm, setCalm] = useState(false);
@@ -150,7 +153,7 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
                 where both columns now sit, and a little down the left behind
                 the title. The top of the picture is left alone. */}
             <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.8) 0%, rgba(12,10,9,.35) 26%, transparent 50%)" }} />
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(12,10,9,.7) 0%, rgba(12,10,9,.3) 32%, transparent 52%)" }} />
+            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(12,10,9,.82) 0%, rgba(12,10,9,.5) 28%, rgba(12,10,9,.15) 42%, transparent 55%)" }} />
 
             {/* The words ride with their picture: each slide's words are a
                 layer that slides in and out with the same timing as the image,
@@ -191,6 +194,8 @@ export function CinemaHero({ slides }: { slides: CinemaSlide[] }) {
                 ))}
               </div>
             </div>
+
+            {corner && <div className="absolute z-20 top-[clamp(14px,2vw,26px)] left-[clamp(20px,5vw,80px)] sm:left-[clamp(84px,7vw,108px)]">{corner}</div>}
 
             {/* Previous and next, at mid-height on either edge. Both wrap: past
                 the last slide is the first, before the first is the last. Not
