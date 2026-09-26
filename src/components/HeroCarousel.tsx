@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Movie, Show } from "@/lib/archive";
 import { MarkButtons, type MarkState } from "./MarkButtons";
 import type { ListOption } from "@/lib/marks";
+import { nightTokens } from "@/lib/theme";
 
 export interface HeroSlide {
   key: string;
@@ -80,13 +81,21 @@ function Slide({ slide: s, label, active, lists }: { slide: HeroSlide; label: st
     <div
       className={`absolute inset-0 flex items-end transition-opacity duration-500 ${active ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       aria-hidden={!active}
+      style={nightTokens}
     >
       {s.backdrop && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={s.backdrop} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-top" />
       )}
-      <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, color-mix(in srgb, var(--page) 92%, transparent) 0%, color-mix(in srgb, var(--page) 55%, transparent) 45%, color-mix(in srgb, var(--page) 10%, transparent) 100%)" }} />
-      <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--page) 15%, transparent) 0%, color-mix(in srgb, var(--page) 0%, transparent) 30%, color-mix(in srgb, var(--page) 80%, transparent) 78%, color-mix(in srgb, var(--page) 95%, transparent) 100%)" }} />
+      {/* Shade, not wash. The picture is the point of the billboard, so it is
+          left sharp and at full colour everywhere but a band behind the words:
+          a dark gradient climbing from the bottom-left corner. It used to be
+          a sheet of the page colour across the whole frame, which by day
+          turned every backdrop milky, as if it were behind frosted glass.
+          Dark whatever the page's scheme, because white type on a darkened
+          photo reads in both, and Bone type on a lightened one didn't. */}
+      <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.45) 30%, rgba(0,0,0,0) 58%)" }} />
+      <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.12) 40%, rgba(0,0,0,0) 60%)" }} />
 
       {/* Inset past the chevrons on both sides so the copy never sits under them. */}
       <div className="relative w-full px-[clamp(56px,7vw,96px)] pb-[clamp(20px,4vw,40px)] pt-24 flex items-end justify-between gap-6">

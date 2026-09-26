@@ -88,7 +88,7 @@ export default async function Home() {
   const trending = interleave(asMovies(trendingMovies), asShows(trendingShows)).filter((x) => !shown.has(x.key));
 
   return (
-    <div className="scheme-dark min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <header>
         <CinemaHero slides={slides} nav={<SiteNav overlay framed />} />
       </header>

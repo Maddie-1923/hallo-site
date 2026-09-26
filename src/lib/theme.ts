@@ -73,3 +73,19 @@ var dark=a==="dark"||(a!=="light"&&matchMedia("(prefers-color-scheme: dark)").ma
 var r=document.documentElement;r.dataset.scheme=dark?"dark":"light";r.dataset.theme=id;
 r.style.setProperty("--accent",dark?t[0]:t[2]);r.style.setProperty("--accent-fill",dark?t[1]:t[0]);r.style.setProperty("--accent-raw",t[0]);
 }catch(e){}})();`;
+
+/**
+ * The Night neutrals as inline CSS variables, for a block that always sits on
+ * a darkened photograph (the billboards) and so has to draw light type and a
+ * light logo even when the page around it is in Day.
+ */
+export const nightTokens = {
+  "--ink": "#e6e0d6",
+  "--bone": "#e6e0d6",
+  "--dim": "#c9c4bb",
+  "--hair": "#42423f",
+  "--card": "#30302e",
+  "--card-hi": "#383836",
+  "--page": "#1a1a19",
+  "--accent": "var(--accent-raw)",
+} as Record<string, string>;

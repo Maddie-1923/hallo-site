@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Support — Kodigo" };
 
 export default function Support() {
   return (
-    <div className="scheme-dark min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col">
         <SiteNav />
         <main className="wrap prose py-16">
           <h1 className="!text-[clamp(44px,8vw,84px)]">Support</h1>

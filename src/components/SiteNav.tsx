@@ -4,7 +4,7 @@ import { LogoMark } from "./Logo";
 import { Menu } from "./Menu";
 import { Poster } from "./Poster";
 import { NavSearch } from "./NavSearch";
-import { AppearanceMenu } from "./AppearanceMenu";
+import { DayNightToggle } from "./DayNightToggle";
 import { optionalLibrary } from "@/lib/library";
 import { upcomingEpisodes, whenLabel } from "@/lib/upcoming";
 import { loadProfile } from "@/lib/profile";
@@ -39,7 +39,7 @@ const menuLinks = [
   ["/app/history", "History"],
   ["/app/account", "Account"],
   ["/app/import", "Import a backup"],
-  ["/about#features", "Features"],
+  ["/about#themes", "Themes"],
   ["/about#pricing", "Subscription"],
   ["/about#faq", "FAQ"],
   ["/support", "Support"],
@@ -73,11 +73,11 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
           <NavLinks links={user ? product : marketing} />
         </div>
         {user ? (
-          <SignedIn email={user.email ?? ""} />
+          <SignedIn email={user.email ?? ""} framed={framed} />
         ) : (
           <div className="ml-auto flex items-center gap-4 shrink-0">
             <SearchBoundary />
-            <AppearanceMenu />
+            <DayNightToggle onPicture={framed} />
             {accountsOpen && (
               <Link href="/login" className="btn ghost !py-2 !px-4 text-sm shrink-0 whitespace-nowrap">
                 Sign in
@@ -116,7 +116,7 @@ async function signedInUser() {
   return user;
 }
 
-async function SignedIn({ email }: { email: string }) {
+async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
   const [{ archive }, profile] = await Promise.all([optionalLibrary(), loadProfile()]);
   const upcoming = await upcomingEpisodes(archive);
   const initial = ((profile.display_name || email)[0] ?? "?").toUpperCase();
@@ -171,7 +171,7 @@ async function SignedIn({ email }: { email: string }) {
         )}
       </Menu>
 
-      <AppearanceMenu />
+      <DayNightToggle onPicture={framed} />
 
       <Menu
         label="Account menu"

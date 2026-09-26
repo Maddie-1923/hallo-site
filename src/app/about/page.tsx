@@ -65,7 +65,7 @@ export default async function About() {
   const [slides, posters] = await Promise.all([frameSlides(), framePosters()]);
 
   return (
-    <div className="scheme-dark min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col">
         <SiteNav />
 
         <header id="top">

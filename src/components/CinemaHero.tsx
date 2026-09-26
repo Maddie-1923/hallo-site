@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Movie, Show } from "@/lib/archive";
 import { trackMovie, trackShow } from "@/lib/library-actions";
+import { nightTokens } from "@/lib/theme";
 
 export interface CinemaSlide {
   key: string;
@@ -100,6 +101,9 @@ export function CinemaHero({ slides, nav }: { slides: CinemaSlide[]; nav?: React
         >
           <div
             className="relative overflow-hidden rounded-[clamp(21px,3vw,43px)] bg-[#141312] min-h-[clamp(620px,52vw,760px)] flex flex-col"
+            // The frame is always a darkened photograph, so the nav, logo and
+            // words inside it draw in Night's colours whatever the page is.
+            style={nightTokens}
             onTouchStart={(e) => setTouchX(e.touches[0].clientX)}
             onTouchEnd={(e) => {
               if (touchX === null) return;
