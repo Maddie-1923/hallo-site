@@ -44,28 +44,30 @@ function FollowingGlyph() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" aria-hidden className="block -translate-y-px">
       <defs>
-        {/* Everything is one colour; the person, the check and a gap round
-            the badge are cut out of it, so whatever the button sits on shows
-            through. Laid out like the symbol: the disc up and to the right,
-            a large badge overlapping its lower-left edge. */}
-        <mask id="follow-glyph-cut">
-          <rect width="24" height="24" fill="white" />
-          <circle cx="6.6" cy="17.4" r="7.1" fill="black" />
-        </mask>
+        {/* Everything is one colour; the person, the check and a thin gap
+            round the badge are cut out of it, so whatever the button sits on
+            shows through. Laid out like the symbol: the disc up and to the
+            right, a large badge on its lower left wearing a solid border
+            outside its gap, so the badge reads as its own coin laid over the
+            disc and keeps an edge where it hangs past it. */}
         <mask id="follow-glyph-person">
-          <circle cx="13.6" cy="10.4" r="9.6" fill="white" />
-          <circle cx="13.6" cy="8.2" r="3.9" fill="black" />
-          <ellipse cx="13.6" cy="19.4" rx="7.2" ry="5.6" fill="black" />
+          <circle cx="14" cy="10" r="9.6" fill="white" />
+          <circle cx="14" cy="7.8" r="3.9" fill="black" />
+          <ellipse cx="14" cy="19" rx="7.2" ry="5.6" fill="black" />
+          {/* Room for the badge and its border. */}
+          <circle cx="7.6" cy="16.4" r="7.3" fill="black" />
         </mask>
-        <mask id="follow-glyph-check">
-          <circle cx="6.6" cy="17.4" r="5.6" fill="white" />
-          <path d="M3.9 17.5l1.9 1.9 3.6-3.9" fill="none" stroke="black" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+        <mask id="follow-glyph-badge">
+          {/* The border ring, then the gap, then the badge's face with the
+              check cut through it. */}
+          <circle cx="7.6" cy="16.4" r="7.3" fill="white" />
+          <circle cx="7.6" cy="16.4" r="6.5" fill="black" />
+          <circle cx="7.6" cy="16.4" r="5.8" fill="white" />
+          <path d="M4.9 16.5l1.9 1.9 3.6-3.9" fill="none" stroke="black" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
         </mask>
       </defs>
-      <g mask="url(#follow-glyph-cut)">
-        <circle cx="13.6" cy="10.4" r="9.6" fill="currentColor" mask="url(#follow-glyph-person)" />
-      </g>
-      <circle cx="6.6" cy="17.4" r="5.6" fill="currentColor" mask="url(#follow-glyph-check)" />
+      <circle cx="14" cy="10" r="9.6" fill="currentColor" mask="url(#follow-glyph-person)" />
+      <rect width="24" height="24" fill="currentColor" mask="url(#follow-glyph-badge)" />
     </svg>
   );
 }
