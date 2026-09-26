@@ -3,8 +3,8 @@ import type { DiaryEntry, ListEntry, ProfileTitle, PublicProfileView, ReviewEntr
 import { nightTokens } from "@/lib/theme";
 
 // A public profile, laid out as a bento board after the reference the user
-// chose: one big rounded banner with the numbers set huge across it, a corner of
-// the banner cut away to hold the person's card, pill tabs under it, and a
+// chose: one big rounded banner left to its picture, a corner of the banner
+// cut away to hold the person's card, pill tabs under it, and a
 // row of cards below — favourites, a headline block with the
 // numbers, and the latest diary entries in a divided list. The full diary,
 // reviews, lists and favourites follow below, and the tabs jump to them.
@@ -75,10 +75,6 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 }
 
 function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
-  // Films and episodes, as the headline's second line: the page says what
-  // this person watches before it says anything else.
-  const line2 = `${v.stats.films} films · ${v.stats.episodes} episodes`;
-
   return (
     <section id="top" className="relative scroll-mt-24">
       <div
@@ -111,14 +107,6 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
             is. The page's heading is still the handle, for screen readers
             and search. */}
         <h1 className="sr-only">@{v.username}</h1>
-        {/* The numbers, huge, along the bottom to the right of the cut-out
-            corner, the way the reference's headline runs beside its card. */}
-        <p
-          className="display absolute left-[clamp(20px,3vw,40px)] md:left-[calc(min(380px,36%)+clamp(16px,2vw,28px))] right-6 bottom-[clamp(16px,2.2vw,28px)] m-0 !leading-[.85] text-white uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,.45)]"
-          style={{ fontSize: "clamp(34px, 5.2vw, 88px)" }}
-        >
-          {line2}
-        </p>
       </div>
 
       {/* The cut-out corner, in the page's colour, holding the person's card.
@@ -190,6 +178,11 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             {v.stats.ratings} ratings · {v.reviews.length} reviews · {v.lists.length} lists
           </div>
         </div>
+      </div>
+      {/* What they have watched, in the display face: the card's headline
+          figure, under the handle and above who follows them. */}
+      <div className="display text-[clamp(22px,2vw,30px)] leading-none text-ink">
+        {v.stats.films} films · {v.stats.episodes} episodes
       </div>
       {v.bio && <p className="m-0 text-[13px] leading-[1.45] text-dim line-clamp-3">{v.bio}</p>}
       <div className="flex items-center gap-5 text-[13px]">
