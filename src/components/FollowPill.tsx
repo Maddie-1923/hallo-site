@@ -21,11 +21,11 @@ export function FollowPill({ initial = false }: { initial?: boolean }) {
       aria-label={following ? "Following" : "Follow"}
       title={following ? "Following" : undefined}
       onClick={() => setFollowing((f) => !f)}
-      // A pill while it offers "+ Follow"; once followed it closes up into a
-      // circle the same height, so the mark inside sits centred and round in
-      // round rather than lost in a lozenge.
-      className={`inline-flex items-center justify-center h-9 rounded-full bg-accent-fill text-on-accent cursor-pointer transition-[filter] hover:brightness-110 ${
-        following ? "w-9" : "px-4 text-[14px] font-semibold"
+      // A pill while it offers "+ Follow"; once followed it becomes a circle
+      // with room around the mark, so the badge at its lower right doesn't
+      // crowd the edge and make the whole thing look lopsided.
+      className={`inline-flex items-center justify-center rounded-full bg-accent-fill text-on-accent cursor-pointer transition-[filter] hover:brightness-110 ${
+        following ? "w-11 h-11" : "h-9 px-4 text-[14px] font-semibold"
       }`}
     >
       {following ? <FollowingGlyph /> : "+ Follow"}
@@ -37,9 +37,11 @@ export function FollowPill({ initial = false }: { initial?: boolean }) {
 // circle with a check badge at the lower right, drawn to match the app's
 // `person.crop.circle.badge.checkmark`. Drawn here rather than borrowed:
 // SF Symbols are licensed for Apple platforms only, so the web gets its own.
+// Nudged a pixel up and left in its circle: the badge puts the mark's weight
+// low and right, and centring its box left it looking off-centre.
 function FollowingGlyph() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden className="block">
+    <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden className="block -translate-x-px -translate-y-px">
       <defs>
         {/* The person is cut to the circle, and the circle is cut away where
             the badge sits, with a hair of clearance around it. */}
