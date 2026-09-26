@@ -2,11 +2,12 @@ import Link from "next/link";
 import type { DiaryEntry, ListEntry, ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
-import { BackToTop, ProfileTabs } from "./ProfileNav";
+import { BackToTop, ProfileSections } from "./ProfileNav";
 
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner left to its picture, then the person's card
-// and their favourites side by side, then pill tabs over the sections below. The full diary,
+// and their favourites side by side, then pill tabs that swap one section at
+// a time in place below them. The full diary,
 // reviews, lists and favourites follow below, and the tabs jump to them.
 //
 // Server-rendered and read-only. Following is drawn but not live until the
@@ -45,45 +46,64 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
         <FavouriteCard v={v} />
       </div>
 
-      <ProfileTabs />
+      {/* One section at a time under the tabs, swapped in place. */}
+      <ProfileSections
+        sections={[
+          { id: "activity", label: "Recent activity", content: <ActivityList v={v} /> },
+          {
+            id: "diary",
+            label: "Diary",
+            count: v.diary.length,
+            content: v.diary.length > 0 ? <DiaryTable entries={v.diary} /> : <Empty>Nothing logged yet.</Empty>,
+          },
+          {
+            id: "reviews",
+            label: "Reviews",
+            count: v.reviews.length,
+            content:
+              v.reviews.length > 0 ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {v.reviews.map((r) => (
+                    <ReviewCard key={r.key} r={r} />
+                  ))}
+                </div>
+              ) : (
+                <Empty>No reviews yet.</Empty>
+              ),
+          },
+          {
+            id: "lists",
+            label: "Lists",
+            count: v.lists.length,
+            content:
+              v.lists.length > 0 ? (
+                <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(230px,1fr))]">
+                  {v.lists.map((l) => (
+                    <ListCard key={l.id} l={l} />
+                  ))}
+                </div>
+              ) : (
+                <Empty>No lists yet.</Empty>
+              ),
+          },
+          {
+            id: "favourites",
+            label: "Favourites",
+            count: v.favorites.length,
+            content:
+              v.favorites.length > 0 ? (
+                <div className="grid gap-3 grid-cols-3 sm:grid-cols-5 lg:grid-cols-8">
+                  {v.favorites.map((t) => (
+                    <PosterLink key={t.key} t={t} />
+                  ))}
+                </div>
+              ) : (
+                <Empty>No favourites yet.</Empty>
+              ),
+          },
+        ]}
+      />
 
-      <Section id="activity" title="Recent activity" count={-1} empty="Nothing yet." first>
-        <ActivityList v={v} />
-      </Section>
-
-      <Section id="diary" title="Diary" count={v.diary.length} empty="Nothing logged yet.">
-        {v.diary.length > 0 && <DiaryTable entries={v.diary} />}
-      </Section>
-
-      <Section id="reviews" title="Reviews" count={v.reviews.length} empty="No reviews yet.">
-        {v.reviews.length > 0 && (
-          <div className="grid gap-4 md:grid-cols-2">
-            {v.reviews.map((r) => (
-              <ReviewCard key={r.key} r={r} />
-            ))}
-          </div>
-        )}
-      </Section>
-
-      <Section id="lists" title="Lists" count={v.lists.length} empty="No lists yet.">
-        {v.lists.length > 0 && (
-          <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(230px,1fr))]">
-            {v.lists.map((l) => (
-              <ListCard key={l.id} l={l} />
-            ))}
-          </div>
-        )}
-      </Section>
-
-      <Section id="favourites" title="Favourites" count={v.favorites.length} empty="No favourites yet.">
-        {v.favorites.length > 0 && (
-          <div className="grid gap-3 grid-cols-3 sm:grid-cols-5 lg:grid-cols-8">
-            {v.favorites.map((t) => (
-              <PosterLink key={t.key} t={t} />
-            ))}
-          </div>
-        )}
-      </Section>
       <BackToTop />
     </main>
   );
@@ -374,16 +394,8 @@ function FiveRow({ titles }: { titles: ProfileTitle[] }) {
   );
 }
 
-function Section({ id, title, count, empty, first = false, children }: { id: string; title: string; count: number; empty: string; first?: boolean; children: React.ReactNode }) {
-  return (
-    <section id={id} className={`${first ? "mt-6" : "mt-14"} scroll-mt-24`}>
-      <div className="flex items-baseline gap-3 border-b border-hair pb-2 mb-5">
-        <h2 className="!text-[clamp(30px,3vw,44px)]">{title}</h2>
-        {count >= 0 && <span className="text-[13px] text-dim">{count}</span>}
-      </div>
-      {count === 0 ? <p className="text-sm text-dim m-0">{empty}</p> : children}
-    </section>
-  );
+function Empty({ children }: { children: React.ReactNode }) {
+  return <p className="text-sm text-dim m-0">{children}</p>;
 }
 
 // What they have been doing lately, newest first: watches from the diary

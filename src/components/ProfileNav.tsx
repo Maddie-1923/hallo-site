@@ -2,65 +2,68 @@
 
 import { useEffect, useState } from "react";
 
-const TABS: [string, string][] = [
-  ["activity", "Recent activity"],
-  ["diary", "Diary"],
-  ["reviews", "Reviews"],
-  ["lists", "Lists"],
-  ["favourites", "Favourites"],
-];
+export interface ProfileSection {
+  id: string;
+  label: string;
+  count?: number;
+  content: React.ReactNode;
+}
 
-// The profile's section tabs. The lit one follows the section being read:
-// the last section whose top has reached the line just under the sticky nav,
-// which is where a tab's jump sets it down (the sections' scroll margin is
-// 96px). A line lower down the window lit the wrong tab when two short
-// sections sat inside it at once.
-export function ProfileTabs() {
-  const [current, setCurrent] = useState(TABS[0][0]);
-  // A tab pressed is the answer until the jump it caused has settled; the
-  // scroll that jump makes would otherwise relight whatever it passes, and a
-  // short last section can't be scrolled up to the line at all.
-  const [pressedAt, setPressedAt] = useState(0);
+// The profile's sections as tabs: one section shows at a time and a tab
+// swaps it in place, with no new page and no jump down the page. The choice
+// is written into the address (…/u/name#diary) without scrolling, so a
+// reload or a shared link opens on the same tab.
+export function ProfileSections({ sections }: { sections: ProfileSection[] }) {
+  const [current, setCurrent] = useState(sections[0].id);
 
   useEffect(() => {
-    const onScroll = () => {
-      if (Date.now() - pressedAt < 900) return;
-      const line = 100;
-      let lit = TABS[0][0];
-      for (const [id] of TABS) {
-        const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= line) lit = id;
-      }
-      // At the foot of the page the last section is the one being read,
-      // however short it is.
-      if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2) lit = TABS[TABS.length - 1][0];
-      setCurrent(lit);
+    const fromHash = () => {
+      const id = window.location.hash.slice(1);
+      if (sections.some((s) => s.id === id)) setCurrent(id);
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [pressedAt]);
+    fromHash();
+    window.addEventListener("hashchange", fromHash);
+    return () => window.removeEventListener("hashchange", fromHash);
+  }, [sections]);
+
+  function choose(id: string) {
+    setCurrent(id);
+    history.replaceState(null, "", `#${id}`);
+  }
+
+  const shown = sections.find((s) => s.id === current) ?? sections[0];
 
   return (
-    <nav
-      aria-label="Profile sections"
-      className="mt-10 inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center gap-1 p-1 rounded-full bg-card border border-hair"
-    >
-      {TABS.map(([id, label]) => (
-        <a
-          key={id}
-          href={`#${id}`}
-          aria-current={current === id ? "location" : undefined}
-          onClick={() => {
-            setCurrent(id);
-            setPressedAt(Date.now());
-          }}
-          className={`shrink-0 px-4 py-1.5 rounded-full text-[13px] font-semibold no-underline transition-colors ${current === id ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
-        >
-          {label}
-        </a>
-      ))}
-    </nav>
+    <section className="mt-10">
+      <div
+        role="tablist"
+        aria-label="Profile sections"
+        className="inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center gap-1 p-1 rounded-full bg-card border border-hair"
+      >
+        {sections.map((s) => {
+          const on = s.id === shown.id;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              role="tab"
+              id={`tab-${s.id}`}
+              aria-selected={on}
+              aria-controls={`panel-${s.id}`}
+              onClick={() => choose(s.id)}
+              className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[13px] font-semibold cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+            >
+              {s.label}
+              {s.count != null && <span className={`text-[11.5px] font-normal ${on ? "opacity-70" : "opacity-60"}`}>{s.count}</span>}
+            </button>
+          );
+        })}
+      </div>
+
+      <div role="tabpanel" id={`panel-${shown.id}`} aria-labelledby={`tab-${shown.id}`} className="mt-6 min-h-[240px]">
+        {shown.content}
+      </div>
+    </section>
   );
 }
 
