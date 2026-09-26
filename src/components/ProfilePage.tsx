@@ -3,7 +3,7 @@ import type { DiaryEntry, ListEntry, ProfileTitle, PublicProfileView, ReviewEntr
 import { nightTokens } from "@/lib/theme";
 
 // A public profile, laid out as a bento board after the reference the user
-// chose: one big rounded banner with the name set huge across it, a corner of
+// chose: one big rounded banner with the numbers set huge across it, a corner of
 // the banner cut away to hold the person's card, pill tabs under it, and a
 // row of cards below — favourites, a headline block with the
 // numbers, and the latest diary entries in a divided list. The full diary,
@@ -107,15 +107,12 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
           Follow
         </button>
 
-        {/* The name, huge. Its first line crosses the picture above the
-            cut-out corner; its second runs along the bottom to the right of
-            it, the way the reference's headline breaks around its card. */}
-        <h1
-          className="absolute left-[clamp(20px,3vw,40px)] bottom-[clamp(84px,14vw,110px)] md:bottom-[calc(48%+6px)] max-w-[92%] !leading-[.85] text-white drop-shadow-[0_4px_30px_rgba(0,0,0,.45)] uppercase"
-          style={{ fontSize: "clamp(48px, 7.4vw, 124px)" }}
-        >
-          {v.displayName}
-        </h1>
+        {/* No name across the picture: the handle on the card is who this
+            is. The page's heading is still the handle, for screen readers
+            and search. */}
+        <h1 className="sr-only">@{v.username}</h1>
+        {/* The numbers, huge, along the bottom to the right of the cut-out
+            corner, the way the reference's headline runs beside its card. */}
         <p
           className="display absolute left-[clamp(20px,3vw,40px)] md:left-[calc(min(380px,36%)+clamp(16px,2vw,28px))] right-6 bottom-[clamp(16px,2.2vw,28px)] m-0 !leading-[.85] text-white uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,.45)]"
           style={{ fontSize: "clamp(34px, 5.2vw, 88px)" }}
@@ -185,9 +182,8 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             initial
           )}
         </div>
-        {/* The name is already on the banner in letters a foot high; the
-            card carries the handle and what the person says about
-            themselves. */}
+        {/* The handle is who this is; under it, what the person has put
+            here, and what they say about themselves. */}
         <div className="min-w-0">
           <div className="display text-[clamp(20px,1.9vw,28px)] leading-[.9] truncate">@{v.username}</div>
           <div className="text-[12px] text-dim">
