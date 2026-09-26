@@ -3,18 +3,15 @@ import type { DiaryEntry, ListEntry, ProfileTitle, PublicProfileView, ReviewEntr
 import { nightTokens } from "@/lib/theme";
 
 // A public profile, laid out as a bento board after the reference the user
-// chose: one big rounded banner left to its picture, a corner of the banner
-// cut away to hold the person's card, pill tabs under it, and a
-// row of cards below: a headline block with the numbers on the left and the
-// favourites card on the right. The full diary,
+// chose: one big rounded banner left to its picture, pill tabs under it, then
+// the person's card and their favourites side by side. The full diary,
 // reviews, lists and favourites follow below, and the tabs jump to them.
 //
 // Server-rendered and read-only. Following is drawn but not live until the
 // accounts side opens.
 
 const GUTTER = "px-[clamp(16px,3.2vw,64px)]";
-// The banner's corner radius, and the cut-out corner's, so the concave joins
-// meet the curves they continue.
+// The banner's corner radius.
 const R = 28;
 
 export function ProfilePage({ view: v }: { view: PublicProfileView }) {
@@ -31,8 +28,8 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
       <ProfileTabs />
 
-      <div className="grid gap-5 mt-4 lg:grid-cols-12">
-        <HeadlineBlock v={v} />
+      <div className="grid gap-5 mt-4 lg:grid-cols-2 items-start">
+        <ProfileCard v={v} />
         <FavouriteCard lead={lead} rest={v.favorites.slice(1, 5)} count={v.favorites.length} />
       </div>
 
@@ -86,7 +83,9 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
         ) : (
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, var(--accent-night), #1a1a19)" }} />
         )}
-        <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.75) 0%, rgba(12,10,9,.25) 45%, rgba(12,10,9,.15) 100%)" }} />
+        {/* Nothing is written on the picture any more, so it is left as it is
+            but for a faint shade at the top behind the Follow button. */}
+        <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(12,10,9,.3) 0%, transparent 25%)" }} />
 
         {/* Follow, top right. Drawn now, live when accounts open. */}
         <button
@@ -108,26 +107,11 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
         <h1 className="sr-only">@{v.username}</h1>
       </div>
 
-      {/* The cut-out corner, in the page's colour, holding the person's card.
-          The two small squares beside it are the concave joins: page colour
-          outside a quarter circle, so the banner's edge curves into the cut
-          the way it curves at its corners. */}
-      <div className="hidden md:block absolute left-0 bottom-0 w-[min(380px,36%)] h-[48%] bg-page pt-4 pr-4" style={{ borderTopRightRadius: R }}>
-        <ProfileCard v={v} />
-      </div>
-      <div aria-hidden className="hidden md:block absolute left-0 bottom-[48%]" style={{ width: R, height: R, background: `radial-gradient(circle at 100% 0%, transparent ${R - 0.5}px, var(--page) ${R}px)` }} />
-      <div aria-hidden className="hidden md:block absolute bottom-0 left-[min(380px,36%)]" style={{ width: R, height: R, background: `radial-gradient(circle at 100% 0%, transparent ${R - 0.5}px, var(--page) ${R}px)` }} />
-      {/* On a phone there is no room for the cut-out; the card sits under
-          the banner instead. */}
-      <div className="md:hidden mt-3">
-        <ProfileCard v={v} />
-      </div>
     </section>
   );
 }
 
-// The section tabs, under the banner and the person's card and above the
-// row of cards, as a pill like the reference's nav: the lit tab a solid ink
+// The section tabs, under the banner and above the person's card, as a pill like the reference's nav: the lit tab a solid ink
 // pill, the rest plain. On the page's own colours, so it follows Day and
 // Night. Scrolls sideways on a phone rather than wrapping.
 function ProfileTabs() {
@@ -159,7 +143,7 @@ function ProfileTabs() {
 function ProfileCard({ v }: { v: PublicProfileView }) {
   const initial = (v.displayName[0] ?? "?").toUpperCase();
   return (
-    <div className="h-full rounded-[22px] bg-card border border-hair p-[clamp(14px,1.6vw,22px)] flex flex-col justify-between gap-3">
+    <div className="rounded-[24px] bg-card border border-hair p-[clamp(16px,1.8vw,24px)] flex flex-col gap-4">
       <div className="flex items-center gap-3 min-w-0">
         <div className="w-[clamp(48px,4.6vw,64px)] aspect-square rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display text-3xl shrink-0 border-2 border-page shadow">
           {v.avatar ? (
@@ -198,13 +182,13 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
 
 function FavouriteCard({ lead, rest, count }: { lead: ProfileTitle | null; rest: ProfileTitle[]; count: number }) {
   return (
-    <div className="lg:col-span-5 rounded-[24px] bg-card border border-hair p-4 flex flex-col gap-3">
+    <div className="rounded-[24px] bg-card border border-hair p-4 flex flex-col gap-3">
       <div className="flex items-baseline justify-between">
         <h2 className="!text-[clamp(26px,2.4vw,34px)] leading-none">Favourites</h2>
         <span className="text-[12px] text-dim">{count}</span>
       </div>
       {lead ? (
-        <Link href={lead.href} className="group relative block rounded-[18px] overflow-hidden aspect-[4/3] bg-card-hi no-underline">
+        <Link href={lead.href} className="group relative block rounded-[18px] overflow-hidden aspect-video bg-card-hi no-underline">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {lead.backdrop && <img src={lead.backdrop} alt="" className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />}
           <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -216,7 +200,7 @@ function FavouriteCard({ lead, rest, count }: { lead: ProfileTitle | null; rest:
           </span>
         </Link>
       ) : (
-        <div className="rounded-[18px] aspect-[4/3] bg-card-hi flex items-center justify-center text-sm text-dim">No favourites yet</div>
+        <div className="rounded-[18px] aspect-video bg-card-hi flex items-center justify-center text-sm text-dim">No favourites yet</div>
       )}
       {rest.length > 0 && (
         <div className="grid grid-cols-4 gap-2">
@@ -225,38 +209,6 @@ function FavouriteCard({ lead, rest, count }: { lead: ProfileTitle | null; rest:
           ))}
         </div>
       )}
-    </div>
-  );
-}
-
-function HeadlineBlock({ v }: { v: PublicProfileView }) {
-  const s = v.stats;
-  const figures: [string, string | number][] = [
-    ["Films", s.films],
-    ["Shows", s.shows],
-    ["Hours", s.hours],
-    ["Avg rating", s.average ?? "—"],
-  ];
-  return (
-    <div className="lg:col-span-7 flex flex-col justify-between gap-6 px-1 py-2">
-      <div>
-        <h2 className="!text-[clamp(40px,4.4vw,72px)] !leading-[.86]">
-          Recently
-          <br />
-          watched
-        </h2>
-        <a href="#diary" className="inline-flex mt-5 px-5 py-2 rounded-full border border-ink/70 text-[12.5px] font-bold uppercase tracking-[.06em] text-ink no-underline hover:bg-ink hover:text-page transition-colors">
-          Full diary
-        </a>
-      </div>
-      <div className="grid grid-cols-4 gap-2">
-        {figures.map(([label, value]) => (
-          <div key={label}>
-            <div className="display text-[clamp(28px,2.6vw,40px)] leading-none text-accent">{value}</div>
-            <div className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim mt-1">{label}</div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
