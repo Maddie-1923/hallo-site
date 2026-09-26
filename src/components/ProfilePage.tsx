@@ -28,7 +28,10 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
       <ProfileTabs />
 
       <div className="grid gap-5 mt-4 lg:grid-cols-2 items-start">
-        <ProfileCard v={v} />
+        <div className="flex flex-col gap-5">
+          <ProfileCard v={v} />
+          <Dashboard v={v} />
+        </div>
         <FavouriteCard v={v} />
       </div>
 
@@ -136,6 +139,154 @@ function ProfileTabs() {
         </a>
       ))}
     </nav>
+  );
+}
+
+// The quick-glance panels under the person's card. MOCK-UP: all four are
+// shown, each tagged with a letter, so the user can pick which to keep.
+function Dashboard({ v }: { v: PublicProfileView }) {
+  return (
+    <>
+      <Panel tag="A" title="Numbers">
+        <NumberTiles v={v} />
+      </Panel>
+      <Panel tag="B" title="Watch calendar">
+        <WatchCalendar activity={v.activity} />
+      </Panel>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Panel tag="C" title="Ratings">
+          <RatingsSpread values={v.ratingValues} />
+        </Panel>
+        <Panel tag="D" title="Top genres">
+          <TopGenres genres={v.genres} />
+        </Panel>
+      </div>
+    </>
+  );
+}
+
+function Panel({ tag, title, children }: { tag: string; title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-[24px] bg-card border border-hair p-[clamp(16px,1.8vw,22px)]">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="w-5 h-5 rounded-full bg-accent-fill text-on-accent text-[11px] font-bold flex items-center justify-center" aria-hidden>
+          {tag}
+        </span>
+        <span className="text-[11px] font-bold tracking-[.14em] uppercase text-dim">{title}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function NumberTiles({ v }: { v: PublicProfileView }) {
+  const s = v.stats;
+  const tiles: [string, string | number][] = [
+    ["Hours", s.hours.toLocaleString("en")],
+    ["Films", s.films],
+    ["Episodes", s.episodes.toLocaleString("en")],
+    ["Avg ♥", s.average ?? "—"],
+  ];
+  return (
+    <div className="grid grid-cols-4 gap-2">
+      {tiles.map(([label, value]) => (
+        <div key={label} className="rounded-[14px] bg-card-hi py-3 text-center">
+          <div className="display text-[clamp(26px,2.4vw,36px)] leading-none text-accent">{value}</div>
+          <div className="text-[10px] font-bold tracking-[.14em] uppercase text-dim mt-1.5">{label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// The last 53 weeks as a grid of days, a column a week, Sunday at the top,
+// each day shaded by how much was watched on it.
+function WatchCalendar({ activity }: { activity: Record<string, number> }) {
+  const today = new Date();
+  const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const start = new Date(end);
+  start.setUTCDate(start.getUTCDate() - 52 * 7 - end.getUTCDay());
+  const days: { key: string; n: number; month: number; date: number }[] = [];
+  for (const d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    const key = d.toISOString().slice(0, 10);
+    days.push({ key, n: activity[key] ?? 0, month: d.getUTCMonth(), date: d.getUTCDate() });
+  }
+  const weeks = Math.ceil(days.length / 7);
+  const active = days.filter((d) => d.n > 0).length;
+  // Longest run of consecutive watch days in the window.
+  let best = 0;
+  let run = 0;
+  for (const d of days) {
+    run = d.n > 0 ? run + 1 : 0;
+    best = Math.max(best, run);
+  }
+  const shade = (n: number) =>
+    n === 0 ? "var(--card-hi)" : `color-mix(in srgb, var(--accent-fill) ${n === 1 ? 35 : n <= 3 ? 65 : 100}%, var(--card-hi))`;
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  return (
+    <div>
+      <div className="flex gap-5 mb-3 text-[13px]">
+        <span>
+          <b className="text-ink">{active}</b> <span className="text-dim">{active === 1 ? "day" : "days"} watched</span>
+        </span>
+        <span>
+          <b className="text-ink">{best}</b> <span className="text-dim">{best === 1 ? "day" : "days"} best streak</span>
+        </span>
+      </div>
+      <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${weeks}, minmax(0, 1fr))`, gridTemplateRows: "repeat(7, auto)", gridAutoFlow: "column" }}>
+        {days.map((d) => (
+          <div key={d.key} title={`${d.key}: ${d.n}`} className="aspect-square rounded-[2px]" style={{ background: shade(d.n) }} />
+        ))}
+      </div>
+      <div className="grid mt-1.5 text-[10.5px] text-dim" style={{ gridTemplateColumns: `repeat(${weeks}, minmax(0, 1fr))` }}>
+        {Array.from({ length: weeks }, (_, w) => {
+          const first = days[w * 7];
+          return <span key={w}>{first && first.date <= 7 ? months[first.month] : ""}</span>;
+        })}
+      </div>
+    </div>
+  );
+}
+
+// How they rate: a bar for each whole heart from one to ten.
+function RatingsSpread({ values }: { values: number[] }) {
+  const buckets = Array.from({ length: 10 }, (_, i) => values.filter((x) => Math.ceil(x) === i + 1).length);
+  const most = Math.max(1, ...buckets);
+  const avg = values.length ? values.reduce((x, y) => x + y, 0) / values.length : null;
+  return (
+    <div>
+      <div className="text-[13px] mb-3">
+        <b className="text-ink">{values.length}</b> <span className="text-dim">ratings{avg != null ? ` · avg ${avg.toFixed(1)}` : ""}</span>
+      </div>
+      <div className="flex items-end gap-1 h-[72px]">
+        {buckets.map((n, i) => (
+          <div key={i} title={`${i + 1}: ${n}`} className="flex-1 rounded-t-[3px] bg-accent-fill" style={{ height: `${Math.max(4, (n / most) * 100)}%`, opacity: n ? 1 : 0.18 }} />
+        ))}
+      </div>
+      <div className="flex justify-between text-[10.5px] text-dim mt-1.5">
+        <span>♥ 1</span>
+        <span>♥ 10</span>
+      </div>
+    </div>
+  );
+}
+
+function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
+  if (genres.length === 0) return <p className="m-0 text-sm text-dim">Nothing tracked yet.</p>;
+  const most = Math.max(...genres.map((g) => g.share));
+  return (
+    <ul className="m-0 p-0 list-none grid gap-2">
+      {genres.map((g) => (
+        <li key={g.name} className="grid grid-cols-[76px_1fr_34px] items-center gap-2 text-[12.5px]">
+          <span className="truncate text-ink">{g.name}</span>
+          <span className="h-[7px] rounded-full bg-card-hi overflow-hidden">
+            <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${(g.share / most) * 100}%` }} />
+          </span>
+          <span className="text-right text-dim">{Math.round(g.share * 100)}%</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 

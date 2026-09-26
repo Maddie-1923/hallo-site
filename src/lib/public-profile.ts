@@ -1,6 +1,6 @@
 import "server-only";
 import type { LibraryArchive, Movie, Show } from "./archive";
-import { image } from "./tmdb";
+import { genreNames, image } from "./tmdb";
 
 // What a public profile page draws, worked out from a library. The page never
 // sees the archive itself: only what is meant to be shared comes through here
@@ -64,6 +64,12 @@ export interface PublicProfileView {
   diary: DiaryEntry[];
   reviews: ReviewEntry[];
   lists: ListEntry[];
+  /** Watch days for the calendar: "YYYY-MM-DD" → how many things watched. */
+  activity: Record<string, number>;
+  /** Every rating they have given, out of ten, for the spread chart. */
+  ratingValues: number[];
+  /** Their most-watched genres, with each one's share of the top five. */
+  genres: { name: string; share: number }[];
   /** Shown as a ribbon when the page is a preview rather than a real profile. */
   previewNote?: string;
 }
@@ -168,6 +174,23 @@ export function profileFromArchive(
       return { id: l.id, name: l.name, detail: l.detail ?? null, count: titles.length, posters: titles.slice(0, 4).map((p) => image.poster(p, "w185")) };
     });
 
+  // A day counts once per film and once per episode watched on it.
+  const activity: Record<string, number> = {};
+  for (const d of [...Object.values(a.movieWatchedDates ?? {}), ...Object.values(a.watchedDates ?? {})]) {
+    const day = d.slice(0, 10);
+    activity[day] = (activity[day] ?? 0) + 1;
+  }
+
+  // Genres across everything tracked, a show counted once however many
+  // episodes, so a long-running sitcom doesn't drown everything else.
+  const genreCount = new Map<string, number>();
+  for (const t of [...a.shows.map((x) => x.show), ...a.movies.map((x) => x.movie)]) {
+    for (const g of genreNames(t.genre_ids, 3)) genreCount.set(g, (genreCount.get(g) ?? 0) + 1);
+  }
+  const topG = [...genreCount.entries()].sort((x, y) => y[1] - x[1]).slice(0, 5);
+  const topTotal = topG.reduce((n, [, c]) => n + c, 0) || 1;
+  const genres = topG.map(([name, c]) => ({ name, share: c / topTotal }));
+
   const rated = Object.values(ratings);
   const films = new Set([...(a.watchedMovies ?? []), ...Object.keys(a.movieWatchedDates ?? {}).map(Number)]).size;
   const filmMinutes = a.movies.reduce((sum, t) => sum + (t.status === "Watched" ? (t.movie.runtime ?? 110) : 0), 0);
@@ -190,6 +213,9 @@ export function profileFromArchive(
     favorites,
     topFilms: top("movie"),
     topShows: top("show"),
+    activity,
+    ratingValues: rated,
+    genres,
     diary: diary.slice(0, 24),
     reviews: reviewList.slice(0, 12),
     lists,

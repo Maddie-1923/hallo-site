@@ -102,6 +102,17 @@ async function sampleProfile(): Promise<PublicProfileView> {
     topFilms: classics.slice(0, 5),
     topShows: series.slice(1, 6),
     diary,
+    // Invented, like the rest of the sample: a steady habit with busier
+    // weekends, from a fixed seed so it is the same on every load.
+    activity: sampleActivity(),
+    ratingValues: [4, 5, 6, 6, 6.5, 7, 7, 7, 7.5, 7.5, 8, 8, 8, 8, 8, 8.5, 8.5, 9, 9, 9, 9.5, 10, 10],
+    genres: [
+      { name: "Drama", share: 0.34 },
+      { name: "Thriller", share: 0.22 },
+      { name: "Sci-Fi", share: 0.18 },
+      { name: "Comedy", share: 0.15 },
+      { name: "Crime", share: 0.11 },
+    ],
     reviews: diary.slice(0, 4).map((d, i) => ({ ...d, text: blurbs[i], date: d.date, spoilers: i === 3 })),
     lists: [
       { id: "l1", name: "Comfort rewatches", detail: "For the nights nothing new will do.", count: 12, posters: classics.slice(0, 4).map((x) => x.poster) },
@@ -110,4 +121,17 @@ async function sampleProfile(): Promise<PublicProfileView> {
     ],
     previewNote: "Sample profile — a made-up person with invented dates, ratings and review text, for judging the layout. Development only.",
   };
+}
+
+function sampleActivity(): Record<string, number> {
+  const out: Record<string, number> = {};
+  let seed = 7;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(Date.UTC(2026, 8, 25 - i));
+    const weekend = d.getUTCDay() === 0 || d.getUTCDay() === 6;
+    const r = rand();
+    if (r < (weekend ? 0.75 : 0.45)) out[d.toISOString().slice(0, 10)] = 1 + Math.floor(rand() * (weekend ? 5 : 3));
+  }
+  return out;
 }
