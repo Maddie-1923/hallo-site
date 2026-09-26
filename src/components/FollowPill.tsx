@@ -49,13 +49,17 @@ function FollowingGlyph() {
             shows through. Laid out like the symbol: the disc up and to the
             right, a large badge on its lower left.
 
-            The shoulders are wide enough to run out through the bottom of
-            the disc, as the symbol's do. Kept inside it, they left a rim of
-            disc under them that read as a border drawn round the circle. */}
+            The torso is cut to a circle a little inside the disc's own, so
+            an even band of the disc runs round under it, the way the symbol
+            draws it: the shoulders stop short of the edge rather than
+            running out through it. */}
+        <clipPath id="follow-glyph-inner">
+          <circle cx="14" cy="10" r="8.5" />
+        </clipPath>
         <mask id="follow-glyph-person">
           <circle cx="14" cy="10" r="9.6" fill="white" />
-          <circle cx="14" cy="7.6" r="3.8" fill="black" />
-          <ellipse cx="14" cy="21.4" rx="9.2" ry="7.6" fill="black" />
+          <circle cx="14" cy="7.4" r="3.6" fill="black" />
+          <ellipse cx="14" cy="19.6" rx="7.6" ry="7.4" fill="black" clipPath="url(#follow-glyph-inner)" />
           {/* The gap round the badge. */}
           <circle cx="7.6" cy="16.4" r="6.6" fill="black" />
         </mask>
