@@ -17,7 +17,7 @@ export function FollowPill({ initial = false }: { initial?: boolean }) {
       type="button"
       aria-pressed={following}
       onClick={() => setFollowing((f) => !f)}
-      className="inline-flex items-center gap-1 px-2 py-[3px] rounded-[6px] bg-accent-fill text-on-accent text-[11px] font-bold uppercase tracking-[.04em] leading-[16px] cursor-pointer transition-[filter] hover:brightness-110"
+      className="inline-flex items-center gap-1 px-2 py-[3px] rounded-[6px] bg-accent-fill text-on-accent text-[12.5px] font-bold uppercase tracking-[.04em] leading-[18px] cursor-pointer transition-[filter] hover:brightness-110"
     >
       {following ? "Following" : "+ Follow"}
     </button>
