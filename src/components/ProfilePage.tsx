@@ -318,8 +318,9 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
     >
       {/* Everything about the person down the left: the handle, what they
           have put here, who follows them. The Follow button alone on the
-          right, centred on the three lines, with room to be a proper size. */}
-      <div className="flex items-center gap-3 min-w-0">
+          right, its top level with the top of the handle, with room to be a
+          proper size. */}
+      <div className="flex items-start gap-3 min-w-0">
         <div className="min-w-0 flex-1">
           <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.9] truncate">@{v.username}</div>
           <div className="text-[12px] text-dim truncate mt-0.5">
@@ -334,7 +335,9 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             </span>
           </div>
         </div>
-        <div className="shrink-0">
+        {/* A pixel down: the handle's capitals start about that far below
+            the top of their line, and it is the letters the eye lines up with. */}
+        <div className="shrink-0 mt-px">
           <FollowPill />
         </div>
       </div>
