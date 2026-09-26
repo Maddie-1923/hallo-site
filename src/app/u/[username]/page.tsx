@@ -49,14 +49,13 @@ async function previewFromFile(): Promise<PublicProfileView | null> {
     if (!isArchive(raw)) return null;
     // The app keeps its own profile pictures as base64 JPEGs in the archive.
     const pic = (v: unknown) => (typeof v === "string" && v.length > 100 ? `data:image/jpeg;base64,${v}` : null);
-    const view = profileFromArchive(raw, {
+    return profileFromArchive(raw, {
       username: "preview",
       displayName: process.env.PROFILE_PREVIEW_NAME ?? "Your name",
       avatar: pic((raw as Record<string, unknown>).profileAvatar),
       banner: pic((raw as Record<string, unknown>).profileBanner),
       bio: null,
     });
-    return { ...view, previewNote: "Local preview of your own library, read from a file on this Mac. Nothing here is uploaded or public." };
   } catch {
     return null;
   }
