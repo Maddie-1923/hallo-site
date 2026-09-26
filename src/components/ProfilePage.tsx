@@ -3,8 +3,8 @@ import type { DiaryEntry, ListEntry, ProfileTitle, PublicProfileView, ReviewEntr
 import { nightTokens } from "@/lib/theme";
 
 // A public profile, laid out as a bento board after the reference the user
-// chose: one big rounded banner left to its picture, pill tabs under it, then
-// the person's card and their favourites side by side. The full diary,
+// chose: one big rounded banner left to its picture, then the person's card
+// and their favourites side by side, then pill tabs over the sections below. The full diary,
 // reviews, lists and favourites follow below, and the tabs jump to them.
 //
 // Server-rendered and read-only. Following is drawn but not live until the
@@ -25,12 +25,10 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
       <Banner v={v} art={bannerArt} />
 
-      <ProfileTabs />
-
       {/* The two columns end on the same line: the grid stretches both to
           the taller, the left's last row of panels grows to fill, and the
           Favourites card spaces its rows out. */}
-      <div className="grid gap-5 mt-4 lg:grid-cols-2 items-stretch">
+      <div className="grid gap-5 mt-5 lg:grid-cols-2 items-stretch">
         <div className="flex flex-col gap-4">
           <ProfileCard v={v} />
           <Dashboard v={v} />
@@ -38,7 +36,9 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
         <FavouriteCard v={v} />
       </div>
 
-      <Section id="diary" title="Diary" count={v.diary.length} empty="Nothing logged yet.">
+      <ProfileTabs />
+
+      <Section id="diary" title="Diary" count={v.diary.length} empty="Nothing logged yet." first>
         {v.diary.length > 0 && <DiaryTable entries={v.diary} />}
       </Section>
 
@@ -116,7 +116,7 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
   );
 }
 
-// The section tabs, under the banner and above the person's card, as a pill like the reference's nav: the lit tab a solid ink
+// The section tabs, under the quick-glance panels and above the Diary, as a pill like the reference's nav: the lit tab a solid ink
 // pill, the rest plain. On the page's own colours, so it follows Day and
 // Night. Scrolls sideways on a phone rather than wrapping.
 function ProfileTabs() {
@@ -130,7 +130,7 @@ function ProfileTabs() {
   return (
     <nav
       aria-label="Profile sections"
-      className="mt-5 inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center gap-1 p-1 rounded-full bg-card border border-hair"
+      className="mt-10 inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center gap-1 p-1 rounded-full bg-card border border-hair"
     >
       {tabs.map(([href, label], i) => (
         <a
@@ -377,9 +377,9 @@ function FiveRow({ titles }: { titles: ProfileTitle[] }) {
   );
 }
 
-function Section({ id, title, count, empty, children }: { id: string; title: string; count: number; empty: string; children: React.ReactNode }) {
+function Section({ id, title, count, empty, first = false, children }: { id: string; title: string; count: number; empty: string; first?: boolean; children: React.ReactNode }) {
   return (
-    <section id={id} className="mt-14 scroll-mt-24">
+    <section id={id} className={`${first ? "mt-6" : "mt-14"} scroll-mt-24`}>
       <div className="flex items-baseline gap-3 border-b border-hair pb-2 mb-5">
         <h2 className="!text-[clamp(30px,3vw,44px)]">{title}</h2>
         <span className="text-[13px] text-dim">{count}</span>
