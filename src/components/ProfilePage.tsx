@@ -61,13 +61,6 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
       {/* One section at a time under the tabs, swapped in place. */}
       <ProfileSections
         sections={[
-          { id: "activity", label: "Recent activity", content: <ActivityList v={v} /> },
-          {
-            id: "diary",
-            label: "Diary",
-            count: v.diary.length,
-            content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} /> : <Empty>Nothing logged yet.</Empty>,
-          },
           {
             id: "reviews",
             label: "Reviews",
@@ -82,6 +75,13 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
               ) : (
                 <Empty>No reviews yet.</Empty>
               ),
+          },
+          { id: "activity", label: "Recent activity", content: <ActivityList v={v} /> },
+          {
+            id: "diary",
+            label: "Diary",
+            count: v.diary.length,
+            content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} /> : <Empty>Nothing logged yet.</Empty>,
           },
           {
             id: "lists",
@@ -334,11 +334,12 @@ function ActivityList({ v }: { v: PublicProfileView }) {
 
   if (items.length === 0) return <p className="text-sm text-dim m-0">Nothing yet.</p>;
   return (
-    <ul className="m-0 p-0 list-none">
-      {items.map((it, i) => (
-        <li key={it.key} className={i > 0 ? "border-t border-hair" : ""}>
-          <Link href={it.t.href} className="group flex items-center gap-4 py-3 no-underline text-ink">
-            <span className="w-[72px] aspect-video rounded-[6px] overflow-hidden bg-card-hi shrink-0">
+    // Each entry in its own rounded shell, as in the Diary.
+    <ul className="m-0 p-0 list-none grid gap-[6px]">
+      {items.map((it) => (
+        <li key={it.key} className="rounded-[14px] bg-card-hi">
+          <Link href={it.t.href} className="group flex items-center gap-4 px-3 py-2 no-underline text-ink">
+            <span className="w-[72px] aspect-video rounded-[6px] overflow-hidden bg-card shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {it.t.backdrop && <img src={it.t.backdrop} alt="" className="w-full h-full object-cover" />}
             </span>
