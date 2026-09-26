@@ -64,6 +64,23 @@ archive: `follows`, `likes`, `comments`, `blocks` and `reports`.
 9. **iOS update.** Add the feed, members' reviews on title pages, profiles,
    follow, like, comment, report and block. It goes through App Review.
 
+## Added 26 Sep
+
+- **Bring your history over, reviews included.** The app already imports
+  Letterboxd's diary, ratings, watched, watchlist and likes (and TV Time,
+  Trakt, IMDb, Simkl and others). It does not bring review *text* across.
+  Letterboxd's `reviews.csv` has it, and so do its `lists/*.csv` files. Build
+  the importer on the website so the text lands in the archive's `reviews`
+  and `customLists`, and so goes public through the projection. Comments
+  someone left on *other people's* Letterboxd reviews have nothing to attach
+  to here, since those people and reviews aren't on Kodigo. Keep them in the
+  person's own history as a read-only archive rather than posting them.
+- **A subscription page on the web** (`/pro`) for people who find the site
+  first. It shows the plans, the free week and what Pro unlocks, then sends
+  them to the App Store (and Google Play later). Selling on the web itself
+  (Stripe) is a separate decision with its own rules for whether Pro carries
+  into the app.
+
 ## Notes
 
 - A review today is one per title, and a rewatch replaces the text. Letterboxd
