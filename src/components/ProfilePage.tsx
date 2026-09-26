@@ -153,38 +153,34 @@ function ProfileTabs() {
   );
 }
 
-// The quick-glance panels under the person's card. MOCK-UP: all four are
-// shown, each tagged with a letter, so the user can pick which to keep.
+// The quick-glance panels under the person's card: the numbers, how they
+// rate beside what they watch most, and a year of watching. The middle row
+// grows to take up any slack, so the column ends level with Favourites.
 function Dashboard({ v }: { v: PublicProfileView }) {
   return (
     <>
-      <Panel tag="A" title="Numbers">
+      <Panel title="Numbers">
         <NumberTiles v={v} />
       </Panel>
-      <Panel tag="B" title="Watch calendar">
-        <WatchCalendar activity={v.activity} />
-      </Panel>
       <div className="grid gap-4 sm:grid-cols-2 flex-1">
-        <Panel tag="C" title="Ratings">
+        <Panel title="Ratings">
           <RatingsSpread values={v.ratingValues} />
         </Panel>
-        <Panel tag="D" title="Top genres">
+        <Panel title="Top genres">
           <TopGenres genres={v.genres} />
         </Panel>
       </div>
+      <Panel title="Watch calendar">
+        <WatchCalendar activity={v.activity} />
+      </Panel>
     </>
   );
 }
 
-function Panel({ tag, title, children }: { tag: string; title: string; children: React.ReactNode }) {
+function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col">
-      <div className="flex items-center gap-2 mb-2.5">
-        <span className="w-5 h-5 rounded-full bg-accent-fill text-on-accent text-[11px] font-bold flex items-center justify-center" aria-hidden>
-          {tag}
-        </span>
-        <span className="text-[11px] font-bold tracking-[.14em] uppercase text-dim">{title}</span>
-      </div>
+      <div className="text-[11px] font-bold tracking-[.14em] uppercase text-dim mb-2.5">{title}</div>
       {children}
     </div>
   );
