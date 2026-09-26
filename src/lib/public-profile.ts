@@ -1,6 +1,6 @@
 import "server-only";
 import type { LibraryArchive, Movie, Show } from "./archive";
-import { image, showDetail } from "./tmdb";
+import { image } from "./tmdb";
 
 // What a public profile page draws, worked out from a library. The page never
 // sees the archive itself: only what is meant to be shared comes through here
@@ -47,18 +47,6 @@ export interface ListEntry {
   posters: (string | null)[];
 }
 
-/** The series somebody is in the middle of, with how far along they are. */
-export interface NowWatching extends ProfileTitle {
-  /** The last episode they watched, "S3 E4", and when. */
-  lastSeen: string;
-  lastDate: string;
-  /** The next aired episode they haven't seen, or null when caught up. */
-  next: string | null;
-  watched: number;
-  /** Episodes aired so far, from TMDB; null when TMDB didn't answer. */
-  aired: number | null;
-}
-
 export interface PublicProfileView {
   username: string;
   displayName: string;
@@ -69,7 +57,6 @@ export interface PublicProfileView {
   following: number;
   stats: { films: number; shows: number; episodes: number; hours: number; ratings: number; average: number | null };
   favorites: ProfileTitle[];
-  nowWatching: NowWatching | null;
   /** Top five of each, hearts first by rating, topped up with the highest
       rated when there are fewer than five hearts. */
   topFilms: ProfileTitle[];
@@ -164,25 +151,6 @@ export function profileFromArchive(
     return [...loved, ...extra].slice(0, 5).map((id) => (kind === "show" ? showTitle(shows.get(id)!) : movieTitle(movies.get(id)!)));
   };
 
-  // What they are watching now: of the shows marked Watching, the one with
-  // the most recent episode logged, and the last episode they saw of it.
-  let nowWatching: NowWatching | null = null;
-  for (const t of a.shows) {
-    if (t.status !== "Watching") continue;
-    let last: { s: number; e: number; date: string } | null = null;
-    let watched = 0;
-    for (const [ep, date] of Object.entries(a.watchedDates ?? {})) {
-      const [sid, season, episode] = ep.split("-").map(Number);
-      if (sid !== t.show.id || season === 0) continue;
-      watched++;
-      if (!last || date > last.date || (date === last.date && (season > last.s || (season === last.s && episode > last.e)))) last = { s: season, e: episode, date };
-    }
-    if (!last) continue;
-    if (!nowWatching || last.date > nowWatching.lastDate) {
-      nowWatching = { ...showTitle(t.show), lastSeen: `S${last.s} E${last.e}`, lastDate: last.date, next: null, watched, aired: null };
-    }
-  }
-
   const reviewList: ReviewEntry[] = [];
   for (const [key, rv] of Object.entries(reviews)) {
     const [kind, id] = key.split(":");
@@ -220,7 +188,6 @@ export function profileFromArchive(
       average: rated.length ? Math.round((rated.reduce((x, y) => x + y, 0) / rated.length) * 10) / 10 : null,
     },
     favorites,
-    nowWatching,
     topFilms: top("movie"),
     topShows: top("show"),
     diary: diary.slice(0, 24),
@@ -229,33 +196,3 @@ export function profileFromArchive(
   };
 }
 
-/**
- * Fills in how far along "now watching" is, which needs the show's aired
- * episodes from TMDB: episodes aired so far, and the next one they haven't
- * seen. One request, cached for an hour like every other TMDB call.
- */
-export async function withProgress(view: PublicProfileView, watchedKeys: string[]): Promise<PublicProfileView> {
-  const now = view.nowWatching;
-  if (!now) return view;
-  const id = Number(now.key.slice(1));
-  const d = await showDetail(id);
-  const lastAired = d?.lastEpisode;
-  if (!d || !lastAired) return view;
-  const seasons = d.seasons.filter((x) => x.season_number > 0).sort((x, y) => x.season_number - y.season_number);
-  const aired = seasons.filter((x) => x.season_number < lastAired.season_number).reduce((n, x) => n + x.episode_count, 0) + lastAired.episode_number;
-  const seen = new Set(watchedKeys.filter((k) => k.startsWith(`${id}-`)));
-  // Up next is the first unseen aired episode after the one they last
-  // watched, which is where they will pick up; an older gap they skipped is
-  // only offered when there is nothing unseen after it.
-  const [ls, le] = now.lastSeen.slice(1).split(" E").map(Number);
-  const aired_: [number, number][] = [];
-  for (const x of seasons) {
-    const count = x.season_number < lastAired.season_number ? x.episode_count : x.season_number === lastAired.season_number ? lastAired.episode_number : 0;
-    for (let e = 1; e <= count; e++) aired_.push([x.season_number, e]);
-  }
-  const unseen = aired_.filter(([sn, e]) => !seen.has(`${id}-${sn}-${e}`));
-  const after = unseen.find(([sn, e]) => sn > ls || (sn === ls && e > le));
-  const pick = after ?? unseen[0];
-  const next = pick ? `S${pick[0]} E${pick[1]}` : null;
-  return { ...view, nowWatching: { ...now, aired, next } };
-}

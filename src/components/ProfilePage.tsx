@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { DiaryEntry, ListEntry, NowWatching, ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
+import type { DiaryEntry, ListEntry, ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 
 // A public profile, laid out as a bento board after the reference the user
@@ -179,28 +179,31 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
   );
 }
 
-// The Favourites card in three parts: what they are watching right now, big,
-// with how far along they are; then their top five films and top five series
-// as rows of posters. An empty slot in a row is drawn as an outline so the
-// row keeps its shape while it fills up.
+// The Favourites card: their top five films, their top five series, and the
+// five things they watched most recently, films and series mixed, all at the
+// same poster size. An empty slot is drawn as an outline so each row keeps
+// its shape while it fills up.
 function FavouriteCard({ v }: { v: PublicProfileView }) {
+  // The latest five different titles from the diary, newest first.
+  const recent: ProfileTitle[] = [];
+  for (const e of v.diary) {
+    if (recent.length === 5) break;
+    if (!recent.some((r) => r.key === e.key)) recent.push(e);
+  }
   return (
     <div className="rounded-[24px] bg-card border border-hair p-4 flex flex-col gap-4">
       <h2 className="!text-[clamp(26px,2.4vw,34px)] leading-none">Favourites</h2>
-
-      <div>
-        <Label>Now watching</Label>
-        {v.nowWatching ? <NowWatchingCard n={v.nowWatching} /> : <div className="rounded-[18px] aspect-video bg-card-hi flex items-center justify-center text-sm text-dim">Not in the middle of anything</div>}
-      </div>
-
       <div>
         <Label>Top 5 films</Label>
         <FiveRow titles={v.topFilms} />
       </div>
-
       <div>
         <Label>Top 5 series</Label>
         <FiveRow titles={v.topShows} />
+      </div>
+      <div>
+        <Label>Recent watches</Label>
+        <FiveRow titles={recent} />
       </div>
     </div>
   );
@@ -208,40 +211,6 @@ function FavouriteCard({ v }: { v: PublicProfileView }) {
 
 function Label({ children }: { children: React.ReactNode }) {
   return <div className="text-[11px] font-bold tracking-[.14em] uppercase text-dim mb-2">{children}</div>;
-}
-
-function NowWatchingCard({ n }: { n: NowWatching }) {
-  const share = n.aired ? Math.min(1, n.watched / n.aired) : null;
-  return (
-    <Link href={n.href} className="group relative block rounded-[18px] overflow-hidden aspect-video bg-card-hi no-underline" style={nightTokens}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      {n.backdrop && <img src={n.backdrop} alt="" className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />}
-      <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-      <span className="absolute top-3 right-3 w-9 h-9 rounded-full bg-[#F4F1EA] text-[#1a1a19] flex items-center justify-center" aria-hidden>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M7 17L17 7M9 7h8v8" />
-        </svg>
-      </span>
-      <div className="absolute left-4 right-4 bottom-3.5">
-        <div className="display text-white text-[clamp(24px,2.2vw,32px)] leading-[.9]">{n.title}</div>
-        <div className="text-[12.5px] text-white/85 mt-1.5 flex flex-wrap gap-x-2">
-          <span>Last seen {n.lastSeen}</span>
-          {n.next ? <span>· Up next {n.next}</span> : n.aired ? <span>· All caught up</span> : null}
-        </div>
-        {/* How far through what has aired, as a bar in the theme colour. */}
-        {share != null && (
-          <div className="mt-2.5 flex items-center gap-2.5">
-            <div className="flex-1 h-[5px] rounded-full bg-white/25 overflow-hidden">
-              <div className="h-full rounded-full bg-accent-fill" style={{ width: `${Math.round(share * 100)}%` }} />
-            </div>
-            <span className="text-[11.5px] text-white/85 whitespace-nowrap">
-              {n.watched} of {n.aired}
-            </span>
-          </div>
-        )}
-      </div>
-    </Link>
-  );
 }
 
 function FiveRow({ titles }: { titles: ProfileTitle[] }) {
