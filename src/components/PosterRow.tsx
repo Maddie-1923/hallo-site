@@ -13,8 +13,9 @@ export interface PosterItem {
 // then a run of small posters, the way Letterboxd lays out its front page.
 // Smaller than Explore's cards on purpose: this page is for glancing, and a
 // click on a poster goes to its page. One line and no scrollbar: four
-// posters on a phone, six on a tablet, eight on a desktop, and "More" for the
-// rest.
+// posters on a phone, six on a tablet, eight on a laptop, ten on a wide
+// screen, and "More" for the rest. The rows run the billboard's full width,
+// so a wide screen gets more posters rather than bigger ones.
 export function PosterRow({ title, href, items }: { title: string; href?: string; items: PosterItem[] }) {
   if (items.length === 0) return null;
   return (
@@ -27,11 +28,11 @@ export function PosterRow({ title, href, items }: { title: string; href?: string
           </Link>
         )}
       </div>
-      <ul className="m-0 p-0 list-none grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-[clamp(8px,1.2vw,14px)]">
-        {items.slice(0, 8).map((it, i) => {
+      <ul className="m-0 p-0 list-none grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-[clamp(8px,1.2vw,14px)]">
+        {items.slice(0, 10).map((it, i) => {
           const src = poster(it.poster, "w342");
           return (
-            <li key={it.key} className={i >= 6 ? "hidden lg:block" : i >= 4 ? "hidden sm:block" : ""}>
+            <li key={it.key} className={i >= 8 ? "hidden xl:block" : i >= 6 ? "hidden lg:block" : i >= 4 ? "hidden sm:block" : ""}>
               <Link href={it.href} title={it.sub ? `${it.title} (${it.sub})` : it.title} className="group block no-underline">
                 <div className="aspect-[2/3] rounded-[6px] overflow-hidden bg-card border border-white/10 group-hover:border-accent group-hover:shadow-[0_0_0_2px_var(--accent-fill)] transition-[border-color,box-shadow]">
                   {src ? (

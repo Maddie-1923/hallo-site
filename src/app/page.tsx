@@ -97,7 +97,9 @@ export default async function Home() {
 
       <main className="flex-1">
 
-        <div className="wrap !max-w-[1240px] pb-16 -mt-4">
+        {/* The same gutters as the billboard, so the rows' edges line up with
+            the card's. Not .wrap: its padding is unlayered and would win. */}
+        <div className="w-full px-[clamp(16px,3.2vw,64px)] pb-16 -mt-4">
           <PosterRow title="Trending this week" href="/explore" items={trending} />
           <PosterRow title={`In cinemas · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(inCinemas)} />
           <PosterRow title="New episodes this week" href="/explore" items={asShows(airing)} />
