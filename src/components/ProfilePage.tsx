@@ -15,7 +15,7 @@ const GUTTER = "px-[clamp(16px,3.2vw,64px)]";
 const R = 28;
 // The profile photo's size and where it sits, shared by the banner (which
 // draws it) and the card (which leaves room for it).
-const AVATAR = "clamp(84px, 8vw, 112px)";
+const AVATAR = "clamp(92px, 9vw, 128px)";
 const AVATAR_LEFT = "clamp(16px, 2.2vw, 28px)";
 // The side padding of the quick-glance panels, which the person's card uses
 // to line itself up with the Numbers tiles.
@@ -120,13 +120,13 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
       </div>
 
       {/* The photo, as the app draws it: a circle on the banner's bottom-left
-          corner, dropped until about a third of it hangs below the edge, in
+          corner, dropped until half of it hangs below the edge, in
           a ring of the page's own colour. Crossing the seam is the point: the
           ring reads as the banner being interrupted by the person in front
           of it, not as an outline stuck on a picture. */}
       <div
         className="absolute z-10 rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display shadow-[0_0_0_4px_var(--page),0_10px_28px_rgba(0,0,0,.45)]"
-        style={{ width: AVATAR, height: AVATAR, left: AVATAR_LEFT, bottom: `calc(${AVATAR} * -0.32)`, fontSize: `calc(${AVATAR} * 0.45)` }}
+        style={{ width: AVATAR, height: AVATAR, left: AVATAR_LEFT, bottom: `calc(${AVATAR} * -0.5)`, fontSize: `calc(${AVATAR} * 0.45)` }}
       >
         {v.avatar ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -325,12 +325,14 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 // beside the photo hanging from the banner instead of running under it, and
 // its left edge lines up with a line already on the page. The margin is the
 // tile grid's own arithmetic: the panel's padding, one tile (a quarter of
-// what is left after the padding and three 8px gaps), and one gap.
+// what is left after the padding and three 8px gaps), and one gap. On a
+// phone, where a tile is narrower than the photo, it is the photo's edge
+// instead, so the two never overlap.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
     <div
       className="rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 flex flex-col gap-2"
-      style={{ marginLeft: `calc(${PANEL_PAD} + (100% - 2 * ${PANEL_PAD} - 24px) / 4 + 8px)` }}
+      style={{ marginLeft: `max(calc(${PANEL_PAD} + (100% - 2 * ${PANEL_PAD} - 24px) / 4 + 8px), calc(${AVATAR_LEFT} + ${AVATAR} + 12px))` }}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 min-w-0">
         <div className="min-w-0 flex-1 basis-[140px]">
