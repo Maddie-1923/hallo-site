@@ -1,0 +1,140 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
+import { RatingMarks } from "./RatingMarks";
+import { ReviewActions } from "./ReviewActions";
+
+/** One review as the sheet draws it, wherever it came from. */
+export interface SheetReview {
+  /** The title's key, which is also the review's address: one review per title. */
+  key: string;
+  title: string;
+  year: string;
+  href: string;
+  backdrop: string | null;
+  poster: string | null;
+  /** "S2 E4" when the watch was of certain episodes. */
+  episodes?: string;
+  /** "YYYY-MM-DD", the day it was watched. */
+  date: string | null;
+  rating: number | null;
+  loved?: boolean;
+  rewatch?: boolean;
+  text: string;
+  spoilers: boolean;
+  likes?: number;
+  comments?: number;
+}
+
+/** A review's own address, the one Share hands out. */
+export const reviewPath = (username: string, key: string) => `/u/${username}/review/${key}`;
+
+// The review sheet: the title's still in a shell of its own, who watched it
+// and when, the title, the stars, the review, and the way to the title page.
+// The Watchlog opens it over the list; a review's own page (the address Share
+// hands out) is the same sheet standing on the page, and its link preview is
+// drawn to match (app/u/[username]/review/[key]/opengraph-image.tsx).
+export function ReviewSheetCard({ r, username, onClose }: { r: SheetReview; username: string; onClose?: () => void }) {
+  const body = (
+    <div className="mt-3 grid gap-3 text-[15px] leading-[1.6] text-bone">
+      {r.text.split(/\n\s*\n/).map((p, i) => (
+        <p key={i} className="m-0">
+          {p}
+        </p>
+      ))}
+    </div>
+  );
+  return (
+    <>
+      <div className="p-3 pb-0 shrink-0">
+        <div className="relative aspect-[16/7] rounded-[16px] overflow-hidden bg-card-hi border border-hair">
+          {(r.backdrop ?? r.poster) && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={(r.backdrop ?? r.poster)!} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          )}
+          {onClose && (
+            <button type="button" onClick={onClose} aria-label="Close" autoFocus className="absolute top-2.5 right-2.5 w-9 h-9 rounded-full bg-black/55 hover:bg-black/75 text-white text-xl leading-none cursor-pointer">
+              ×
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="px-5 pt-4 pb-5 overflow-y-auto">
+        <div className="text-[13px] text-dim">
+          <Link href={`/u/${username}`} className="text-ink font-semibold no-underline hover:text-accent">
+            @{username}
+          </Link>{" "}
+          {r.rewatch ? "rewatched" : "watched"}
+          {r.episodes && (
+            <>
+              {" "}
+              <b className="text-ink font-semibold">{r.episodes}</b> of
+            </>
+          )}
+        </div>
+        <h3 className="mt-1 !text-[clamp(26px,3vw,34px)] !leading-[.95]">
+          {r.title} <span className="text-dim !text-[0.6em] tracking-normal">{r.year}</span>
+        </h3>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-dim">
+          {r.rating != null && <RatingMarks value={r.rating} size={12} />}
+          {r.loved && <span className="text-loved text-[14px]" title="Loved">♥</span>}
+          {r.rewatch && <span>Rewatch</span>}
+          {r.date && <span>{longDate(r.date)}</span>}
+        </div>
+        {r.spoilers ? (
+          <details className="mt-3 group/sp">
+            <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[13px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
+              <span className="px-2 py-[2px] rounded-full bg-card-hi border border-hair text-[11px] font-bold uppercase tracking-[.08em]">Spoilers</span>
+              <span className="group-open/sp:hidden">This review gives things away. Show it anyway</span>
+              <span className="hidden group-open/sp:inline">Hide it again</span>
+            </summary>
+            {body}
+          </details>
+        ) : (
+          body
+        )}
+        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={reviewPath(username, r.key)} />
+        <div className="mt-4 pt-4 border-t border-hair">
+          <Link href={r.href} className="text-[13.5px] font-semibold text-accent no-underline hover:underline">
+            Go to {r.title} →
+          </Link>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// A review read from the Watchlog opens over the list rather than leaving it:
+// someone going through a month reads one, closes it, and carries on down
+// the list where they were. The title page is one link away at the foot of
+// the sheet, and the title in the row still goes straight there. On a phone
+// it rises from the bottom.
+export function ReviewSheet({ r, username, onClose }: { r: SheetReview; username: string; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (k: KeyboardEvent) => k.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    // The page behind stays put while the sheet is open.
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+    };
+  }, [onClose]);
+  return createPortal(
+    <div role="dialog" aria-modal="true" aria-label={`@${username}'s review of ${r.title}`} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
+      <div className="w-full sm:max-w-[600px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-[24px] sm:rounded-[24px] bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
+        <ReviewSheetCard r={r} username={username} onClose={onClose} />
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+/** "Wednesday 23 September 2026" for "2026-09-23". */
+export function longDate(date: string) {
+  const [y, m, d] = date.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+}

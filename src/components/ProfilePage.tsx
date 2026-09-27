@@ -427,7 +427,7 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
           body
         )}
 
-        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} />
+        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={`/u/${username}/review/${r.key}`} />
       </div>
     </article>
   );

@@ -7,7 +7,7 @@ import type { DiaryEntry } from "@/lib/public-profile";
 import { MarkRewatched } from "./marks";
 import { RatingMarks } from "./RatingMarks";
 import { MarkTip } from "./MarkTip";
-import { ReviewActions } from "./ReviewActions";
+import { ReviewSheet } from "./ReviewSheet";
 
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -270,7 +270,7 @@ function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }
   const [reading, setReading] = useState<DiaryEntry | null>(null);
   return (
     <>
-    {reading && <ReviewSheet e={reading} username={username} onClose={() => setReading(null)} />}
+    {reading?.review && <ReviewSheet r={{ ...reading, ...reading.review }} username={username} onClose={() => setReading(null)} />}
     <table className="w-full table-fixed border-separate border-spacing-y-[6px] -mb-[6px] text-[14px]">
       {/* The column headings sit in a shell of their own, in the page tone,
           so they read as the table's heading bar rather than loose words.
@@ -350,97 +350,6 @@ function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }
   );
 }
 
-// A review read from the Watchlog opens over the list rather than leaving it:
-// someone going through a month reads one, closes it, and carries on down
-// the list where they were. The title page is one link away at the foot of
-// the sheet, and the title in the row still goes straight there.
-function ReviewSheet({ e, username, onClose }: { e: DiaryEntry; username: string; onClose: () => void }) {
-  useEffect(() => {
-    const onKey = (k: KeyboardEvent) => k.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    // The page behind stays put while the sheet is open.
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = overflow;
-    };
-  }, [onClose]);
-  const r = e.review!;
-  const body = (
-    <div className="mt-3 grid gap-3 text-[15px] leading-[1.6] text-bone">
-      {r.text.split(/\n\s*\n/).map((p, i) => (
-        <p key={i} className="m-0">
-          {p}
-        </p>
-      ))}
-    </div>
-  );
-  return createPortal(
-    <div role="dialog" aria-modal="true" aria-label={`@${username}'s review of ${e.title}`} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
-      <div className="w-full sm:max-w-[600px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-[24px] sm:rounded-[24px] bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
-        {/* The title's still across the top, in a shell of its own inside
-            the sheet, the way the rows hold theirs, rather than fading into it. */}
-        <div className="p-3 pb-0 shrink-0">
-          <div className="relative aspect-[16/7] rounded-[16px] overflow-hidden bg-card-hi border border-hair">
-            {(e.backdrop ?? e.poster) && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={(e.backdrop ?? e.poster)!} alt="" className="absolute inset-0 w-full h-full object-cover" />
-            )}
-            <button type="button" onClick={onClose} aria-label="Close" autoFocus className="absolute top-2.5 right-2.5 w-9 h-9 rounded-full bg-black/55 hover:bg-black/75 text-white text-xl leading-none cursor-pointer">
-              ×
-            </button>
-          </div>
-        </div>
-        <div className="px-5 pt-4 pb-5 overflow-y-auto">
-          <div className="text-[13px] text-dim">
-            <b className="text-ink font-semibold">@{username}</b> {e.rewatch ? "rewatched" : "watched"}
-            {e.episodes && (
-              <>
-                {" "}
-                <b className="text-ink font-semibold">{e.episodes}</b> of
-              </>
-            )}
-          </div>
-          <h3 className="mt-1 !text-[clamp(26px,3vw,34px)] !leading-[.95]">
-            {e.title} <span className="text-dim !text-[0.6em] tracking-normal">{e.year}</span>
-          </h3>
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-dim">
-            {e.rating != null && <RatingMarks value={e.rating} size={12} />}
-            {e.loved && <span className="text-loved text-[14px]" title="Loved">♥</span>}
-            {e.rewatch && <span>Rewatch</span>}
-            <span>{longDate(e.date)}</span>
-          </div>
-          {r.spoilers ? (
-            <details className="mt-3 group/sp">
-              <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[13px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
-                <span className="px-2 py-[2px] rounded-full bg-card-hi border border-hair text-[11px] font-bold uppercase tracking-[.08em]">Spoilers</span>
-                <span className="group-open/sp:hidden">This review gives things away. Show it anyway</span>
-                <span className="hidden group-open/sp:inline">Hide it again</span>
-              </summary>
-              {body}
-            </details>
-          ) : (
-            body
-          )}
-          <ReviewActions likes={r.likes} comments={r.comments} title={e.title} />
-          <div className="mt-4 pt-4 border-t border-hair">
-            <Link href={e.href} className="text-[13.5px] font-semibold text-accent no-underline hover:underline">
-              Go to {e.title} →
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>,
-    document.body,
-  );
-}
-
-/** "Wednesday 23 September 2026" for "2026-09-23". */
-function longDate(date: string) {
-  const [y, m, d] = date.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-}
 
 // Every mark in the columns (the rewatch arrow, the review page, each star)
 // is drawn about 20px tall, so they read as one set; the ten stars, smaller

@@ -1,6 +1,7 @@
 import "server-only";
 import type { LibraryArchive, Movie, Show } from "./archive";
 import { genreNames, image, showDetail } from "./tmdb";
+import type { SheetReview } from "@/components/ReviewSheet";
 
 // What a public profile page draws, worked out from a library. The page never
 // sees the archive itself: only what is meant to be shared comes through here
@@ -329,4 +330,13 @@ export async function withAiredEpisodes(view: PublicProfileView): Promise<Public
     }),
   );
   return { ...view, tracker: { ...view.tracker, shows } };
+}
+
+/** A person's review of one title, for its own page and link preview: from
+    their reviews, or else from a Watchlog entry that carries one. */
+export function reviewFor(view: PublicProfileView, key: string): SheetReview | null {
+  const r = view.reviews.find((x) => x.key === key);
+  if (r) return { ...r, episodes: r.episode };
+  const e = view.diary.find((x) => x.key === key && x.review);
+  return e ? { ...e, ...e.review! } : null;
 }

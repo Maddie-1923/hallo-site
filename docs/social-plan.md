@@ -97,6 +97,9 @@ what Pro gates.
     at a time), Lists and Favourites as tabs swapped in place, and
     back-to-top;
   - Favourites the owner can edit (saved in the browser for now).
+  - a review sheet that opens from the Watchlog, and a mock-up of a review's
+    own page (`/u/preview/review/<title key>`) with its link preview
+    (`…/opengraph-image`), both drawn from the sheet. Share copies that link.
 - **Site-wide:** the day/night toggle, the theme menu with the app's seven
   themes, and the new logo.
 

@@ -16,6 +16,10 @@ nothing else.
   in the billboard's corner. The app's pitch (features,
   themes, pricing, FAQ) lives at `about/`. `privacy/` and `support/` are the
   policy pages (they replaced the Jekyll `privacy.md`/`support.md`).
+- `src/app/u/[username]/` — public profiles, and `review/[key]/` a review's
+  own page with its link-preview picture (`opengraph-image.tsx`, fonts in
+  `src/fonts/og/` because the image renderer can't read woff2). Only the
+  development previews exist yet; they load through `lib/profile-previews.ts`.
 - `docs/social-plan.md` — the plan for the social side (public profiles,
   members' reviews, follows, likes, comments) and its build order.
 - `src/app/login/` — magic-link email sign-in plus a Sign in with Apple button.
