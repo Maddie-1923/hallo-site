@@ -184,7 +184,7 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
       {tiles.map(([label, value]) => (
         <div key={label} className="rounded-[16px] bg-card-hi py-2.5 text-center flex flex-col items-center justify-center">
           <div className="display text-[clamp(24px,2.2vw,32px)] leading-none text-accent">{value}</div>
-          <div className="text-[10px] font-bold tracking-[.14em] uppercase text-dim mt-1.5">{label}</div>
+          <div className="text-[10px] leading-none font-bold tracking-[.14em] uppercase text-dim mt-1">{label}</div>
         </div>
       ))}
     </div>
