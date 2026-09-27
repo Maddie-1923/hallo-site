@@ -25,7 +25,7 @@ const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "Ju
 // what (and the year it came out), how it was watched (which episodes, whether a rewatch), then what
 // they thought (a review), with the hearts rating last. Series get the Episodes column,
 // which a films-only log like Letterboxd's diary has no need for.
-export function ProfileDiary({ entries, owner = false, username = "" }: { entries: DiaryEntry[]; owner?: boolean; username?: string }) {
+export function ProfileDiary({ entries, owner = false, username = "", avatar = null }: { entries: DiaryEntry[]; owner?: boolean; username?: string; avatar?: string | null }) {
   const now = new Date();
   const thisYear = String(now.getFullYear());
   const [kind, setKind] = useState<"all" | "movie" | "show">("all");
@@ -149,7 +149,7 @@ export function ProfileDiary({ entries, owner = false, username = "" }: { entrie
           <SortMenu sort={sort} onChoose={chooseSort} />
           </div>
         </div>
-        {rows.length === 0 ? <p className="text-sm text-dim m-0">{kind === "all" ? "Nothing logged this month." : `No ${kind === "movie" ? "films" : "series"} logged this month.`}</p> : <EntryTable rows={rows} username={username} />}
+        {rows.length === 0 ? <p className="text-sm text-dim m-0">{kind === "all" ? "Nothing logged this month." : `No ${kind === "movie" ? "films" : "series"} logged this month.`}</p> : <EntryTable rows={rows} username={username} avatar={avatar} />}
       </div>
 
       {choosing != null && (
@@ -290,11 +290,11 @@ function PicturePicker({ month, list, onChoose, onClose }: { month: string; list
 // The month's watches, each in its own shell: the table is set with space
 // between its rows, and every cell from the day to the last mark is filled,
 // with the ends rounded.
-function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }) {
+function EntryTable({ rows, username, avatar }: { rows: DiaryEntry[]; username: string; avatar: string | null }) {
   const [reading, setReading] = useState<DiaryEntry | null>(null);
   return (
     <>
-    {reading?.review && <ReviewSheet r={{ ...reading, ...reading.review }} username={username} onClose={() => setReading(null)} />}
+    {reading?.review && <ReviewSheet r={{ ...reading, ...reading.review }} username={username} avatar={avatar} onClose={() => setReading(null)} />}
     <table className="w-full table-fixed border-separate border-spacing-y-[6px] -mb-[6px] text-[14px]">
       {/* The column headings sit in a shell of their own, in the page tone,
           so they read as the table's heading bar rather than loose words.

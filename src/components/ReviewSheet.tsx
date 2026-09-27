@@ -46,7 +46,7 @@ export const reviewPath = (username: string, key: string) => `/u/${username}/rev
 // (who, the title, the stars and date) is set close as one group, and every
 // gap between groups after it is the same 16px. (Headings carry an
 // unlayered `margin: 0` in globals.css, hence the title's `!mt-2`.)
-export function ReviewSheetCard({ r, username, onClose }: { r: SheetReview; username: string; onClose?: () => void }) {
+export function ReviewSheetCard({ r, username, avatar, onClose }: { r: SheetReview; username: string; avatar?: string | null; onClose?: () => void }) {
   const body = (
     <div className="mt-4 grid gap-2.5 text-[13.5px] leading-[1.6] text-bone">
       {r.text.split(/\n\s*\n/).map((p, i) => (
@@ -76,23 +76,7 @@ export function ReviewSheetCard({ r, username, onClose }: { r: SheetReview; user
         </div>
       </div>
       <div className="p-4 overflow-y-auto">
-        <div className="text-[13px] text-dim">
-          <Link href={`/u/${username}`} className="text-ink font-semibold no-underline hover:text-accent">
-            @{username}
-          </Link>{" "}
-          {r.rewatch ? "rewatched" : "watched"}
-        </div>
-        <h3 className="!mt-2 !text-[clamp(26px,3vw,34px)] !leading-[.95]">
-          {r.title} <span className="text-dim !text-[0.6em] tracking-normal">{r.year}</span>
-        </h3>
-        {/* For a series, the episodes sit under the show's name. */}
-        {r.episodes && <EpisodeLine episode={r.episodes} name={r.episodeTitle} />}
-        <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-dim">
-          {r.rating != null && <RatingMarks value={r.rating} size={12} />}
-          {r.loved && <span className="text-loved text-[14px]" title="Loved">♥</span>}
-          {r.rewatch && <span>Rewatch</span>}
-          {r.date && <span>{longDate(r.date)}</span>}
-        </div>
+        <ReviewHeading username={username} avatar={avatar} r={r} />
         {r.spoilers ? (
           <details className="mt-4 group/sp">
             <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[13px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
@@ -121,7 +105,7 @@ export function ReviewSheetCard({ r, username, onClose }: { r: SheetReview; user
 // the list where they were. The title page is one link away at the foot of
 // the sheet, and the title in the row still goes straight there. On a phone
 // it rises from the bottom.
-export function ReviewSheet({ r, username, onClose }: { r: SheetReview; username: string; onClose: () => void }) {
+export function ReviewSheet({ r, username, avatar, onClose }: { r: SheetReview; username: string; avatar?: string | null; onClose: () => void }) {
   useEffect(() => {
     const onKey = (k: KeyboardEvent) => k.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -136,17 +120,76 @@ export function ReviewSheet({ r, username, onClose }: { r: SheetReview; username
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`@${username}'s review of ${r.title}`} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <div className="w-full sm:max-w-[600px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px] bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
-        <ReviewSheetCard r={r} username={username} onClose={onClose} />
+        <ReviewSheetCard r={r} username={username} avatar={avatar} onClose={onClose} />
       </div>
     </div>,
     document.body,
   );
 }
 
-/** "Wednesday 23 September 2026" for "2026-09-23". */
-export function longDate(date: string) {
+/** "23 Sept 2026" for "2026-09-23". */
+function shortDate(date: string) {
   const [y, m, d] = date.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
+// The top of a review, in the sheet and on the Reviews tab alike. On the
+// left, who wrote it (their photo, then their name), the title and, for a
+// series, the episode; on the right, the date level with the byline and the
+// stars under it. Whether it was a rewatch is in the byline's verb.
+export function ReviewHeading({
+  username,
+  avatar,
+  r,
+  titleHref,
+}: {
+  username: string;
+  avatar?: string | null;
+  r: { title: string; year: string; episodes?: string; episodeTitle?: string; date: string | null; rating: number | null; rewatch?: boolean };
+  titleHref?: string;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2 text-[13px] leading-none text-dim">
+          <Link href={`/u/${username}`} className="shrink-0 w-7 h-7 rounded-full overflow-hidden bg-card-hi border border-hair" aria-hidden tabIndex={-1}>
+            {avatar && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatar} alt="" className="w-full h-full object-cover" />
+            )}
+          </Link>
+          <span className="truncate">
+            <Link href={`/u/${username}`} className="text-ink font-semibold no-underline hover:text-accent">
+              @{username}
+            </Link>{" "}
+            {r.rewatch ? "rewatched" : "watched"}
+          </span>
+        </div>
+        <h3 className="!mt-2 !text-[clamp(26px,2.4vw,34px)] !leading-[.95]">
+          {titleHref ? (
+            <Link href={titleHref} className="no-underline text-ink hover:text-accent transition-colors">
+              {r.title}
+            </Link>
+          ) : (
+            r.title
+          )}{" "}
+          <span className="text-dim !text-[0.6em] tracking-normal">{r.year}</span>
+        </h3>
+        {/* For a series, the episode sits under the show's name, the way a
+            TV guide sets it. */}
+        {r.episodes && <EpisodeLine episode={r.episodes} name={r.episodeTitle} />}
+      </div>
+      <div className="shrink-0 flex flex-col items-end">
+        {/* As tall as the byline's photo, so the date sits level with the name. */}
+        <span className="h-7 flex items-center text-dim text-[12.5px] leading-none">{r.date ? shortDate(r.date) : ""}</span>
+        {r.rating != null && (
+          <div className="mt-2.5 flex">
+            <RatingMarks value={r.rating} size={12} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 /** "S2 E4 · Woe's Hollow": a series review's episode, under the show's name. */

@@ -52,7 +52,7 @@ export default async function ReviewPage({ params }: PageProps<"/u/[username]/re
           </span>
         </Link>
         <article className="rounded-[28px] bg-card border border-hair overflow-hidden">
-          <ReviewSheetCard r={review} username={view.username} />
+          <ReviewSheetCard r={review} username={view.username} avatar={view.avatar} />
         </article>
       </main>
       <SiteFooter />

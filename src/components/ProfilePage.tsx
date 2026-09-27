@@ -3,9 +3,8 @@ import type { ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
 import { ReviewActions } from "./ReviewActions";
-import { EpisodeLine } from "./ReviewSheet";
+import { ReviewHeading } from "./ReviewSheet";
 import { ProfileCategories } from "./ProfileCategories";
-import { RatingMarks } from "./RatingMarks";
 import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
 import { FavouritesCard } from "./FavouritesCard";
@@ -72,7 +71,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
               v.reviews.length > 0 ? (
                 <div className="grid gap-[6px]">
                   {v.reviews.map((r) => (
-                    <ReviewCard key={r.key} r={r} username={v.username} />
+                    <ReviewCard key={r.key} r={r} username={v.username} avatar={v.avatar} />
                   ))}
                 </div>
               ) : (
@@ -85,7 +84,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             id: "watchlog",
             label: "Watchlog",
             count: v.diary.length,
-            content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} owner={!!v.owner} username={v.username} /> : <Empty>Nothing logged yet.</Empty>,
+            content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} owner={!!v.owner} username={v.username} avatar={v.avatar} /> : <Empty>Nothing logged yet.</Empty>,
           },
           {
             // The app's profile grid: its eight built-in categories, then the
@@ -365,7 +364,7 @@ function ActivityList({ v }: { v: PublicProfileView }) {
 // Spaced like the review sheet (components/ReviewSheet.tsx): one 16px inset
 // all round, the heading (who, title, stars) set close as a group, and 16px
 // between every group under it.
-function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
+function ReviewCard({ r, username, avatar }: { r: ReviewEntry; username: string; avatar: string | null }) {
   const paragraphs = r.text.split(/\n\s*\n/);
   const body = (
     <div className="mt-4 grid gap-2.5 text-[13.5px] leading-[1.6] text-bone max-w-[80ch]">
@@ -385,33 +384,7 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
         )}
       </Link>
       <div className="min-w-0 flex-1">
-        {/* Who, the title and (for a series) the episode on the left; the
-            date and the rating on the right, the date level with the byline
-            and the stars under it. */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="text-[13px] leading-none text-dim truncate">
-              <b className="text-ink font-semibold">@{username}</b> {r.rewatch ? "rewatched" : "watched"}
-            </div>
-            <h3 className="!mt-2 !text-[clamp(26px,2.4vw,34px)] !leading-[.95]">
-              <Link href={r.href} className="no-underline text-ink hover:text-accent transition-colors">
-                {r.title}
-              </Link>{" "}
-              <span className="text-dim !text-[0.6em] tracking-normal">{r.year}</span>
-            </h3>
-            {/* For a series, the episode sits under the show's name, the way a
-                TV guide sets it. */}
-            {r.episode && <EpisodeLine episode={r.episode} name={r.episodeTitle} />}
-          </div>
-          <div className="shrink-0 flex flex-col items-end">
-            <span className="text-dim text-[12.5px] leading-none">{r.date ? prettyDate(r.date) : ""}</span>
-            {r.rating != null && (
-              <div className="mt-2.5 flex">
-                <RatingMarks value={r.rating} size={12} />
-              </div>
-            )}
-          </div>
-        </div>
+        <ReviewHeading username={username} avatar={avatar} r={{ ...r, episodes: r.episode }} titleHref={r.href} />
 
         {r.spoilers ? (
           <details className="mt-4 group/sp">
