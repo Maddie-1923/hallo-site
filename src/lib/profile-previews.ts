@@ -101,7 +101,6 @@ async function sampleProfile(): Promise<PublicProfileView> {
       { id: "movies", name: "Movies", custom: false, titles: films },
       { id: "upToDate", name: "Up to Date", custom: false, titles: series.slice(0, 3) },
       { id: "finished", name: "Finished", custom: false, titles: [...series.slice(3, 6), ...classics.slice(0, 8)] },
-      { id: "onHold", name: "On Hold", custom: false, titles: series.slice(6, 8) },
       { id: "favorites", name: "Favorites", custom: false, titles: classics.slice(0, 8) },
       { id: "list:l1", name: "Comfort rewatches", detail: "For the nights nothing new will do.", custom: true, titles: classics.slice(2, 14) },
       { id: "list:l2", name: "Best of 2026 so far", custom: true, titles: films.slice(0, 9) },

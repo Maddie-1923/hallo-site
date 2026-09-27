@@ -77,8 +77,20 @@ function CategoryTile({ c, onOpen }: { c: CategoryEntry; onOpen: () => void }) {
       </span>
       <span className="block px-3 pt-2.5 pb-3">
         <span className="block display text-[22px] leading-none tracking-[.02em] uppercase truncate group-hover:text-accent transition-colors">{c.name}</span>
-        <span className="block mt-1 text-[12.5px] text-dim">
+        <span className="flex items-center gap-1.5 mt-1 text-[12.5px] text-dim">
           {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
+          {/* On Hold and Stopped Watching reach only the owner's own page;
+              the lock tells them nobody else sees these. */}
+          {c.ownerOnly && (
+            <span className="inline-flex items-center gap-1" title="Only you can see this">
+              <span aria-hidden>·</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <rect x="5" y="11" width="14" height="10" rx="2" />
+                <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+              </svg>
+              Only you
+            </span>
+          )}
         </span>
       </span>
     </button>

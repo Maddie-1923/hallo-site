@@ -60,7 +60,9 @@ row changes, whether the phone or the site made the change:
   the feed and the activity timeline.
 - `public_lists`: custom lists with their titles.
 - The built-in categories are worked out from `public_entries` and each
-  title's status, so they need no table of their own. The owner's tile order
+  title's status, so they need no table of their own. On Hold and Stopped
+  Watching are the owner's alone: those two statuses are never projected, so
+  no visitor can see what someone set aside or gave up on (decided 27 Sep). The owner's tile order
   lives on their phone today (`kodigo.profileShelfOrder`); it has to join the
   archive before the site can show their own arrangement.
 

@@ -89,6 +89,9 @@ export interface CategoryEntry {
   custom: boolean;
   /** A made-up list on the local preview, to be removed before opening. */
   sample?: boolean;
+  /** Shown to the profile's owner and nobody else: On Hold and Stopped
+      Watching, which say what someone set aside or gave up on. */
+  ownerOnly?: boolean;
 }
 
 /** A series in progress, for the profile's mini tracker. */
@@ -231,7 +234,9 @@ export function profileFromArchive(
   }
   reviewList.sort((x, y) => (y.date ?? "").localeCompare(x.date ?? ""));
 
-  const categories = categoriesFromArchive(a);
+  // On Hold and Stopped Watching never leave the server for anyone but the
+  // owner, so a visitor's page can't reveal them.
+  const categories = categoriesFromArchive(a).filter((c) => forOwner || !c.ownerOnly);
 
   // A day counts once per film and once per episode watched on it.
   const activity: Record<string, number> = {};
@@ -387,8 +392,8 @@ function categoriesFromArchive(a: LibraryArchive): CategoryEntry[] {
     { id: "shows", name: "Shows", custom: false, titles: a.shows.map((t) => showTitle(t.show)) },
     { id: "movies", name: "Movies", custom: false, titles: a.movies.map((t) => movieTitle(t.movie)) },
     { id: "finished", name: "Finished", custom: false, titles: [...byShowStatus("Finished"), ...byMovieStatus("Watched")] },
-    { id: "onHold", name: "On Hold", custom: false, titles: [...byShowStatus("Stopped"), ...byMovieStatus("On Hold")] },
-    { id: "didNotFinish", name: "Stopped Watching", custom: false, titles: [...byShowStatus("Dropped"), ...byMovieStatus("Dropped")] },
+    { id: "onHold", name: "On Hold", custom: false, ownerOnly: true, titles: [...byShowStatus("Stopped"), ...byMovieStatus("On Hold")] },
+    { id: "didNotFinish", name: "Stopped Watching", custom: false, ownerOnly: true, titles: [...byShowStatus("Dropped"), ...byMovieStatus("Dropped")] },
     {
       id: "favorites",
       name: "Favorites",
