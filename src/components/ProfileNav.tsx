@@ -72,12 +72,13 @@ export function ProfileSections({ sections, className = "mt-10", aside }: { sect
       </div>
       </div>
 
-      {/* The section sits in a shell like every other box on the profile. */}
+      {/* The section sits in a shell like every other box on the profile,
+          with the Tracker's side padding so the two read as a pair. */}
       <div
         role="tabpanel"
         id={`panel-${shown.id}`}
         aria-labelledby={`tab-${shown.id}`}
-        className={`${aside ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 min-h-[240px] rounded-[24px] bg-card border border-hair px-[clamp(14px,2vw,28px)] py-[clamp(14px,1.6vw,22px)]`}
+        className={`${aside ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 min-h-[240px] rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-[clamp(14px,1.6vw,22px)]`}
       >
         {shown.content}
       </div>
