@@ -55,6 +55,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
   // Asking Supabase at all would also put a session lookup on every public
   // page for an answer the page cannot use.
   const user = accountsOpen ? await signedInUser() : null;
+  const logoHeight = framed ? 70 : 54;
 
   return (
     <nav
@@ -69,22 +70,25 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
           so the logo lines up with the card's left edge and the profile
           circle with its right, the way Netflix sets its bar. */}
       <div className={`w-full ${framed ? "px-[clamp(20px,5vw,80px)] h-20" : "px-[clamp(16px,3.2vw,64px)] h-16"} flex items-center gap-6`}>
-        {/* The mark hangs from the top edge of the bar, which is the top of
-            the page, so its stripes run off it the way they run off the app
-            icon. The k's foot, the wordmark and Home, Explore and the rest
-            all stand on one line: the padding under the logo lifts the k's
-            foot to the links' baseline (27px in the 64px bar, 35px in the
-            home page's 80px one), and the wordmark, set on the same foot, is
-            nudged 4px down since the display face keeps that much room
-            under its letters. */}
-        <Link href={user ? "/discover" : "/"} className={`self-stretch flex items-end gap-2.5 ${framed ? "pb-[35px]" : "pb-[27px]"} no-underline`}>
-          {/* A touch taller than the bar, so the stripes' tops sit past the
-              page's edge and only ever read as running off it. */}
-          <LogoBleed height={framed ? 70 : 54} />
-          <span className="translate-y-1 display text-2xl leading-none">Kodigo</span>
-        </Link>
-        <div className="hidden md:flex gap-5 text-sm text-dim">
-          <NavLinks links={user ? product : marketing} />
+        {/* The wordmark and Home, Explore and the rest are laid on one
+            baseline by the browser itself (the row below aligns them by
+            baseline), so they line up whatever the bar's height, the zoom or
+            the fonts. The k hangs from the top edge of the page, its stripes
+            running off it as they run off the app icon, and its foot is
+            pinned to the wordmark's baseline: the display face keeps 4px
+            under its letters, so the mark's bottom sits 4px up from the
+            wordmark's box. It is a touch taller than the bar, so the
+            stripes' tops sit past the page's edge. */}
+        <div className="flex items-baseline gap-6">
+          <Link href={user ? "/discover" : "/"} className="relative inline-flex no-underline" style={{ paddingLeft: (logoHeight * 528) / 1185 + 10 }}>
+            <span className="absolute left-0 bottom-[4px]">
+              <LogoBleed height={logoHeight} />
+            </span>
+            <span className="display text-2xl leading-none">Kodigo</span>
+          </Link>
+          <div className="hidden md:flex items-baseline gap-5 text-sm text-dim">
+            <NavLinks links={user ? product : marketing} />
+          </div>
         </div>
         {user ? (
           <SignedIn email={user.email ?? ""} framed={framed} />
