@@ -11,8 +11,8 @@ const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "Ju
 
 // The profile's Watchlog. A year at a time: twelve month cards across the
 // top, two rows of six, each a wide picture with the month's numbers under
-// it; then every watch in the selected month, one shell to an entry. It opens
-// on the current month.
+// it; then every watch in the selected month, one shell to an entry, with a
+// switch to show only its films or its series. It opens on the current month.
 //
 // A month card's picture is picked automatically from what was watched that
 // month. The owner can choose it instead, from that month's titles; until
@@ -54,32 +54,15 @@ export function ProfileDiary({ entries, owner = false, username = "" }: { entrie
     setChoosing(null);
   }
 
-  const inYear = entries.filter((e) => e.date.startsWith(year) && (kind === "all" || e.kind === kind));
+  // The month cards count everything; the switch by the list narrows only the
+  // list to films or series.
+  const inYear = entries.filter((e) => e.date.startsWith(year));
   const byMonth = Array.from({ length: 12 }, (_, m) => inYear.filter((e) => Number(e.date.slice(5, 7)) === m + 1));
-  const rows = byMonth[month];
+  const rows = byMonth[month].filter((e) => kind === "all" || e.kind === kind);
 
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="inline-flex p-[3px] rounded-full bg-page border border-hair">
-          {(
-            [
-              ["all", "All"],
-              ["movie", "Films"],
-              ["show", "Series"],
-            ] as const
-          ).map(([k, label]) => (
-            <button
-              key={k}
-              type="button"
-              aria-pressed={kind === k}
-              onClick={() => setKind(k)}
-              className={`px-3.5 py-1 rounded-full text-[12.5px] font-semibold cursor-pointer transition-colors ${kind === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
         <label className="inline-flex items-center gap-2 text-[12.5px] text-dim">
           Year
           <select value={year} onChange={(e) => setYear(e.target.value)} className="rounded-full bg-page border border-hair px-3 py-1 text-ink text-[12.5px] font-semibold cursor-pointer">
@@ -112,15 +95,34 @@ export function ProfileDiary({ entries, owner = false, username = "" }: { entrie
 
       {/* The selected month in full. */}
       <div className="mt-6">
-        <div className="flex items-baseline gap-3 mb-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-2">
           <h3 className="!text-[clamp(24px,2.2vw,30px)]">
             {MONTHS_LONG[month]} {year}
           </h3>
           <span className="text-[12.5px] text-dim">
             {rows.length} {rows.length === 1 ? "entry" : "entries"}
           </span>
+          <div className="ml-auto inline-flex p-[3px] rounded-full bg-page border border-hair">
+            {(
+              [
+                ["all", "All"],
+                ["movie", "Films"],
+                ["show", "Series"],
+              ] as const
+            ).map(([k, label]) => (
+              <button
+                key={k}
+                type="button"
+                aria-pressed={kind === k}
+                onClick={() => setKind(k)}
+                className={`px-3.5 py-1 rounded-full text-[12.5px] font-semibold cursor-pointer transition-colors ${kind === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-        {rows.length === 0 ? <p className="text-sm text-dim m-0">Nothing logged this month.</p> : <EntryTable rows={rows} />}
+        {rows.length === 0 ? <p className="text-sm text-dim m-0">{kind === "all" ? "Nothing logged this month." : `No ${kind === "movie" ? "films" : "series"} logged this month.`}</p> : <EntryTable rows={rows} />}
       </div>
 
       {choosing != null && (
