@@ -379,18 +379,20 @@ function ReviewSheet({ e, username, onClose }: { e: DiaryEntry; username: string
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`@${username}'s review of ${e.title}`} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <div className="w-full sm:max-w-[600px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-[24px] sm:rounded-[24px] bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
-        {/* The title's still across the top, as on the row, fading into the sheet. */}
-        <div className="relative aspect-[16/6] shrink-0 bg-card-hi">
-          {(e.backdrop ?? e.poster) && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={(e.backdrop ?? e.poster)!} alt="" className="absolute inset-0 w-full h-full object-cover" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--card)] via-transparent to-transparent" />
-          <button type="button" onClick={onClose} aria-label="Close" autoFocus className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/55 hover:bg-black/75 text-white text-xl leading-none cursor-pointer">
-            ×
-          </button>
+        {/* The title's still across the top, in a shell of its own inside
+            the sheet, the way the rows hold theirs, rather than fading into it. */}
+        <div className="p-3 pb-0 shrink-0">
+          <div className="relative aspect-[16/7] rounded-[16px] overflow-hidden bg-card-hi border border-hair">
+            {(e.backdrop ?? e.poster) && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={(e.backdrop ?? e.poster)!} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            )}
+            <button type="button" onClick={onClose} aria-label="Close" autoFocus className="absolute top-2.5 right-2.5 w-9 h-9 rounded-full bg-black/55 hover:bg-black/75 text-white text-xl leading-none cursor-pointer">
+              ×
+            </button>
+          </div>
         </div>
-        <div className="px-5 pb-5 -mt-6 relative overflow-y-auto">
+        <div className="px-5 pt-4 pb-5 overflow-y-auto">
           <div className="text-[13px] text-dim">
             <b className="text-ink font-semibold">@{username}</b> {e.rewatch ? "rewatched" : "watched"}
             {e.episodes && (
