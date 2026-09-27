@@ -13,9 +13,10 @@ import { useLiveWatches, type LiveWatch } from "@/lib/live-watches";
 
 // The month cards' lettering: set at 12px and 11px, drawn at 78% of that
 // (about 9.4px and 8.6px). TEXT_HEIGHT is the block's unscaled height: the
-// month's line (16), the gap (2) and three lines of numbers (3 × 14).
+// month's line (16), the gap (2) and three lines of numbers, each 14 with 2
+// above and below and a faint hairline over it (3 × 19).
 const TEXT_SCALE = 0.78;
-const TEXT_HEIGHT = 16 + 2 + 3 * 14;
+const TEXT_HEIGHT = 16 + 2 + 3 * 19;
 
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -240,7 +241,7 @@ function MonthCard({
                 ["Episodes", episodes],
               ] as const
             ).map(([label, n]) => (
-              <span key={label} className="flex justify-between gap-2">
+              <span key={label} className="flex justify-between gap-2 py-[2px] border-t border-[color:color-mix(in_srgb,var(--hair)_55%,transparent)]">
                 <span>{label}</span>
                 <span className={`tabular-nums ${empty ? "text-dim" : "text-ink"}`}>{n}</span>
               </span>
