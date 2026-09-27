@@ -59,6 +59,10 @@ row changes, whether the phone or the site made the change:
   watched-on date and rewatch. This is the source for title pages, profiles,
   the feed and the activity timeline.
 - `public_lists`: custom lists with their titles.
+- The built-in categories are worked out from `public_entries` and each
+  title's status, so they need no table of their own. The owner's tile order
+  lives on their phone today (`kodigo.profileShelfOrder`); it has to join the
+  archive before the site can show their own arrangement.
 
 The trigger never fails the library write. If the projection hits an error,
 it logs it and lets the sync through, so the app's sync can't break because of
@@ -94,8 +98,12 @@ what Pro gates.
     watchlist), with a check for the owner that only changes the page until
     the database exists;
   - Reviews, Recent activity, Watchlog (the diary: a table with columns, a year
-    at a time), Lists and Favourites as tabs swapped in place, and
+    at a time), Categories and Favourites as tabs swapped in place, and
     back-to-top;
+  - Categories as the app's profile grid has them: the eight built-in ones
+    (Shows, Movies, Up to Date, Finished, On Hold, Stopped Watching,
+    Favorites, Rewatched) then the person's lists, as collage tiles that open
+    a sheet; empty ones are left off;
   - Favourites the owner can edit (saved in the browser for now).
   - a review sheet that opens from the Watchlog, and a mock-up of a review's
     own page (`/u/preview/review/<title key>`) with its link preview
@@ -242,6 +250,8 @@ privacy labels to mention crash data before it ships.
   `app/u/[username]/page.tsx`), kept for testing at the user's request.
 - The sample Watchlog entries on `/u/preview` for 2025 and 2026
   (`withSampleWatchlog`, same file), kept for testing.
+- The two sample lists in the preview's Categories (`withSampleLists` in
+  `lib/profile-previews.ts`).
 - The `/u/preview` and `/u/sample` pages themselves, and their links in the
   profile menu. They only exist in development, but should go once real
   profiles work.

@@ -1,7 +1,7 @@
 import "server-only";
 import { readFile } from "node:fs/promises";
 import { isArchive } from "@/lib/archive";
-import { profileFromArchive, withAiredEpisodes, type DiaryEntry, type ProfileTitle, type PublicProfileView, type ReviewEntry } from "@/lib/public-profile";
+import { profileFromArchive, withAiredEpisodes, withUpToDate, type CategoryEntry, type DiaryEntry, type ProfileTitle, type PublicProfileView, type ReviewEntry } from "@/lib/public-profile";
 import { image, movieRails, showRails } from "@/lib/tmdb";
 
 // The two development-only profiles, /u/preview and /u/sample (see
@@ -33,7 +33,7 @@ async function previewFromFile(): Promise<PublicProfileView | null> {
       banner: pic((raw as Record<string, unknown>).profileBanner),
       bio: null,
     }, true);
-    return await withSampleWatchlog(await withAiredEpisodes(withSampleReviews(view)));
+    return withSampleLists(await withSampleWatchlog(await withAiredEpisodes(await withUpToDate(withSampleReviews(view), raw))));
   } catch {
     return null;
   }
@@ -96,10 +96,16 @@ async function sampleProfile(): Promise<PublicProfileView> {
       { name: "Crime", share: 0.11 },
     ],
     reviews: diary.slice(0, 4).map((d, i) => ({ ...d, text: blurbs[i], date: d.date, spoilers: i === 3 })),
-    lists: [
-      { id: "l1", name: "Comfort rewatches", detail: "For the nights nothing new will do.", count: 12, posters: classics.slice(0, 4).map((x) => x.poster) },
-      { id: "l2", name: "Best of 2026 so far", detail: null, count: 9, posters: films.slice(0, 4).map((x) => x.poster) },
-      { id: "l3", name: "Series worth the hype", detail: "Every one of these earned its finale.", count: 7, posters: series.slice(0, 4).map((x) => x.poster) },
+    categories: [
+      { id: "shows", name: "Shows", custom: false, titles: series },
+      { id: "movies", name: "Movies", custom: false, titles: films },
+      { id: "upToDate", name: "Up to Date", custom: false, titles: series.slice(0, 3) },
+      { id: "finished", name: "Finished", custom: false, titles: [...series.slice(3, 6), ...classics.slice(0, 8)] },
+      { id: "onHold", name: "On Hold", custom: false, titles: series.slice(6, 8) },
+      { id: "favorites", name: "Favorites", custom: false, titles: classics.slice(0, 8) },
+      { id: "list:l1", name: "Comfort rewatches", detail: "For the nights nothing new will do.", custom: true, titles: classics.slice(2, 14) },
+      { id: "list:l2", name: "Best of 2026 so far", custom: true, titles: films.slice(0, 9) },
+      { id: "list:l3", name: "Series worth the hype", detail: "Every one of these earned its finale.", custom: true, titles: series.slice(0, 7) },
     ],
     previewNote: "Sample profile — a made-up person with invented dates, ratings and review text, for judging the layout. Development only.",
   };
@@ -265,4 +271,18 @@ async function withSampleWatchlog(view: PublicProfileView): Promise<PublicProfil
   const activity = { ...view.activity };
   for (const e of samples) activity[e.date] = (activity[e.date] ?? 0) + (e.episodeCount ?? 1);
   return { ...view, diary, activity };
+}
+
+// Two made-up lists for the local preview, whose library has none, so the
+// Categories tab can be judged with the app's lists in it. Drawn from the
+// library's own titles. Kept for testing until the user says to remove it
+// (see docs/social-plan.md).
+function withSampleLists(view: PublicProfileView): PublicProfileView {
+  if (!view.owner) return view;
+  const { films, shows } = view.owner;
+  const lists: CategoryEntry[] = [
+    { id: "list:sample-1", name: "Comfort watches", detail: "For the nights nothing new will do.", custom: true, sample: true, titles: [...shows.slice(0, 3), ...films.slice(0, 3)] },
+    { id: "list:sample-2", name: "Watch with Mum", detail: null, custom: true, sample: true, titles: [...films.slice(3, 7), ...shows.slice(3, 5)] },
+  ].filter((l) => l.titles.length > 0);
+  return { ...view, categories: [...view.categories, ...lists] };
 }

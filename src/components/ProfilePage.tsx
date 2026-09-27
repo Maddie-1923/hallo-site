@@ -1,9 +1,10 @@
 import Link from "next/link";
-import type { ListEntry, ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
+import type { ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
 import { ReviewActions } from "./ReviewActions";
 import { EpisodeLine } from "./ReviewSheet";
+import { ProfileCategories } from "./ProfileCategories";
 import { RatingMarks } from "./RatingMarks";
 import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
@@ -87,19 +88,12 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} owner={!!v.owner} username={v.username} /> : <Empty>Nothing logged yet.</Empty>,
           },
           {
-            id: "lists",
-            label: "Lists",
-            count: v.lists.length,
-            content:
-              v.lists.length > 0 ? (
-                <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(230px,1fr))]">
-                  {v.lists.map((l) => (
-                    <ListCard key={l.id} l={l} />
-                  ))}
-                </div>
-              ) : (
-                <Empty>No lists yet.</Empty>
-              ),
+            // The app's profile grid: its eight built-in categories, then the
+            // person's own lists.
+            id: "categories",
+            label: "Categories",
+            count: v.categories.length,
+            content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} /> : <Empty>Nothing in any category yet.</Empty>,
           },
           {
             id: "favourites",
@@ -275,7 +269,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         <div className="min-w-0 flex-1">
           <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.9] truncate">@{v.username}</div>
           <div className="text-[12px] text-dim truncate mt-0.5">
-            {v.stats.ratings} ratings · {v.reviews.length} reviews · {v.lists.length} lists
+            {v.stats.ratings} ratings · {v.reviews.length} reviews · {v.categories.filter((c) => c.custom).length} lists
           </div>
           <div className="flex items-center gap-4 text-[12.5px] mt-1">
             <span>
@@ -433,29 +427,6 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
   );
 }
 
-
-function ListCard({ l }: { l: ListEntry }) {
-  return (
-    <div className="rounded-[20px] bg-card-hi border border-hair p-4">
-      {/* Four posters fanned, the way a list's cover reads on Letterboxd. */}
-      <div className="relative h-[120px] mb-3">
-        {l.posters.map((p, i) => (
-          <div
-            key={i}
-            className="absolute top-0 h-full aspect-[2/3] rounded-[6px] overflow-hidden bg-card-hi border border-page shadow-[4px_0_10px_rgba(0,0,0,.35)]"
-            style={{ left: `${i * 22}%`, zIndex: 4 - i }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            {p && <img src={p} alt="" className="w-full h-full object-cover" />}
-          </div>
-        ))}
-      </div>
-      <div className="display text-[22px] leading-none">{l.name}</div>
-      <div className="text-[12.5px] text-dim mt-1">{l.count} titles</div>
-      {l.detail && <p className="m-0 mt-2 text-[13px] text-dim line-clamp-2">{l.detail}</p>}
-    </div>
-  );
-}
 
 function PosterLink({ t, small = false }: { t: ProfileTitle; small?: boolean }) {
   return (

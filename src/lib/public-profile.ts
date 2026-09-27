@@ -67,13 +67,28 @@ export interface ReviewEntry extends ProfileTitle {
   sample?: boolean;
 }
 
-export interface ListEntry {
+/**
+ * One of the profile's categories, as the app's profile grid has them: the
+ * eight it ships (Shows, Movies, Up to Date, Finished, On Hold, Stopped
+ * Watching, Favorites, Rewatched), then every list the person made. The app's
+ * code calls them shelves (`ProfileShelf`); on screen they are categories.
+ */
+export interface CategoryEntry {
+  /** The app's key for it: "shows", "upToDate", "list:<id>" and so on. */
   id: string;
   name: string;
-  detail: string | null;
-  count: number;
-  /** Up to four posters, for the stacked cover. */
-  posters: (string | null)[];
+  /** A list's one line about itself. */
+  detail?: string | null;
+  /** Everything in it, for the sheet that opens from the tile. The tile's
+      collage is the first four posters. */
+  titles: ProfileTitle[];
+  /** A list's chosen cover, when it is a poster (an uploaded photo lives on
+      the phone and doesn't travel). */
+  cover?: string | null;
+  /** A list the person made, rather than one of the eight. */
+  custom: boolean;
+  /** A made-up list on the local preview, to be removed before opening. */
+  sample?: boolean;
 }
 
 /** A series in progress, for the profile's mini tracker. */
@@ -101,7 +116,9 @@ export interface PublicProfileView {
   topShows: ProfileTitle[];
   diary: DiaryEntry[];
   reviews: ReviewEntry[];
-  lists: ListEntry[];
+  /** Only the categories with something in them; a visitor has no use for
+      an empty tile. */
+  categories: CategoryEntry[];
   /** Watch days for the calendar: "YYYY-MM-DD" → how many things watched. */
   activity: Record<string, number>;
   /** Every rating they have given, out of ten, for the spread chart. */
@@ -214,13 +231,7 @@ export function profileFromArchive(
   }
   reviewList.sort((x, y) => (y.date ?? "").localeCompare(x.date ?? ""));
 
-  const order = new Map((a.customListOrder ?? []).map((id, i) => [id, i]));
-  const lists: ListEntry[] = [...(a.customLists ?? [])]
-    .sort((x, y) => (order.get(x.id) ?? 1e9) - (order.get(y.id) ?? 1e9))
-    .map((l) => {
-      const titles = [...(l.movieIDs ?? []).map((id) => movies.get(id)?.poster_path), ...(l.showIDs ?? []).map((id) => shows.get(id)?.poster_path)];
-      return { id: l.id, name: l.name, detail: l.detail ?? null, count: titles.length, posters: titles.slice(0, 4).map((p) => image.poster(p, "w185")) };
-    });
+  const categories = categoriesFromArchive(a);
 
   // A day counts once per film and once per episode watched on it.
   const activity: Record<string, number> = {};
@@ -306,7 +317,7 @@ export function profileFromArchive(
     // The whole diary: the page shows it a year at a time.
     diary,
     reviews: reviewList.slice(0, 12),
-    lists,
+    categories,
   };
 }
 
@@ -339,4 +350,105 @@ export function reviewFor(view: PublicProfileView, key: string): SheetReview | n
   if (r) return { ...r, episodes: r.episode };
   const e = view.diary.find((x) => x.key === key && x.review);
   return e ? { ...e, ...e.review! } : null;
+}
+
+/**
+ * The categories, in the app's own order (`ProfileShelf.builtIns`, then the
+ * lists in the order the person set). Up to Date needs TMDB to know what has
+ * aired, so it is added afterwards by `withUpToDate`; it sits third.
+ */
+function categoriesFromArchive(a: LibraryArchive): CategoryEntry[] {
+  const shows = new Map(a.shows.map((t) => [t.show.id, t.show]));
+  const movies = new Map(a.movies.map((t) => [t.movie.id, t.movie]));
+  const reactions = a.reactions ?? {};
+  const byShowStatus = (st: string) => a.shows.filter((t) => t.status === st).map((t) => showTitle(t.show));
+  const byMovieStatus = (st: string) => a.movies.filter((t) => t.status === st).map((t) => movieTitle(t.movie));
+  const unique = (xs: ProfileTitle[]) => xs.filter((x, i) => xs.findIndex((y) => y.key === x.key) === i);
+
+  // A loved or rewatched episode is drawn by its show's poster here.
+  const episodeShow = (episodeID: string) => shows.get(Number(episodeID.split("-")[0]));
+  const lovedEpisodes = Object.entries(reactions)
+    .filter(([k, r]) => r === "loved" && k.startsWith("episode:"))
+    .map(([k]) => episodeShow(k.slice(8)))
+    .filter((x): x is Show => !!x)
+    .map(showTitle);
+  type Tick = { watched: string; movieID?: number; episodeID?: string };
+  const newestFirst = (xs: Tick[]) => [...xs].sort((x, y) => y.watched.localeCompare(x.watched));
+  const rewatchedMovies = newestFirst((a.movieRewatchLog as Tick[] | undefined) ?? [])
+    .map((t) => movies.get(t.movieID!))
+    .filter((x): x is Movie => !!x)
+    .map(movieTitle);
+  const rewatchedEpisodes = newestFirst((a.rewatchLog as Tick[] | undefined) ?? [])
+    .map((t) => episodeShow(t.episodeID ?? ""))
+    .filter((x): x is Show => !!x)
+    .map(showTitle);
+
+  const builtIns: CategoryEntry[] = [
+    { id: "shows", name: "Shows", custom: false, titles: a.shows.map((t) => showTitle(t.show)) },
+    { id: "movies", name: "Movies", custom: false, titles: a.movies.map((t) => movieTitle(t.movie)) },
+    { id: "finished", name: "Finished", custom: false, titles: [...byShowStatus("Finished"), ...byMovieStatus("Watched")] },
+    { id: "onHold", name: "On Hold", custom: false, titles: [...byShowStatus("Stopped"), ...byMovieStatus("On Hold")] },
+    { id: "didNotFinish", name: "Stopped Watching", custom: false, titles: [...byShowStatus("Dropped"), ...byMovieStatus("Dropped")] },
+    {
+      id: "favorites",
+      name: "Favorites",
+      custom: false,
+      titles: unique([...a.shows.filter((t) => reactions[`show:${t.show.id}`] === "loved").map((t) => showTitle(t.show)), ...a.movies.filter((t) => reactions[`movie:${t.movie.id}`] === "loved").map((t) => movieTitle(t.movie)), ...lovedEpisodes]),
+    },
+    { id: "rewatched", name: "Rewatched", custom: false, titles: unique([...rewatchedMovies, ...rewatchedEpisodes]) },
+  ];
+
+  const order = new Map((a.customListOrder ?? []).map((id, i) => [id, i]));
+  const lists: CategoryEntry[] = [...(a.customLists ?? [])]
+    .sort((x, y) => (order.get(x.id) ?? 1e9) - (order.get(y.id) ?? 1e9))
+    .map((l) => {
+      const cover = (l as { cover?: { poster?: { _0?: string } } }).cover?.poster?._0;
+      return {
+        id: `list:${l.id}`,
+        name: l.name,
+        detail: l.detail ?? null,
+        custom: true,
+        cover: cover ? image.poster(cover, "w500") : null,
+        titles: [...(l.showIDs ?? []).map((id) => shows.get(id)), ...(l.movieIDs ?? []).map((id) => movies.get(id))]
+          .filter((x): x is Show | Movie => !!x)
+          .map((x) => ("name" in x ? showTitle(x) : movieTitle(x))),
+      };
+    });
+  return [...builtIns, ...lists].filter((c) => c.titles.length > 0);
+}
+
+/**
+ * Adds Up to Date: the series they are watching and have seen everything of
+ * that has aired (skipped episodes count as dealt with, as in the app). One
+ * TMDB request a series, cached for an hour.
+ */
+export async function withUpToDate(view: PublicProfileView, a: LibraryArchive): Promise<PublicProfileView> {
+  const done = new Set([...a.watched, ...(a.skipped ?? [])]);
+  const upToDate = (
+    await Promise.all(
+      a.shows
+        .filter((t) => t.status === "Watching")
+        .map(async (t) => {
+          const d = await showDetail(t.show.id);
+          const last = d?.lastEpisode;
+          if (!d || !last) return null;
+          let aired = 0;
+          let seen = 0;
+          for (const season of d.seasons) {
+            const n = season.season_number;
+            if (n < 1 || n > last.season_number) continue;
+            const count = n === last.season_number ? last.episode_number : season.episode_count;
+            aired += count;
+            for (let e = 1; e <= count; e++) if (done.has(`${t.show.id}-${n}-${e}`)) seen++;
+          }
+          return aired > 0 && seen >= aired ? showTitle(t.show) : null;
+        }),
+    )
+  ).filter((x): x is ProfileTitle => !!x);
+  if (upToDate.length === 0) return view;
+  const categories = [...view.categories];
+  // Third, after Shows and Movies, where the app puts it.
+  const at = categories.findIndex((c) => c.id !== "shows" && c.id !== "movies");
+  categories.splice(at < 0 ? categories.length : at, 0, { id: "upToDate", name: "Up to Date", custom: false, titles: upToDate });
+  return { ...view, categories };
 }
