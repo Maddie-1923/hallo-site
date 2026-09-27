@@ -11,6 +11,12 @@ import { Menu } from "./Menu";
 import { ReviewSheet } from "./ReviewSheet";
 import { useLiveWatches, type LiveWatch } from "@/lib/live-watches";
 
+// The month cards' lettering: set at 12px and 11px, drawn at 78% of that
+// (about 9.4px and 8.6px). TEXT_HEIGHT is the block's unscaled height: the
+// month's line (16), the gap (2) and three lines of numbers (3 × 14).
+const TEXT_SCALE = 0.78;
+const TEXT_HEIGHT = 16 + 2 + 3 * 14;
+
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 // The profile's Watchlog. A year at a time: twelve month cards across the
@@ -214,13 +220,19 @@ function MonthCard({
             <img src={picture} alt="" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
           )}
         </span>
-        <span className="block px-1 pt-1.5 pb-0.5">
-          <span className={`block text-[9.5px] leading-[14px] font-bold uppercase tracking-[.1em] ${selected ? "text-accent" : "text-ink"}`}>{MONTHS_LONG[month]}</span>
+        {/* The lettering is set at a readable size and scaled down as a
+            block, rather than set tiny: a browser with a minimum font size (a
+            common reading setting) enlarges small type but leaves a scale
+            alone. The block is widened by the same factor so it still fills
+            the card, and the height the scale frees is taken back below. */}
+        <span className="block px-1 pt-1.5 pb-0.5 overflow-hidden">
+          <span className="block origin-top-left" style={{ width: `${100 / TEXT_SCALE}%`, transform: `scale(${TEXT_SCALE})`, marginBottom: -TEXT_HEIGHT * (1 - TEXT_SCALE) }}>
+          <span className={`block text-[12px] leading-[16px] font-bold uppercase tracking-[.1em] ${selected ? "text-accent" : "text-ink"}`}>{MONTHS_LONG[month]}</span>
           {/* The month's numbers, one to a line: the label on the left, the
               figure on the right, so a figure under the month's name can't be
               read as a date. Every card carries all three lines, zeros
               included, so the cards stay the same height. */}
-          <span className="block mt-0.5 text-[8.5px] leading-[12px] text-dim">
+          <span className="block mt-0.5 text-[11px] leading-[14px] text-dim">
             {(
               [
                 ["Films", films],
@@ -233,6 +245,7 @@ function MonthCard({
                 <b className={`font-semibold tabular-nums ${empty ? "text-dim" : "text-ink"}`}>{n}</b>
               </span>
             ))}
+          </span>
           </span>
         </span>
       </button>
