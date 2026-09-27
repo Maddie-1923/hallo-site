@@ -37,8 +37,9 @@ export function ReviewActions({ likes = 0, comments = 0, title, shareHref, class
         aria-label={liked ? `Unlike the review of ${title}` : `Like the review of ${title}`}
       >
         <TightHeart size={14} />
-        {liked ? "Liked" : "Like review"}
-        <span className="font-normal text-dim">
+        {/* The heart alone says what the button does; its aria-label says it
+            in words for a screen reader. */}
+        <span className={`font-normal ${liked ? "" : "text-dim"}`}>
           {count} {count === 1 ? "like" : "likes"}
         </span>
       </button>
