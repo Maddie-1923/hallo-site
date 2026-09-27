@@ -28,9 +28,12 @@ import { Menu } from "./Menu";
 // Custom List": a name, a line about it, and titles picked from their
 // library. Until accounts exist, what they make is kept in this browser.
 //
-// The order menu is the app's (`ProfileShelfSort`) less Custom, which is the
-// owner's drag order and lives on their phone; its place is taken by the
-// app's own order. A reader's choice is kept in this browser.
+// The order menu is the app's (`ProfileShelfSort`): Custom, the owner's own
+// arrangement, then by name or by size. The owner arranges with Arrange
+// beside it: tiles drag into place, or move a step with the arrows on them
+// (for a keyboard or a touch screen, where dragging doesn't work). Until
+// accounts exist their arrangement is kept in this browser; a reader's choice
+// of order is kept in theirs.
 export function ProfileCategories({ categories: given, owner = false, username = "", library = [] }: { categories: CategoryEntry[]; owner?: boolean; username?: string; library?: ProfileTitle[] }) {
   const [made, setMade] = useState<MadeCategory[]>([]);
   const [creating, setCreating] = useState(false);
@@ -56,7 +59,18 @@ export function ProfileCategories({ categories: given, owner = false, username =
       return { id: m.id, name: m.name, detail: m.detail, custom: true, titles, latest: titles.at(-1)?.key ?? null };
     }),
   ];
-  const [sort, setSort] = useState<SortId>("app");
+  const [sort, setSort] = useState<SortId>("custom");
+  const [order, setOrder] = useState<string[]>([]);
+  const [arranging, setArranging] = useState(false);
+  const [dragFrom, setDragFrom] = useState<string | null>(null);
+  const orderKey = `kodigo.category-order.${username}`;
+  useEffect(() => {
+    if (!owner) return;
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setOrder(JSON.parse(localStorage.getItem(orderKey) ?? "[]"));
+    } catch {}
+  }, [owner, orderKey]);
   const [open, setOpen] = useState<CategoryEntry | null>(null);
   const [pictures, setPictures] = useState<Record<string, string>>({});
   const [choosing, setChoosing] = useState<CategoryEntry | null>(null);
@@ -112,27 +126,81 @@ export function ProfileCategories({ categories: given, owner = false, username =
     } catch {}
   }
 
+  // Arranging always works on the custom order, whatever the menu says.
+  const shown = arranged(categories, arranging ? "custom" : sort, order);
+  function move(from: string, to: number) {
+    const ids = shown.map((c) => c.id).filter((id) => id !== from);
+    ids.splice(Math.max(0, Math.min(to, ids.length)), 0, from);
+    setOrder(ids);
+    try {
+      localStorage.setItem(orderKey, JSON.stringify(ids));
+    } catch {}
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between gap-3 mb-4">
         <span className="text-[12.5px] text-dim">
-          {categories.length} {categories.length === 1 ? "category" : "categories"}
+          {arranging ? "Drag the categories into the order you want, or use the arrows." : `${categories.length} ${categories.length === 1 ? "category" : "categories"}`}
         </span>
-        <SortMenu sort={sort} onChoose={chooseSort} />
+        <div className="flex items-center gap-2">
+          {!arranging && <SortMenu sort={sort} onChoose={chooseSort} />}
+          {owner && (
+            <button
+              type="button"
+              onClick={() => {
+                if (!arranging) chooseSort("custom");
+                setArranging(!arranging);
+              }}
+              className={`h-9 px-4 rounded-full text-[12.5px] font-semibold cursor-pointer transition-colors ${arranging ? "bg-accent-fill text-on-accent" : "bg-page border border-hair text-dim hover:text-ink"}`}
+            >
+              {arranging ? "Done" : "Arrange"}
+            </button>
+          )}
+        </div>
       </div>
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
-        {arranged(categories, sort).map((c) => (
-          <CategoryTile
-            key={c.id}
-            c={c}
-            picture={pictureFor(c, pictures[c.id])}
-            onOpen={() => setOpen(c)}
-            onChoose={owner ? () => setChoosing(c) : undefined}
-            hidden={isPrivate(c)}
-            onToggleHidden={owner ? () => togglePrivate(c) : undefined}
-          />
-        ))}
-        {owner && <NewCategoryTile onClick={() => setCreating(true)} />}
+        {shown.map((c, i) =>
+          arranging ? (
+            <div
+              key={c.id}
+              draggable
+              onDragStart={() => setDragFrom(c.id)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => {
+                if (dragFrom && dragFrom !== c.id) move(dragFrom, i);
+                setDragFrom(null);
+              }}
+              onDragEnd={() => setDragFrom(null)}
+              className={`relative rounded-[20px] outline-2 outline-dashed outline-accent outline-offset-2 cursor-grab active:cursor-grabbing ${dragFrom === c.id ? "opacity-40" : ""}`}
+            >
+              <CategoryTile c={c} picture={pictureFor(c, pictures[c.id])} hidden={isPrivate(c)} />
+              <div className="absolute top-3 left-3 flex gap-1.5">
+                <button type="button" onClick={() => move(c.id, i - 1)} disabled={i === 0} aria-label={`Move ${c.name} earlier`} className="w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center cursor-pointer disabled:opacity-30 disabled:cursor-default">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M15 5l-7 7 7 7" />
+                  </svg>
+                </button>
+                <button type="button" onClick={() => move(c.id, i + 1)} disabled={i === shown.length - 1} aria-label={`Move ${c.name} later`} className="w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center cursor-pointer disabled:opacity-30 disabled:cursor-default">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <CategoryTile
+              key={c.id}
+              c={c}
+              picture={pictureFor(c, pictures[c.id])}
+              onOpen={() => setOpen(c)}
+              onChoose={owner ? () => setChoosing(c) : undefined}
+              hidden={isPrivate(c)}
+              onToggleHidden={owner ? () => togglePrivate(c) : undefined}
+            />
+          ),
+        )}
+        {owner && !arranging && <NewCategoryTile onClick={() => setCreating(true)} />}
       </div>
       {open && (
         <CategorySheet
@@ -182,7 +250,7 @@ function CategoryTile({
 }: {
   c: CategoryEntry;
   picture: string | null;
-  onOpen: () => void;
+  onOpen?: () => void;
   onChoose?: () => void;
   hidden: boolean;
   onToggleHidden?: () => void;
@@ -194,7 +262,7 @@ function CategoryTile({
         <span className="block aspect-video rounded-b-[8px] overflow-hidden bg-card">
           {picture && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={picture} alt="" loading="lazy" className="w-full h-full object-cover" />
+            <img src={picture} alt="" loading="lazy" draggable={false} className="w-full h-full object-cover" />
           )}
         </span>
         <span className="block px-3 pt-2.5 pb-3">
@@ -356,11 +424,11 @@ function CategorySheet({ c, onClose, onDelete }: { c: CategoryEntry; onClose: ()
   );
 }
 
-// The app's orders for the grid (`ProfileShelfSort`), with its own order in
-// place of Custom. Newest and oldest aren't offered: the eight built-ins have
-// no age, only lists do, and the app files the eight as oldest of all.
+// The app's orders for the grid (`ProfileShelfSort`). Newest and oldest
+// aren't offered: the eight built-ins have no age, only lists do, and the app
+// files the eight as oldest of all.
 const SORTS = [
-  { id: "app", label: "As in the app", short: "As in the app" },
+  { id: "custom", label: "Custom", short: "Custom order" },
   { id: "name-az", label: "Name, A to Z", short: "Name, A to Z" },
   { id: "name-za", label: "Name, Z to A", short: "Name, Z to A" },
   { id: "most", label: "Most titles", short: "Most titles" },
@@ -369,11 +437,15 @@ const SORTS = [
 type SortId = (typeof SORTS)[number]["id"];
 const SORT_KEY = "kodigo.categories-sort";
 
-function arranged(cs: CategoryEntry[], sort: SortId) {
+function arranged(cs: CategoryEntry[], sort: SortId, order: string[]) {
   const name = (a: CategoryEntry, b: CategoryEntry) => a.name.localeCompare(b.name);
   switch (sort) {
-    case "app":
-      return cs;
+    case "custom": {
+      // The owner's arrangement first, then anything it has never heard of
+      // (a category made since) in the app's order, as the app does.
+      const rank = new Map(order.map((id, i) => [id, i]));
+      return [...cs].sort((a, b) => (rank.get(a.id) ?? 1e6 + cs.indexOf(a)) - (rank.get(b.id) ?? 1e6 + cs.indexOf(b)));
+    }
     case "name-az":
       return [...cs].sort(name);
     case "name-za":
