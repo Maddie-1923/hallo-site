@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export interface ProfileSection {
   id: string;
@@ -40,6 +40,20 @@ export function ProfileSections({ sections, className = "mt-10", aside }: { sect
 
   const shown = sections.find((s) => s.id === current) ?? sections[0];
 
+  // The tab bar's width, handed to the page as --tabs-w, so the person's
+  // card above can be exactly as wide as the bar (whatever size the browser
+  // sets its lettering at).
+  const bar = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = bar.current;
+    if (!el) return;
+    const set = () => document.documentElement.style.setProperty("--tabs-w", `${el.offsetWidth}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <section className={`${className} ${aside ? "grid gap-x-5 gap-y-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
       {aside && (
@@ -47,6 +61,7 @@ export function ProfileSections({ sections, className = "mt-10", aside }: { sect
       )}
       <div className="lg:col-start-1 lg:row-start-1 min-w-0">
       <div
+        ref={bar}
         role="tablist"
         aria-label="Profile sections"
         className="inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center gap-1 p-1 rounded-full bg-card border border-hair"
