@@ -280,7 +280,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
           <th className={`${HEAD} py-2 px-4 font-bold text-center hidden md:table-cell w-[150px]`}>Episodes</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[104px] hidden sm:table-cell`}>Rewatch</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[100px] hidden sm:table-cell`}>Review</th>
-          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold text-center w-[170px]`}>Rating</th>
+          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold text-center w-[140px]`}>Rating</th>
         </tr>
       </thead>
       <tbody>
@@ -338,7 +338,10 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
 
 // Every mark in the columns (the rewatch arrow, the review page, each star)
 // is drawn about 20px tall, so they read as one set; the ten stars, a size
-// down at about 16px, sit in two rows of five in the Rating column. The rewatch artwork
+// down at about 16px, sit in two rows of five in the Rating column. That
+// column is just wide enough for them plus the cells' 16px padding, so the
+// stars' right edge sits as far from the row's end as the day sits from its
+// start. The rewatch artwork
 // sits inside a lot of padding in its box, hence its larger nominal size.
 
 // The fill of an entry's shell: the lighter card tone, on the section's card.
