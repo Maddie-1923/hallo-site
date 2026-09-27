@@ -46,9 +46,8 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
           left holds the tabbed sections (Reviews, Recent activity, Watchlog,
           Categories, Stats), and the narrower right the Tracker, level with
           the sections' shell rather than their tabs (ProfileSections lays the
-          two out on the same column widths). The Tracker stays in view
-          (sticky) while the sections scroll past it and scrolls its own list
-          inside. On a phone it all stacks: card, numbers, Tracker, then the
+          two out on the same column widths). The Tracker is one fixed height
+          and scrolls with the page; its own list scrolls inside. On a phone it all stacks: card, numbers, Tracker, then the
           sections.
 
           Favourites is parked while this layout is tried; it comes back
