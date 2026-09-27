@@ -19,7 +19,7 @@ const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "Ju
 //
 // The columns of the list read in the order a watch is thought about: when,
 // what, how it was watched (which episodes, whether a rewatch), then what
-// they thought (hearts, a like, a review). Series get the Episodes column,
+// they thought (a like, a review), with the hearts rating last. Series get the Episodes column,
 // which a films-only log like Letterboxd's diary has no need for.
 export function ProfileDiary({ entries, owner = false, username = "" }: { entries: DiaryEntry[]; owner?: boolean; username?: string }) {
   const now = new Date();
@@ -277,9 +277,9 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
           <th className={`${HEAD} py-2 px-4 font-bold`}>Title</th>
           <th className={`${HEAD} py-2 px-4 font-bold hidden md:table-cell w-[150px]`}>Episodes</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[104px] hidden sm:table-cell`}>Rewatch</th>
-          <th className={`${HEAD} py-2 px-4 font-bold w-[160px]`}>Rating</th>
-          <th className={`${HEAD} py-2 px-4 font-bold text-center w-[80px] rounded-r-[14px] sm:rounded-r-none`}>Like</th>
-          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold text-center w-[100px] hidden sm:table-cell`}>Review</th>
+          <th className={`${HEAD} py-2 px-4 font-bold text-center w-[80px]`}>Like</th>
+          <th className={`${HEAD} py-2 px-4 font-bold text-center w-[100px] hidden sm:table-cell`}>Review</th>
+          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold w-[160px]`}>Rating</th>
         </tr>
       </thead>
       <tbody>
@@ -319,8 +319,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </span>
               ) : null}
             </td>
-            <td className={`${SHELL} py-2 px-4`}>{e.rating != null ? <Hearts value={e.rating} /> : <span className="text-dim">—</span>}</td>
-            <td className={`${SHELL} py-2 px-4 text-center rounded-r-[14px] sm:rounded-r-none`}>
+            <td className={`${SHELL} py-2 px-4 text-center`}>
               {e.loved ? (
                 <span className="inline-flex text-loved" title="Loved">
                   <TightHeart size={15} />
@@ -328,7 +327,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </span>
               ) : null}
             </td>
-            <td className={`${SHELL} rounded-r-[14px] py-2 px-4 text-center hidden sm:table-cell`}>
+            <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
               {e.reviewed ? (
                 <Link href={e.href} className="inline-flex text-accent" title="Has a review">
                   <MarkReview size={22} />
@@ -336,6 +335,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </Link>
               ) : null}
             </td>
+            <td className={`${SHELL} rounded-r-[14px] py-2 px-4`}>{e.rating != null ? <Hearts value={e.rating} /> : <span className="text-dim">—</span>}</td>
           </tr>
         ))}
       </tbody>
