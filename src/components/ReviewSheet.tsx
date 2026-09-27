@@ -104,7 +104,7 @@ export function ReviewSheetCard({ r, username, onClose }: { r: SheetReview; user
           body
         )}
         <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={reviewPath(username, r.key)} className="mt-4" />
-        <div className="mt-4 pt-4 border-t border-hair flex">
+        <div className="mt-4 pt-4 border-t border-hair flex justify-end">
           <Link href={r.href} className="inline-block text-[13.5px] leading-none font-semibold text-accent no-underline hover:underline">
             Go to {r.title} →
           </Link>
