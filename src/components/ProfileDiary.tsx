@@ -242,7 +242,7 @@ function MonthCard({
             ).map(([label, n]) => (
               <span key={label} className="flex justify-between gap-2">
                 <span>{label}</span>
-                <b className={`font-semibold tabular-nums ${empty ? "text-dim" : "text-ink"}`}>{n}</b>
+                <span className={`tabular-nums ${empty ? "text-dim" : "text-ink"}`}>{n}</span>
               </span>
             ))}
           </span>
