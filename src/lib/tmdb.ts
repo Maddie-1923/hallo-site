@@ -370,3 +370,78 @@ export async function titleLogo(kind: "show" | "movie", id: number): Promise<str
 export function cardBackdrop(p: string | null | undefined) {
   return p ? `${IMG}/w780${p}` : null;
 }
+
+// ---- A title's own page, as the app's detail screens draw it ----
+
+export interface Provider {
+  id: number;
+  name: string;
+  logo: string | null;
+}
+
+/** Where to watch in one country: subscription services first, then free
+    ones, and TMDB's page for that country (which hands on to JustWatch). */
+export interface WhereToWatch {
+  subscription: Provider[];
+  free: Provider[];
+  link: string | null;
+}
+
+type RawProviders = {
+  "watch/providers"?: { results: Record<string, { link?: string; flatrate?: RawProvider[]; free?: RawProvider[]; ads?: RawProvider[] }> };
+};
+type RawProvider = { provider_id: number; provider_name: string; logo_path?: string | null };
+
+function whereToWatch(r: RawProviders, region: string): WhereToWatch | null {
+  const c = r["watch/providers"]?.results?.[region];
+  if (!c) return null;
+  const one = (p: RawProvider): Provider => ({ id: p.provider_id, name: p.provider_name, logo: p.logo_path ? `${IMG}/w92${p.logo_path}` : null });
+  const subscription = (c.flatrate ?? []).map(one);
+  const free = [...(c.free ?? []), ...(c.ads ?? [])].map(one).filter((p, i, a) => a.findIndex((x) => x.id === p.id) === i);
+  return subscription.length || free.length ? { subscription, free, link: c.link ?? null } : null;
+}
+
+export interface CastMember {
+  id: number;
+  name: string;
+  character: string;
+  photo: string | null;
+}
+
+export interface FilmPage {
+  movie: Movie;
+  genres: string[];
+  /** The release in the visitor's country when TMDB has one, else the film's own date. */
+  released: string | null;
+  trailer: string | null;
+  cast: CastMember[];
+  moreLikeThis: Movie[];
+  watch: WhereToWatch | null;
+}
+
+type RawFilmPage = RawMovie &
+  RawVideos &
+  RawProviders & {
+    recommendations?: { results: RawMovie[] };
+    release_dates?: { results: { iso_3166_1: string; release_dates: { release_date: string; type: number }[] }[] };
+  };
+
+export async function filmPage(id: number, region = RATING_FALLBACK): Promise<FilmPage | null> {
+  const r = await tmdb<RawFilmPage>(`/movie/${id}`, { append_to_response: "credits,videos,recommendations,watch/providers,release_dates" });
+  if (!r) return null;
+  // The theatrical (3) or limited (2) release where the visitor is.
+  const local = r.release_dates?.results
+    .find((x) => x.iso_3166_1 === region)
+    ?.release_dates.filter((d) => d.type === 3 || d.type === 2)
+    .map((d) => d.release_date.slice(0, 10))
+    .sort()[0];
+  return {
+    movie: toMovie(r),
+    genres: r.genres?.map((g) => g.name) ?? [],
+    released: local ?? r.release_date ?? null,
+    trailer: pickTrailer(r.videos),
+    cast: (r.credits?.cast ?? []).slice(0, 15).map((p) => ({ id: p.id, name: p.name, character: p.character ?? "", photo: image.profile(p.profile_path) })),
+    moreLikeThis: (r.recommendations?.results ?? []).filter((x) => x.poster_path).slice(0, 15).map(toMovie),
+    watch: whereToWatch(r, region),
+  };
+}

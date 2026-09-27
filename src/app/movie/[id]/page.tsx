@@ -2,17 +2,21 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
-import { Poster } from "@/components/Poster";
-import { TrackControls } from "@/components/TrackControls";
-import { CastRow, Hero } from "@/components/TitleHero";
 import { TitleActivity } from "@/components/TitleActivity";
+import { CastSection, HeaderCard, MoreLikeThisSection, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { FilmTray } from "@/components/FilmTray";
 import { optionalLibrary } from "@/lib/library";
-import { movieDetail } from "@/lib/tmdb";
-import { year } from "@/lib/archive";
+import { filmPage, image } from "@/lib/tmdb";
+import { visitorRegion } from "@/lib/region";
 
+// A film's page, laid out after the app's film screen (MovieDetailView): the
+// header card (the wide artwork, the facts panel with the title and its rows,
+// the overview, and the keys), then Where to watch and the trailer beside it
+// on a wide screen, then the cast and more like this as rails. The app's
+// Your take (rating, mood, tags, note) comes with accounts.
 export async function generateMetadata({ params }: PageProps<"/movie/[id]">): Promise<Metadata> {
   const { id } = await params;
-  const d = await movieDetail(Number(id));
+  const d = await filmPage(Number(id));
   return { title: d ? `${d.movie.title} — Kodigo` : "Movie — Kodigo" };
 }
 
@@ -21,44 +25,49 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
   const movieID = Number(id);
   if (!Number.isInteger(movieID)) notFound();
 
-  const [detail, lib] = await Promise.all([movieDetail(movieID), optionalLibrary()]);
-  if (!detail) notFound();
-  const { movie } = detail;
+  const region = await visitorRegion();
+  const [page, lib] = await Promise.all([filmPage(movieID, region), optionalLibrary()]);
+  if (!page) notFound();
+  const { movie } = page;
 
   const tracked = lib.archive?.movies.find((m) => m.movie.id === movieID) ?? null;
-  const seenOn = lib.archive?.movieWatchedDates?.[String(movieID)];
+  const watched = tracked?.status === "Watched" || !!lib.archive?.movieWatchedDates?.[String(movieID)];
+  const loved = lib.archive?.reactions?.[`movie:${movieID}`] === "loved";
 
+  // The facts, in the app's order, each only when there is something to say.
   const facts = [
-    year(movie.release_date),
-    movie.runtime ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : "",
-  ].filter(Boolean);
+    page.genres.length > 0 && { label: "Genres", value: page.genres.join(" · ") },
+    movie.runtime && { label: "Runtime", value: movie.runtime >= 60 ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : `${movie.runtime}m` },
+    movie.vote_average && { label: "TMDB", value: movie.vote_average.toFixed(1) },
+    page.released && { label: "Released", value: longDate(page.released), accent: true },
+  ].filter(Boolean) as { label: string; value: string; accent?: boolean }[];
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <SiteNav />
-      <Hero backdrop={movie.backdrop_path}>
-        <div className="w-[160px] sm:w-[200px] shrink-0">
-          <Poster path={movie.poster_path} alt={movie.title} />
-        </div>
-        <div className="min-w-0">
-          <div className="eyebrow">Film</div>
-          <h1 className="!text-[clamp(40px,7vw,72px)]">{movie.title}</h1>
-          <p className="text-sm text-dim mt-3">{facts.join(" · ")}</p>
-          {detail.genres.length > 0 && <p className="text-sm text-dim mt-1">{detail.genres.join(", ")}</p>}
-          {detail.tagline && <p className="italic text-bone mt-4">{detail.tagline}</p>}
-          {movie.overview && <p className="text-[15px] text-bone max-w-[64ch] mt-3">{movie.overview}</p>}
-          <div className="mt-5">
-            <TrackControls kind="movie" movie={movie} status={tracked?.status ?? null} signedIn={lib.signedIn} />
+      <main className="w-full max-w-[1240px] mx-auto px-[clamp(16px,3.2vw,48px)] pt-6 pb-20 flex-1">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-start">
+          <HeaderCard art={image.backdrop(movie.backdrop_path) ?? image.poster(movie.poster_path, "w780")} title={movie.title} facts={facts} overview={movie.overview ?? null}>
+            <FilmTray tracked={!!tracked} watched={watched} loved={loved} signedIn={lib.signedIn} />
+          </HeaderCard>
+          <div className="grid gap-4">
+            {page.watch && <WhereToWatchSection watch={page.watch} />}
+            {page.trailer && <TrailerSection id={page.trailer} />}
           </div>
-          {seenOn && <p className="text-xs text-dim mt-3">Seen {seenOn.slice(0, 10)}</p>}
-          {movie.vote_average ? <p className="text-xs text-dim mt-3">TMDB {movie.vote_average.toFixed(1)} / 10</p> : null}
         </div>
-      </Hero>
-      <main className="wrap flex-1 py-10">
-        {detail.cast.length > 0 && <CastRow cast={detail.cast} />}
-        <TitleActivity target={{ kind: "movie", movie }} archive={lib.archive} signedIn={lib.signedIn} />
+        <div className="mt-8 grid gap-8">
+          {page.cast.length > 0 && <CastSection cast={page.cast} />}
+          {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="movie" />}
+          {lib.signedIn && <TitleActivity target={{ kind: "movie", movie }} archive={lib.archive} signedIn={lib.signedIn} />}
+        </div>
       </main>
       <SiteFooter />
-    </>
+    </div>
   );
+}
+
+/** "23 September 2022". */
+function longDate(d: string) {
+  const [y, m, day] = d.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
