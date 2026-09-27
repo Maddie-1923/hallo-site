@@ -285,7 +285,10 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
       <tbody>
         {rows.map((e) => (
           <tr key={`${e.key}${e.date}`} className="align-middle">
-            <td className={`${SHELL} rounded-l-[14px] py-2 pl-3 pr-4 text-right display text-[26px] leading-none text-dim`}>{Number(e.date.slice(8, 10))}</td>
+            <td className={`${SHELL} rounded-l-[14px] py-2 pl-3 pr-4 text-right`}>
+              <span className="block display text-[26px] leading-none text-dim">{Number(e.date.slice(8, 10))}</span>
+              <span className="block mt-0.5 text-[9.5px] leading-none font-bold uppercase tracking-[.1em] text-dim">{weekday(e.date)}</span>
+            </td>
             <td className={`${SHELL} py-2 px-4`}>
               <Link href={e.href} className="flex items-center gap-3 no-underline text-ink hover:text-accent group">
                 <span className="w-9 shrink-0">
@@ -366,4 +369,10 @@ function Hearts({ value }: { value: number }) {
       <span className="sr-only">{value} out of 10</span>
     </span>
   );
+}
+
+/** "Tue" for "2026-09-22": the day of the week the watch fell on. */
+function weekday(date: string) {
+  const [y, m, d] = date.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" });
 }
