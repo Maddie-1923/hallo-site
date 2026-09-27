@@ -276,11 +276,11 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
         <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
           <th className={`${HEAD} rounded-l-[14px] py-2 pl-4 pr-3 font-bold w-[76px] text-left`}>Day</th>
           <th className={`${HEAD} py-2 px-4 font-bold`}>Title</th>
-          <th className={`${HEAD} py-2 px-4 font-bold hidden md:table-cell w-[104px]`}>Released</th>
-          <th className={`${HEAD} py-2 px-4 font-bold hidden md:table-cell w-[150px]`}>Episodes</th>
+          <th className={`${HEAD} py-2 px-4 font-bold text-center hidden md:table-cell w-[104px]`}>Released</th>
+          <th className={`${HEAD} py-2 px-4 font-bold text-center hidden md:table-cell w-[150px]`}>Episodes</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[104px] hidden sm:table-cell`}>Rewatch</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[100px] hidden sm:table-cell`}>Review</th>
-          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold w-[170px]`}>Rating</th>
+          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold text-center w-[170px]`}>Rating</th>
         </tr>
       </thead>
       <tbody>
@@ -310,8 +310,8 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </span>
               </Link>
             </td>
-            <td className={`${SHELL} py-2 px-4 text-dim hidden md:table-cell tabular-nums`}>{e.year}</td>
-            <td className={`${SHELL} py-2 px-4 text-dim hidden md:table-cell truncate`}>{e.episodes}</td>
+            <td className={`${SHELL} py-2 px-4 text-dim text-center hidden md:table-cell tabular-nums`}>{e.year}</td>
+            <td className={`${SHELL} py-2 px-4 text-dim text-center hidden md:table-cell truncate`}>{e.episodes}</td>
             <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
               {e.rewatch ? (
                 <span className="inline-flex text-accent" title="Rewatch">
@@ -328,7 +328,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </Link>
               ) : null}
             </td>
-            <td className={`${SHELL} rounded-r-[14px] py-2 px-4`}>{e.rating != null ? <RatingMarks value={e.rating} size={18} rows={2} /> : null}</td>
+            <td className={`${SHELL} rounded-r-[14px] py-2 px-4 text-center`}>{e.rating != null ? <RatingMarks value={e.rating} size={18} rows={2} /> : null}</td>
           </tr>
         ))}
       </tbody>
