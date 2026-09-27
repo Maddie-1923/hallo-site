@@ -102,10 +102,9 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
         {user ? (
           <SignedIn email={user.email ?? ""} framed={framed} />
         ) : (
-          // The buttons' bottoms stand on the same line as the k's foot and
-          // the words on the left, so both sides leave the same 15px below
-          // them: 13px up from the row the logo and links sit in.
-          <div className="ml-auto flex items-center gap-4 shrink-0 -translate-y-[13px]">
+          // The buttons are centred on the wordmark's capitals on the left
+          // (the middle of KODIGO, 4px above the row's middle).
+          <div className="ml-auto flex items-center gap-4 shrink-0 -translate-y-1">
             <SearchBoundary />
             <DayNightToggle onPicture={framed} />
             <ThemeMenu onPicture={framed} />
