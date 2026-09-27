@@ -18,8 +18,8 @@ const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "Ju
 // accounts exist the choice is kept in this browser.
 //
 // The columns of the list read in the order a watch is thought about: when,
-// what, how it was watched (which episodes, whether a rewatch), then what
-// they thought (a like, a review), with the hearts rating last. Series get the Episodes column,
+// what (and the year it came out), how it was watched (which episodes, whether a rewatch), then what
+// they thought (a review), with the hearts rating last. Series get the Episodes column,
 // which a films-only log like Letterboxd's diary has no need for.
 export function ProfileDiary({ entries, owner = false, username = "" }: { entries: DiaryEntry[]; owner?: boolean; username?: string }) {
   const now = new Date();
@@ -275,9 +275,9 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
         <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
           <th className={`${HEAD} rounded-l-[14px] py-2 pl-4 pr-3 font-bold w-[76px] text-left`}>Day</th>
           <th className={`${HEAD} py-2 px-4 font-bold`}>Title</th>
+          <th className={`${HEAD} py-2 px-4 font-bold hidden md:table-cell w-[104px]`}>Released</th>
           <th className={`${HEAD} py-2 px-4 font-bold hidden md:table-cell w-[150px]`}>Episodes</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[104px] hidden sm:table-cell`}>Rewatch</th>
-          <th className={`${HEAD} py-2 px-4 font-bold text-center w-[80px]`}>Like</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[100px] hidden sm:table-cell`}>Review</th>
           <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold w-[160px]`}>Rating</th>
         </tr>
@@ -302,27 +302,20 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 <span className="min-w-0">
                   <span className="block truncate">
                     <span className="font-semibold">{e.title}</span>
-                    {e.year && <span className="text-dim font-normal"> {e.year}</span>}
                   </span>
-                  {/* On a phone the Episodes column folds in under the title. */}
-                  {e.episodes && <span className="block md:hidden text-[12px] text-dim truncate">{e.episodes}</span>}
+                  {/* On a phone the Released and Episodes columns fold in under
+                      the title. */}
+                  {(e.year || e.episodes) && <span className="block md:hidden text-[12px] text-dim truncate">{[e.year, e.episodes].filter(Boolean).join(" · ")}</span>}
                 </span>
               </Link>
             </td>
-            <td className={`${SHELL} py-2 px-4 text-dim hidden md:table-cell truncate`}>{e.episodes ?? "—"}</td>
+            <td className={`${SHELL} py-2 px-4 text-dim hidden md:table-cell tabular-nums`}>{e.year}</td>
+            <td className={`${SHELL} py-2 px-4 text-dim hidden md:table-cell truncate`}>{e.episodes}</td>
             <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
               {e.rewatch ? (
                 <span className="inline-flex text-accent" title="Rewatch">
                   <MarkRewatched size={22} />
                   <span className="sr-only">Rewatch</span>
-                </span>
-              ) : null}
-            </td>
-            <td className={`${SHELL} py-2 px-4 text-center`}>
-              {e.loved ? (
-                <span className="inline-flex text-loved" title="Loved">
-                  <TightHeart size={15} />
-                  <span className="sr-only">Loved</span>
                 </span>
               ) : null}
             </td>
@@ -334,7 +327,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </Link>
               ) : null}
             </td>
-            <td className={`${SHELL} rounded-r-[14px] py-2 px-4`}>{e.rating != null ? <Hearts value={e.rating} /> : <span className="text-dim">—</span>}</td>
+            <td className={`${SHELL} rounded-r-[14px] py-2 px-4`}>{e.rating != null ? <Hearts value={e.rating} /> : null}</td>
           </tr>
         ))}
       </tbody>
