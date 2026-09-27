@@ -38,6 +38,15 @@ export interface ReviewEntry extends ProfileTitle {
   date: string | null;
   rating: number | null;
   spoilers: boolean;
+  /** For a review of one episode: "S2 E4", and the episode's own title. */
+  episode?: string;
+  episodeTitle?: string;
+  rewatch?: boolean;
+  loved?: boolean;
+  likes?: number;
+  comments?: number;
+  /** A made-up review shown on a preview to judge the design. */
+  sample?: boolean;
 }
 
 export interface ListEntry {

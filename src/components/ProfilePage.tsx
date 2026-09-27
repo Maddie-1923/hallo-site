@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ListEntry, ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
+import { ReviewActions } from "./ReviewActions";
+import { TightHeart } from "./marks";
 import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
 import { FavouritesCard } from "./FavouritesCard";
@@ -66,9 +68,9 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             count: v.reviews.length,
             content:
               v.reviews.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-[6px]">
                   {v.reviews.map((r) => (
-                    <ReviewCard key={r.key} r={r} />
+                    <ReviewCard key={r.key} r={r} username={v.username} />
                   ))}
                 </div>
               ) : (
@@ -360,33 +362,97 @@ function ActivityList({ v }: { v: PublicProfileView }) {
   );
 }
 
-function ReviewCard({ r }: { r: ReviewEntry }) {
+// One review, laid out after the way Letterboxd shows reviews on a profile:
+// the poster on the left, then who watched what and when, the title, the
+// marks, the review in readable paragraphs, and like / comment / share under
+// it. A review of a single episode says which one, which a films-only site
+// has no way to do. Spoilers stay hidden behind a tap.
+function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
+  const paragraphs = r.text.split(/\n\s*\n/);
+  const body = (
+    <div className="mt-2 grid gap-3 text-[15px] leading-[1.6] text-bone max-w-[72ch]">
+      {paragraphs.map((p, i) => (
+        <p key={i} className="m-0">
+          {p}
+        </p>
+      ))}
+    </div>
+  );
   return (
-    <article className="rounded-[20px] bg-card-hi border border-hair p-4 flex gap-4">
-      <Link href={r.href} className="w-[72px] shrink-0">
+    <article className="rounded-[18px] bg-card-hi px-[clamp(14px,1.6vw,20px)] py-4 flex gap-[clamp(14px,1.6vw,22px)]">
+      <Link href={r.href} className="w-[clamp(64px,7vw,96px)] shrink-0 self-start">
         {r.poster && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={r.poster} alt={r.title} className="w-full aspect-[2/3] rounded-[8px] object-cover" />
+          <img src={r.poster} alt={r.title} className="w-full aspect-[2/3] rounded-[8px] object-cover border border-hair" />
         )}
       </Link>
-      <div className="min-w-0">
-        <Link href={r.href} className="display text-[22px] leading-[.95] text-ink no-underline hover:text-accent">
-          {r.title} <span className="text-dim text-[16px]">{r.year}</span>
-        </Link>
-        <div className="text-[12.5px] text-dim mt-1 flex gap-2">
-          {r.date && <span>{prettyDate(r.date)}</span>}
-          {r.rating != null && <Rating value={r.rating} />}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline justify-between gap-3 text-[13px]">
+          <span className="text-dim truncate">
+            <b className="text-ink font-semibold">@{username}</b> {r.rewatch ? "rewatched" : "watched"}
+            {r.episode && (
+              <>
+                {" "}
+                <b className="text-ink font-semibold">{r.episode}</b>
+                {r.episodeTitle && <> · {r.episodeTitle}</>} of
+              </>
+            )}
+          </span>
+          <span className="shrink-0 text-dim text-[12.5px]">{r.date ? prettyDate(r.date) : ""}</span>
         </div>
+
+        <h3 className="mt-1 !text-[clamp(26px,2.4vw,34px)] !leading-[.95]">
+          <Link href={r.href} className="no-underline text-ink hover:text-accent transition-colors">
+            {r.title}
+          </Link>{" "}
+          <span className="text-dim !text-[0.6em] tracking-normal">{r.year}</span>
+        </h3>
+
+        <div className="mt-2 flex items-center gap-3">
+          {r.rating != null && <HeartRow value={r.rating} />}
+          {r.loved && <span className="text-loved text-[14px]" title="Loved">♥</span>}
+          {r.rewatch && <span className="text-[12px] text-dim">Rewatch</span>}
+          {r.sample && <span className="px-2 py-[1px] rounded-full border border-hair text-[10.5px] font-bold uppercase tracking-[.1em] text-dim">Sample</span>}
+        </div>
+
         {r.spoilers ? (
-          <details className="mt-2 text-[14px] text-bone">
-            <summary className="cursor-pointer text-dim text-[13px]">Contains spoilers — show review</summary>
-            <p className="m-0 mt-2 leading-[1.5]">{r.text}</p>
+          <details className="mt-2 group/sp">
+            <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[13px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
+              <span className="px-2 py-[2px] rounded-full bg-card border border-hair text-[11px] font-bold uppercase tracking-[.08em]">Spoilers</span>
+              <span className="group-open/sp:hidden">This review gives things away. Show it anyway</span>
+              <span className="hidden group-open/sp:inline">Hide it again</span>
+            </summary>
+            {body}
           </details>
         ) : (
-          <p className="m-0 mt-2 text-[14px] leading-[1.5] text-bone line-clamp-5">{r.text}</p>
+          body
         )}
+
+        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} />
       </div>
     </article>
+  );
+}
+
+/** Ten small hearts lit to a rating out of ten, half hearts for halves. */
+function HeartRow({ value }: { value: number }) {
+  return (
+    <span className="inline-flex items-center gap-[2px]" title={`${value} out of 10`}>
+      {Array.from({ length: 10 }, (_, i) => {
+        const fill = Math.max(0, Math.min(1, value - i));
+        return (
+          <span key={i} className="relative inline-flex">
+            <TightHeart size={12} className="text-ink/20" />
+            {fill > 0 && (
+              <span className="absolute inset-0 overflow-hidden text-accent" style={{ width: `${fill * 100}%` }}>
+                <TightHeart size={12} />
+              </span>
+            )}
+          </span>
+        );
+      })}
+      <span className="sr-only">{value} out of 10</span>
+    </span>
   );
 }
 

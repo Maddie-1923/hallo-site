@@ -5,7 +5,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProfilePage } from "@/components/ProfilePage";
 import { isArchive } from "@/lib/archive";
-import { profileFromArchive, withAiredEpisodes, type PublicProfileView } from "@/lib/public-profile";
+import { profileFromArchive, withAiredEpisodes, type PublicProfileView, type ReviewEntry } from "@/lib/public-profile";
 import { image, movieRails, showRails } from "@/lib/tmdb";
 
 // A public profile at /u/<username>.
@@ -56,7 +56,7 @@ async function previewFromFile(): Promise<PublicProfileView | null> {
       banner: pic((raw as Record<string, unknown>).profileBanner),
       bio: null,
     }, true);
-    return await withAiredEpisodes(view);
+    return await withAiredEpisodes(withSampleReviews(view));
   } catch {
     return null;
   }
@@ -139,4 +139,63 @@ function sampleActivity(): Record<string, number> {
     if (r < (weekend ? 0.75 : 0.45)) out[d.toISOString().slice(0, 10)] = 1 + Math.floor(rand() * (weekend ? 5 : 3));
   }
   return out;
+}
+
+// Three made-up reviews for the local preview while the library holds none,
+// so the Reviews tab can be designed with something in it: a long one, a
+// short one, and one of a single episode, with spoilers. Each is marked as a
+// sample on the page. Written for the preview; no one's real words.
+function withSampleReviews(view: PublicProfileView): PublicProfileView {
+  if (view.reviews.length > 0 || !view.owner) return view;
+  const find = (key: string) => [...view.owner!.films, ...view.owner!.shows].find((t) => t.key === key);
+  const eeaao = find("m545611");
+  const barbie = find("m346698");
+  const severance = find("s95396");
+  const reviews: ReviewEntry[] = [];
+  if (eeaao)
+    reviews.push({
+      ...eeaao,
+      date: "2026-09-23",
+      rating: 9.5,
+      loved: true,
+      rewatch: true,
+      likes: 12,
+      comments: 3,
+      spoilers: false,
+      sample: true,
+      text: [
+        "Second time through and it lands even harder. The first watch is all noise and invention; this time I could hear the quiet underneath it, a family trying to find one sentence they can all agree on.",
+        "Michelle Yeoh carries every universe on her back and never lets you see the strain. Ke Huy Quan's \"be kind\" speech is the whole film in four lines, and I was a wreck by the laundromat.",
+        "Still too long in the middle, and the hot-dog fingers are a joke that runs a lap past the finish line. I don't care. Nothing else looks like this.",
+      ].join("\n\n"),
+    });
+  if (barbie)
+    reviews.push({
+      ...barbie,
+      date: "2026-09-23",
+      rating: 7,
+      likes: 4,
+      comments: 0,
+      spoilers: false,
+      sample: true,
+      text: "Pinker, sharper and sadder than it had any right to be. The first act is a joy; the last one explains its own jokes a little too carefully. Ryan Gosling knew exactly what film he was in.",
+    });
+  if (severance)
+    reviews.push({
+      ...severance,
+      date: "2026-09-21",
+      rating: 10,
+      loved: true,
+      likes: 27,
+      comments: 8,
+      episode: "S2 E4",
+      episodeTitle: "Woe's Hollow",
+      spoilers: true,
+      sample: true,
+      text: [
+        "The outdoor retreat episode, and the show at its strangest. Taking the innies out of the office and into the snow turns every rule we thought we knew into a question.",
+        "That final scene by the water changes how I'll watch everything before it. Britt Lower is extraordinary.",
+      ].join("\n\n"),
+    });
+  return { ...view, reviews };
 }
