@@ -418,7 +418,7 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
           <details className="mt-4 group/sp">
             <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[13px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
               <span className="px-2 py-[2px] rounded-full bg-card border border-hair text-[11px] font-bold uppercase tracking-[.08em]">Spoilers</span>
-              <span className="group-open/sp:hidden">This review gives things away. Show it anyway</span>
+              <span className="group-open/sp:hidden">This review gives things away. Show it anyway.</span>
               <span className="hidden group-open/sp:inline">Hide it again</span>
             </summary>
             {body}
