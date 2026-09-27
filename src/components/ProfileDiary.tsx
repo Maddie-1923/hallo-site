@@ -6,7 +6,6 @@ import { createPortal } from "react-dom";
 import type { DiaryEntry } from "@/lib/public-profile";
 import { MarkReview, MarkRewatched, TightHeart } from "./marks";
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 // The profile's Watchlog. A year at a time: twelve month cards across the
@@ -160,6 +159,8 @@ function MonthCard({
   onChoose?: () => void;
 }) {
   const films = list.filter((e) => e.kind === "movie").length;
+  // Different series watched in the month, however many days or episodes.
+  const series = new Set(list.filter((e) => e.kind === "show").map((e) => e.key)).size;
   const episodes = list.reduce((n, e) => n + (e.episodeCount ?? 0), 0);
   const empty = list.length === 0;
   return (
@@ -168,7 +169,7 @@ function MonthCard({
         type="button"
         onClick={onSelect}
         aria-pressed={selected}
-        aria-label={`${MONTHS_LONG[month]}: ${list.length} ${list.length === 1 ? "entry" : "entries"}`}
+        aria-label={`${MONTHS_LONG[month]}: ${films} ${films === 1 ? "film" : "films"}, ${series} series, ${episodes} ${episodes === 1 ? "episode" : "episodes"}`}
         // The month and its numbers share one shell, a tile like the other
         // boxes on the profile; the selected month is ringed in the accent.
         className={`block w-full text-left rounded-[16px] bg-card-hi p-1.5 cursor-pointer transition-[box-shadow,background-color] hover:bg-page ${selected ? "ring-2 ring-accent-fill" : ""}`}
@@ -180,16 +181,16 @@ function MonthCard({
           )}
         </span>
         <span className="block px-1 pt-1.5 pb-0.5">
-          <span className={`display block text-[20px] leading-none ${selected ? "text-accent" : "text-ink"}`}>{MONTHS[month]}</span>
+          <span className={`display block text-[16px] leading-none ${selected ? "text-accent" : "text-ink"}`}>{MONTHS_LONG[month]}</span>
           {/* The month's numbers, one to a line: the label on the left, the
               figure on the right, so a figure under the month's name can't be
               read as a date. Every card carries all three lines, zeros
               included, so the cards stay the same height. */}
-          <span className="block mt-1 text-[11.5px] leading-[16px] text-dim">
+          <span className="block mt-0.5 text-[10.5px] leading-[14px] text-dim">
             {(
               [
-                ["Entries", list.length],
                 ["Films", films],
+                ["Series", series],
                 ["Episodes", episodes],
               ] as const
             ).map(([label, n]) => (
