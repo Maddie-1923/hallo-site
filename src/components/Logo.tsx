@@ -57,21 +57,23 @@ export function LogoMark({ size = 20, label }: { size?: number; label?: string }
 //
 // For the nav, where it hangs from the very top of the page so the stripes
 // bleed off the edge the way they bleed off the icon. `height` is the whole
-// mark, stripes included; the k is the bottom 55% of it.
+// mark, stripes included; the k is the bottom 44% of it. The stripes are
+// drawn 260 units longer than the icon's so more of them shows above the k
+// in a bar as short as the nav, closer to how much the app shows.
 export function LogoBleed({ height = 48 }: { height?: number }) {
   return (
-    <svg viewBox="262 0 528 925" height={height} width={(height * 528) / 925} aria-hidden style={{ display: "block" }}>
+    <svg viewBox="262 -260 528 1185" height={height} width={(height * 528) / 1185} aria-hidden style={{ display: "block" }}>
       <defs>
         <linearGradient id="kodigo-bleed-shade" x1="0" x2="1" y1="0" y2="0">
           <stop offset="0" stopColor="#000" stopOpacity=".22" />
           <stop offset="1" stopColor="#000" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <rect x="361" y="0" width="136" height="560" fill={BLUE} />
-      <rect x="453" y="0" width="14" height="560" fill="url(#kodigo-bleed-shade)" />
-      <rect x="317" y="0" width="136" height="560" fill={PINK} />
-      <rect x="406" y="0" width="14" height="560" fill="url(#kodigo-bleed-shade)" />
-      <rect x="270" y="0" width="136" height="560" fill={YELLOW} />
+      <rect x="361" y="-260" width="136" height="820" fill={BLUE} />
+      <rect x="453" y="-260" width="14" height="820" fill="url(#kodigo-bleed-shade)" />
+      <rect x="317" y="-260" width="136" height="820" fill={PINK} />
+      <rect x="406" y="-260" width="14" height="820" fill="url(#kodigo-bleed-shade)" />
+      <rect x="270" y="-260" width="136" height="820" fill={YELLOW} />
       <g stroke="var(--ink)" strokeWidth="226" strokeLinecap="round" fill="none">
         <path d="M383 520V804" />
         <path d="M662 520L383 799" />

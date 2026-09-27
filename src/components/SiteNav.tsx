@@ -72,8 +72,10 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
         {/* The mark hangs from the top edge of the bar, which is the top of
             the page, so its stripes run off it the way they run off the app
             icon. The k's foot and the wordmark share a baseline. */}
-        <Link href={user ? "/discover" : "/"} className="self-stretch flex items-end gap-2.5 pb-[14px] no-underline">
-          <LogoBleed height={framed ? 60 : 50} />
+        <Link href={user ? "/discover" : "/"} className="self-stretch flex items-end gap-2.5 pb-[12px] no-underline">
+          {/* A touch taller than the bar, so the stripes' tops sit past the
+              page's edge and only ever read as running off it. */}
+          <LogoBleed height={framed ? 70 : 54} />
           <span className="display text-2xl leading-none -mb-[1px]">Kodigo</span>
         </Link>
         <div className="hidden md:flex gap-5 text-sm text-dim">
