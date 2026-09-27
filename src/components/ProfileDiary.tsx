@@ -181,28 +181,23 @@ function MonthCard({
         </span>
         <span className="block px-1 pt-1.5 pb-0.5">
           <span className={`display block text-[20px] leading-none ${selected ? "text-accent" : "text-ink"}`}>{MONTHS[month]}</span>
-          {/* The month's numbers, one to a line. Every card carries all three
-              lines, zeros included, so the cards stay the same height. */}
+          {/* The month's numbers, one to a line: the label on the left, the
+              figure on the right, so a figure under the month's name can't be
+              read as a date. Every card carries all three lines, zeros
+              included, so the cards stay the same height. */}
           <span className="block mt-1 text-[11.5px] leading-[16px] text-dim">
-            {empty ? (
-              <>
-                <span className="block">Nothing logged</span>
-                <span className="block">&nbsp;</span>
-                <span className="block">&nbsp;</span>
-              </>
-            ) : (
-              <>
-                <span className="block">
-                  <b className="text-ink font-semibold">{list.length}</b> {list.length === 1 ? "entry" : "entries"}
-                </span>
-                <span className="block">
-                  <b className="text-ink font-semibold">{films}</b> {films === 1 ? "film" : "films"}
-                </span>
-                <span className="block">
-                  <b className="text-ink font-semibold">{episodes}</b> {episodes === 1 ? "episode" : "episodes"}
-                </span>
-              </>
-            )}
+            {(
+              [
+                ["Entries", list.length],
+                ["Films", films],
+                ["Episodes", episodes],
+              ] as const
+            ).map(([label, n]) => (
+              <span key={label} className="flex justify-between gap-2">
+                <span>{label}</span>
+                <b className={`font-semibold tabular-nums ${empty ? "text-dim" : "text-ink"}`}>{n}</b>
+              </span>
+            ))}
           </span>
         </span>
       </button>
