@@ -280,7 +280,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
           <th className={`${HEAD} py-2 px-4 font-bold hidden md:table-cell w-[150px]`}>Episodes</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[104px] hidden sm:table-cell`}>Rewatch</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[100px] hidden sm:table-cell`}>Review</th>
-          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold w-[160px]`}>Rating</th>
+          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold w-[170px]`}>Rating</th>
         </tr>
       </thead>
       <tbody>
@@ -315,7 +315,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
             <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
               {e.rewatch ? (
                 <span className="inline-flex text-accent" title="Rewatch">
-                  <MarkRewatched size={22} />
+                  <MarkRewatched size={36} />
                   <span className="sr-only">Rewatch</span>
                 </span>
               ) : null}
@@ -328,13 +328,18 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </Link>
               ) : null}
             </td>
-            <td className={`${SHELL} rounded-r-[14px] py-2 px-4`}>{e.rating != null ? <RatingMarks value={e.rating} /> : null}</td>
+            <td className={`${SHELL} rounded-r-[14px] py-2 px-4`}>{e.rating != null ? <RatingMarks value={e.rating} size={18} rows={2} /> : null}</td>
           </tr>
         ))}
       </tbody>
     </table>
   );
 }
+
+// Every mark in the columns (the rewatch arrow, the review page, each star)
+// is drawn about 20px tall, so they read as one set; the ten stars, a size
+// down at about 16px, sit in two rows of five in the Rating column. The rewatch artwork
+// sits inside a lot of padding in its box, hence its larger nominal size.
 
 // The fill of an entry's shell: the lighter card tone, on the section's card.
 const SHELL = "bg-card-hi";
@@ -353,7 +358,7 @@ function weekday(date: string) {
 // platforms only, so the web draws its own). Only there when they wrote one.
 function ReviewGlyph() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="block">
+    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="block">
       <rect x="4.5" y="2.5" width="15" height="19" rx="3" />
       <path d="M8.5 8h7M8.5 12h7M8.5 16h4.5" />
     </svg>

@@ -6,10 +6,12 @@ import { TightHeart } from "./marks";
 // is a one-word change.
 const SHAPE: "hearts" | "stars" = "stars";
 
-export function RatingMarks({ value, size = 10 }: { value: number; size?: number }) {
+// `rows` of 2 sets the ten marks as two rows of five, so each can be drawn
+// larger in a narrow column.
+export function RatingMarks({ value, size = 10, rows = 1 }: { value: number; size?: number; rows?: 1 | 2 }) {
   const glyph = SHAPE === "stars" ? <Star size={size * 1.15} /> : <TightHeart size={size} />;
   return (
-    <span className="inline-flex items-center gap-[1px]" title={`${value} out of 10`}>
+    <span className={rows === 2 ? "inline-grid grid-cols-5 gap-x-[1px] gap-y-[1px]" : "inline-flex items-center gap-[1px]"} title={`${value} out of 10`}>
       {Array.from({ length: 10 }, (_, i) => {
         // How much of this mark is lit: whole, half, or none; the lit part is
         // the mark clipped to that width.
