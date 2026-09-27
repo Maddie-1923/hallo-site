@@ -18,6 +18,15 @@
   --ink: #e6e0d6;
   --card: #30302e;
   --card-hi: #383836;
+  /* The app's list-row pieces (Theme.swift, night): the row's card
+     (`kodigoWell`), the panel and keys inside it (`kodigoRowPiece`), the lit
+     top of its edge (`kodigoLitEdge`), the mid tone for an episode code, and
+     a progress bar's track. */
+  --well: #262421;
+  --piece: #3c3934;
+  --lit-edge: #5d5951;
+  --mid-tone: #bfbeb7;
+  --track: #33322e;
   --dim: #918e88;
   --hair: #42423f;
   --shows: #ffc300;
@@ -58,6 +67,11 @@
   --ink: #1a1a19;
   --card: #f4f1ea;
   --card-hi: #fdfaf3;
+  --well: #f4f1ea;
+  --piece: #e8e6df;
+  --lit-edge: #fffdf6;
+  --mid-tone: color-mix(in srgb, #1a1a19 78%, transparent);
+  --track: #cfc8bb;
   --dim: #6b665d;
   --hair: #b4aea2;
   --movies: #a3122b;
@@ -107,6 +121,10 @@
   --color-graphite: var(--graphite);
   --color-card: var(--card);
   --color-card-hi: var(--card-hi);
+  --color-well: var(--well);
+  --color-piece: var(--piece);
+  --color-mid-tone: var(--mid-tone);
+  --color-track: var(--track);
   --color-bone: var(--bone);
   --color-ink: var(--ink);
   --color-dim: var(--dim);

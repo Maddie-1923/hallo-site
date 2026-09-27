@@ -1,6 +1,6 @@
 import "server-only";
 import type { LibraryArchive, Movie, Show } from "./archive";
-import { genreNames, image, showDetail } from "./tmdb";
+import { genreNames, image, seasonEpisodes, showDetail } from "./tmdb";
 import type { SheetReview } from "@/components/ReviewSheet";
 
 // What a public profile page draws, worked out from a library. The page never
@@ -105,6 +105,9 @@ export interface TrackerShow extends ProfileTitle {
   /** Episodes aired so far in each season, from TMDB, season 1 first; null
       until filled in. */
   aired: number[] | null;
+  /** Episode names by "season-episode", for the season the next episode is
+      in and the one after, so the row can name it as the app does. */
+  episodeNames?: Record<string, string>;
 }
 
 export interface PublicProfileView {
@@ -349,7 +352,17 @@ export async function withAiredEpisodes(view: PublicProfileView): Promise<Public
         .filter((x) => x.season_number > 0 && x.season_number <= last.season_number)
         .sort((x, y) => x.season_number - y.season_number)
         .map((x) => (x.season_number === last.season_number ? last.episode_number : x.episode_count));
-      return { ...t, aired };
+      // The names for the next episode's season and the one after it (a
+      // check-off on the page can carry the row into the next season).
+      const seen = new Set(t.seen);
+      const lastSeen = Math.max(0, ...t.seen.map((k) => Number(k.split("-")[0])));
+      let season = aired.findIndex((n, i) => i + 1 >= lastSeen && Array.from({ length: n }, (_, e) => `${i + 1}-${e + 1}`).some((k) => !seen.has(k))) + 1;
+      if (season < 1) season = Math.max(1, lastSeen);
+      const episodeNames: Record<string, string> = {};
+      for (const n of [season, season + 1].filter((x) => x <= aired.length)) {
+        for (const e of await seasonEpisodes(Number(t.key.slice(1)), n)) episodeNames[`${n}-${e.episode_number}`] = e.name;
+      }
+      return { ...t, aired, episodeNames };
     }),
   );
   return { ...view, tracker: { ...view.tracker, shows } };

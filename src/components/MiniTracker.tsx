@@ -12,14 +12,13 @@ import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 // The owner gets a check on each row: mark the next episode watched, or mark
 // a film watched. Until accounts and the database exist this changes only the
 // page being looked at, to show how it behaves; nothing is saved.
-// Seven rows: what fills the column beside Favourites now that it has the
-// whole height; the rest is in the full tracker.
-const SHOWN = 7;
 
 export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; films: ProfileTitle[]; owner: boolean }) {
   const [tab, setTab] = useState<"show" | "movie">("show");
   const [seen, setSeen] = useState<Record<string, string[]>>(() => Object.fromEntries(shows.map((s) => [s.key, s.seen])));
   const [watchedFilms, setWatchedFilms] = useState<string[]>([]);
+  // Episodes set aside for later with the skip key, as "show:season-episode".
+  const [skipped, setSkipped] = useState<string[]>([]);
 
   const filmsLeft = films.filter((f) => !watchedFilms.includes(f.key));
 
@@ -49,53 +48,77 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
         </div>
       </div>
 
-      <div className="mt-3 mb-1 text-[11px] font-bold tracking-[.14em] uppercase text-dim">Up next</div>
+      <div className="mt-3 mb-2 text-[11px] font-bold tracking-[.14em] uppercase text-dim">Up next</div>
 
-      <ul className="m-0 p-0 list-none flex-1">
-        {tab === "show" &&
-          (shows.length === 0 ? (
-            <li className="text-sm text-dim py-3">Not in the middle of anything.</li>
-          ) : (
-            shows.slice(0, SHOWN).map((s, i) => {
-              const p = progress(s, seen[s.key] ?? []);
-              return (
+      {/* The list scrolls inside the card rather than making it taller: it is
+          laid over the space the card has, so its length never counts toward
+          the card's height, which Favourites beside it sets. */}
+      <div className="relative flex-1 min-h-[240px] -mx-1">
+        <ul className="absolute inset-0 overflow-y-auto overscroll-contain m-0 px-1 pb-1 list-none grid gap-3 content-start [scrollbar-width:thin]">
+          {tab === "show" &&
+            (shows.length === 0 ? (
+              <li className="text-sm text-dim py-3">Not in the middle of anything.</li>
+            ) : (
+              shows.map((s) => {
+                const p = progress(s, seen[s.key] ?? []);
+                const skippedHere = p.next ? skipped.includes(`${s.key}:${p.next.key}`) : false;
+                return (
+                  <Row
+                    key={s.key}
+                    t={s}
+                    lines={p.next ? [code(p.next.key), s.episodeNames?.[p.next.key] ?? ""] : [p.total ? "All caught up" : "In progress", ""]}
+                    bar={p.total ? { done: p.done, total: p.total } : null}
+                    keys={
+                      owner
+                        ? [
+                            { icon: <MoreGlyph />, label: `More for ${s.title}` },
+                            { icon: <RecapGlyph />, label: "Recap", off: true },
+                            {
+                              icon: <SkipGlyph />,
+                              label: p.next ? `Watch ${code(p.next.key)} later` : "Skip",
+                              on: skippedHere,
+                              off: !p.next,
+                              run: p.next ? () => setSkipped((k) => (skippedHere ? k.filter((x) => x !== `${s.key}:${p.next!.key}`) : [...k, `${s.key}:${p.next!.key}`])) : undefined,
+                            },
+                            {
+                              icon: <CheckGlyph />,
+                              label: p.next ? `Mark ${code(p.next.key)} of ${s.title} watched` : "Watched",
+                              off: !p.next,
+                              run: p.next ? () => setSeen((m) => ({ ...m, [s.key]: [...(m[s.key] ?? []), p.next!.key] })) : undefined,
+                            },
+                          ]
+                        : null
+                    }
+                  />
+                );
+              })
+            ))}
+          {tab === "movie" &&
+            (filmsLeft.length === 0 ? (
+              <li className="text-sm text-dim py-3">Nothing on the watchlist.</li>
+            ) : (
+              filmsLeft.map((f) => (
                 <Row
-                  key={s.key}
-                  first={i === 0}
-                  t={s}
-                  line={`${p.next ? `Up next ${p.next.label}` : p.total ? "All caught up" : "In progress"}${p.total ? ` · ${p.done} of ${p.total}` : ""}`}
-                  bar={p.total ? { done: p.done, total: p.total } : null}
-                  action={
-                    owner && p.next
-                      ? {
-                          label: `Mark ${p.next.label} of ${s.title} watched`,
-                          run: () => setSeen((m) => ({ ...m, [s.key]: [...(m[s.key] ?? []), p.next!.key] })),
-                        }
+                  key={f.key}
+                  t={f}
+                  lines={[f.year, "On the watchlist"]}
+                  bar={null}
+                  keys={
+                    owner
+                      ? [
+                          { icon: <MoreGlyph />, label: `More for ${f.title}` },
+                          { icon: <CheckGlyph />, label: `Mark ${f.title} watched`, run: () => setWatchedFilms((w) => [...w, f.key]) },
+                        ]
                       : null
                   }
                 />
-              );
-            })
-          ))}
-        {tab === "movie" &&
-          (filmsLeft.length === 0 ? (
-            <li className="text-sm text-dim py-3">Nothing on the watchlist.</li>
-          ) : (
-            filmsLeft.slice(0, SHOWN).map((f, i) => (
-              <Row
-                key={f.key}
-                first={i === 0}
-                t={f}
-                line={f.year ? `On the watchlist · ${f.year}` : "On the watchlist"}
-                bar={null}
-                action={owner ? { label: `Mark ${f.title} watched`, run: () => setWatchedFilms((w) => [...w, f.key]) } : null}
-              />
-            ))
-          ))}
-      </ul>
+              ))
+            ))}
+        </ul>
+      </div>
 
       {owner && (
-        <div className="pt-1.5 border-t border-hair text-right">
+        <div className="mt-2 pt-1.5 border-t border-hair text-right">
           <span className="text-[12.5px] font-semibold text-dim" title="The full tracker page comes with accounts on the web">
             Open tracker →
           </span>
@@ -105,50 +128,103 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
   );
 }
 
-function Row({
-  t,
-  line,
-  bar,
-  action,
-  first,
-}: {
-  t: ProfileTitle;
-  line: string;
-  bar: { done: number; total: number } | null;
-  action: { label: string; run: () => void } | null;
-  first: boolean;
-}) {
+/** "S01 | E03" for "1-3", as the app writes an episode. */
+function code(key: string) {
+  const [s, e] = key.split("-").map(Number);
+  return `S${String(s).padStart(2, "0")} | E${String(e).padStart(2, "0")}`;
+}
+
+type Key = { icon: React.ReactNode; label: string; run?: () => void; on?: boolean; off?: boolean };
+
+// One row of the app's list view (`WatchNextRow`): a card, and in it a
+// panel with the title's wide picture flush down its left and the show's
+// name, the episode's code and name, and the progress bar with its count;
+// under the panel, the owner's keys in a strip, sharing the width. Visitors
+// get the panel alone. The app's night colours: the card `kodigoWell`, the
+// panel and keys `kodigoRowPiece`, a lit top edge and a soft shadow.
+function Row({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null }) {
   return (
-    <li className={`flex items-center gap-3 py-[7px] ${first ? "" : "border-t border-hair"}`}>
-      <Link href={t.href} className="w-[76px] aspect-video rounded-[6px] overflow-hidden bg-card-hi shrink-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {(t.backdrop ?? t.poster) && <img src={(t.backdrop ?? t.poster)!} alt="" className="w-full h-full object-cover" />}
-      </Link>
-      <div className="min-w-0 flex-1">
-        <Link href={t.href} className="block text-[14px] leading-[19px] font-semibold text-ink truncate no-underline hover:text-accent">
-          {t.title}
+    <li className="rounded-[16px] bg-well p-2 grid gap-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
+      <div className="h-[100px] rounded-[12px] bg-piece flex gap-3 overflow-hidden">
+        <Link href={t.href} className="w-[153px] shrink-0 h-full rounded-[12px] overflow-hidden border border-hair bg-card">
+          {(t.backdrop ?? t.poster) && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={(t.backdrop ?? t.poster)!} alt="" className="w-full h-full object-cover" />
+          )}
         </Link>
-        <div className="text-[12.5px] leading-[17px] text-dim truncate">{line}</div>
-        {bar && (
-          <span className="block mt-1.5 h-[2px] rounded-full bg-card-hi overflow-hidden">
-            <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
-          </span>
-        )}
+        <div className="min-w-0 flex-1 flex flex-col py-2 pr-2">
+          <Link href={t.href} className="block pt-0.5 text-[15px] leading-[20px] font-semibold text-ink truncate no-underline hover:text-accent">
+            {t.title}
+          </Link>
+          <div className="mt-0.5 text-[15px] leading-[20px] text-mid-tone truncate">{lines[0]}</div>
+          {lines[1] && <div className="text-[15px] leading-[20px] text-dim truncate">{lines[1]}</div>}
+          {bar && (
+            <div className="mt-auto flex items-center gap-2">
+              <span className="flex-1 h-[2px] rounded-full bg-track overflow-hidden">
+                <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
+              </span>
+              <span className="text-[12px] leading-none text-dim whitespace-nowrap tabular-nums">
+                {bar.done}/{bar.total}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
-      {action && (
-        <button
-          type="button"
-          onClick={action.run}
-          aria-label={action.label}
-          title={action.label}
-          className="w-8 h-8 rounded-full border border-hair text-dim hover:bg-accent-fill hover:text-on-accent hover:border-accent-fill flex items-center justify-center cursor-pointer transition-colors shrink-0"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M5 12l5 5L20 7" />
-          </svg>
-        </button>
+      {keys && (
+        <div className="flex gap-2">
+          {keys.map((k) => (
+            <button
+              key={k.label}
+              type="button"
+              onClick={k.run}
+              disabled={k.off || !k.run}
+              aria-label={k.label}
+              aria-pressed={k.on}
+              title={k.label}
+              className={`flex-1 h-10 rounded-[10px] flex items-center justify-center transition-colors ${k.on ? "bg-[#D9BC52] text-[#F0EFE9]" : "bg-piece text-dim enabled:hover:text-ink"} ${k.off ? "opacity-35" : ""} enabled:cursor-pointer`}
+            >
+              {k.icon}
+            </button>
+          ))}
+        </div>
       )}
     </li>
+  );
+}
+
+// The keys' glyphs, drawn to match the SF Symbols the app uses (SF Symbols
+// are licensed for Apple platforms only): ellipsis, captions.bubble,
+// forward.end and checkmark.
+function MoreGlyph() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <circle cx="5" cy="12" r="1.8" />
+      <circle cx="12" cy="12" r="1.8" />
+      <circle cx="19" cy="12" r="1.8" />
+    </svg>
+  );
+}
+function RecapGlyph() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M4 5h16a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 17h-9l-4.5 3.5V17H4a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 4 5z" />
+      <path d="M6.5 10h4M13 10h4.5M6.5 13h7M15.5 13h2" />
+    </svg>
+  );
+}
+function SkipGlyph() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" aria-hidden>
+      <path d="M5 5.5v13l10-6.5z" />
+      <path d="M18.5 5.5v13" strokeLinecap="round" />
+    </svg>
+  );
+}
+function CheckGlyph() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M4.5 12.5l5 5L19.5 7" />
+    </svg>
   );
 }
 
