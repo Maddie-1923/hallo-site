@@ -15,9 +15,10 @@ export interface ProfileSection {
 // reload or a shared link opens on the same tab.
 // `aside`, when given, stands beside the section's shell on a wide screen,
 // its top level with the shell's rather than with the tabs, on the same
-// column widths as the profile's grid above so the edges line up. It keeps
-// one fixed height and scrolls away with the page like everything else (its
-// own list scrolls inside). On a phone it comes before the tabs.
+// column widths as the profile's grid above so the edges line up, and as
+// tall as the shell, so the two end on the same line whichever tab is open
+// (its own list scrolls inside; a short tab still leaves it room for a few
+// rows). On a phone it comes before the tabs, at a fixed height.
 export function ProfileSections({ sections, className = "mt-10", aside }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode }) {
   const [current, setCurrent] = useState(sections[0].id);
 
@@ -41,7 +42,7 @@ export function ProfileSections({ sections, className = "mt-10", aside }: { sect
   return (
     <section className={`${className} ${aside ? "grid gap-x-5 gap-y-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]" : ""}`}>
       {aside && (
-        <div className="lg:col-start-2 lg:row-start-2 lg:self-start h-[640px] flex flex-col">{aside}</div>
+        <div className="lg:col-start-2 lg:row-start-2 max-lg:h-[640px] lg:min-h-[480px] flex flex-col">{aside}</div>
       )}
       <div className="lg:col-start-1 lg:row-start-1 min-w-0">
       <div
