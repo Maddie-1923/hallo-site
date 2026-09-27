@@ -18,6 +18,12 @@ import { Menu } from "./Menu";
 // (The app still draws a four-poster collage; this is to try on the web
 // first and carry over after.)
 //
+// The owner decides who sees each category with the eye on its tile: open,
+// everyone; struck through, only them. Everything starts public except On
+// Hold and Stopped Watching, which start private. Kept in this browser until
+// accounts exist; then it is stored with the library and the server leaves
+// private categories out of everyone else's page.
+//
 // The owner also gets a New category tile at the end, the app's "Create
 // Custom List": a name, a line about it, and titles picked from their
 // library. Until accounts exist, what they make is kept in this browser.
@@ -55,6 +61,23 @@ export function ProfileCategories({ categories: given, owner = false, username =
   const [pictures, setPictures] = useState<Record<string, string>>({});
   const [choosing, setChoosing] = useState<CategoryEntry | null>(null);
   const pictureKey = `kodigo.category-pictures.${username}`;
+  const [privacy, setPrivacy] = useState<Record<string, boolean>>({});
+  const privacyKey = `kodigo.category-private.${username}`;
+  useEffect(() => {
+    if (!owner) return;
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPrivacy(JSON.parse(localStorage.getItem(privacyKey) ?? "{}"));
+    } catch {}
+  }, [owner, privacyKey]);
+  const isPrivate = (c: CategoryEntry) => privacy[c.id] ?? !!c.ownerOnly;
+  function togglePrivate(c: CategoryEntry) {
+    const next = { ...privacy, [c.id]: !isPrivate(c) };
+    setPrivacy(next);
+    try {
+      localStorage.setItem(privacyKey, JSON.stringify(next));
+    } catch {}
+  }
 
   useEffect(() => {
     if (!owner) return;
@@ -99,7 +122,15 @@ export function ProfileCategories({ categories: given, owner = false, username =
       </div>
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
         {arranged(categories, sort).map((c) => (
-          <CategoryTile key={c.id} c={c} picture={pictureFor(c, pictures[c.id])} onOpen={() => setOpen(c)} onChoose={owner ? () => setChoosing(c) : undefined} />
+          <CategoryTile
+            key={c.id}
+            c={c}
+            picture={pictureFor(c, pictures[c.id])}
+            onOpen={() => setOpen(c)}
+            onChoose={owner ? () => setChoosing(c) : undefined}
+            hidden={isPrivate(c)}
+            onToggleHidden={owner ? () => togglePrivate(c) : undefined}
+          />
         ))}
         {owner && <NewCategoryTile onClick={() => setCreating(true)} />}
       </div>
@@ -141,7 +172,22 @@ function pictureFor(c: CategoryEntry, picked: string | undefined) {
   return t ? (t.backdrop ?? t.poster) : null;
 }
 
-function CategoryTile({ c, picture, onOpen, onChoose }: { c: CategoryEntry; picture: string | null; onOpen: () => void; onChoose?: () => void }) {
+function CategoryTile({
+  c,
+  picture,
+  onOpen,
+  onChoose,
+  hidden,
+  onToggleHidden,
+}: {
+  c: CategoryEntry;
+  picture: string | null;
+  onOpen: () => void;
+  onChoose?: () => void;
+  hidden: boolean;
+  onToggleHidden?: () => void;
+}) {
+  const chip = "w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center cursor-pointer";
   return (
     <div className="relative group">
       <button type="button" onClick={onOpen} className="w-full text-left rounded-[20px] bg-card-hi overflow-hidden cursor-pointer">
@@ -155,9 +201,9 @@ function CategoryTile({ c, picture, onOpen, onChoose }: { c: CategoryEntry; pict
           <span className="block display text-[22px] leading-none tracking-[.02em] uppercase truncate group-hover:text-accent transition-colors">{c.name}</span>
           <span className="flex items-center gap-1.5 mt-1 text-[12.5px] text-dim">
             {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
-            {/* On Hold and Stopped Watching reach only the owner's own page;
-                the lock tells them nobody else sees these. */}
-            {c.ownerOnly && (
+            {/* A private category reaches only the owner's own page; the lock
+                tells them nobody else sees it. */}
+            {hidden && (
               <span className="inline-flex items-center gap-1" title="Only you can see this">
                 <span aria-hidden>·</span>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -170,18 +216,43 @@ function CategoryTile({ c, picture, onOpen, onChoose }: { c: CategoryEntry; pict
           </span>
         </span>
       </button>
-      {onChoose && (
-        <button
-          type="button"
-          onClick={onChoose}
-          aria-label={`Choose the picture for ${c.name}`}
-          title="Choose the picture"
-          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/55 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer [@media(hover:none)]:opacity-100"
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
-          </svg>
-        </button>
+      {/* The owner's two controls, over the picture's corner: who can see
+          the category, and its picture. They come up with the pointer, and
+          stay up on a touch screen where there is no pointer. The eye stays
+          up while the category is private, so the choice is never out of
+          sight. */}
+      {(onToggleHidden || onChoose) && (
+        <div className="absolute top-3 right-3 flex gap-1.5">
+          {onToggleHidden && (
+            <button
+              type="button"
+              onClick={onToggleHidden}
+              aria-pressed={hidden}
+              aria-label={hidden ? `${c.name} is private. Make it public` : `${c.name} is public. Make it private`}
+              title={hidden ? "Private: only you can see it" : "Public: everyone can see it"}
+              className={`${chip} ${hidden ? "" : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity [@media(hover:none)]:opacity-100"}`}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+                <circle cx="12" cy="12" r="3" />
+                {hidden && <path d="M3 3l18 18" />}
+              </svg>
+            </button>
+          )}
+          {onChoose && (
+            <button
+              type="button"
+              onClick={onChoose}
+              aria-label={`Choose the picture for ${c.name}`}
+              title="Choose the picture"
+              className={`${chip} opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity [@media(hover:none)]:opacity-100`}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
+              </svg>
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
