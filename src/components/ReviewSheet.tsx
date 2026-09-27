@@ -134,9 +134,9 @@ function shortDate(date: string) {
 }
 
 // The top of a review, in the sheet and on the Reviews tab alike. On the
-// left, who wrote it (their photo, then their name), the title and, for a
-// series, the episode; on the right, the date level with the byline and the
-// stars under it. Whether it was a rewatch is in the byline's verb.
+// left, who wrote it (their photo, then their name), the title, for a
+// series the episode, and the stars; on the right, the date level with the
+// byline. Whether it was a rewatch is in the byline's verb.
 export function ReviewHeading({
   username,
   avatar,
@@ -178,15 +178,17 @@ export function ReviewHeading({
         {/* For a series, the episode sits under the show's name, the way a
             TV guide sets it. */}
         {r.episodes && <EpisodeLine episode={r.episodes} name={r.episodeTitle} />}
-      </div>
-      <div className="shrink-0 flex flex-col items-end">
-        {/* As tall as the byline's photo, so the date sits level with the name. */}
-        <span className="h-7 flex items-center text-dim text-[12.5px] leading-none">{r.date ? shortDate(r.date) : ""}</span>
+        {/* The stars under the title (and episode), so a long title has the
+            card's width to run across. */}
         {r.rating != null && (
           <div className="mt-2.5 flex">
             <RatingMarks value={r.rating} size={12} />
           </div>
         )}
+      </div>
+      <div className="shrink-0 flex flex-col items-end">
+        {/* As tall as the byline's photo, so the date sits level with the name. */}
+        <span className="h-7 flex items-center text-dim text-[12.5px] leading-none">{r.date ? shortDate(r.date) : ""}</span>
       </div>
     </div>
   );
