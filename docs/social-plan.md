@@ -105,7 +105,11 @@ what Pro gates.
   - Categories as the app's profile grid has them: the eight built-in ones
     (Shows, Movies, Up to Date, Finished, On Hold, Stopped Watching,
     Favorites, Rewatched) then the person's lists, as collage tiles that open
-    a sheet; empty ones are left off;
+    a sheet; empty ones are left off. Each tile shows one wide picture, the
+    title added last, which the owner can change; the owner also has a New
+    category tile (name, description, titles from their library). Both are
+    kept in the browser until accounts exist, then saved to the library so
+    the app gets them;
   - Favourites the owner can edit (saved in the browser for now).
   - a review sheet that opens from the Watchlog, and a mock-up of a review's
     own page (`/u/preview/review/<title key>`) with its link preview
@@ -268,6 +272,17 @@ redeploy. This is outward-facing, so ask first.
 **iOS update:** feed, members' reviews on title pages, profiles, follow, like,
 comment, report and block, and Pro from a web purchase. It goes through App
 Review. Android picks the same up when it resumes.
+
+## For the apps (from the website's design)
+
+- **Category pictures:** one wide picture per category instead of the
+  four-poster collage; the title added last by default, changeable by the
+  owner. The archive needs a field for the chosen picture of every category,
+  built-in ones included (today only a list's cover is stored).
+- **Category order:** the owner's arrangement (`kodigo.profileShelfOrder`)
+  moves into the archive so the website can show it.
+- **Visibility:** On Hold and Stopped Watching are only ever shown to the
+  owner.
 
 ## Later
 

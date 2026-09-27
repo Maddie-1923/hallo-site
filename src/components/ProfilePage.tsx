@@ -92,7 +92,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             id: "categories",
             label: "Categories",
             count: v.categories.length,
-            content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} /> : <Empty>Nothing in any category yet.</Empty>,
+            content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} library={v.owner ? [...v.owner.shows, ...v.owner.films] : []} /> : <Empty>Nothing in any category yet.</Empty>,
           },
           {
             id: "favourites",

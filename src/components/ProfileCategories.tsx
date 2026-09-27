@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import type { CategoryEntry } from "@/lib/public-profile";
+import type { CategoryEntry, ProfileTitle } from "@/lib/public-profile";
 import { Menu } from "./Menu";
 
 // The profile's Categories: the eight the app ships, in its order, then the
@@ -18,10 +18,38 @@ import { Menu } from "./Menu";
 // (The app still draws a four-poster collage; this is to try on the web
 // first and carry over after.)
 //
+// The owner also gets a New category tile at the end, the app's "Create
+// Custom List": a name, a line about it, and titles picked from their
+// library. Until accounts exist, what they make is kept in this browser.
+//
 // The order menu is the app's (`ProfileShelfSort`) less Custom, which is the
 // owner's drag order and lives on their phone; its place is taken by the
 // app's own order. A reader's choice is kept in this browser.
-export function ProfileCategories({ categories, owner = false, username = "" }: { categories: CategoryEntry[]; owner?: boolean; username?: string }) {
+export function ProfileCategories({ categories: given, owner = false, username = "", library = [] }: { categories: CategoryEntry[]; owner?: boolean; username?: string; library?: ProfileTitle[] }) {
+  const [made, setMade] = useState<MadeCategory[]>([]);
+  const [creating, setCreating] = useState(false);
+  const madeKey = `kodigo.made-categories.${username}`;
+  useEffect(() => {
+    if (!owner) return;
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMade(JSON.parse(localStorage.getItem(madeKey) ?? "[]"));
+    } catch {}
+  }, [owner, madeKey]);
+  function saveMade(next: MadeCategory[]) {
+    setMade(next);
+    try {
+      localStorage.setItem(madeKey, JSON.stringify(next));
+    } catch {}
+  }
+  const byKey = new Map(library.map((t) => [t.key, t]));
+  const categories: CategoryEntry[] = [
+    ...given,
+    ...made.map((m) => {
+      const titles = m.keys.map((k) => byKey.get(k)).filter((t): t is ProfileTitle => !!t);
+      return { id: m.id, name: m.name, detail: m.detail, custom: true, titles, latest: titles.at(-1)?.key ?? null };
+    }),
+  ];
   const [sort, setSort] = useState<SortId>("app");
   const [open, setOpen] = useState<CategoryEntry | null>(null);
   const [pictures, setPictures] = useState<Record<string, string>>({});
@@ -73,8 +101,32 @@ export function ProfileCategories({ categories, owner = false, username = "" }: 
         {arranged(categories, sort).map((c) => (
           <CategoryTile key={c.id} c={c} picture={pictureFor(c, pictures[c.id])} onOpen={() => setOpen(c)} onChoose={owner ? () => setChoosing(c) : undefined} />
         ))}
+        {owner && <NewCategoryTile onClick={() => setCreating(true)} />}
       </div>
-      {open && <CategorySheet c={open} onClose={() => setOpen(null)} />}
+      {open && (
+        <CategorySheet
+          c={open}
+          onClose={() => setOpen(null)}
+          onDelete={
+            made.some((m) => m.id === open.id)
+              ? () => {
+                  saveMade(made.filter((m) => m.id !== open.id));
+                  setOpen(null);
+                }
+              : undefined
+          }
+        />
+      )}
+      {creating && (
+        <NewCategorySheet
+          library={library}
+          onCreate={(m) => {
+            saveMade([...made, m]);
+            setCreating(false);
+          }}
+          onClose={() => setCreating(false)}
+        />
+      )}
       {choosing && <PicturePicker c={choosing} current={pictures[choosing.id] ?? null} onChoose={(key) => choosePicture(choosing.id, key)} onClose={() => setChoosing(null)} />}
     </div>
   );
@@ -179,7 +231,7 @@ function PicturePicker({ c, current, onChoose, onClose }: { c: CategoryEntry; cu
 
 // A category opened: its posters in a grid, each going to its title page.
 // Laid out like the review sheet: one 16px inset, closing the same ways.
-function CategorySheet({ c, onClose }: { c: CategoryEntry; onClose: () => void }) {
+function CategorySheet({ c, onClose, onDelete }: { c: CategoryEntry; onClose: () => void; onDelete?: () => void }) {
   useEffect(() => {
     const onKey = (k: KeyboardEvent) => k.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -200,6 +252,13 @@ function CategorySheet({ c, onClose }: { c: CategoryEntry; onClose: () => void }
               {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
             </div>
             {c.detail && <p className="m-0 mt-3 text-[13.5px] leading-[1.5] text-bone">{c.detail}</p>}
+            {/* The app's wording: a category is a way of grouping titles, not
+                a place they live, so deleting one loses nothing tracked. */}
+            {onDelete && (
+              <button type="button" onClick={() => confirm(`Delete ${c.name}? Everything in it stays tracked.`) && onDelete()} className="mt-3 text-[12.5px] text-dim hover:text-loved cursor-pointer">
+                Delete category
+              </button>
+            )}
           </div>
           <button type="button" onClick={onClose} aria-label="Close" autoFocus className="shrink-0 w-9 h-9 rounded-full bg-card-hi hover:bg-hair text-ink flex items-center justify-center cursor-pointer">
             <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="block">
@@ -294,5 +353,113 @@ function SortMenu({ sort, onChoose }: { sort: SortId; onChoose: (id: SortId) => 
         ))}
       </div>
     </Menu>
+  );
+}
+
+/** A category the owner made on the web, kept in this browser for now. */
+interface MadeCategory {
+  id: string;
+  name: string;
+  detail: string | null;
+  /** Title keys, in the order they were picked. */
+  keys: string[];
+}
+
+// The last tile, for the owner only: the app's "Create Custom List" tile.
+function NewCategoryTile({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="group text-left rounded-[20px] border-2 border-dashed border-hair hover:border-accent transition-colors cursor-pointer flex flex-col">
+      <span className="aspect-video flex items-center justify-center text-dim group-hover:text-accent transition-colors">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </span>
+      <span className="block px-3 pt-2.5 pb-3">
+        <span className="block display text-[22px] leading-none tracking-[.02em] uppercase group-hover:text-accent transition-colors">New category</span>
+        <span className="block mt-1 text-[12.5px] text-dim">Your own shelf</span>
+      </span>
+    </button>
+  );
+}
+
+// Making a category: its name, a line about what it's for, and the titles
+// in it, picked from the owner's library with a search to narrow it.
+function NewCategorySheet({ library, onCreate, onClose }: { library: ProfileTitle[]; onCreate: (m: MadeCategory) => void; onClose: () => void }) {
+  const [name, setName] = useState("");
+  const [detail, setDetail] = useState("");
+  const [query, setQuery] = useState("");
+  const [keys, setKeys] = useState<string[]>([]);
+  useEffect(() => {
+    const onKey = (k: KeyboardEvent) => k.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+    };
+  }, [onClose]);
+  const shown = library.filter((t) => t.title.toLowerCase().includes(query.trim().toLowerCase()));
+  const toggle = (k: string) => setKeys((ks) => (ks.includes(k) ? ks.filter((x) => x !== k) : [...ks, k]));
+  const ready = name.trim().length > 0;
+  const field = "w-full rounded-[12px] bg-card-hi border border-hair px-3 py-2 text-[14px] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
+  return createPortal(
+    <div role="dialog" aria-modal="true" aria-label="New category" className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
+      <form
+        className="w-full sm:max-w-[760px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px] bg-card border border-hair shadow-2xl"
+        onClick={(x) => x.stopPropagation()}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (ready) onCreate({ id: `list:web-${Date.now().toString(36)}`, name: name.trim(), detail: detail.trim() || null, keys });
+        }}
+      >
+        <div className="p-4 border-b border-hair grid gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="!text-[clamp(26px,3vw,34px)] !leading-[.95]">New category</h3>
+            <button type="button" onClick={onClose} aria-label="Close" className="shrink-0 w-9 h-9 rounded-full bg-card-hi hover:bg-hair text-ink flex items-center justify-center cursor-pointer">
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="block">
+                <path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+          <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" aria-label="Name" maxLength={60} className={field} />
+          <input value={detail} onChange={(e) => setDetail(e.target.value)} placeholder="What this category is for (optional)" aria-label="Description" maxLength={140} className={field} />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search your library" aria-label="Search your library" className={field} />
+        </div>
+        <div className="p-4 overflow-y-auto grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(96px,1fr))]">
+          {shown.map((t) => {
+            const on = keys.includes(t.key);
+            return (
+              <button key={t.key} type="button" aria-pressed={on} onClick={() => toggle(t.key)} className="group text-left cursor-pointer">
+                <span className={`relative block aspect-[2/3] rounded-[10px] overflow-hidden bg-card-hi border-2 transition-colors ${on ? "border-accent" : "border-transparent group-hover:border-hair"}`}>
+                  {t.poster && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={t.poster} alt="" loading="lazy" className="w-full h-full object-cover" />
+                  )}
+                  {on && (
+                    <span className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-accent-fill text-on-accent flex items-center justify-center">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <path d="M5 12l5 5L20 7" />
+                      </svg>
+                    </span>
+                  )}
+                </span>
+                <span className="block mt-1.5 text-[12px] leading-tight truncate text-ink">{t.title}</span>
+              </button>
+            );
+          })}
+          {shown.length === 0 && <p className="col-span-full m-0 text-[13px] text-dim">Nothing in your library matches.</p>}
+        </div>
+        <div className="p-4 border-t border-hair flex items-center justify-between gap-3">
+          <span className="text-[12.5px] text-dim">
+            {keys.length} {keys.length === 1 ? "title" : "titles"} picked
+          </span>
+          <button type="submit" disabled={!ready} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+            Create
+          </button>
+        </div>
+      </form>
+    </div>,
+    document.body,
   );
 }
