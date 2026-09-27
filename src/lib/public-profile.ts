@@ -79,12 +79,16 @@ export interface CategoryEntry {
   name: string;
   /** A list's one line about itself. */
   detail?: string | null;
-  /** Everything in it, for the sheet that opens from the tile. The tile's
-      collage is the first four posters. */
+  /** Everything in it, for the sheet that opens from the tile. */
   titles: ProfileTitle[];
-  /** A list's chosen cover, when it is a poster (an uploaded photo lives on
-      the phone and doesn't travel). */
-  cover?: string | null;
+  /** The title whose picture the tile shows unless the owner picks another:
+      the one added last. (A list doesn't record when each title joined it,
+      so for a list it is the one most recently added to the library.) */
+  latest?: string | null;
+  /** The title the owner chose for the picture, by key. From the app, a
+      list's poster cover is matched back to its title; an uploaded photo
+      lives on the phone and doesn't travel. */
+  chosen?: string | null;
   /** A list the person made, rather than one of the eight. */
   custom: boolean;
   /** A made-up list on the local preview, to be removed before opening. */
@@ -408,18 +412,24 @@ function categoriesFromArchive(a: LibraryArchive): CategoryEntry[] {
     .sort((x, y) => (order.get(x.id) ?? 1e9) - (order.get(y.id) ?? 1e9))
     .map((l) => {
       const cover = (l as { cover?: { poster?: { _0?: string } } }).cover?.poster?._0;
+      const coverTitle = cover ? [...(l.showIDs ?? []).map((id) => shows.get(id)), ...(l.movieIDs ?? []).map((id) => movies.get(id))].find((x) => x?.poster_path === cover) : undefined;
       return {
         id: `list:${l.id}`,
         name: l.name,
         detail: l.detail ?? null,
         custom: true,
-        cover: cover ? image.poster(cover, "w500") : null,
+        chosen: coverTitle ? ("name" in coverTitle ? `s${coverTitle.id}` : `m${coverTitle.id}`) : null,
         titles: [...(l.showIDs ?? []).map((id) => shows.get(id)), ...(l.movieIDs ?? []).map((id) => movies.get(id))]
           .filter((x): x is Show | Movie => !!x)
           .map((x) => ("name" in x ? showTitle(x) : movieTitle(x))),
       };
     });
-  return [...builtIns, ...lists].filter((c) => c.titles.length > 0);
+  // The last added of each, for its tile's picture. The library's own
+  // "added" stamp decides; Rewatched is already newest night first.
+  const added = new Map<string, string>([...a.shows.map((t) => [`s${t.show.id}`, t.added ?? t.modified ?? ""] as const), ...a.movies.map((t) => [`m${t.movie.id}`, t.added ?? t.modified ?? ""] as const)]);
+  const latest = (c: CategoryEntry) =>
+    c.id === "rewatched" ? c.titles[0]?.key : [...c.titles].sort((x, y) => (added.get(y.key) ?? "").localeCompare(added.get(x.key) ?? ""))[0]?.key;
+  return [...builtIns, ...lists].filter((c) => c.titles.length > 0).map((c) => ({ ...c, latest: latest(c) ?? null }));
 }
 
 /**
@@ -454,6 +464,8 @@ export async function withUpToDate(view: PublicProfileView, a: LibraryArchive): 
   const categories = [...view.categories];
   // Third, after Shows and Movies, where the app puts it.
   const at = categories.findIndex((c) => c.id !== "shows" && c.id !== "movies");
-  categories.splice(at < 0 ? categories.length : at, 0, { id: "upToDate", name: "Up to Date", custom: false, titles: upToDate });
+  const added = new Map(a.shows.map((t) => [`s${t.show.id}`, t.added ?? t.modified ?? ""]));
+  const latest = [...upToDate].sort((x, y) => (added.get(y.key) ?? "").localeCompare(added.get(x.key) ?? ""))[0]?.key ?? null;
+  categories.splice(at < 0 ? categories.length : at, 0, { id: "upToDate", name: "Up to Date", custom: false, titles: upToDate, latest });
   return { ...view, categories };
 }

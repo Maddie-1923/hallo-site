@@ -6,19 +6,46 @@ import { createPortal } from "react-dom";
 import type { CategoryEntry } from "@/lib/public-profile";
 import { Menu } from "./Menu";
 
-// The profile's Categories, as the app's profile grid draws them: a square
-// tile each, four posters in a two-by-two collage (or the list's own cover),
-// flush with the card at the top and rounded at the foot, with the name in
-// the display face underneath and the count below it in the muted tone. The
-// eight the app ships come first in its order, then the person's own lists.
-// A tile opens its contents in a sheet over the page.
+// The profile's Categories: the eight the app ships, in its order, then the
+// person's own lists. A tile each, with one wide picture flush with the card
+// at the top and rounded at the foot, the name in the display face under it
+// and the count below in the muted tone. A tile opens its contents in a
+// sheet over the page.
+//
+// The picture is the title added last, unless the owner has chosen another
+// from what's in the category (the pencil on the tile). Until accounts exist
+// the choice is kept in this browser, as the Watchlog's month pictures are.
+// (The app still draws a four-poster collage; this is to try on the web
+// first and carry over after.)
 //
 // The order menu is the app's (`ProfileShelfSort`) less Custom, which is the
 // owner's drag order and lives on their phone; its place is taken by the
 // app's own order. A reader's choice is kept in this browser.
-export function ProfileCategories({ categories }: { categories: CategoryEntry[] }) {
+export function ProfileCategories({ categories, owner = false, username = "" }: { categories: CategoryEntry[]; owner?: boolean; username?: string }) {
   const [sort, setSort] = useState<SortId>("app");
   const [open, setOpen] = useState<CategoryEntry | null>(null);
+  const [pictures, setPictures] = useState<Record<string, string>>({});
+  const [choosing, setChoosing] = useState<CategoryEntry | null>(null);
+  const pictureKey = `kodigo.category-pictures.${username}`;
+
+  useEffect(() => {
+    if (!owner) return;
+    try {
+      // This browser's saved choices, read after mount: the server can't see them.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPictures(JSON.parse(localStorage.getItem(pictureKey) ?? "{}"));
+    } catch {}
+  }, [owner, pictureKey]);
+  function choosePicture(id: string, titleKey: string | null) {
+    const next = { ...pictures };
+    if (titleKey) next[id] = titleKey;
+    else delete next[id];
+    setPictures(next);
+    try {
+      localStorage.setItem(pictureKey, JSON.stringify(next));
+    } catch {}
+    setChoosing(null);
+  }
 
   useEffect(() => {
     try {
@@ -42,58 +69,111 @@ export function ProfileCategories({ categories }: { categories: CategoryEntry[] 
         </span>
         <SortMenu sort={sort} onChoose={chooseSort} />
       </div>
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(170px,1fr))]">
+      <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
         {arranged(categories, sort).map((c) => (
-          <CategoryTile key={c.id} c={c} onOpen={() => setOpen(c)} />
+          <CategoryTile key={c.id} c={c} picture={pictureFor(c, pictures[c.id])} onOpen={() => setOpen(c)} onChoose={owner ? () => setChoosing(c) : undefined} />
         ))}
       </div>
       {open && <CategorySheet c={open} onClose={() => setOpen(null)} />}
+      {choosing && <PicturePicker c={choosing} current={pictures[choosing.id] ?? null} onChoose={(key) => choosePicture(choosing.id, key)} onClose={() => setChoosing(null)} />}
     </div>
   );
 }
 
-function CategoryTile({ c, onOpen }: { c: CategoryEntry; onOpen: () => void }) {
-  const four = c.titles.slice(0, 4);
+/** The wide picture for a tile: the owner's pick in this browser, else the
+    one chosen in the app, else the title added last; a still where there is
+    one, the poster where not. */
+function pictureFor(c: CategoryEntry, picked: string | undefined) {
+  const find = (key: string | null | undefined) => (key ? c.titles.find((t) => t.key === key) : undefined);
+  const t = find(picked) ?? find(c.chosen) ?? find(c.latest) ?? c.titles.find((x) => x.backdrop) ?? c.titles[0];
+  return t ? (t.backdrop ?? t.poster) : null;
+}
+
+function CategoryTile({ c, picture, onOpen, onChoose }: { c: CategoryEntry; picture: string | null; onOpen: () => void; onChoose?: () => void }) {
   return (
-    <button type="button" onClick={onOpen} className="group text-left rounded-[20px] bg-card-hi overflow-hidden cursor-pointer">
-      {/* The collage stays underneath a cover, so a cover that fails to load
-          uncovers the posters rather than a hole (as in the app). Every
-          poster is anchored at its top, where its title and faces are. */}
-      <span className="relative block aspect-square rounded-b-[8px] overflow-hidden">
-        <span className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-[2px]">
-          {Array.from({ length: 4 }, (_, i) => (
-            <span key={i} className="block bg-card overflow-hidden">
-              {four[i]?.poster && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={four[i].poster!} alt="" loading="lazy" className="w-full h-full object-cover object-top" />
-              )}
-            </span>
-          ))}
-        </span>
-        {c.cover && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={c.cover} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover object-top" />
-        )}
-      </span>
-      <span className="block px-3 pt-2.5 pb-3">
-        <span className="block display text-[22px] leading-none tracking-[.02em] uppercase truncate group-hover:text-accent transition-colors">{c.name}</span>
-        <span className="flex items-center gap-1.5 mt-1 text-[12.5px] text-dim">
-          {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
-          {/* On Hold and Stopped Watching reach only the owner's own page;
-              the lock tells them nobody else sees these. */}
-          {c.ownerOnly && (
-            <span className="inline-flex items-center gap-1" title="Only you can see this">
-              <span aria-hidden>·</span>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <rect x="5" y="11" width="14" height="10" rx="2" />
-                <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-              </svg>
-              Only you
-            </span>
+    <div className="relative group">
+      <button type="button" onClick={onOpen} className="w-full text-left rounded-[20px] bg-card-hi overflow-hidden cursor-pointer">
+        <span className="block aspect-video rounded-b-[8px] overflow-hidden bg-card">
+          {picture && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={picture} alt="" loading="lazy" className="w-full h-full object-cover" />
           )}
         </span>
-      </span>
-    </button>
+        <span className="block px-3 pt-2.5 pb-3">
+          <span className="block display text-[22px] leading-none tracking-[.02em] uppercase truncate group-hover:text-accent transition-colors">{c.name}</span>
+          <span className="flex items-center gap-1.5 mt-1 text-[12.5px] text-dim">
+            {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
+            {/* On Hold and Stopped Watching reach only the owner's own page;
+                the lock tells them nobody else sees these. */}
+            {c.ownerOnly && (
+              <span className="inline-flex items-center gap-1" title="Only you can see this">
+                <span aria-hidden>·</span>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <rect x="5" y="11" width="14" height="10" rx="2" />
+                  <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                </svg>
+                Only you
+              </span>
+            )}
+          </span>
+        </span>
+      </button>
+      {onChoose && (
+        <button
+          type="button"
+          onClick={onChoose}
+          aria-label={`Choose the picture for ${c.name}`}
+          title="Choose the picture"
+          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/55 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer [@media(hover:none)]:opacity-100"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Choosing a category's picture from the titles in it, or going back to the
+// automatic one (the title added last).
+function PicturePicker({ c, current, onChoose, onClose }: { c: CategoryEntry; current: string | null; onChoose: (key: string | null) => void; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  const titles = c.titles.filter((t) => t.backdrop);
+  return createPortal(
+    <div role="dialog" aria-modal="true" aria-label={`Picture for ${c.name}`} className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-[28px] bg-card border border-hair shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="p-4 border-b border-hair flex items-center justify-between gap-3">
+          <div className="display text-[24px] leading-none">Picture for {c.name}</div>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => onChoose(null)} className={`text-[12.5px] cursor-pointer ${current ? "text-dim hover:text-ink" : "text-accent font-semibold"}`}>
+              Last added
+            </button>
+            <button type="button" onClick={onClose} aria-label="Close" className="w-9 h-9 rounded-full bg-card-hi hover:bg-hair text-ink flex items-center justify-center cursor-pointer">
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="block">
+                <path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div className="p-4 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {titles.map((t) => (
+            <button key={t.key} type="button" onClick={() => onChoose(t.key)} className="text-left cursor-pointer group">
+              <span className={`block aspect-video rounded-[10px] overflow-hidden bg-card-hi border transition-colors ${t.key === current ? "border-accent" : "border-hair group-hover:border-accent"}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={t.backdrop!} alt="" className="w-full h-full object-cover" />
+              </span>
+              <span className="block mt-1 text-[12px] text-ink truncate">{t.title}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
