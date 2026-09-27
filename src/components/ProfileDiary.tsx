@@ -241,7 +241,7 @@ function MonthCard({
                 ["Episodes", episodes],
               ] as const
             ).map(([label, n]) => (
-              <span key={label} className="flex justify-between gap-2 py-[2px] border-t border-hair">
+              <span key={label} className="flex justify-between gap-2 py-[2px] border-t border-[color:color-mix(in_srgb,var(--hair)_50%,var(--dim))]">
                 <span>{label}</span>
                 <span className={`tabular-nums ${empty ? "text-dim" : "text-ink"}`}>{n}</span>
               </span>
