@@ -9,7 +9,8 @@ export interface ProfileSection {
   content: React.ReactNode;
 }
 
-// The profile's sections as tabs: one section shows at a time and a tab
+// The profile's sections as tabs, lettered like the tables' column headings
+// (10.5px bold capitals, widely spaced): one section shows at a time and a tab
 // swaps it in place, with no new page and no jump down the page. The choice
 // is written into the address (…/u/name#diary) without scrolling, so a
 // reload or a shared link opens on the same tab.
@@ -61,10 +62,10 @@ export function ProfileSections({ sections, className = "mt-10", aside }: { sect
               aria-selected={on}
               aria-controls={`panel-${s.id}`}
               onClick={() => choose(s.id)}
-              className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[13px] font-semibold cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+              className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
             >
               {s.label}
-              {s.count != null && <span className={`text-[11.5px] font-normal ${on ? "opacity-70" : "opacity-60"}`}>{s.count}</span>}
+              {s.count != null && <span className={`font-normal tracking-normal ${on ? "opacity-70" : "opacity-60"}`}>{s.count}</span>}
             </button>
           );
         })}
