@@ -46,7 +46,7 @@ export const reviewPath = (username: string, key: string) => `/u/${username}/rev
 // unlayered `margin: 0` in globals.css, hence the title's `!mt-2`.)
 export function ReviewSheetCard({ r, username, onClose }: { r: SheetReview; username: string; onClose?: () => void }) {
   const body = (
-    <div className="mt-4 grid gap-3 text-[15px] leading-[1.6] text-bone">
+    <div className="mt-4 grid gap-2.5 text-[13.5px] leading-[1.6] text-bone">
       {r.text.split(/\n\s*\n/).map((p, i) => (
         <p key={i} className="m-0">
           {p}
