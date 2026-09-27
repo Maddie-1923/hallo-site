@@ -28,7 +28,7 @@ export function NavLinks({ links }: { links: [string, string][] }) {
             key={href}
             href={href}
             aria-current={on ? "page" : undefined}
-            className={`relative no-underline transition-colors py-5 ${on ? "text-ink font-semibold" : "hover:text-ink"}`}
+            className={`relative no-underline transition-colors pt-5 pb-4 ${on ? "text-ink font-semibold" : "hover:text-ink"}`}
           >
             {label}
             {/* The accent line under the current tab, hung from the link's
