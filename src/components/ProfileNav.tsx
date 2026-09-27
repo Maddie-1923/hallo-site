@@ -40,7 +40,7 @@ export function ProfileSections({ sections, className = "mt-10", aside }: { sect
   const shown = sections.find((s) => s.id === current) ?? sections[0];
 
   return (
-    <section className={`${className} ${aside ? "grid gap-x-5 gap-y-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]" : ""}`}>
+    <section className={`${className} ${aside ? "grid gap-x-5 gap-y-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
       {aside && (
         <div className="lg:col-start-2 lg:row-start-2 max-lg:h-[640px] lg:min-h-[480px] flex flex-col">{aside}</div>
       )}
