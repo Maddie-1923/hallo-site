@@ -41,65 +41,63 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
       <Banner v={v} art={bannerArt} />
 
-      {/* Two columns that end on the same line: the person's card, how they
-          rate, what they watch and their calendar on the left; the numbers
-          and their favourites on a narrower right. The grid stretches both
-          to the taller, and the growable row on each side takes the slack. */}
-      {/* Two rows so the pairs match: the person's card beside the numbers,
-          one height between them; then their favourites on the left and the
-          tracker on the right. The two columns are equal, so neither side
-          reads as stretched. */}
-      <div className="grid gap-x-5 gap-y-4 mt-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] items-stretch">
+      {/* Two columns on one grid, so their edges line up down the page. On
+          top, the person's card beside the numbers. Under them, the wider
+          left holds the tabbed sections (Reviews, Recent activity, Watchlog,
+          Categories, Stats), and the narrower right the Tracker, which stays
+          in view (sticky) while the sections scroll past it and scrolls its
+          own list inside. On a phone it all stacks: card, numbers, Tracker,
+          then the sections.
+
+          Favourites is parked while this layout is tried; it comes back
+          somewhere else (FavouriteCard below is kept for that). */}
+      <div className="grid gap-x-5 gap-y-4 mt-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] items-start">
         <ProfileCard v={v} />
-        <div className="rounded-[24px] bg-card border border-hair p-2.5 flex">
+        <div className="rounded-[24px] bg-card border border-hair p-2.5 flex self-stretch">
           <NumberTiles v={v} />
         </div>
-        <div className="flex flex-col">
-          <FavouriteCard v={v} />
-        </div>
-        <div className="flex flex-col">
+          <ProfileSections
+            className="min-w-0 max-lg:order-2"
+            sections={[
+              {
+                id: "reviews",
+                label: "Reviews",
+                count: v.reviews.length,
+                content:
+                  v.reviews.length > 0 ? (
+                    <div className="grid gap-[6px]">
+                      {v.reviews.map((r) => (
+                        <ReviewCard key={r.key} r={r} username={v.username} avatar={v.avatar} />
+                      ))}
+                    </div>
+                  ) : (
+                    <Empty>No reviews yet.</Empty>
+                  ),
+              },
+              { id: "activity", label: "Recent activity", content: <ActivityList v={v} /> },
+              {
+                // Called the Watchlog rather than a diary, which is Letterboxd's word.
+                id: "watchlog",
+                label: "Watchlog",
+                count: v.diary.length,
+                content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} owner={!!v.owner} username={v.username} avatar={v.avatar} /> : <Empty>Nothing logged yet.</Empty>,
+              },
+              {
+                // The app's profile grid: its eight built-in categories, then the
+                // person's own lists.
+                id: "categories",
+                label: "Categories",
+                count: v.categories.length,
+                content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} library={v.owner ? [...v.owner.shows, ...v.owner.films] : []} /> : <Empty>Nothing in any category yet.</Empty>,
+              },
+              // No Favourites tab: the loved titles are the Favorites category.
+              { id: "stats", label: "Stats", content: <Dashboard v={v} /> },
+            ]}
+          />
+        <div className="max-lg:order-1 lg:sticky lg:top-24 h-[min(720px,calc(100svh-8rem))] min-h-[420px] flex flex-col">
           <MiniTracker shows={v.tracker.shows} films={v.tracker.films} owner={!!v.owner} />
         </div>
       </div>
-
-      {/* One section at a time under the tabs, swapped in place. */}
-      <ProfileSections
-        sections={[
-          {
-            id: "reviews",
-            label: "Reviews",
-            count: v.reviews.length,
-            content:
-              v.reviews.length > 0 ? (
-                <div className="grid gap-[6px]">
-                  {v.reviews.map((r) => (
-                    <ReviewCard key={r.key} r={r} username={v.username} avatar={v.avatar} />
-                  ))}
-                </div>
-              ) : (
-                <Empty>No reviews yet.</Empty>
-              ),
-          },
-          { id: "activity", label: "Recent activity", content: <ActivityList v={v} /> },
-          {
-            // Called the Watchlog rather than a diary, which is Letterboxd's word.
-            id: "watchlog",
-            label: "Watchlog",
-            count: v.diary.length,
-            content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} owner={!!v.owner} username={v.username} avatar={v.avatar} /> : <Empty>Nothing logged yet.</Empty>,
-          },
-          {
-            // The app's profile grid: its eight built-in categories, then the
-            // person's own lists.
-            id: "categories",
-            label: "Categories",
-            count: v.categories.length,
-            content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} library={v.owner ? [...v.owner.shows, ...v.owner.films] : []} /> : <Empty>Nothing in any category yet.</Empty>,
-          },
-          // No Favourites tab: the loved titles are the Favorites category.
-          { id: "stats", label: "Stats", content: <Dashboard v={v} /> },
-        ]}
-      />
 
       <BackToTop />
     </main>
@@ -176,7 +174,7 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
       {tiles.map(([label, value]) => (
         <div key={label} className="rounded-[16px] bg-card-hi py-2.5 text-center flex flex-col items-center justify-center">
           <div className="display text-[clamp(24px,2.2vw,32px)] leading-none text-accent">{value}</div>
-          <div className="text-[10px] leading-none font-bold tracking-[.1em] uppercase text-dim mt-1 whitespace-nowrap">{label}</div>
+          <div className="text-[9.5px] leading-none font-bold tracking-[.06em] uppercase text-dim mt-1 whitespace-nowrap">{label}</div>
         </div>
       ))}
     </div>
@@ -270,6 +268,8 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
 
 // The Favourites card (FavouritesCard): top films and series, editable by
 // the owner, and the five most recent watches worked out from the diary.
+// Parked: not on the page while the sections-beside-tracker layout is tried.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function FavouriteCard({ v }: { v: PublicProfileView }) {
   const recent: ProfileTitle[] = [];
   for (const e of v.diary) {

@@ -13,7 +13,7 @@ export interface ProfileSection {
 // swaps it in place, with no new page and no jump down the page. The choice
 // is written into the address (…/u/name#diary) without scrolling, so a
 // reload or a shared link opens on the same tab.
-export function ProfileSections({ sections }: { sections: ProfileSection[] }) {
+export function ProfileSections({ sections, className = "mt-10" }: { sections: ProfileSection[]; className?: string }) {
   const [current, setCurrent] = useState(sections[0].id);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export function ProfileSections({ sections }: { sections: ProfileSection[] }) {
   const shown = sections.find((s) => s.id === current) ?? sections[0];
 
   return (
-    <section className="mt-10">
+    <section className={className}>
       <div
         role="tablist"
         aria-label="Profile sections"
