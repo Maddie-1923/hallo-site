@@ -215,12 +215,12 @@ function MonthCard({
           )}
         </span>
         <span className="block px-1 pt-1.5 pb-0.5">
-          <span className={`block text-[11.5px] leading-[16px] font-bold uppercase tracking-[.1em] ${selected ? "text-accent" : "text-ink"}`}>{MONTHS_LONG[month]}</span>
+          <span className={`block text-[10.5px] leading-[15px] font-bold uppercase tracking-[.1em] ${selected ? "text-accent" : "text-ink"}`}>{MONTHS_LONG[month]}</span>
           {/* The month's numbers, one to a line: the label on the left, the
               figure on the right, so a figure under the month's name can't be
               read as a date. Every card carries all three lines, zeros
               included, so the cards stay the same height. */}
-          <span className="block mt-0.5 text-[10.5px] leading-[14px] text-dim">
+          <span className="block mt-0.5 text-[9.5px] leading-[13px] text-dim">
             {(
               [
                 ["Films", films],
@@ -301,6 +301,11 @@ function EntryTable({ rows, username, avatar }: { rows: DiaryEntry[]; username: 
   return (
     <>
     {reading?.review && <ReviewSheet r={{ ...reading, ...reading.review }} username={username} avatar={avatar} onClose={() => setReading(null)} />}
+    {/* The columns come and go with the width the table itself has, not
+        the window's: beside the Tracker it is narrower than the page. Below
+        672px the year and episodes fold under the title; below 576px the
+        rewatch and review marks go too. */}
+    <div className="@container">
     <table className="w-full table-fixed border-separate border-spacing-y-[6px] -mb-[6px] text-[14px]">
       {/* The column headings sit in a shell of their own, in the page tone,
           so they read as the table's heading bar rather than loose words.
@@ -309,19 +314,19 @@ function EntryTable({ rows, username, avatar }: { rows: DiaryEntry[]; username: 
           what it heads; the title takes whatever is left. */}
       <thead>
         <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
-          <th className={`${HEAD} rounded-l-[14px] py-2 pl-4 pr-3 font-bold w-[76px] text-left`}>Day</th>
+          <th className={`${HEAD} rounded-l-[14px] py-2 pl-4 pr-2 font-bold w-[64px] text-left`}>Day</th>
           <th className={`${HEAD} py-2 px-4 font-bold`}>Title</th>
-          <th className={`${HEAD} py-2 px-4 font-bold text-center hidden md:table-cell w-[104px]`}>Released</th>
-          <th className={`${HEAD} py-2 px-4 font-bold text-center hidden md:table-cell w-[150px]`}>Episodes</th>
-          <th className={`${HEAD} py-2 px-4 font-bold text-center w-[104px] hidden sm:table-cell`}>Rewatch</th>
-          <th className={`${HEAD} py-2 px-4 font-bold text-center w-[100px] hidden sm:table-cell`}>Review</th>
+          <th className={`${HEAD} py-2 px-2 font-bold text-center hidden @2xl:table-cell w-[68px]`}>Released</th>
+          <th className={`${HEAD} py-2 px-2 font-bold text-center hidden @2xl:table-cell w-[108px]`}>Episodes</th>
+          <th className={`${HEAD} py-2 px-2 font-bold text-center w-[72px] hidden @xl:table-cell`}>Rewatch</th>
+          <th className={`${HEAD} py-2 px-2 font-bold text-center w-[68px] hidden @xl:table-cell`}>Review</th>
           <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold text-center w-[118px]`}>Rating</th>
         </tr>
       </thead>
       <tbody>
         {rows.map((e) => (
           <tr key={`${e.key}${e.date}`} className="align-middle">
-            <td className={`${SHELL} rounded-l-[14px] py-2 pl-4 pr-3 text-left`}>
+            <td className={`${SHELL} rounded-l-[14px] py-2 pl-4 pr-2 text-left`}>
               <span className="block display text-[26px] leading-none text-dim">{Number(e.date.slice(8, 10))}</span>
               <span className="block mt-0.5 text-[9.5px] leading-none font-bold uppercase tracking-[.1em] text-dim">{weekday(e.date)}</span>
             </td>
@@ -342,13 +347,13 @@ function EntryTable({ rows, username, avatar }: { rows: DiaryEntry[]; username: 
                   </span>
                   {/* On a phone the Released and Episodes columns fold in under
                       the title. */}
-                  {(e.year || e.episodes) && <span className="block md:hidden text-[12px] text-dim truncate">{[e.year, e.episodes].filter(Boolean).join(" · ")}</span>}
+                  {(e.year || e.episodes) && <span className="block @2xl:hidden text-[12px] text-dim truncate">{[e.year, e.episodes].filter(Boolean).join(" · ")}</span>}
                 </span>
               </Link>
             </td>
-            <td className={`${SHELL} py-2 px-4 text-dim text-center hidden md:table-cell tabular-nums`}>{e.year}</td>
-            <td className={`${SHELL} py-2 px-4 text-dim text-center hidden md:table-cell truncate`}>{e.episodes}</td>
-            <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
+            <td className={`${SHELL} py-2 px-2 text-dim text-center hidden @2xl:table-cell tabular-nums`}>{e.year}</td>
+            <td className={`${SHELL} py-2 px-2 text-dim text-center hidden @2xl:table-cell truncate`}>{e.episodes}</td>
+            <td className={`${SHELL} py-2 px-2 text-center hidden @xl:table-cell`}>
               {e.rewatch ? (
                 <MarkTip label="Rewatch">
                   <span className="inline-flex text-dim">
@@ -358,7 +363,7 @@ function EntryTable({ rows, username, avatar }: { rows: DiaryEntry[]; username: 
                 </MarkTip>
               ) : null}
             </td>
-            <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
+            <td className={`${SHELL} py-2 px-2 text-center hidden @xl:table-cell`}>
               {e.reviewed ? (
                 // The site's own caption rather than the browser's title tooltip,
                 // so it comes up a little sooner (MarkTip's 0.3s) and in the
@@ -376,6 +381,7 @@ function EntryTable({ rows, username, avatar }: { rows: DiaryEntry[]; username: 
         ))}
       </tbody>
     </table>
+    </div>
     </>
   );
 }
