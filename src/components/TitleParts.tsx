@@ -162,7 +162,7 @@ function RowCard({ width, children }: { width: number; children: React.ReactNode
 }
 
 function Rail({ children }: { children: React.ReactNode }) {
-  return <div className="flex gap-3 overflow-x-auto snap-x pb-3 -mb-3 [scrollbar-width:thin]">{children}</div>;
+  return <div className="soft-scroll flex gap-3 overflow-x-auto snap-x pb-3 -mb-3">{children}</div>;
 }
 
 export function CastSection({ cast }: { cast: CastMember[] }) {

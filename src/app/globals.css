@@ -331,18 +331,20 @@ section.band p + p { margin-top: 1em; }
   to { transform: scale(1.9); opacity: 0; }
 }
 
-/* A scrolling list inside a card (the Tracker): a slim rounded thumb and no
-   track, inset from the ends so it never meets the card's corners square. */
+/* A scrolling list or rail (the Tracker, a title page's rails): a slim
+   rounded thumb and no track, inset from the ends so it never meets a
+   corner square. Works across (height) as well as down (width). */
 .soft-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--hair) transparent;
 }
 .soft-scroll::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 .soft-scroll::-webkit-scrollbar-track {
   background: transparent;
-  margin: 10px 0;
+  margin: 10px;
 }
 .soft-scroll::-webkit-scrollbar-thumb {
   background: var(--hair);
