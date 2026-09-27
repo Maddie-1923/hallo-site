@@ -159,18 +159,17 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 function NumberTiles({ v }: { v: PublicProfileView }) {
   const s = v.stats;
   const tiles: [string, string | number][] = [
-    ["Hours", s.hours.toLocaleString("en")],
-    ["Films", s.films],
+    ["Movies", s.films.toLocaleString("en")],
+    ["Shows", s.shows.toLocaleString("en")],
     ["Episodes", s.episodes.toLocaleString("en")],
-    ["Avg ♥", s.average ?? "—"],
     // The social counts sit with the rest of the numbers, last, as
     // Letterboxd sets them.
     ["Followers", v.followers.toLocaleString("en")],
     ["Following", v.following.toLocaleString("en")],
   ];
   return (
-    // One row of six, as tall as the person's card beside it.
-    <div className="flex-1 grid grid-cols-6 gap-1.5">
+    // One row of five, as tall as the person's card beside it.
+    <div className="flex-1 grid grid-cols-5 gap-1.5">
       {tiles.map(([label, value]) => (
         // 2px more above than below: Bebas keeps room under its figures, so
         // this is what centres the lettering itself in the tile.
