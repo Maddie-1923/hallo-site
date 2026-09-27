@@ -345,7 +345,7 @@ function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }
             <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
               {e.rewatch ? (
                 <MarkTip label="Rewatch">
-                  <span className="inline-flex text-accent">
+                  <span className="inline-flex text-dim">
                     <MarkRewatched size={36} />
                     <span className="sr-only">Rewatch</span>
                   </span>
@@ -358,7 +358,7 @@ function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }
                 // so it comes up a little sooner (MarkTip's 0.3s) and in the
                 // site's style.
                 <MarkTip label={`@${username}'s review`}>
-                  <button type="button" onClick={() => setReading(e)} disabled={!e.review} className="inline-flex text-accent cursor-pointer">
+                  <button type="button" onClick={() => setReading(e)} disabled={!e.review} className="inline-flex text-dim hover:text-ink transition-colors cursor-pointer">
                     <ReviewGlyph />
                     <span className="sr-only">Read @{username}&apos;s review of {e.title}</span>
                   </button>
@@ -382,6 +382,10 @@ function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }
 // stars' right edge sits as far from the row's end as the day sits from its
 // start. The rewatch artwork
 // sits inside a lot of padding in its box, hence its larger nominal size.
+// The rewatch and review marks are drawn in the dim tone, like the year and
+// the episodes beside them, so only the stars carry the accent and a row
+// isn't three spots of colour; the review brightens under the pointer, since
+// it opens.
 
 // The fill of an entry's shell: the lighter card tone, on the section's card.
 const SHELL = "bg-card-hi";
