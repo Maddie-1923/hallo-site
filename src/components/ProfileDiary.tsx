@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import type { DiaryEntry } from "@/lib/public-profile";
 import { MarkRewatched } from "./marks";
 import { RatingMarks } from "./RatingMarks";
+import { MarkTip } from "./MarkTip";
 
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -280,7 +281,7 @@ function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }
           <th className={`${HEAD} py-2 px-4 font-bold text-center hidden md:table-cell w-[150px]`}>Episodes</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[104px] hidden sm:table-cell`}>Rewatch</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[100px] hidden sm:table-cell`}>Review</th>
-          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold text-center w-[140px]`}>Rating</th>
+          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold text-center w-[118px]`}>Rating</th>
         </tr>
       </thead>
       <tbody>
@@ -292,12 +293,13 @@ function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }
             </td>
             <td className={`${SHELL} py-2 px-4`}>
               <Link href={e.href} className="flex items-center gap-3 no-underline text-ink hover:text-accent group">
-                <span className="w-9 shrink-0">
-                  {e.poster ? (
+                {/* A wide still of the title rather than its poster, so the list
+                    reads like the month cards above it; the poster stands in
+                    only where there is no still. */}
+                <span className="w-[84px] aspect-video shrink-0 rounded-[6px] overflow-hidden bg-card">
+                  {(e.backdrop ?? e.poster) && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={e.poster} alt="" className="w-9 aspect-[2/3] rounded-[4px] object-cover" />
-                  ) : (
-                    <span className="block w-9 aspect-[2/3] rounded-[4px] bg-card" />
+                    <img src={(e.backdrop ?? e.poster)!} alt="" className="w-full h-full object-cover" />
                   )}
                 </span>
                 <span className="min-w-0">
@@ -314,21 +316,28 @@ function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }
             <td className={`${SHELL} py-2 px-4 text-dim text-center hidden md:table-cell truncate`}>{e.episodes}</td>
             <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
               {e.rewatch ? (
-                <span className="inline-flex text-accent" title="Rewatch">
-                  <MarkRewatched size={36} />
-                  <span className="sr-only">Rewatch</span>
-                </span>
+                <MarkTip label="Rewatch">
+                  <span className="inline-flex text-accent">
+                    <MarkRewatched size={36} />
+                    <span className="sr-only">Rewatch</span>
+                  </span>
+                </MarkTip>
               ) : null}
             </td>
             <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
               {e.reviewed ? (
-                <Link href={e.href} className="inline-flex text-accent" title={`@${username}'s review`}>
-                  <ReviewGlyph />
-                  <span className="sr-only">Read @{username}&apos;s review of {e.title}</span>
-                </Link>
+                // The site's own caption rather than the browser's title tooltip,
+                // so it comes up a little sooner (MarkTip's 0.3s) and in the
+                // site's style.
+                <MarkTip label={`@${username}'s review`}>
+                  <Link href={e.href} className="inline-flex text-accent">
+                    <ReviewGlyph />
+                    <span className="sr-only">Read @{username}&apos;s review of {e.title}</span>
+                  </Link>
+                </MarkTip>
               ) : null}
             </td>
-            <td className={`${SHELL} rounded-r-[14px] py-2 px-4 text-center`}>{e.rating != null ? <RatingMarks value={e.rating} size={18} rows={2} /> : null}</td>
+            <td className={`${SHELL} rounded-r-[14px] py-2 px-4 text-center`}>{e.rating != null ? <RatingMarks value={e.rating} size={14} rows={2} /> : null}</td>
           </tr>
         ))}
       </tbody>
@@ -337,8 +346,8 @@ function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }
 }
 
 // Every mark in the columns (the rewatch arrow, the review page, each star)
-// is drawn about 20px tall, so they read as one set; the ten stars, a size
-// down at about 16px, sit in two rows of five in the Rating column. That
+// is drawn about 20px tall, so they read as one set; the ten stars, smaller
+// at about 13px, sit in two rows of five in the Rating column. That
 // column is just wide enough for them plus the cells' 16px padding, so the
 // stars' right edge sits as far from the row's end as the day sits from its
 // start. The rewatch artwork
