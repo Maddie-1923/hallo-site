@@ -321,7 +321,7 @@ function ActivityList({ v }: { v: PublicProfileView }) {
 function ReviewCard({ r, username, avatar }: { r: ReviewEntry; username: string; avatar: string | null }) {
   const paragraphs = r.text.split(/\n\s*\n/);
   const body = (
-    <div className="mt-4 grid gap-2.5 text-[13.5px] leading-[1.6] text-bone max-w-[80ch]">
+    <div className="mt-4 grid gap-2 text-[12.5px] leading-[1.6] text-bone max-w-[80ch]">
       {paragraphs.map((p, i) => (
         <p key={i} className="m-0">
           {p}
