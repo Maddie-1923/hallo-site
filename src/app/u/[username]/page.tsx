@@ -106,7 +106,7 @@ async function sampleProfile(): Promise<PublicProfileView> {
     },
     topFilms: classics.slice(0, 5),
     topShows: series.slice(1, 6),
-    diary,
+    diary: diary.map((e, i) => (e.reviewed ? { ...e, review: { text: blurbs[i % blurbs.length], spoilers: false } } : e)),
     // Invented, like the rest of the sample: a steady habit with busier
     // weekends, from a fixed seed so it is the same on every load.
     activity: sampleActivity(),
@@ -200,12 +200,12 @@ function withSampleReviews(view: PublicProfileView): PublicProfileView {
     });
   // Each review marks its title's latest Watchlog entry as reviewed, the way
   // a real one would.
-  const reviewed = new Set(reviews.map((r) => r.key));
   const marked = new Set<string>();
   const diary = view.diary.map((e) => {
-    if (!reviewed.has(e.key) || marked.has(e.key)) return e;
+    const r = reviews.find((x) => x.key === e.key);
+    if (!r || marked.has(e.key)) return e;
     marked.add(e.key);
-    return { ...e, reviewed: true };
+    return { ...e, reviewed: true, review: { text: r.text, spoilers: r.spoilers, likes: r.likes, comments: r.comments } };
   });
   return { ...view, diary, reviews: [...view.reviews, ...reviews.filter((r) => !view.reviews.some((x) => x.key === r.key))] };
 }
@@ -274,6 +274,16 @@ async function withSampleWatchlog(view: PublicProfileView): Promise<PublicProfil
       }
     }
   }
+  // The reviewed ones get a few lines of review, so the review sheet has
+  // something to show.
+  const lines = [
+    "Tense from the first scene, and the last twenty minutes are the best thing in it.",
+    "Gorgeous to look at, a little long in the middle, and I'd watch it again tomorrow.",
+    "The cast carries a script that isn't quite sure what it wants to be.",
+    "A slow start that pays off. By the end I was completely hooked.",
+    "Funnier than I expected, and kinder too. Exactly what I needed this week.",
+  ];
+  for (const e of samples) if (e.reviewed) e.review = { text: pick(lines), spoilers: false, likes: Math.floor(rand() * 20), comments: Math.floor(rand() * 5) };
   const diary = [...view.diary, ...samples].sort((a, b) => b.date.localeCompare(a.date));
   const activity = { ...view.activity };
   for (const e of samples) activity[e.date] = (activity[e.date] ?? 0) + (e.episodeCount ?? 1);

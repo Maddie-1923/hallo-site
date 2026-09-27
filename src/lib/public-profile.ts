@@ -33,10 +33,19 @@ export interface DiaryEntry extends ProfileTitle {
   rewatch: boolean;
   /** Whether they wrote a review of the title. */
   reviewed: boolean;
+  /** The review itself, read in a sheet from the Watchlog's Review column. */
+  review?: DiaryReview;
   /** A made-up entry on the local preview. Not shown on the page (the user
       wants the mock-ups to read as real); kept so they can be found and
       removed before opening. */
   sample?: boolean;
+}
+
+export interface DiaryReview {
+  text: string;
+  spoilers: boolean;
+  likes?: number;
+  comments?: number;
 }
 
 export interface ReviewEntry extends ProfileTitle {
@@ -145,6 +154,7 @@ export function profileFromArchive(
   const ratings = a.ratings ?? {};
   const reactions = a.reactions ?? {};
   const reviews = a.reviews ?? {};
+  const reviewOf = (key: string): DiaryReview | undefined => (reviews[key]?.text?.trim() ? { text: reviews[key].text!, spoilers: reviews[key].spoilers ?? false } : undefined);
 
   // The diary: every film with a watch date, and each show's episodes
   // grouped by the day they were watched.
@@ -153,7 +163,7 @@ export function profileFromArchive(
     const m = movies.get(Number(id));
     if (!m) continue;
     const key = `movie:${m.id}`;
-    diary.push({ ...movieTitle(m), date: date.slice(0, 10), rating: ratings[key] ?? null, loved: reactions[key] === "loved", rewatch: reviews[key]?.rewatch ?? false, reviewed: !!reviews[key]?.text?.trim() });
+    diary.push({ ...movieTitle(m), date: date.slice(0, 10), rating: ratings[key] ?? null, loved: reactions[key] === "loved", rewatch: reviews[key]?.rewatch ?? false, reviewed: !!reviews[key]?.text?.trim(), review: reviewOf(key) });
   }
   const byShowDay = new Map<string, { show: Show; date: string; eps: [number, number][] }>();
   for (const [ep, date] of Object.entries(a.watchedDates ?? {})) {
@@ -171,7 +181,7 @@ export function profileFromArchive(
     const [f, l] = [g.eps[0], g.eps[g.eps.length - 1]];
     const label = g.eps.length === 1 ? `S${f[0]} E${f[1]}` : f[0] === l[0] ? `S${f[0]} E${f[1]}–E${l[1]}` : `S${f[0]} E${f[1]} – S${l[0]} E${l[1]}`;
     const key = `show:${g.show.id}`;
-    diary.push({ ...showTitle(g.show), date: g.date, episodes: label, episodeCount: g.eps.length, rating: ratings[key] ?? null, loved: reactions[key] === "loved", rewatch: false, reviewed: !!reviews[key]?.text?.trim() });
+    diary.push({ ...showTitle(g.show), date: g.date, episodes: label, episodeCount: g.eps.length, rating: ratings[key] ?? null, loved: reactions[key] === "loved", rewatch: false, reviewed: !!reviews[key]?.text?.trim(), review: reviewOf(key) });
   }
   diary.sort((x, y) => y.date.localeCompare(x.date));
 
