@@ -95,21 +95,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             count: v.categories.length,
             content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} library={v.owner ? [...v.owner.shows, ...v.owner.films] : []} /> : <Empty>Nothing in any category yet.</Empty>,
           },
-          {
-            id: "favourites",
-            label: "Favourites",
-            count: v.favorites.length,
-            content:
-              v.favorites.length > 0 ? (
-                <div className="grid gap-3 grid-cols-3 sm:grid-cols-5 lg:grid-cols-8">
-                  {v.favorites.map((t) => (
-                    <PosterLink key={t.key} t={t} />
-                  ))}
-                </div>
-              ) : (
-                <Empty>No favourites yet.</Empty>
-              ),
-          },
+          // No Favourites tab: the loved titles are the Favorites category.
           { id: "stats", label: "Stats", content: <Dashboard v={v} /> },
         ]}
       />
@@ -393,21 +379,6 @@ function ReviewCard({ r, username, avatar }: { r: ReviewEntry; username: string;
   );
 }
 
-
-function PosterLink({ t, small = false }: { t: ProfileTitle; small?: boolean }) {
-  return (
-    <Link href={t.href} title={t.title} className="group block no-underline">
-      <div className={`aspect-[2/3] overflow-hidden bg-card-hi border border-hair group-hover:border-accent transition-colors ${small ? "rounded-[8px]" : "rounded-[10px]"}`}>
-        {t.poster ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={t.poster} alt={t.title} loading="lazy" className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center p-2 text-center text-xs text-dim">{t.title}</div>
-        )}
-      </div>
-    </Link>
-  );
-}
 
 /** A rating out of ten, as the app's heart and figure. */
 function Rating({ value }: { value: number }) {
