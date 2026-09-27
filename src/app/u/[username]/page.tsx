@@ -5,7 +5,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProfilePage } from "@/components/ProfilePage";
 import { isArchive } from "@/lib/archive";
-import { profileFromArchive, withAiredEpisodes, type PublicProfileView, type ReviewEntry } from "@/lib/public-profile";
+import { profileFromArchive, withAiredEpisodes, type DiaryEntry, type ProfileTitle, type PublicProfileView, type ReviewEntry } from "@/lib/public-profile";
 import { image, movieRails, showRails } from "@/lib/tmdb";
 
 // A public profile at /u/<username>.
@@ -56,7 +56,7 @@ async function previewFromFile(): Promise<PublicProfileView | null> {
       banner: pic((raw as Record<string, unknown>).profileBanner),
       bio: null,
     }, true);
-    return await withAiredEpisodes(withSampleReviews(view));
+    return await withSampleWatchlog(await withAiredEpisodes(withSampleReviews(view)));
   } catch {
     return null;
   }
@@ -199,4 +199,74 @@ function withSampleReviews(view: PublicProfileView): PublicProfileView {
       ].join("\n\n"),
     });
   return { ...view, reviews: [...view.reviews, ...reviews.filter((r) => !view.reviews.some((x) => x.key === r.key))] };
+}
+
+// A year and more of made-up watching for the local preview's Watchlog, so
+// the month cards can be judged full: every month of 2025, and 2026 up to the
+// month before the library's own latest entries. Real titles from TMDB's
+// popular and top-rated lists, so the pictures are real; the dates, ratings,
+// hearts, rewatches and episodes are invented, from a fixed seed so they are
+// the same on every load. Each entry is marked as a sample on the page. Kept
+// for testing until the user says to remove it (see docs/social-plan.md).
+async function withSampleWatchlog(view: PublicProfileView): Promise<PublicProfileView> {
+  const [pf, tf, ps, ts] = await Promise.all([movieRails.popular(), movieRails.topRated(), showRails.popular(), showRails.topRated()]);
+  const asTitle = (x: { id: number; poster_path?: string | null; backdrop_path?: string | null }, kind: "movie" | "show", title: string, date: string | null | undefined): ProfileTitle => ({
+    key: `${kind === "show" ? "s" : "m"}${x.id}`,
+    kind,
+    title,
+    href: `/${kind}/${x.id}`,
+    poster: image.poster(x.poster_path, "w342"),
+    backdrop: image.backdrop(x.backdrop_path),
+    year: (date ?? "").slice(0, 4),
+  });
+  const films = [...pf, ...tf].filter((m) => m.backdrop_path).map((m) => asTitle(m, "movie", m.title, m.release_date));
+  const shows = [...ps, ...ts].filter((x) => x.backdrop_path).map((x) => asTitle(x, "show", x.name, x.first_air_date));
+  if (films.length === 0 || shows.length === 0) return view;
+
+  let seed = 20260927;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const pick = <T,>(xs: T[]) => xs[Math.floor(rand() * xs.length)];
+
+  const latest = view.diary[0]?.date.slice(0, 7) ?? "2026-09";
+  const months: string[] = [];
+  for (let y = 2025; y <= 2026; y++)
+    for (let m = 1; m <= 12; m++) {
+      const ym = `${y}-${String(m).padStart(2, "0")}`;
+      if (ym < latest) months.push(ym);
+    }
+
+  const samples: DiaryEntry[] = [];
+  for (const ym of months) {
+    const [y, m] = ym.split("-").map(Number);
+    const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    // Some months busy, some quiet, the way a real year goes.
+    const count = 4 + Math.floor(rand() * 11);
+    for (let i = 0; i < count; i++) {
+      const date = `${ym}-${String(1 + Math.floor(rand() * days)).padStart(2, "0")}`;
+      if (rand() < 0.45) {
+        const t = pick(films);
+        samples.push({ ...t, date, rating: rand() < 0.7 ? Math.round((5 + rand() * 5) * 2) / 2 : null, loved: rand() < 0.2, rewatch: rand() < 0.12, reviewed: false, sample: true });
+      } else {
+        const t = pick(shows);
+        const season = 1 + Math.floor(rand() * 3);
+        const first = 1 + Math.floor(rand() * 6);
+        const n = 1 + Math.floor(rand() * 4);
+        samples.push({
+          ...t,
+          date,
+          episodes: n === 1 ? `S${season} E${first}` : `S${season} E${first}–E${first + n - 1}`,
+          episodeCount: n,
+          rating: rand() < 0.3 ? Math.round((6 + rand() * 4) * 2) / 2 : null,
+          loved: rand() < 0.1,
+          rewatch: false,
+          reviewed: false,
+          sample: true,
+        });
+      }
+    }
+  }
+  const diary = [...view.diary, ...samples].sort((a, b) => b.date.localeCompare(a.date));
+  const activity = { ...view.activity };
+  for (const e of samples) activity[e.date] = (activity[e.date] ?? 0) + (e.episodeCount ?? 1);
+  return { ...view, diary, activity };
 }

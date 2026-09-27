@@ -33,6 +33,8 @@ export interface DiaryEntry extends ProfileTitle {
   rewatch: boolean;
   /** Whether they wrote a review of the title. */
   reviewed: boolean;
+  /** A made-up entry shown on a preview to judge the design. */
+  sample?: boolean;
 }
 
 export interface ReviewEntry extends ProfileTitle {

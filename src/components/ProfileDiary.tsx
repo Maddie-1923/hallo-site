@@ -274,6 +274,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                   <span className="block truncate">
                     <span className="font-semibold">{e.title}</span>
                     {e.year && <span className="text-dim font-normal"> {e.year}</span>}
+                    {e.sample && <span className="ml-2 align-middle px-1.5 py-[1px] rounded-full border border-hair text-[9.5px] font-bold uppercase tracking-[.1em] text-dim">Sample</span>}
                   </span>
                   {/* On a phone the Episodes column folds in under the title. */}
                   {e.episodes && <span className="block md:hidden text-[12px] text-dim truncate">{e.episodes}</span>}

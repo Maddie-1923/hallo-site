@@ -230,6 +230,8 @@ privacy labels to mention crash data before it ships.
 
 - The three sample reviews on `/u/preview` (`withSampleReviews` in
   `app/u/[username]/page.tsx`), kept for testing at the user's request.
+- The sample Watchlog entries on `/u/preview` for 2025 and 2026
+  (`withSampleWatchlog`, same file), kept for testing.
 - The `/u/preview` and `/u/sample` pages themselves, and their links in the
   profile menu. They only exist in development, but should go once real
   profiles work.
