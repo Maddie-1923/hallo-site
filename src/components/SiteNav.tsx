@@ -20,8 +20,8 @@ import { accountsOpen } from "@/lib/accounts";
 // week's episodes, and an avatar menu that keeps everything else — account,
 // themes, the marketing pages, sign out — out of the way.
 
+// No Home: the logo and wordmark are the way home.
 const marketing: [string, string][] = [
-  ["/", "Home"],
   ["/explore", "Explore"],
   ["/about", "The app"],
 ];
@@ -89,7 +89,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
             11px under the wordmark puts it on the same line it has beside
             them. */}
         <div className="self-end pb-[11px] md:pb-0 flex items-baseline gap-6">
-          <Link href={user ? "/discover" : "/"} className="relative inline-flex no-underline" style={{ paddingLeft: (logoHeight * 528) / 1185 + 10 }}>
+          <Link href="/" aria-label="Kodigo home" className="relative inline-flex no-underline" style={{ paddingLeft: (logoHeight * 528) / 1185 + 10 }}>
             <span className="absolute left-0 bottom-[4px]">
               <LogoBleed height={logoHeight} />
             </span>
