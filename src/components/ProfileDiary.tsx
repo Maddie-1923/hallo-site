@@ -169,18 +169,40 @@ function MonthCard({
         onClick={onSelect}
         aria-pressed={selected}
         aria-label={`${MONTHS_LONG[month]}: ${list.length} ${list.length === 1 ? "entry" : "entries"}`}
-        className={`block w-full text-left rounded-[12px] cursor-pointer transition-shadow ${selected ? "ring-2 ring-accent-fill ring-offset-2 ring-offset-card" : ""}`}
+        // The month and its numbers share one shell, a tile like the other
+        // boxes on the profile; the selected month is ringed in the accent.
+        className={`block w-full text-left rounded-[16px] bg-card-hi p-1.5 cursor-pointer transition-[box-shadow,background-color] hover:bg-page ${selected ? "ring-2 ring-accent-fill" : ""}`}
       >
-        <span className="block aspect-video rounded-[12px] overflow-hidden bg-card-hi border border-hair">
+        <span className="block aspect-video rounded-[11px] overflow-hidden bg-card border border-hair">
           {picture && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={picture} alt="" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
           )}
         </span>
-        <span className="block px-0.5 pt-1.5">
+        <span className="block px-1 pt-1.5 pb-0.5">
           <span className={`display block text-[20px] leading-none ${selected ? "text-accent" : "text-ink"}`}>{MONTHS[month]}</span>
-          <span className="block text-[11px] text-dim mt-0.5 truncate">
-            {empty ? "Nothing logged" : [`${list.length} ${list.length === 1 ? "entry" : "entries"}`, films ? `${films} ${films === 1 ? "film" : "films"}` : null, episodes ? `${episodes} ${episodes === 1 ? "ep" : "eps"}` : null].filter(Boolean).join(" · ")}
+          {/* The month's numbers, one to a line. Every card carries all three
+              lines, zeros included, so the cards stay the same height. */}
+          <span className="block mt-1 text-[11.5px] leading-[16px] text-dim">
+            {empty ? (
+              <>
+                <span className="block">Nothing logged</span>
+                <span className="block">&nbsp;</span>
+                <span className="block">&nbsp;</span>
+              </>
+            ) : (
+              <>
+                <span className="block">
+                  <b className="text-ink font-semibold">{list.length}</b> {list.length === 1 ? "entry" : "entries"}
+                </span>
+                <span className="block">
+                  <b className="text-ink font-semibold">{films}</b> {films === 1 ? "film" : "films"}
+                </span>
+                <span className="block">
+                  <b className="text-ink font-semibold">{episodes}</b> {episodes === 1 ? "episode" : "episodes"}
+                </span>
+              </>
+            )}
           </span>
         </span>
       </button>
@@ -190,7 +212,7 @@ function MonthCard({
           onClick={onChoose}
           aria-label={`Choose the picture for ${MONTHS_LONG[month]}`}
           title="Choose the picture"
-          className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-black/55 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer [@media(hover:none)]:opacity-100"
+          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/55 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer [@media(hover:none)]:opacity-100"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
