@@ -250,8 +250,11 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         )}
       </div>
       <div
-        className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 min-w-0"
-        style={{ marginLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 16px)` }}
+        // The card starts at the column's left edge, level with the tabs
+        // below it; the photo sits over its left end, and the writing starts
+        // past the photo.
+        className="flex-1 rounded-[24px] bg-card border border-hair pr-[clamp(14px,1.6vw,20px)] py-3 min-w-0"
+        style={{ paddingLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 16px)` }}
       >
         <div className="flex items-start gap-4 min-w-0">
         <div className="min-w-0 flex-1">
