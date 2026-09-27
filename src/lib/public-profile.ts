@@ -112,7 +112,10 @@ export interface PublicProfileView {
   displayName: string;
   avatar: string | null;
   banner: string | null;
+  /** The line they wrote about themselves, shown in quotation marks. */
   bio: string | null;
+  /** Where they say they are, as they wrote it ("San Francisco, CA"). */
+  location: string | null;
   followers: number;
   following: number;
   stats: { films: number; shows: number; episodes: number; hours: number; ratings: number; average: number | null };
@@ -171,7 +174,7 @@ function movieTitle(m: Movie): ProfileTitle {
     editor's suggestions), which a visitor's page never carries. */
 export function profileFromArchive(
   a: LibraryArchive,
-  meta: { username: string; displayName: string; avatar: string | null; banner: string | null; bio: string | null },
+  meta: { username: string; displayName: string; avatar: string | null; banner: string | null; bio: string | null; location: string | null },
   forOwner = false,
 ): PublicProfileView {
   const shows = new Map(a.shows.map((t) => [t.show.id, t.show]));

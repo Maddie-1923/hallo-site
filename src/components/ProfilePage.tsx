@@ -5,6 +5,7 @@ import { FollowPill } from "./FollowPill";
 import { ReviewActions } from "./ReviewActions";
 import { ReviewHeading } from "./ReviewSheet";
 import { ProfileCategories } from "./ProfileCategories";
+import { ProfileAbout } from "./ProfileAbout";
 import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
 import { FavouritesCard } from "./FavouritesCard";
@@ -231,12 +232,10 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
   );
 }
 
-// The person's card, kept to one line: photo, handle and what they have put
-// here on the left, followers on the right. A bio, when there is one, runs
-// underneath.
-// The person's card: handle and what they have put here, followers below,
-// Follow on the right. It starts just past the photo hanging from the banner,
-// so it sits beside the photo instead of running under it.
+// The person's card, beside the photo hanging from the banner. On the left,
+// the handle, then where they are and a line in their own words (both theirs
+// to set, and only there when set); on the right, Follow with the follower
+// counts under it.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
     <div className="relative flex">
@@ -256,21 +255,22 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
           (v.displayName[0] ?? "?").toUpperCase()
         )}
       </div>
-    <div
-      className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 flex flex-col justify-center gap-2"
-      style={{ marginLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 16px)` }}
-    >
-      {/* Everything about the person down the left: the handle, what they
-          have put here, who follows them. The Follow button alone on the
-          right, its top level with the top of the handle, with room to be a
-          proper size. */}
-      <div className="flex items-start gap-3 min-w-0">
+      <div
+        className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 flex items-start gap-4 min-w-0"
+        style={{ marginLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 16px)` }}
+      >
         <div className="min-w-0 flex-1">
           <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.9] truncate">@{v.username}</div>
-          <div className="text-[12px] text-dim truncate mt-0.5">
-            {v.stats.ratings} ratings · {v.reviews.length} reviews · {v.categories.filter((c) => c.custom).length} lists
+          <ProfileAbout location={v.location} quote={v.bio} owner={!!v.owner} username={v.username} />
+        </div>
+        {/* Follow, its top level with the top of the handle (a pixel down, to
+            where the capitals start; FollowPill sizes itself to the handle's
+            line), and the counts under it, right-aligned to its edge. */}
+        <div className="shrink-0 mt-px flex flex-col items-end gap-2">
+          <div className="flex">
+            <FollowPill />
           </div>
-          <div className="flex items-center gap-4 text-[12.5px] mt-1">
+          <div className="flex items-center gap-3 text-[12.5px] leading-none whitespace-nowrap">
             <span>
               <b className="text-ink">{v.followers}</b> <span className="text-dim">followers</span>
             </span>
@@ -279,16 +279,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             </span>
           </div>
         </div>
-        {/* A pixel down, to where the handle's capitals start; FollowPill
-            sizes itself to the handle's line and centres on those capitals.
-            A flex box so the button is laid out as a box, not as a word
-            sitting on a text baseline. */}
-        <div className="shrink-0 mt-px flex">
-          <FollowPill />
-        </div>
       </div>
-      {v.bio && <p className="m-0 text-[13px] leading-[1.45] text-dim line-clamp-2">{v.bio}</p>}
-    </div>
     </div>
   );
 }

@@ -32,6 +32,7 @@ async function previewFromFile(): Promise<PublicProfileView | null> {
       avatar: pic((raw as Record<string, unknown>).profileAvatar),
       banner: pic((raw as Record<string, unknown>).profileBanner),
       bio: null,
+      location: null,
     }, true);
     return withSampleLists(await withSampleWatchlog(await withAiredEpisodes(await withUpToDate(withSampleReviews(view), raw))));
   } catch {
@@ -72,7 +73,8 @@ async function sampleProfile(): Promise<PublicProfileView> {
     displayName: "Sample Viewer",
     avatar: null,
     banner: films[0]?.backdrop?.replace("/w1280/", "/original/") ?? null,
-    bio: "A made-up profile for trying the layout. Films on weekends, a series a week, and far too many lists.",
+    bio: "Films on weekends, a series a week, and far too many lists.",
+    location: "Portland, OR",
     followers: 128,
     following: 64,
     stats: { films: 214, shows: 37, episodes: 1893, hours: 1702, ratings: 188, average: 7.4 },
