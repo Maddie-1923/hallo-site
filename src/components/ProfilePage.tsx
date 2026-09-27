@@ -178,7 +178,7 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
         // enlarges small type but leaves a scale alone, so FOLLOWERS still
         // fits its tile.
         <div key={label} className="min-w-0 rounded-[14px] bg-card-hi py-1.5 px-1 text-center flex flex-col items-center justify-center">
-          <div className="display text-[26px] xl:text-[30px] leading-none text-accent">{value}</div>
+          <div className="display text-[23px] xl:text-[26px] leading-none text-accent">{value}</div>
           <div className="text-[10px] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.6] xl:scale-[.72]">{label}</div>
         </div>
       ))}
