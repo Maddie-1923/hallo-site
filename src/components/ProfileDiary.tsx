@@ -94,8 +94,9 @@ export function ProfileDiary({ entries, owner = false, username = "" }: { entrie
 
       {/* The selected month in full. */}
       <div className="mt-6">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-2">
-          <h3 className="!text-[clamp(24px,2.2vw,30px)]">
+        {/* The month's heading, its count and the switch share one shell. */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[14px] bg-card-hi pl-4 pr-2 py-2">
+          <h3 className="!text-[clamp(22px,2vw,28px)]">
             {MONTHS_LONG[month]} {year}
           </h3>
           <span className="text-[12.5px] text-dim">
@@ -264,16 +265,18 @@ function PicturePicker({ month, list, onChoose, onClose }: { month: string; list
 // with the ends rounded.
 function EntryTable({ rows }: { rows: DiaryEntry[] }) {
   return (
-    <table className="w-full border-separate border-spacing-y-[6px] -my-[6px] text-[14px]">
+    <table className="w-full border-separate border-spacing-y-[6px] -mb-[6px] text-[14px]">
+      {/* The column headings sit in a shell of their own, in the page tone,
+          so they read as the table's heading bar rather than loose words. */}
       <thead>
         <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
-          <th className="py-2 pr-3 font-bold w-[64px]">Day</th>
-          <th className="py-2 px-3 font-bold">Title</th>
-          <th className="py-2 px-3 font-bold hidden md:table-cell w-[140px]">Episodes</th>
-          <th className="py-2 px-2 font-bold text-center w-[64px] hidden sm:table-cell">Rewatch</th>
-          <th className="py-2 px-3 font-bold w-[128px]">Rating</th>
-          <th className="py-2 px-2 font-bold text-center w-[48px]">Like</th>
-          <th className="py-2 pl-2 font-bold text-center w-[56px] hidden sm:table-cell">Review</th>
+          <th className={`${HEAD} rounded-l-[14px] py-2 pl-3 pr-3 font-bold w-[64px] text-right`}>Day</th>
+          <th className={`${HEAD} py-2 px-3 font-bold`}>Title</th>
+          <th className={`${HEAD} py-2 px-3 font-bold hidden md:table-cell w-[140px]`}>Episodes</th>
+          <th className={`${HEAD} py-2 px-2 font-bold text-center w-[64px] hidden sm:table-cell`}>Rewatch</th>
+          <th className={`${HEAD} py-2 px-3 font-bold w-[128px]`}>Rating</th>
+          <th className={`${HEAD} py-2 px-2 font-bold text-center w-[48px] rounded-r-[14px] sm:rounded-r-none`}>Like</th>
+          <th className={`${HEAD} rounded-r-[14px] py-2 pl-2 pr-3 font-bold text-center w-[56px] hidden sm:table-cell`}>Review</th>
         </tr>
       </thead>
       <tbody>
@@ -336,6 +339,8 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
 
 // The fill of an entry's shell: the lighter card tone, on the section's card.
 const SHELL = "bg-card-hi";
+// The column headings' shell: the page tone, set apart from the entries.
+const HEAD = "bg-page";
 
 // A rating out of ten as the app shows it: ten small hearts, lit to the
 // rating, a half heart for a half point.
