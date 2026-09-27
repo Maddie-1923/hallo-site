@@ -1,30 +1,66 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import type { DiaryEntry } from "@/lib/public-profile";
 import { MarkReview, MarkRewatched, TightHeart } from "./marks";
 
-// The profile's Watchlog: every watch as a row in a table, a year at a time.
-// The columns read in the order a diary entry is thought about: when, what,
-// how it was watched (which episodes, whether a rewatch), then what they
-// thought (hearts, a like, a review). The release year rides with the title,
-// the way a title is said aloud. Series get the Episodes column, which a
-// films-only log like Letterboxd's diary has no need for. A switch shows films,
-// series or both.
-//
-// The whole diary arrives from the server; showing one year at a time keeps
-// a long one readable without paging.
-export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
-  const [kind, setKind] = useState<"all" | "movie" | "show">("all");
-  const years = useMemo(() => [...new Set(entries.map((e) => e.date.slice(0, 4)))].sort().reverse(), [entries]);
-  const [year, setYear] = useState(years[0] ?? "");
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-  const rows = entries.filter((e) => e.date.startsWith(year) && (kind === "all" || e.kind === kind));
+// The profile's Watchlog. A year at a time: twelve month cards across the
+// top, two rows of six, each a wide picture with the month's numbers under
+// it; then every watch in the selected month, one shell to an entry. It opens
+// on the current month.
+//
+// A month card's picture is picked automatically from what was watched that
+// month. The owner can choose it instead, from that month's titles; until
+// accounts exist the choice is kept in this browser.
+//
+// The columns of the list read in the order a watch is thought about: when,
+// what, how it was watched (which episodes, whether a rewatch), then what
+// they thought (hearts, a like, a review). Series get the Episodes column,
+// which a films-only log like Letterboxd's diary has no need for.
+export function ProfileDiary({ entries, owner = false, username = "" }: { entries: DiaryEntry[]; owner?: boolean; username?: string }) {
+  const now = new Date();
+  const thisYear = String(now.getFullYear());
+  const [kind, setKind] = useState<"all" | "movie" | "show">("all");
+  const years = useMemo(() => [...new Set([thisYear, ...entries.map((e) => e.date.slice(0, 4))])].sort().reverse(), [entries, thisYear]);
+  const [year, setYear] = useState(thisYear);
+  const [month, setMonth] = useState(now.getMonth());
+  const [pictures, setPictures] = useState<Record<string, string>>({});
+  const [choosing, setChoosing] = useState<number | null>(null);
+  const storeKey = `kodigo.watchlog-pictures.${username}`;
+
+  useEffect(() => {
+    if (!owner) return;
+    try {
+      // This browser's saved choices, read after mount: the server can't see them.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPictures(JSON.parse(localStorage.getItem(storeKey) ?? "{}"));
+    } catch {}
+  }, [owner, storeKey]);
+
+  function choosePicture(m: number, entryKey: string | null) {
+    const ym = `${year}-${String(m + 1).padStart(2, "0")}`;
+    const next = { ...pictures };
+    if (entryKey) next[ym] = entryKey;
+    else delete next[ym];
+    setPictures(next);
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(next));
+    } catch {}
+    setChoosing(null);
+  }
+
+  const inYear = entries.filter((e) => e.date.startsWith(year) && (kind === "all" || e.kind === kind));
+  const byMonth = Array.from({ length: 12 }, (_, m) => inYear.filter((e) => Number(e.date.slice(5, 7)) === m + 1));
+  const rows = byMonth[month];
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-3 mb-5">
+      <div className="flex flex-wrap items-center gap-3 mb-4">
         <div className="inline-flex p-[3px] rounded-full bg-page border border-hair">
           {(
             [
@@ -55,108 +91,233 @@ export function ProfileDiary({ entries }: { entries: DiaryEntry[] }) {
           </select>
         </label>
         <span className="text-[12.5px] text-dim ml-auto">
-          {rows.length} {rows.length === 1 ? "entry" : "entries"}
+          {inYear.length} {inYear.length === 1 ? "entry" : "entries"} in {year}
         </span>
       </div>
 
-      {rows.length === 0 ? (
-        <p className="text-sm text-dim m-0">Nothing logged here.</p>
-      ) : (
-        <table className="w-full border-separate border-spacing-y-[6px] -my-[6px] text-[14px]">
-          {/* Each entry is its own shell rather than a row between hairlines:
-            the table is set with space between its rows, and every cell from
-            the day to the last mark is filled, with the ends rounded. The
-            month tag sits outside the shell, in the margin, the way a diary
-            heads a new month. */}
-          <thead>
-            <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
-              <th colSpan={2} className="py-2 pr-3 font-bold w-[132px]">Date</th>
-              <th className="py-2 px-3 font-bold">Title</th>
-              <th className="py-2 px-3 font-bold hidden md:table-cell w-[140px]">Episodes</th>
-              <th className="py-2 px-2 font-bold text-center w-[64px] hidden sm:table-cell">Rewatch</th>
-              <th className="py-2 px-3 font-bold w-[128px]">Rating</th>
-              <th className="py-2 px-2 font-bold text-center w-[48px]">Like</th>
-              <th className="py-2 pl-2 font-bold text-center w-[56px] hidden sm:table-cell">Review</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((e, i) => {
-              // The month shows once, on its first row, the way a diary page
-              // heads a new month.
-              const newMonth = i === 0 || rows[i - 1].date.slice(0, 7) !== e.date.slice(0, 7);
-              return (
-                <tr key={`${e.key}${e.date}`} className="align-middle">
-                  <td className="py-1.5 pr-3 align-middle">
-                    {newMonth && (
-                      <span className="inline-flex flex-col items-center justify-center w-[64px] rounded-[10px] bg-page border border-hair py-1 leading-none">
-                        <span className="display text-[20px] text-ink">{month(e.date)}</span>
-                        <span className="text-[10.5px] text-dim mt-0.5">{e.date.slice(0, 4)}</span>
-                      </span>
-                    )}
-                  </td>
-                  <td className={`${SHELL} rounded-l-[14px] py-2 pl-3 pr-3 text-right display text-[26px] leading-none text-dim`}>{Number(e.date.slice(8, 10))}</td>
-                  <td className={`${SHELL} py-2 px-3`}>
-                    <Link href={e.href} className="flex items-center gap-3 no-underline text-ink hover:text-accent group">
-                      <span className="w-9 shrink-0">
-                        {e.poster ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={e.poster} alt="" className="w-9 aspect-[2/3] rounded-[4px] object-cover" />
-                        ) : (
-                          <span className="block w-9 aspect-[2/3] rounded-[4px] bg-card-hi" />
-                        )}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate">
-                          <span className="font-semibold">{e.title}</span>
-                          {e.year && <span className="text-dim font-normal"> {e.year}</span>}
-                        </span>
-                        {/* On a phone the Episodes column folds in under the
-                            title. */}
-                        {e.episodes && <span className="block md:hidden text-[12px] text-dim truncate">{e.episodes}</span>}
-                      </span>
-                    </Link>
-                  </td>
-                  <td className={`${SHELL} py-2 px-3 text-dim hidden md:table-cell`}>{e.episodes ?? "—"}</td>
-                  <td className={`${SHELL} py-2 px-2 text-center hidden sm:table-cell`}>
-                    {e.rewatch ? (
-                      <span className="inline-flex text-accent" title="Rewatch">
-                        <MarkRewatched size={22} />
-                        <span className="sr-only">Rewatch</span>
-                      </span>
-                    ) : null}
-                  </td>
-                  <td className={`${SHELL} py-2 px-3`}>{e.rating != null ? <Hearts value={e.rating} /> : <span className="text-dim">—</span>}</td>
-                  <td className={`${SHELL} py-2 px-2 text-center rounded-r-[14px] sm:rounded-r-none`}>
-                    {e.loved ? (
-                      <span className="inline-flex text-loved" title="Loved">
-                        <TightHeart size={15} />
-                        <span className="sr-only">Loved</span>
-                      </span>
-                    ) : null}
-                  </td>
-                  <td className={`${SHELL} rounded-r-[14px] py-2 pl-2 pr-3 text-center hidden sm:table-cell`}>
-                    {e.reviewed ? (
-                      <Link href={e.href} className="inline-flex text-accent" title="Has a review">
-                        <MarkReview size={22} />
-                        <span className="sr-only">Read the review</span>
-                      </Link>
-                    ) : null}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      {/* The twelve months. */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+        {byMonth.map((list, m) => (
+          <MonthCard
+            key={m}
+            month={m}
+            list={list}
+            selected={m === month}
+            picture={pictureFor(list, pictures[`${year}-${String(m + 1).padStart(2, "0")}`])}
+            onSelect={() => setMonth(m)}
+            onChoose={owner && list.length > 0 ? () => setChoosing(m) : undefined}
+          />
+        ))}
+      </div>
+
+      {/* The selected month in full. */}
+      <div className="mt-6">
+        <div className="flex items-baseline gap-3 mb-2">
+          <h3 className="!text-[clamp(24px,2.2vw,30px)]">
+            {MONTHS_LONG[month]} {year}
+          </h3>
+          <span className="text-[12.5px] text-dim">
+            {rows.length} {rows.length === 1 ? "entry" : "entries"}
+          </span>
+        </div>
+        {rows.length === 0 ? <p className="text-sm text-dim m-0">Nothing logged this month.</p> : <EntryTable rows={rows} />}
+      </div>
+
+      {choosing != null && (
+        <PicturePicker
+          month={`${MONTHS_LONG[choosing]} ${year}`}
+          list={byMonth[choosing]}
+          onChoose={(key) => choosePicture(choosing, key)}
+          onClose={() => setChoosing(null)}
+        />
       )}
     </div>
   );
 }
 
-// A rating out of ten as the app shows it: ten small hearts, lit to the
-// rating, a half heart for a half point.
+// The month's picture: the owner's choice when there is one, or else the
+// most recent entry with a backdrop.
+function pictureFor(list: DiaryEntry[], chosenKey: string | undefined) {
+  const chosen = chosenKey ? list.find((e) => e.key === chosenKey && e.backdrop) : undefined;
+  return (chosen ?? list.find((e) => e.backdrop))?.backdrop ?? null;
+}
+
+function MonthCard({
+  month,
+  list,
+  selected,
+  picture,
+  onSelect,
+  onChoose,
+}: {
+  month: number;
+  list: DiaryEntry[];
+  selected: boolean;
+  picture: string | null;
+  onSelect: () => void;
+  onChoose?: () => void;
+}) {
+  const films = list.filter((e) => e.kind === "movie").length;
+  const episodes = list.reduce((n, e) => n + (e.episodeCount ?? 0), 0);
+  const empty = list.length === 0;
+  return (
+    <div className={`group relative ${empty && !selected ? "opacity-45" : ""}`}>
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-pressed={selected}
+        aria-label={`${MONTHS_LONG[month]}: ${list.length} ${list.length === 1 ? "entry" : "entries"}`}
+        className={`block w-full text-left rounded-[12px] cursor-pointer transition-shadow ${selected ? "ring-2 ring-accent-fill ring-offset-2 ring-offset-card" : ""}`}
+      >
+        <span className="block aspect-video rounded-[12px] overflow-hidden bg-card-hi border border-hair">
+          {picture && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={picture} alt="" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
+          )}
+        </span>
+        <span className="block px-0.5 pt-1.5">
+          <span className={`display block text-[20px] leading-none ${selected ? "text-accent" : "text-ink"}`}>{MONTHS[month]}</span>
+          <span className="block text-[11px] text-dim mt-0.5 truncate">
+            {empty ? "Nothing logged" : [`${list.length} ${list.length === 1 ? "entry" : "entries"}`, films ? `${films} ${films === 1 ? "film" : "films"}` : null, episodes ? `${episodes} ${episodes === 1 ? "ep" : "eps"}` : null].filter(Boolean).join(" · ")}
+          </span>
+        </span>
+      </button>
+      {onChoose && (
+        <button
+          type="button"
+          onClick={onChoose}
+          aria-label={`Choose the picture for ${MONTHS_LONG[month]}`}
+          title="Choose the picture"
+          className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-black/55 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer [@media(hover:none)]:opacity-100"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Choosing a month's picture from what was watched that month, or going back
+// to the automatic one.
+function PicturePicker({ month, list, onChoose, onClose }: { month: string; list: DiaryEntry[]; onChoose: (key: string | null) => void; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  const titles = list.filter((e, i) => e.backdrop && list.findIndex((x) => x.key === e.key) === i);
+  return createPortal(
+    <div role="dialog" aria-modal="true" aria-label={`Picture for ${month}`} className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-[24px] bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="p-4 border-b border-hair flex items-center justify-between gap-3">
+          <div className="display text-[24px] leading-none">Picture for {month}</div>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => onChoose(null)} className="text-[12.5px] text-dim hover:text-ink cursor-pointer">
+              Use automatic
+            </button>
+            <button type="button" onClick={onClose} aria-label="Close" className="w-9 h-9 rounded-full hover:bg-card-hi text-dim hover:text-ink text-xl cursor-pointer">
+              ×
+            </button>
+          </div>
+        </div>
+        <div className="p-4 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {titles.map((t) => (
+            <button key={t.key} type="button" onClick={() => onChoose(t.key)} className="text-left cursor-pointer group">
+              <span className="block aspect-video rounded-[10px] overflow-hidden bg-card-hi border border-hair group-hover:border-accent transition-colors">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={t.backdrop!} alt="" className="w-full h-full object-cover" />
+              </span>
+              <span className="block mt-1 text-[12px] text-ink truncate">{t.title}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+// The month's watches, each in its own shell: the table is set with space
+// between its rows, and every cell from the day to the last mark is filled,
+// with the ends rounded.
+function EntryTable({ rows }: { rows: DiaryEntry[] }) {
+  return (
+    <table className="w-full border-separate border-spacing-y-[6px] -my-[6px] text-[14px]">
+      <thead>
+        <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
+          <th className="py-2 pr-3 font-bold w-[64px]">Day</th>
+          <th className="py-2 px-3 font-bold">Title</th>
+          <th className="py-2 px-3 font-bold hidden md:table-cell w-[140px]">Episodes</th>
+          <th className="py-2 px-2 font-bold text-center w-[64px] hidden sm:table-cell">Rewatch</th>
+          <th className="py-2 px-3 font-bold w-[128px]">Rating</th>
+          <th className="py-2 px-2 font-bold text-center w-[48px]">Like</th>
+          <th className="py-2 pl-2 font-bold text-center w-[56px] hidden sm:table-cell">Review</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((e) => (
+          <tr key={`${e.key}${e.date}`} className="align-middle">
+            <td className={`${SHELL} rounded-l-[14px] py-2 pl-3 pr-3 text-right display text-[26px] leading-none text-dim`}>{Number(e.date.slice(8, 10))}</td>
+            <td className={`${SHELL} py-2 px-3`}>
+              <Link href={e.href} className="flex items-center gap-3 no-underline text-ink hover:text-accent group">
+                <span className="w-9 shrink-0">
+                  {e.poster ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={e.poster} alt="" className="w-9 aspect-[2/3] rounded-[4px] object-cover" />
+                  ) : (
+                    <span className="block w-9 aspect-[2/3] rounded-[4px] bg-card" />
+                  )}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate">
+                    <span className="font-semibold">{e.title}</span>
+                    {e.year && <span className="text-dim font-normal"> {e.year}</span>}
+                  </span>
+                  {/* On a phone the Episodes column folds in under the title. */}
+                  {e.episodes && <span className="block md:hidden text-[12px] text-dim truncate">{e.episodes}</span>}
+                </span>
+              </Link>
+            </td>
+            <td className={`${SHELL} py-2 px-3 text-dim hidden md:table-cell`}>{e.episodes ?? "—"}</td>
+            <td className={`${SHELL} py-2 px-2 text-center hidden sm:table-cell`}>
+              {e.rewatch ? (
+                <span className="inline-flex text-accent" title="Rewatch">
+                  <MarkRewatched size={22} />
+                  <span className="sr-only">Rewatch</span>
+                </span>
+              ) : null}
+            </td>
+            <td className={`${SHELL} py-2 px-3`}>{e.rating != null ? <Hearts value={e.rating} /> : <span className="text-dim">—</span>}</td>
+            <td className={`${SHELL} py-2 px-2 text-center rounded-r-[14px] sm:rounded-r-none`}>
+              {e.loved ? (
+                <span className="inline-flex text-loved" title="Loved">
+                  <TightHeart size={15} />
+                  <span className="sr-only">Loved</span>
+                </span>
+              ) : null}
+            </td>
+            <td className={`${SHELL} rounded-r-[14px] py-2 pl-2 pr-3 text-center hidden sm:table-cell`}>
+              {e.reviewed ? (
+                <Link href={e.href} className="inline-flex text-accent" title="Has a review">
+                  <MarkReview size={22} />
+                  <span className="sr-only">Read the review</span>
+                </Link>
+              ) : null}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 // The fill of an entry's shell: the lighter card tone, on the section's card.
 const SHELL = "bg-card-hi";
 
+// A rating out of ten as the app shows it: ten small hearts, lit to the
+// rating, a half heart for a half point.
 function Hearts({ value }: { value: number }) {
   return (
     <span className="inline-flex items-center gap-[2px]" title={`${value} out of 10`}>
@@ -176,8 +337,4 @@ function Hearts({ value }: { value: number }) {
       <span className="sr-only">{value} out of 10</span>
     </span>
   );
-}
-
-function month(d: string) {
-  return ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(d.slice(5, 7)) - 1];
 }

@@ -26,6 +26,8 @@ export interface DiaryEntry extends ProfileTitle {
   date: string;
   /** "S2 E5", or "S2 E1–E6" for several on one day; absent for a film. */
   episodes?: string;
+  /** How many episodes the entry covers; absent for a film. */
+  episodeCount?: number;
   rating: number | null;
   loved: boolean;
   rewatch: boolean;
@@ -163,7 +165,7 @@ export function profileFromArchive(
     const [f, l] = [g.eps[0], g.eps[g.eps.length - 1]];
     const label = g.eps.length === 1 ? `S${f[0]} E${f[1]}` : f[0] === l[0] ? `S${f[0]} E${f[1]}–E${l[1]}` : `S${f[0]} E${f[1]} – S${l[0]} E${l[1]}`;
     const key = `show:${g.show.id}`;
-    diary.push({ ...showTitle(g.show), date: g.date, episodes: label, rating: ratings[key] ?? null, loved: reactions[key] === "loved", rewatch: false, reviewed: !!reviews[key]?.text?.trim() });
+    diary.push({ ...showTitle(g.show), date: g.date, episodes: label, episodeCount: g.eps.length, rating: ratings[key] ?? null, loved: reactions[key] === "loved", rewatch: false, reviewed: !!reviews[key]?.text?.trim() });
   }
   diary.sort((x, y) => y.date.localeCompare(x.date));
 

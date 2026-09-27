@@ -82,7 +82,7 @@ async function sampleProfile(): Promise<PublicProfileView> {
 
   const day = (n: number) => new Date(Date.UTC(2026, 8, 25 - n)).toISOString().slice(0, 10);
   const diary = [...films.slice(0, 8), ...series.slice(0, 8)]
-    .map((x, i) => ({ ...x, date: day(i * 2), rating: [8, 9, 7, 10, 6.5, 8, 9.5, 7][i % 8], loved: i % 3 === 0, rewatch: i % 5 === 2, reviewed: i < 4, episodes: x.kind === "show" ? `S1 E${(i % 6) + 1}` : undefined }))
+    .map((x, i) => ({ ...x, date: day(i * 2), rating: [8, 9, 7, 10, 6.5, 8, 9.5, 7][i % 8], loved: i % 3 === 0, rewatch: i % 5 === 2, reviewed: i < 4, episodes: x.kind === "show" ? `S1 E${(i % 6) + 1}` : undefined, episodeCount: x.kind === "show" ? 1 : undefined }))
     .sort((a, b) => b.date.localeCompare(a.date));
   const blurbs = [
     "Sample review text. Tense from the first scene, and the last twenty minutes are the best thing in it.",

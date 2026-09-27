@@ -83,7 +83,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             id: "watchlog",
             label: "Watchlog",
             count: v.diary.length,
-            content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} /> : <Empty>Nothing logged yet.</Empty>,
+            content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} owner={!!v.owner} username={v.username} /> : <Empty>Nothing logged yet.</Empty>,
           },
           {
             id: "lists",
