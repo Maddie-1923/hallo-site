@@ -226,6 +226,14 @@ reads new issues, finds the cause and prepares a fix for approval. The user
 needs to create a free Sentry account. Update the privacy policy and App Store
 privacy labels to mention crash data before it ships.
 
+### Before opening: remove the test scaffolding
+
+- The three sample reviews on `/u/preview` (`withSampleReviews` in
+  `app/u/[username]/page.tsx`), kept for testing at the user's request.
+- The `/u/preview` and `/u/sample` pages themselves, and their links in the
+  profile menu. They only exist in development, but should go once real
+  profiles work.
+
 ### 9. Open the site
 
 Turn on `SITE_ACCOUNTS`, move the finished tables to the live project, and

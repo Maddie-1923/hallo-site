@@ -141,12 +141,13 @@ function sampleActivity(): Record<string, number> {
   return out;
 }
 
-// Three made-up reviews for the local preview while the library holds none,
-// so the Reviews tab can be designed with something in it: a long one, a
-// short one, and one of a single episode, with spoilers. Each is marked as a
-// sample on the page. Written for the preview; no one's real words.
+// Three made-up reviews on the local preview, kept for testing until the
+// user says to remove them (see docs/social-plan.md, "Before opening"): a long
+// one, a short one, and one of a single episode, with spoilers. Each is
+// marked as a sample on the page. Written for the preview; no one's real
+// words. They sit after any real reviews the library holds.
 function withSampleReviews(view: PublicProfileView): PublicProfileView {
-  if (view.reviews.length > 0 || !view.owner) return view;
+  if (!view.owner) return view;
   const find = (key: string) => [...view.owner!.films, ...view.owner!.shows].find((t) => t.key === key);
   const eeaao = find("m545611");
   const barbie = find("m346698");
@@ -197,5 +198,5 @@ function withSampleReviews(view: PublicProfileView): PublicProfileView {
         "That final scene by the water changes how I'll watch everything before it. Britt Lower is extraordinary.",
       ].join("\n\n"),
     });
-  return { ...view, reviews };
+  return { ...view, reviews: [...view.reviews, ...reviews.filter((r) => !view.reviews.some((x) => x.key === r.key))] };
 }
