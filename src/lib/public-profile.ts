@@ -33,7 +33,9 @@ export interface DiaryEntry extends ProfileTitle {
   rewatch: boolean;
   /** Whether they wrote a review of the title. */
   reviewed: boolean;
-  /** A made-up entry shown on a preview to judge the design. */
+  /** A made-up entry on the local preview. Not shown on the page (the user
+      wants the mock-ups to read as real); kept so they can be found and
+      removed before opening. */
   sample?: boolean;
 }
 
@@ -49,7 +51,9 @@ export interface ReviewEntry extends ProfileTitle {
   loved?: boolean;
   likes?: number;
   comments?: number;
-  /** A made-up review shown on a preview to judge the design. */
+  /** A made-up review on the local preview. Not shown on the page (the user
+      wants the mock-ups to read as real); kept so they can be found and
+      removed before opening. */
   sample?: boolean;
 }
 

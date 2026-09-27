@@ -412,7 +412,6 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
           {r.rating != null && <HeartRow value={r.rating} />}
           {r.loved && <span className="text-loved text-[14px]" title="Loved">♥</span>}
           {r.rewatch && <span className="text-[12px] text-dim">Rewatch</span>}
-          {r.sample && <span className="px-2 py-[1px] rounded-full border border-hair text-[10.5px] font-bold uppercase tracking-[.1em] text-dim">Sample</span>}
         </div>
 
         {r.spoilers ? (
