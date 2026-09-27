@@ -213,7 +213,7 @@ export function ProfileCategories({ categories: given, owner = false, username =
           )}
         </div>
       </div>
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
         {shown.map((c, i) =>
           arranging ? (
             <div
