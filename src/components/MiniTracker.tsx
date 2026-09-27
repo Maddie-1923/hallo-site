@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { addWatch, today } from "@/lib/live-watches";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 
 // The profile's mini tracker: what they're watching now, at a glance. Series
@@ -78,13 +79,24 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
                               label: p.next ? `Watch ${code(p.next.key)} later` : "Skip",
                               on: skippedHere,
                               off: !p.next,
+                              // Setting it aside plays the confirmation in the
+                              // hold's amber; taking it back doesn't.
+                              confirm: skippedHere ? undefined : HOLD,
                               run: p.next ? () => setSkipped((k) => (skippedHere ? k.filter((x) => x !== `${s.key}:${p.next!.key}`) : [...k, `${s.key}:${p.next!.key}`])) : undefined,
                             },
                             {
                               icon: <CheckGlyph />,
                               label: p.next ? `Mark ${code(p.next.key)} of ${s.title} watched` : "Watched",
                               off: !p.next,
-                              run: p.next ? () => setSeen((m) => ({ ...m, [s.key]: [...(m[s.key] ?? []), p.next!.key] })) : undefined,
+                              confirm: "var(--accent-fill)",
+                              run: p.next
+                                ? () => {
+                                    const n = p.next!;
+                                    setSeen((m) => ({ ...m, [s.key]: [...(m[s.key] ?? []), n.key] }));
+                                    const [se, ep] = n.key.split("-");
+                                    addWatch({ key: `${s.key}-${n.key}-${Date.now()}`, date: today(), t: s, detail: `S${se} E${ep}` });
+                                  }
+                                : undefined,
                             },
                           ]
                         : null
@@ -107,7 +119,15 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
                     owner
                       ? [
                           { icon: <MoreGlyph />, label: `More for ${f.title}` },
-                          { icon: <CheckGlyph />, label: `Mark ${f.title} watched`, run: () => setWatchedFilms((w) => [...w, f.key]) },
+                          {
+                            icon: <CheckGlyph />,
+                            label: `Mark ${f.title} watched`,
+                            confirm: "var(--accent-fill)",
+                            run: () => {
+                              setWatchedFilms((w) => [...w, f.key]);
+                              addWatch({ key: `${f.key}-${Date.now()}`, date: today(), t: f });
+                            },
+                          },
                         ]
                       : null
                   }
@@ -134,7 +154,14 @@ function code(key: string) {
   return `S${String(s).padStart(2, "0")} | E${String(e).padStart(2, "0")}`;
 }
 
-type Key = { icon: React.ReactNode; label: string; run?: () => void; on?: boolean; off?: boolean };
+/** A key: its glyph, what it says, what it does, whether it is set or
+    unavailable, and, for a key that records something, the colour its
+    confirmation fills with; that key does its work when the confirmation
+    ends, as the app's do. */
+type Key = { icon: React.ReactNode; label: string; run?: () => void; on?: boolean; off?: boolean; confirm?: string };
+
+// The app's hold amber (`kodigoHoldFill`), for a key that sets something aside.
+const HOLD = "#D9BC52";
 
 // One row of the app's list view (`WatchNextRow`): a card, and in it a
 // panel with the title's wide picture flush down its left and the show's
@@ -145,19 +172,22 @@ type Key = { icon: React.ReactNode; label: string; run?: () => void; on?: boolea
 function Row({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null }) {
   return (
     <li className="rounded-[16px] bg-well p-2 grid gap-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
-      <div className="h-[100px] rounded-[12px] bg-piece flex gap-3 overflow-hidden">
-        <Link href={t.href} className="w-[153px] shrink-0 h-full rounded-[12px] overflow-hidden border border-hair bg-card">
+      <div className="h-[72px] rounded-[12px] bg-piece flex gap-3 overflow-hidden">
+        <Link href={t.href} className="w-[128px] shrink-0 h-full rounded-[12px] overflow-hidden border border-hair bg-card">
           {(t.backdrop ?? t.poster) && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={(t.backdrop ?? t.poster)!} alt="" className="w-full h-full object-cover" />
           )}
         </Link>
-        <div className="min-w-0 flex-1 flex flex-col py-2 pr-2">
-          <Link href={t.href} className="block pt-0.5 text-[15px] leading-[20px] font-semibold text-ink truncate no-underline hover:text-accent">
+        <div className="min-w-0 flex-1 flex flex-col py-1.5 pr-2.5">
+          <Link href={t.href} className="block text-[13.5px] leading-[18px] font-semibold text-ink truncate no-underline hover:text-accent">
             {t.title}
           </Link>
-          <div className="mt-0.5 text-[15px] leading-[20px] text-mid-tone truncate">{lines[0]}</div>
-          {lines[1] && <div className="text-[15px] leading-[20px] text-dim truncate">{lines[1]}</div>}
+          {/* The code and the name share a line at this size. */}
+          <div className="text-[13px] leading-[17px] truncate">
+            <span className="text-mid-tone">{lines[0]}</span>
+            {lines[1] && <span className="text-dim"> · {lines[1]}</span>}
+          </div>
           {bar && (
             <div className="mt-auto flex items-center gap-2">
               <span className="flex-1 h-[2px] rounded-full bg-track overflow-hidden">
@@ -173,22 +203,79 @@ function Row({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]
       {keys && (
         <div className="flex gap-2">
           {keys.map((k) => (
-            <button
-              key={k.label}
-              type="button"
-              onClick={k.run}
-              disabled={k.off || !k.run}
-              aria-label={k.label}
-              aria-pressed={k.on}
-              title={k.label}
-              className={`flex-1 h-10 rounded-[10px] flex items-center justify-center transition-colors ${k.on ? "bg-[#D9BC52] text-[#F0EFE9]" : "bg-piece text-dim enabled:hover:text-ink"} ${k.off ? "opacity-35" : ""} enabled:cursor-pointer`}
-            >
-              {k.icon}
-            </button>
+            <KeyButton key={k.label} k={k} />
           ))}
         </div>
       )}
     </li>
+  );
+}
+
+// A key in the strip, and its confirmation (the app's
+// `KodigoKeyTraceConfirmation`, with its timings): the outline travels once
+// round the key clockwise from its top centre (0.85s), then after a beat the
+// key fills with the confirm colour and pushes forward while a ring leaves
+// the glyph (0.22s), holds (0.6s), and lets go; the key does its work at the
+// end, so the row moves on once the confirmation has been seen. With reduced
+// motion there is no stroke: the key fills, holds and lets go.
+const TRACE = 850;
+const SETTLE = 100;
+const FILL = 220;
+const HOLD_FOR = 600;
+
+function KeyButton({ k }: { k: Key }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  const [phase, setPhase] = useState<"idle" | "trace" | "lit" | "done">("idle");
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  function press() {
+    if (!k.run || phase !== "idle") return;
+    if (!k.confirm) return k.run();
+    // Measured at the press, so the outline fits the key as it is now.
+    if (ref.current) setSize({ w: ref.current.offsetWidth, h: ref.current.offsetHeight });
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const at = (ms: number, f: () => void) => timers.current.push(setTimeout(f, ms));
+    const lead = reduced ? 0 : TRACE + SETTLE;
+    setPhase(reduced ? "lit" : "trace");
+    at(lead, () => setPhase("lit"));
+    at(lead + FILL + HOLD_FOR, () => setPhase("done"));
+    at(lead + FILL + HOLD_FOR + 300, () => {
+      setPhase("idle");
+      k.run!();
+    });
+  }
+
+  // The outline: a rounded rectangle drawn from the top centre, clockwise,
+  // on the key's own edge, so its length can be run out from nothing.
+  const { w, h } = size;
+  const r = 10;
+  const path = w && h ? `M${w / 2} 0.75H${w - r}A${r - 0.75} ${r - 0.75} 0 0 1 ${w - 0.75} ${r}V${h - r}A${r - 0.75} ${r - 0.75} 0 0 1 ${w - r} ${h - 0.75}H${r}A${r - 0.75} ${r - 0.75} 0 0 1 0.75 ${h - r}V${r}A${r - 0.75} ${r - 0.75} 0 0 1 ${r} 0.75Z` : "";
+  const lit = phase === "lit";
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={press}
+      disabled={k.off || !k.run}
+      aria-label={k.label}
+      aria-pressed={k.on}
+      title={k.label}
+      className={`relative flex-1 h-8 rounded-[10px] flex items-center justify-center transition-[background-color,color] duration-300 ${k.on ? "text-[#F0EFE9]" : "bg-piece text-dim enabled:hover:text-ink"} ${k.off ? "opacity-35" : ""} enabled:cursor-pointer`}
+      style={{
+        ...(k.on ? { background: HOLD } : {}),
+        ...(lit ? { background: k.confirm, color: "#F0EFE9", transitionDuration: `${FILL}ms`, animation: `key-pop 380ms ease-out` } : {}),
+      }}
+    >
+      {phase === "trace" && path && (
+        <svg className="absolute inset-0 pointer-events-none" width={w} height={h} aria-hidden>
+          <path d={path} pathLength={1} fill="none" stroke={k.confirm} strokeWidth="1.5" strokeDasharray="1" style={{ animation: `key-trace ${TRACE}ms linear forwards` }} />
+        </svg>
+      )}
+      {lit && <span aria-hidden className="absolute left-1/2 top-1/2 -ml-[9px] -mt-[9px] w-[18px] h-[18px] rounded-full border-2 pointer-events-none" style={{ borderColor: k.confirm, animation: "key-burst 710ms linear forwards" }} />}
+      {k.icon}
+    </button>
   );
 }
 

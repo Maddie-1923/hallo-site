@@ -154,7 +154,11 @@ the live project only once a step is finished, and ask first.
 Everything the app does, on a computer.
 
 1. **Episode tracking:** check off episodes and whole seasons, and a
-   "continue watching / up next" page.
+   "continue watching / up next" page. The profile's Tracker card already has
+   the app's list rows and keys with their confirmation; its check must write
+   through the library actions (watched date and stamp), which is what puts a
+   watch in Recent activity on the site and Recents in the apps. Until then
+   the page shows it in Recent activity for the visit only.
 2. **Calendar** of upcoming episodes and releases for what you follow,
    beyond the bell list in the nav.
 3. **Library tools** on your own shows, films, watchlist and lists: sort,

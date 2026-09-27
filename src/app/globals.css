@@ -312,3 +312,21 @@ section.band p + p { margin-top: 1em; }
 /* Body copy on the site was written as text-bone when the site was night-only.
    By day Bone is the page itself, so those lines read as ink instead. */
 :root[data-scheme="light"] .text-bone { color: var(--ink); }
+
+/* The tracker keys' confirmation, as the app plays it
+   (`KodigoKeyTraceConfirmation`): an outline travels once round the key from
+   its top centre, the key fills behind it and pushes forward, and a ring
+   leaves the glyph as the stroke closes. */
+@keyframes key-trace {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes key-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+@keyframes key-burst {
+  from { transform: scale(0.3); opacity: 1; }
+  to { transform: scale(1.9); opacity: 0; }
+}
