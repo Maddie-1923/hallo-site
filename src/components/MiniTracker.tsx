@@ -25,8 +25,10 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
 
   return (
     <div className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col">
-      <div className="flex items-center justify-between gap-3 mb-2">
-        <div className="text-[11px] font-bold tracking-[.14em] uppercase text-dim">Watching now</div>
+      {/* Headed like Favourites beside it: the card's name, then the
+          section's in small capitals, "Up next" as the app calls it. */}
+      <div className="h-7 flex items-center justify-between gap-3">
+        <h2 className="!text-[clamp(22px,2vw,28px)] leading-none">Tracker</h2>
         <div className="inline-flex p-[3px] rounded-full bg-page border border-hair">
           {(
             [
@@ -46,6 +48,8 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
           ))}
         </div>
       </div>
+
+      <div className="mt-3 mb-1 text-[11px] font-bold tracking-[.14em] uppercase text-dim">Up next</div>
 
       <ul className="m-0 p-0 list-none flex-1">
         {tab === "show" &&
