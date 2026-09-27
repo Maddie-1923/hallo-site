@@ -18,8 +18,8 @@ import { Menu } from "./Menu";
 // (The app still draws a four-poster collage; this is to try on the web
 // first and carry over after.)
 //
-// The owner decides who sees each category with the eye on its tile: open,
-// everyone; struck through, only them. Everything starts public except On
+// The owner decides who sees each category with the button on its tile: an
+// eye, everyone; a lock, only them. Everything starts public except On
 // Hold and Stopped Watching, which start private. Kept in this browser until
 // accounts exist; then it is stored with the library and the server leaves
 // private categories out of everyone else's page.
@@ -201,24 +201,12 @@ function CategoryTile({
           <span className="block display text-[22px] leading-none tracking-[.02em] uppercase truncate group-hover:text-accent transition-colors">{c.name}</span>
           <span className="flex items-center gap-1.5 mt-1 text-[12.5px] text-dim">
             {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
-            {/* A private category reaches only the owner's own page; the lock
-                tells them nobody else sees it. */}
-            {hidden && (
-              <span className="inline-flex items-center gap-1" title="Only you can see this">
-                <span aria-hidden>·</span>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <rect x="5" y="11" width="14" height="10" rx="2" />
-                  <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-                </svg>
-                Only you
-              </span>
-            )}
           </span>
         </span>
       </button>
       {/* The owner's two controls, over the picture's corner: who can see
           the category, and its picture. They come up with the pointer, and
-          stay up on a touch screen where there is no pointer. The eye stays
+          stay up on a touch screen where there is no pointer. The lock stays
           up while the category is private, so the choice is never out of
           sight. */}
       {(onToggleHidden || onChoose) && (
@@ -233,9 +221,18 @@ function CategoryTile({
               className={`${chip} ${hidden ? "" : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity [@media(hover:none)]:opacity-100"}`}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
-                <circle cx="12" cy="12" r="3" />
-                {hidden && <path d="M3 3l18 18" />}
+                {hidden ? (
+                  // Private: a lock, where the open eye would be.
+                  <>
+                    <rect x="5" y="11" width="14" height="10" rx="2" />
+                    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                  </>
+                ) : (
+                  <>
+                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </>
+                )}
               </svg>
             </button>
           )}
