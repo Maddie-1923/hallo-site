@@ -71,15 +71,17 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
       <div className={`w-full ${framed ? "px-[clamp(20px,5vw,80px)] h-20" : "px-[clamp(16px,3.2vw,64px)] h-16"} flex items-center gap-6`}>
         {/* The mark hangs from the top edge of the bar, which is the top of
             the page, so its stripes run off it the way they run off the app
-            icon. The wordmark sits on the same baseline as Home, Explore and
-            the rest (centred in the bar, then 4px down, which is where the
-            display face's baseline lands on the links'), rather than on the
-            k's foot. */}
-        <Link href={user ? "/discover" : "/"} className="self-stretch flex items-end gap-2.5 pb-[12px] no-underline">
+            icon. The k's foot, the wordmark and Home, Explore and the rest
+            all stand on one line: the padding under the logo lifts the k's
+            foot to the links' baseline (27px in the 64px bar, 35px in the
+            home page's 80px one), and the wordmark, set on the same foot, is
+            nudged 4px down since the display face keeps that much room
+            under its letters. */}
+        <Link href={user ? "/discover" : "/"} className={`self-stretch flex items-end gap-2.5 ${framed ? "pb-[35px]" : "pb-[27px]"} no-underline`}>
           {/* A touch taller than the bar, so the stripes' tops sit past the
               page's edge and only ever read as running off it. */}
           <LogoBleed height={framed ? 70 : 54} />
-          <span className="self-center translate-y-1 display text-2xl leading-none">Kodigo</span>
+          <span className="translate-y-1 display text-2xl leading-none">Kodigo</span>
         </Link>
         <div className="hidden md:flex gap-5 text-sm text-dim">
           <NavLinks links={user ? product : marketing} />
