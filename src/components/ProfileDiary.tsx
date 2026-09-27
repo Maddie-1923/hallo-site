@@ -265,25 +265,28 @@ function PicturePicker({ month, list, onChoose, onClose }: { month: string; list
 // with the ends rounded.
 function EntryTable({ rows }: { rows: DiaryEntry[] }) {
   return (
-    <table className="w-full border-separate border-spacing-y-[6px] -mb-[6px] text-[14px]">
+    <table className="w-full table-fixed border-separate border-spacing-y-[6px] -mb-[6px] text-[14px]">
       {/* The column headings sit in a shell of their own, in the page tone,
-          so they read as the table's heading bar rather than loose words. */}
+          so they read as the table's heading bar rather than loose words.
+          Fixed column widths with the same padding in every cell, so the
+          gaps between columns are even and each heading sits squarely over
+          what it heads; the title takes whatever is left. */}
       <thead>
         <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
-          <th className={`${HEAD} rounded-l-[14px] py-2 pl-3 pr-3 font-bold w-[64px] text-right`}>Day</th>
-          <th className={`${HEAD} py-2 px-3 font-bold`}>Title</th>
-          <th className={`${HEAD} py-2 px-3 font-bold hidden md:table-cell w-[140px]`}>Episodes</th>
-          <th className={`${HEAD} py-2 px-2 font-bold text-center w-[64px] hidden sm:table-cell`}>Rewatch</th>
-          <th className={`${HEAD} py-2 px-3 font-bold w-[128px]`}>Rating</th>
-          <th className={`${HEAD} py-2 px-2 font-bold text-center w-[48px] rounded-r-[14px] sm:rounded-r-none`}>Like</th>
-          <th className={`${HEAD} rounded-r-[14px] py-2 pl-2 pr-3 font-bold text-center w-[56px] hidden sm:table-cell`}>Review</th>
+          <th className={`${HEAD} rounded-l-[14px] py-2 pl-3 pr-4 font-bold w-[76px] text-right`}>Day</th>
+          <th className={`${HEAD} py-2 px-4 font-bold`}>Title</th>
+          <th className={`${HEAD} py-2 px-4 font-bold hidden md:table-cell w-[150px]`}>Episodes</th>
+          <th className={`${HEAD} py-2 px-4 font-bold text-center w-[104px] hidden sm:table-cell`}>Rewatch</th>
+          <th className={`${HEAD} py-2 px-4 font-bold w-[160px]`}>Rating</th>
+          <th className={`${HEAD} py-2 px-4 font-bold text-center w-[80px] rounded-r-[14px] sm:rounded-r-none`}>Like</th>
+          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold text-center w-[100px] hidden sm:table-cell`}>Review</th>
         </tr>
       </thead>
       <tbody>
         {rows.map((e) => (
           <tr key={`${e.key}${e.date}`} className="align-middle">
-            <td className={`${SHELL} rounded-l-[14px] py-2 pl-3 pr-3 text-right display text-[26px] leading-none text-dim`}>{Number(e.date.slice(8, 10))}</td>
-            <td className={`${SHELL} py-2 px-3`}>
+            <td className={`${SHELL} rounded-l-[14px] py-2 pl-3 pr-4 text-right display text-[26px] leading-none text-dim`}>{Number(e.date.slice(8, 10))}</td>
+            <td className={`${SHELL} py-2 px-4`}>
               <Link href={e.href} className="flex items-center gap-3 no-underline text-ink hover:text-accent group">
                 <span className="w-9 shrink-0">
                   {e.poster ? (
@@ -304,8 +307,8 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </span>
               </Link>
             </td>
-            <td className={`${SHELL} py-2 px-3 text-dim hidden md:table-cell`}>{e.episodes ?? "—"}</td>
-            <td className={`${SHELL} py-2 px-2 text-center hidden sm:table-cell`}>
+            <td className={`${SHELL} py-2 px-4 text-dim hidden md:table-cell truncate`}>{e.episodes ?? "—"}</td>
+            <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
               {e.rewatch ? (
                 <span className="inline-flex text-accent" title="Rewatch">
                   <MarkRewatched size={22} />
@@ -313,8 +316,8 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </span>
               ) : null}
             </td>
-            <td className={`${SHELL} py-2 px-3`}>{e.rating != null ? <Hearts value={e.rating} /> : <span className="text-dim">—</span>}</td>
-            <td className={`${SHELL} py-2 px-2 text-center rounded-r-[14px] sm:rounded-r-none`}>
+            <td className={`${SHELL} py-2 px-4`}>{e.rating != null ? <Hearts value={e.rating} /> : <span className="text-dim">—</span>}</td>
+            <td className={`${SHELL} py-2 px-4 text-center rounded-r-[14px] sm:rounded-r-none`}>
               {e.loved ? (
                 <span className="inline-flex text-loved" title="Loved">
                   <TightHeart size={15} />
@@ -322,7 +325,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </span>
               ) : null}
             </td>
-            <td className={`${SHELL} rounded-r-[14px] py-2 pl-2 pr-3 text-center hidden sm:table-cell`}>
+            <td className={`${SHELL} rounded-r-[14px] py-2 px-4 text-center hidden sm:table-cell`}>
               {e.reviewed ? (
                 <Link href={e.href} className="inline-flex text-accent" title="Has a review">
                   <MarkReview size={22} />
