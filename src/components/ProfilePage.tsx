@@ -6,6 +6,7 @@ import { ReviewActions } from "./ReviewActions";
 import { ReviewHeading } from "./ReviewSheet";
 import { ProfileCategories } from "./ProfileCategories";
 import { ProfileAbout } from "./ProfileAbout";
+import { ProfileMenu } from "./ProfileMenu";
 import { ActivityFeed, type ActivityItem } from "./ActivityFeed";
 import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
@@ -263,8 +264,9 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         {/* Follow, its top level with the top of the handle (a pixel down, to
             where the capitals start; FollowPill sizes itself to the handle's
             line). The follower counts are with the numbers beside the card. */}
-        <div className="shrink-0 mt-px flex">
+        <div className="shrink-0 mt-px flex items-start gap-2">
           <FollowPill />
+          <ProfileMenu username={v.username} owner={!!v.owner} />
         </div>
         </div>
         {/* Under the handle and Follow, across the card's full width, so the

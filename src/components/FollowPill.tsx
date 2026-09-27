@@ -47,8 +47,8 @@ export function FollowPill({ initial = false }: { initial?: boolean }) {
 // clamp(20px, 1.8vw, 26px). The mark's disc (0.8 of its box) is as tall as
 // the handle's whole line, 0.9 of that size, so it looks the same size as the
 // name; the check badge hangs below and isn't counted.
-const HANDLE = "clamp(20px, 1.8vw, 26px)";
-const LINE = `calc(${HANDLE} * 0.9)`;
+export const HANDLE = "clamp(20px, 1.8vw, 26px)";
+export const LINE = `calc(${HANDLE} * 0.9)`;
 const SIZE = `calc(${HANDLE} * 1.125)`;
 
 function FollowingGlyph() {
