@@ -154,8 +154,15 @@ Everything the app does, on a computer.
    - "friends who watched";
    - reviews from people you follow first, then popular and recent;
    - spoiler reviews collapsed.
-3. **A page for each review**, with a link made for sharing: a preview image
-   of the poster, the hearts and the first line.
+3. **A page for each review**, with a link made for sharing. Both look like
+   the review sheet the Watchlog already opens:
+   - the page is the sheet standing on its own, centred on the site, with
+     the reviewer's name and photo linking to their profile;
+   - the link preview (what iMessage, WhatsApp, X and others draw when the
+     link is pasted) is a picture of the sheet made on the fly: the title's
+     still in its shell, the title, the stars and the review's opening
+     lines, with the Kodigo logo. A spoiler review shows no text in the
+     preview, only "Contains spoilers".
 4. **Episode reviews and discussion**, which Letterboxd can't do.
 5. **Pinned reviews** at the top of a profile.
 
