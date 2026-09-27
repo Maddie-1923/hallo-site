@@ -173,11 +173,13 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
     // One row of six, as tall as the person's card beside it.
     <div className="flex-1 grid grid-cols-6 gap-1.5">
       {tiles.map(([label, value]) => (
+        // 2px more above than below: Bebas keeps room under its figures, so
+        // this is what centres the lettering itself in the tile.
         // The labels are set at 10px and scaled down to fit, rather than set
         // tiny: a browser with a minimum font size (a common reading setting)
         // enlarges small type but leaves a scale alone, so FOLLOWERS still
         // fits its tile.
-        <div key={label} className="min-w-0 rounded-[14px] bg-card-hi py-1.5 px-1 text-center flex flex-col items-center justify-center">
+        <div key={label} className="min-w-0 rounded-[14px] bg-card-hi pt-2 pb-1.5 px-1 text-center flex flex-col items-center justify-center">
           <div className="display text-[23px] xl:text-[26px] leading-none text-accent">{value}</div>
           <div className="text-[10px] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.6] xl:scale-[.72]">{label}</div>
         </div>
