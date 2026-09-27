@@ -181,7 +181,7 @@ function MonthCard({
           )}
         </span>
         <span className="block px-1 pt-1.5 pb-0.5">
-          <span className={`display block text-[16px] leading-none ${selected ? "text-accent" : "text-ink"}`}>{MONTHS_LONG[month]}</span>
+          <span className={`block text-[11.5px] leading-[16px] font-bold uppercase tracking-[.1em] ${selected ? "text-accent" : "text-ink"}`}>{MONTHS_LONG[month]}</span>
           {/* The month's numbers, one to a line: the label on the left, the
               figure on the right, so a figure under the month's name can't be
               read as a date. Every card carries all three lines, zeros
