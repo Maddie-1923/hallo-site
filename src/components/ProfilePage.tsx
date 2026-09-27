@@ -44,10 +44,12 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
       {/* Two columns on one grid, so their edges line up down the page. On
           top, the person's card beside the numbers. Under them, the wider
           left holds the tabbed sections (Reviews, Recent activity, Watchlog,
-          Categories, Stats), and the narrower right the Tracker, which stays
-          in view (sticky) while the sections scroll past it and scrolls its
-          own list inside. On a phone it all stacks: card, numbers, Tracker,
-          then the sections.
+          Categories, Stats), and the narrower right the Tracker, level with
+          the sections' shell rather than their tabs (ProfileSections lays the
+          two out on the same column widths). The Tracker stays in view
+          (sticky) while the sections scroll past it and scrolls its own list
+          inside. On a phone it all stacks: card, numbers, Tracker, then the
+          sections.
 
           Favourites is parked while this layout is tried; it comes back
           somewhere else (FavouriteCard below is kept for that). */}
@@ -57,7 +59,8 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
           <NumberTiles v={v} />
         </div>
           <ProfileSections
-            className="min-w-0 max-lg:order-2"
+            className="lg:col-span-2"
+            aside={<MiniTracker shows={v.tracker.shows} films={v.tracker.films} owner={!!v.owner} />}
             sections={[
               {
                 id: "reviews",
@@ -94,9 +97,6 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
               { id: "stats", label: "Stats", content: <Dashboard v={v} /> },
             ]}
           />
-        <div className="max-lg:order-1 lg:sticky lg:top-24 h-[min(720px,calc(100svh-8rem))] min-h-[420px] flex flex-col">
-          <MiniTracker shows={v.tracker.shows} films={v.tracker.films} owner={!!v.owner} />
-        </div>
       </div>
 
       <BackToTop />
@@ -170,11 +170,14 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
     ["Following", v.following.toLocaleString("en")],
   ];
   return (
-    <div className="flex-1 grid grid-cols-3 sm:grid-cols-6 gap-2">
+    // One row of six, as tall as the person's card beside it.
+    <div className="flex-1 grid grid-cols-6 gap-2">
       {tiles.map(([label, value]) => (
-        <div key={label} className="rounded-[16px] bg-card-hi py-2.5 text-center flex flex-col items-center justify-center">
-          <div className="display text-[clamp(24px,2.2vw,32px)] leading-none text-accent">{value}</div>
-          <div className="text-[9.5px] leading-none font-bold tracking-[.06em] uppercase text-dim mt-1 whitespace-nowrap">{label}</div>
+        // Sized from the tile's own width (container units), so the longest
+        // label, FOLLOWERS, fits whatever width the column gives the tiles.
+        <div key={label} className="@container min-w-0 rounded-[14px] bg-card-hi py-1.5 px-1 text-center flex flex-col items-center justify-center">
+          <div className="display text-[min(26px,30cqi)] leading-none text-accent">{value}</div>
+          <div className="text-[min(10px,12.5cqi)] leading-none font-bold tracking-[.05em] uppercase text-dim mt-1 whitespace-nowrap">{label}</div>
         </div>
       ))}
     </div>

@@ -13,7 +13,12 @@ export interface ProfileSection {
 // swaps it in place, with no new page and no jump down the page. The choice
 // is written into the address (…/u/name#diary) without scrolling, so a
 // reload or a shared link opens on the same tab.
-export function ProfileSections({ sections, className = "mt-10" }: { sections: ProfileSection[]; className?: string }) {
+// `aside`, when given, stands beside the section's shell on a wide screen,
+// its top level with the shell's rather than with the tabs, on the same
+// column widths as the profile's grid above so the edges line up; it stays
+// in view while a long section scrolls past. On a phone it comes before the
+// tabs.
+export function ProfileSections({ sections, className = "mt-10", aside }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode }) {
   const [current, setCurrent] = useState(sections[0].id);
 
   useEffect(() => {
@@ -34,7 +39,11 @@ export function ProfileSections({ sections, className = "mt-10" }: { sections: P
   const shown = sections.find((s) => s.id === current) ?? sections[0];
 
   return (
-    <section className={className}>
+    <section className={`${className} ${aside ? "grid gap-x-5 gap-y-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]" : ""}`}>
+      {aside && (
+        <div className="lg:col-start-2 lg:row-start-2 lg:self-start lg:sticky lg:top-24 h-[min(720px,calc(100svh-8rem))] min-h-[420px] flex flex-col">{aside}</div>
+      )}
+      <div className="lg:col-start-1 lg:row-start-1 min-w-0">
       <div
         role="tablist"
         aria-label="Profile sections"
@@ -59,13 +68,14 @@ export function ProfileSections({ sections, className = "mt-10" }: { sections: P
           );
         })}
       </div>
+      </div>
 
       {/* The section sits in a shell like every other box on the profile. */}
       <div
         role="tabpanel"
         id={`panel-${shown.id}`}
         aria-labelledby={`tab-${shown.id}`}
-        className="mt-4 min-h-[240px] rounded-[24px] bg-card border border-hair px-[clamp(14px,2vw,28px)] py-[clamp(14px,1.6vw,22px)]"
+        className={`${aside ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 min-h-[240px] rounded-[24px] bg-card border border-hair px-[clamp(14px,2vw,28px)] py-[clamp(14px,1.6vw,22px)]`}
       >
         {shown.content}
       </div>
