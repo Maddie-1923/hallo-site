@@ -47,9 +47,9 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
           to the taller, and the growable row on each side takes the slack. */}
       {/* Two rows so the pairs match: the person's card beside the numbers,
           one height between them; then their favourites on the left and the
-          stat panels on the right. The left column is the narrower one, so
-          the favourites' posters stay small and the calendar gets the room. */}
-      <div className="grid gap-x-5 gap-y-4 mt-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:grid-rows-[auto_1fr] items-stretch">
+          tracker on the right. The two columns are equal, so neither side
+          reads as stretched. */}
+      <div className="grid gap-x-5 gap-y-4 mt-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] items-stretch">
         <ProfileCard v={v} />
         <div className="rounded-[24px] bg-card border border-hair p-2.5 flex">
           <NumberTiles v={v} />
