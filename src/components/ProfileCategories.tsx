@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CategoryEntry, ProfileTitle } from "@/lib/public-profile";
 import { Menu } from "./Menu";
@@ -28,12 +28,16 @@ import { Menu } from "./Menu";
 // Custom List": a name, a line about it, and titles picked from their
 // library. Until accounts exist, what they make is kept in this browser.
 //
-// The order menu is the app's (`ProfileShelfSort`): Custom, the owner's own
-// arrangement, then by name or by size. The owner arranges with Arrange
-// beside it: tiles drag into place, or move a step with the arrows on them
-// (for a keyboard or a touch screen, where dragging doesn't work). Until
-// accounts exist their arrangement is kept in this browser; a reader's choice
-// of order is kept in theirs.
+// The order menu is the app's (`ProfileShelfSort`): My order, the owner's
+// own arrangement, then by name or by size; the button is just its icon.
+// The owner's Edit beside it is where the categories are arranged, made
+// public or private, given a picture and (their own ones) deleted. In Edit
+// a tile is picked up and dragged where it should go, and the others make
+// room as it passes. It is done with pointer events rather than the
+// browser's own drag and drop, so a finger on a phone drags the same as a
+// mouse. From the keyboard, the arrow keys move the focused tile a step.
+// Until accounts exist all of this is kept in this browser; a reader's
+// choice of order is kept in theirs.
 export function ProfileCategories({ categories: given, owner = false, username = "", library = [] }: { categories: CategoryEntry[]; owner?: boolean; username?: string; library?: ProfileTitle[] }) {
   const [made, setMade] = useState<MadeCategory[]>([]);
   const [creating, setCreating] = useState(false);
@@ -62,7 +66,30 @@ export function ProfileCategories({ categories: given, owner = false, username =
   const [sort, setSort] = useState<SortId>("custom");
   const [order, setOrder] = useState<string[]>([]);
   const [arranging, setArranging] = useState(false);
-  const [dragFrom, setDragFrom] = useState<string | null>(null);
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [deleted, setDeleted] = useState<string[]>([]);
+  const deletedKey = `kodigo.deleted-categories.${username}`;
+  useEffect(() => {
+    if (!owner) return;
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDeleted(JSON.parse(localStorage.getItem(deletedKey) ?? "[]"));
+    } catch {}
+  }, [owner, deletedKey]);
+  // Only the person's own categories can go; the eight built in stay. The
+  // app's wording: a category is a way of grouping titles, not a place they
+  // live, so nothing tracked is lost.
+  function remove(c: CategoryEntry) {
+    if (!confirm(`Delete ${c.name}? Everything in it stays tracked.`)) return;
+    if (made.some((m) => m.id === c.id)) saveMade(made.filter((m) => m.id !== c.id));
+    else {
+      const next = [...deleted, c.id];
+      setDeleted(next);
+      try {
+        localStorage.setItem(deletedKey, JSON.stringify(next));
+      } catch {}
+    }
+  }
   const orderKey = `kodigo.category-order.${username}`;
   useEffect(() => {
     if (!owner) return;
@@ -127,7 +154,8 @@ export function ProfileCategories({ categories: given, owner = false, username =
   }
 
   // Arranging always works on the custom order, whatever the menu says.
-  const shown = arranged(categories, arranging ? "custom" : sort, order);
+  const visible = categories.filter((c) => !deleted.includes(c.id));
+  const shown = arranged(visible, arranging ? "custom" : sort, order);
   function move(from: string, to: number) {
     const ids = shown.map((c) => c.id).filter((id) => id !== from);
     ids.splice(Math.max(0, Math.min(to, ids.length)), 0, from);
@@ -137,11 +165,37 @@ export function ProfileCategories({ categories: given, owner = false, username =
     } catch {}
   }
 
+  // While a tile is held, the page follows the pointer rather than the tile:
+  // reordering moves the tile's element, which would lose a pointer captured
+  // on it. Whatever tile is under the pointer, the held one takes its place
+  // and the rest shift along.
+  const latest = useRef({ shown, move });
+  useEffect(() => {
+    latest.current = { shown, move };
+  });
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (e: PointerEvent) => {
+      const over = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null)?.closest<HTMLElement>("[data-cat]")?.dataset.cat;
+      const { shown, move } = latest.current;
+      if (over && over !== dragging) move(dragging, shown.findIndex((x) => x.id === over));
+    };
+    const onUp = () => setDragging(null);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
+  }, [dragging]);
+
   return (
     <div>
       <div className="flex items-center justify-between gap-3 mb-4">
         <span className="text-[12.5px] text-dim">
-          {arranging ? "Drag the categories into the order you want, or use the arrows." : `${categories.length} ${categories.length === 1 ? "category" : "categories"}`}
+          {arranging ? "Drag to rearrange. Tap the eye to make one private." : `${visible.length} ${visible.length === 1 ? "category" : "categories"}`}
         </span>
         <div className="flex items-center gap-2">
           {!arranging && <SortMenu sort={sort} onChoose={chooseSort} />}
@@ -154,7 +208,7 @@ export function ProfileCategories({ categories: given, owner = false, username =
               }}
               className={`h-9 px-4 rounded-full text-[12.5px] font-semibold cursor-pointer transition-colors ${arranging ? "bg-accent-fill text-on-accent" : "bg-page border border-hair text-dim hover:text-ink"}`}
             >
-              {arranging ? "Done" : "Arrange"}
+              {arranging ? "Done" : "Edit"}
             </button>
           )}
         </div>
@@ -164,40 +218,38 @@ export function ProfileCategories({ categories: given, owner = false, username =
           arranging ? (
             <div
               key={c.id}
-              draggable
-              onDragStart={() => setDragFrom(c.id)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => {
-                if (dragFrom && dragFrom !== c.id) move(dragFrom, i);
-                setDragFrom(null);
+              data-cat={c.id}
+              role="button"
+              tabIndex={0}
+              aria-label={`${c.name}. Drag to move it, or use the arrow keys.`}
+              onPointerDown={(e) => {
+                e.preventDefault();
+                setDragging(c.id);
               }}
-              onDragEnd={() => setDragFrom(null)}
-              className={`relative rounded-[20px] outline-2 outline-dashed outline-accent outline-offset-2 cursor-grab active:cursor-grabbing ${dragFrom === c.id ? "opacity-40" : ""}`}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowLeft" || e.key === "ArrowUp") move(c.id, i - 1);
+                else if (e.key === "ArrowRight" || e.key === "ArrowDown") move(c.id, i + 1);
+                else return;
+                e.preventDefault();
+              }}
+              className={`relative rounded-[20px] outline-2 outline-dashed outline-accent outline-offset-2 touch-none select-none transition-transform ${dragging === c.id ? "z-10 scale-[1.04] shadow-[0_18px_40px_rgba(0,0,0,.45)] cursor-grabbing" : "cursor-grab"}`}
             >
-              <CategoryTile c={c} picture={pictureFor(c, pictures[c.id])} hidden={isPrivate(c)} />
-              <div className="absolute top-3 left-3 flex gap-1.5">
-                <button type="button" onClick={() => move(c.id, i - 1)} disabled={i === 0} aria-label={`Move ${c.name} earlier`} className="w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center cursor-pointer disabled:opacity-30 disabled:cursor-default">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    <path d="M15 5l-7 7 7 7" />
-                  </svg>
-                </button>
-                <button type="button" onClick={() => move(c.id, i + 1)} disabled={i === shown.length - 1} aria-label={`Move ${c.name} later`} className="w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center cursor-pointer disabled:opacity-30 disabled:cursor-default">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    <path d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
+              {/* The tile can't be opened while editing; the wrapper takes
+                  every press except those on the controls. */}
+              <div className="pointer-events-none">
+                <CategoryTile
+                  c={c}
+                  picture={pictureFor(c, pictures[c.id])}
+                  hidden={isPrivate(c)}
+                  editing
+                  onToggleHidden={() => togglePrivate(c)}
+                  onChoose={() => setChoosing(c)}
+                  onDelete={c.custom ? () => remove(c) : undefined}
+                />
               </div>
             </div>
           ) : (
-            <CategoryTile
-              key={c.id}
-              c={c}
-              picture={pictureFor(c, pictures[c.id])}
-              onOpen={() => setOpen(c)}
-              onChoose={owner ? () => setChoosing(c) : undefined}
-              hidden={isPrivate(c)}
-              onToggleHidden={owner ? () => togglePrivate(c) : undefined}
-            />
+            <CategoryTile key={c.id} c={c} picture={pictureFor(c, pictures[c.id])} onOpen={() => setOpen(c)} hidden={isPrivate(c)} showLock={owner} />
           ),
         )}
         {owner && !arranging && <NewCategoryTile onClick={() => setCreating(true)} />}
@@ -244,21 +296,29 @@ function CategoryTile({
   c,
   picture,
   onOpen,
-  onChoose,
   hidden,
+  showLock = false,
+  editing = false,
+  onChoose,
   onToggleHidden,
+  onDelete,
 }: {
   c: CategoryEntry;
   picture: string | null;
   onOpen?: () => void;
-  onChoose?: () => void;
   hidden: boolean;
+  /** The owner's own view: a private category carries a small lock. */
+  showLock?: boolean;
+  /** In Edit, the owner's controls sit over the picture's corner. */
+  editing?: boolean;
+  onChoose?: () => void;
   onToggleHidden?: () => void;
+  onDelete?: () => void;
 }) {
   const chip = "w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center cursor-pointer";
   return (
     <div className="relative group">
-      <button type="button" onClick={onOpen} className="w-full text-left rounded-[20px] bg-card-hi overflow-hidden cursor-pointer">
+      <button type="button" onClick={onOpen} tabIndex={editing ? -1 : 0} className="w-full text-left rounded-[20px] bg-card-hi overflow-hidden cursor-pointer">
         <span className="block aspect-video rounded-b-[8px] overflow-hidden bg-card">
           {picture && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -266,19 +326,24 @@ function CategoryTile({
           )}
         </span>
         <span className="block px-3 pt-2.5 pb-3">
-          <span className="block display text-[22px] leading-none tracking-[.02em] uppercase truncate group-hover:text-accent transition-colors">{c.name}</span>
+          <span className={`block display text-[22px] leading-none tracking-[.02em] uppercase truncate transition-colors ${editing ? "" : "group-hover:text-accent"}`}>{c.name}</span>
           <span className="flex items-center gap-1.5 mt-1 text-[12.5px] text-dim">
             {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
           </span>
         </span>
       </button>
-      {/* The owner's two controls, over the picture's corner: who can see
-          the category, and its picture. They come up with the pointer, and
-          stay up on a touch screen where there is no pointer. The lock stays
-          up while the category is private, so the choice is never out of
-          sight. */}
-      {(onToggleHidden || onChoose) && (
-        <div className="absolute top-3 right-3 flex gap-1.5">
+      {/* Outside Edit, the owner is told which categories only they can see. */}
+      {showLock && hidden && !editing && (
+        <span className={`absolute top-3 right-3 ${chip} cursor-default`} title="Private: only you can see it">
+          <LockGlyph />
+          <span className="sr-only">Private</span>
+        </span>
+      )}
+      {/* In Edit: who can see it (an eye for everyone, a lock for only the
+          owner), its picture, and, for the person's own categories, delete.
+          A press on these doesn't pick the tile up. */}
+      {editing && (
+        <div className="absolute top-3 right-3 flex gap-1.5 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
           {onToggleHidden && (
             <button
               type="button"
@@ -286,40 +351,44 @@ function CategoryTile({
               aria-pressed={hidden}
               aria-label={hidden ? `${c.name} is private. Make it public` : `${c.name} is public. Make it private`}
               title={hidden ? "Private: only you can see it" : "Public: everyone can see it"}
-              className={`${chip} ${hidden ? "" : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity [@media(hover:none)]:opacity-100"}`}
+              className={chip}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                {hidden ? (
-                  // Private: a lock, where the open eye would be.
-                  <>
-                    <rect x="5" y="11" width="14" height="10" rx="2" />
-                    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-                  </>
-                ) : (
-                  <>
-                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </>
-                )}
-              </svg>
+              {hidden ? (
+                <LockGlyph />
+              ) : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
             </button>
           )}
           {onChoose && (
-            <button
-              type="button"
-              onClick={onChoose}
-              aria-label={`Choose the picture for ${c.name}`}
-              title="Choose the picture"
-              className={`${chip} opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity [@media(hover:none)]:opacity-100`}
-            >
+            <button type="button" onClick={onChoose} aria-label={`Choose the picture for ${c.name}`} title="Choose the picture" className={chip}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
+              </svg>
+            </button>
+          )}
+          {onDelete && (
+            <button type="button" onClick={onDelete} aria-label={`Delete ${c.name}`} title="Delete" className={`${chip} hover:!bg-loved-plate`}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
               </svg>
             </button>
           )}
         </div>
       )}
     </div>
+  );
+}
+
+function LockGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </svg>
   );
 }
 
@@ -428,7 +497,7 @@ function CategorySheet({ c, onClose, onDelete }: { c: CategoryEntry; onClose: ()
 // aren't offered: the eight built-ins have no age, only lists do, and the app
 // files the eight as oldest of all.
 const SORTS = [
-  { id: "custom", label: "Custom", short: "Custom order" },
+  { id: "custom", label: "My order", short: "My order" },
   { id: "name-az", label: "Name, A to Z", short: "Name, A to Z" },
   { id: "name-za", label: "Name, Z to A", short: "Name, Z to A" },
   { id: "most", label: "Most titles", short: "Most titles" },
@@ -464,11 +533,12 @@ function SortMenu({ sort, onChoose }: { sort: SortId; onChoose: (id: SortId) => 
       label={`Order the categories: ${current.short}`}
       width={210}
       button={
-        <span className="h-9 inline-flex items-center gap-2 pl-3 pr-3.5 rounded-full bg-page border border-hair text-[12.5px] font-semibold text-dim hover:text-ink transition-colors">
+        // Just the icon; the menu says what each order is, with a tick on
+        // the one in force.
+        <span className="w-9 h-9 inline-flex items-center justify-center rounded-full bg-page border border-hair text-dim hover:text-ink transition-colors" title={`Order: ${current.short}`}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M4 6h16M7 12h10M10 18h4" />
           </svg>
-          {current.short}
         </span>
       }
     >
