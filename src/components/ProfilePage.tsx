@@ -3,6 +3,7 @@ import type { ListEntry, ProfileTitle, PublicProfileView, ReviewEntry } from "@/
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
 import { ReviewActions } from "./ReviewActions";
+import { EpisodeLine } from "./ReviewSheet";
 import { RatingMarks } from "./RatingMarks";
 import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
@@ -393,13 +394,6 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
         <div className="flex items-baseline justify-between gap-3 text-[13px] leading-none">
           <span className="text-dim truncate">
             <b className="text-ink font-semibold">@{username}</b> {r.rewatch ? "rewatched" : "watched"}
-            {r.episode && (
-              <>
-                {" "}
-                <b className="text-ink font-semibold">{r.episode}</b>
-                {r.episodeTitle && <> · {r.episodeTitle}</>} of
-              </>
-            )}
           </span>
           <span className="shrink-0 text-dim text-[12.5px]">{r.date ? prettyDate(r.date) : ""}</span>
         </div>
@@ -410,6 +404,9 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
           </Link>{" "}
           <span className="text-dim !text-[0.6em] tracking-normal">{r.year}</span>
         </h3>
+        {/* For a series, the episode sits under the show's name, the way a
+            TV guide sets it. */}
+        {r.episode && <EpisodeLine episode={r.episode} name={r.episodeTitle} />}
 
         <div className="mt-2.5 flex items-center gap-3 text-[12.5px]">
           {r.rating != null && <RatingMarks value={r.rating} size={12} />}

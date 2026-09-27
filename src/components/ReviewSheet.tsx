@@ -17,6 +17,8 @@ export interface SheetReview {
   poster: string | null;
   /** "S2 E4" when the watch was of certain episodes. */
   episodes?: string;
+  /** The episode's own name, for a review of a single episode. */
+  episodeTitle?: string;
   /** "YYYY-MM-DD", the day it was watched. */
   date: string | null;
   rating: number | null;
@@ -79,16 +81,12 @@ export function ReviewSheetCard({ r, username, onClose }: { r: SheetReview; user
             @{username}
           </Link>{" "}
           {r.rewatch ? "rewatched" : "watched"}
-          {r.episodes && (
-            <>
-              {" "}
-              <b className="text-ink font-semibold">{r.episodes}</b> of
-            </>
-          )}
         </div>
         <h3 className="!mt-2 !text-[clamp(26px,3vw,34px)] !leading-[.95]">
           {r.title} <span className="text-dim !text-[0.6em] tracking-normal">{r.year}</span>
         </h3>
+        {/* For a series, the episodes sit under the show's name. */}
+        {r.episodes && <EpisodeLine episode={r.episodes} name={r.episodeTitle} />}
         <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-dim">
           {r.rating != null && <RatingMarks value={r.rating} size={12} />}
           {r.loved && <span className="text-loved text-[14px]" title="Loved">♥</span>}
@@ -149,4 +147,14 @@ export function ReviewSheet({ r, username, onClose }: { r: SheetReview; username
 export function longDate(date: string) {
   const [y, m, d] = date.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+/** "S2 E4 · Woe's Hollow": a series review's episode, under the show's name. */
+export function EpisodeLine({ episode, name }: { episode: string; name?: string }) {
+  return (
+    <div className="mt-2 text-[13px] leading-none text-dim">
+      <b className="text-ink font-semibold">{episode}</b>
+      {name && <> · {name}</>}
+    </div>
+  );
 }
