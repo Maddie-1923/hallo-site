@@ -189,7 +189,7 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
       {tiles.map(([label, value]) => (
         <div key={label} className="rounded-[16px] bg-card-hi py-2.5 text-center flex flex-col items-center justify-center">
           <div className="display text-[clamp(24px,2.2vw,32px)] leading-none text-accent">{value}</div>
-          <div className="text-[10px] leading-none font-bold tracking-[.14em] uppercase text-dim mt-1">{label}</div>
+          <div className="text-[10px] leading-none font-bold tracking-[.1em] uppercase text-dim mt-1 whitespace-nowrap">{label}</div>
         </div>
       ))}
     </div>
@@ -259,12 +259,12 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         )}
       </div>
       <div
-        className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 flex items-start gap-4 min-w-0"
+        className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3 min-w-0"
         style={{ marginLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 16px)` }}
       >
+        <div className="flex items-start gap-4 min-w-0">
         <div className="min-w-0 flex-1">
           <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.9] truncate">@{v.username}</div>
-          <ProfileAbout location={v.location} quote={v.bio} owner={!!v.owner} username={v.username} />
         </div>
         {/* Follow, its top level with the top of the handle (a pixel down, to
             where the capitals start; FollowPill sizes itself to the handle's
@@ -272,6 +272,10 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         <div className="shrink-0 mt-px flex">
           <FollowPill />
         </div>
+        </div>
+        {/* Under the handle and Follow, across the card's full width, so the
+            quote has the whole line to run on. */}
+        <ProfileAbout location={v.location} quote={v.bio} owner={!!v.owner} username={v.username} />
       </div>
     </div>
   );
