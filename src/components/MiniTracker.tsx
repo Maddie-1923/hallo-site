@@ -171,20 +171,20 @@ const HOLD = "#D9BC52";
 // panel and keys `kodigoRowPiece`, a lit top edge and a soft shadow.
 function Row({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null }) {
   return (
-    <li className="rounded-[16px] bg-well p-2 grid gap-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
-      <div className="h-[72px] rounded-[12px] bg-piece flex gap-3 overflow-hidden">
-        <Link href={t.href} className="w-[128px] shrink-0 h-full rounded-[12px] overflow-hidden border border-hair bg-card">
+    <li className="rounded-[14px] bg-well p-1.5 grid gap-1.5 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
+      <div className="h-[56px] rounded-[10px] bg-piece flex gap-2.5 overflow-hidden">
+        <Link href={t.href} className="w-[100px] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
           {(t.backdrop ?? t.poster) && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={(t.backdrop ?? t.poster)!} alt="" className="w-full h-full object-cover" />
           )}
         </Link>
         <div className="min-w-0 flex-1 flex flex-col py-1.5 pr-2.5">
-          <Link href={t.href} className="block text-[13.5px] leading-[18px] font-semibold text-ink truncate no-underline hover:text-accent">
+          <Link href={t.href} className="block text-[13px] leading-[16px] font-semibold text-ink truncate no-underline hover:text-accent">
             {t.title}
           </Link>
           {/* The code and the name share a line at this size. */}
-          <div className="text-[13px] leading-[17px] truncate">
+          <div className="text-[12px] leading-[15px] truncate">
             <span className="text-mid-tone">{lines[0]}</span>
             {lines[1] && <span className="text-dim"> · {lines[1]}</span>}
           </div>
@@ -193,7 +193,7 @@ function Row({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]
               <span className="flex-1 h-[2px] rounded-full bg-track overflow-hidden">
                 <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
               </span>
-              <span className="text-[12px] leading-none text-dim whitespace-nowrap tabular-nums">
+              <span className="text-[11px] leading-none text-dim whitespace-nowrap tabular-nums">
                 {bar.done}/{bar.total}
               </span>
             </div>
@@ -201,7 +201,7 @@ function Row({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]
         </div>
       </div>
       {keys && (
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           {keys.map((k) => (
             <KeyButton key={k.label} k={k} />
           ))}
@@ -250,7 +250,7 @@ function KeyButton({ k }: { k: Key }) {
   // The outline: a rounded rectangle drawn from the top centre, clockwise,
   // on the key's own edge, so its length can be run out from nothing.
   const { w, h } = size;
-  const r = 10;
+  const r = 8;
   const path = w && h ? `M${w / 2} 0.75H${w - r}A${r - 0.75} ${r - 0.75} 0 0 1 ${w - 0.75} ${r}V${h - r}A${r - 0.75} ${r - 0.75} 0 0 1 ${w - r} ${h - 0.75}H${r}A${r - 0.75} ${r - 0.75} 0 0 1 0.75 ${h - r}V${r}A${r - 0.75} ${r - 0.75} 0 0 1 ${r} 0.75Z` : "";
   const lit = phase === "lit";
   return (
@@ -262,7 +262,7 @@ function KeyButton({ k }: { k: Key }) {
       aria-label={k.label}
       aria-pressed={k.on}
       title={k.label}
-      className={`relative flex-1 h-8 rounded-[10px] flex items-center justify-center transition-[background-color,color] duration-300 ${k.on ? "text-[#F0EFE9]" : "bg-piece text-dim enabled:hover:text-ink"} ${k.off ? "opacity-35" : ""} enabled:cursor-pointer`}
+      className={`relative flex-1 h-7 rounded-[8px] flex items-center justify-center transition-[background-color,color] duration-300 ${k.on ? "text-[#F0EFE9]" : "bg-piece text-dim enabled:hover:text-ink"} ${k.off ? "opacity-35" : ""} enabled:cursor-pointer`}
       style={{
         ...(k.on ? { background: HOLD } : {}),
         ...(lit ? { background: k.confirm, color: "#F0EFE9", transitionDuration: `${FILL}ms`, animation: `key-pop 380ms ease-out` } : {}),
@@ -284,7 +284,7 @@ function KeyButton({ k }: { k: Key }) {
 // forward.end and checkmark.
 function MoreGlyph() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
       <circle cx="5" cy="12" r="1.8" />
       <circle cx="12" cy="12" r="1.8" />
       <circle cx="19" cy="12" r="1.8" />
@@ -293,7 +293,7 @@ function MoreGlyph() {
 }
 function RecapGlyph() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M4 5h16a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 17h-9l-4.5 3.5V17H4a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 4 5z" />
       <path d="M6.5 10h4M13 10h4.5M6.5 13h7M15.5 13h2" />
     </svg>
@@ -301,7 +301,7 @@ function RecapGlyph() {
 }
 function SkipGlyph() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" aria-hidden>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" aria-hidden>
       <path d="M5 5.5v13l10-6.5z" />
       <path d="M18.5 5.5v13" strokeLinecap="round" />
     </svg>
@@ -309,7 +309,7 @@ function SkipGlyph() {
 }
 function CheckGlyph() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M4.5 12.5l5 5L19.5 7" />
     </svg>
   );
