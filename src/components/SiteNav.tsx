@@ -69,7 +69,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
       {/* The bar runs the page's full width with the home billboard's gutters,
           so the logo lines up with the card's left edge and the profile
           circle with its right, the way Netflix sets its bar. */}
-      <div className={`w-full ${framed ? "px-[clamp(20px,5vw,80px)] h-20" : "px-[clamp(16px,3.2vw,64px)] h-16 pt-3"} flex items-center gap-6`}>
+      <div className={`w-full ${framed ? "px-[clamp(20px,5vw,80px)] h-20" : "px-[clamp(16px,3.2vw,64px)] h-16 pt-6"} flex items-center gap-6`}>
         {/* The wordmark and Home, Explore and the rest are laid on one
             baseline by the browser itself (the row below aligns them by
             baseline), so they line up whatever the bar's height, the zoom or
@@ -80,15 +80,15 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
             wordmark's box. It is a touch taller than the bar, so the
             stripes' tops sit past the page's edge.
 
-            The row sits 6px below the bar's middle (the pt-3 above), which
+            The row sits 12px below the bar's middle (the pt-6 above), which
             lets more of the stripes show over the k. The links stand on the
-            bar's foot so their accent line meets its bottom edge, with 16px
+            bar's foot so their accent line meets its bottom edge, with 10px
             under the words, which puts the words' middle level with the
             buttons on the right. */}
         {/* On a phone the links are hidden, so nothing stands on the foot;
-            17px under the wordmark puts it on the same line it has beside
+            11px under the wordmark puts it on the same line it has beside
             them. */}
-        <div className="self-end pb-[17px] md:pb-0 flex items-baseline gap-6">
+        <div className="self-end pb-[11px] md:pb-0 flex items-baseline gap-6">
           <Link href={user ? "/discover" : "/"} className="relative inline-flex no-underline" style={{ paddingLeft: (logoHeight * 528) / 1185 + 10 }}>
             <span className="absolute left-0 bottom-[4px]">
               <LogoBleed height={logoHeight} />
