@@ -63,8 +63,12 @@ export function ReviewSheetCard({ r, username, onClose }: { r: SheetReview; user
             <img src={(r.backdrop ?? r.poster)!} alt="" className="absolute inset-0 w-full h-full object-cover" />
           )}
           {onClose && (
-            <button type="button" onClick={onClose} aria-label="Close" autoFocus className="absolute top-2.5 right-2.5 w-9 h-9 rounded-full bg-black/55 hover:bg-black/75 text-white text-xl leading-none cursor-pointer">
-              ×
+            <button type="button" onClick={onClose} aria-label="Close" autoFocus className="absolute top-2.5 right-2.5 w-9 h-9 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center cursor-pointer">
+              {/* Drawn rather than the × character, whose place in the font's
+                  line sits it off the middle of the circle. */}
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="block">
+                <path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
             </button>
           )}
         </div>
