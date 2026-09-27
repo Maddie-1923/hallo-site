@@ -126,7 +126,7 @@ function Row({
         </Link>
         <div className="text-[12.5px] leading-[17px] text-dim truncate">{line}</div>
         {bar && (
-          <span className="block mt-1.5 h-[4px] rounded-full bg-card-hi overflow-hidden">
+          <span className="block mt-1.5 h-[2px] rounded-full bg-card-hi overflow-hidden">
             <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
           </span>
         )}
