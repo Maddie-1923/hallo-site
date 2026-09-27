@@ -179,9 +179,13 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
     ["Films", s.films],
     ["Episodes", s.episodes.toLocaleString("en")],
     ["Avg ♥", s.average ?? "—"],
+    // The social counts sit with the rest of the numbers, last, as
+    // Letterboxd sets them.
+    ["Followers", v.followers.toLocaleString("en")],
+    ["Following", v.following.toLocaleString("en")],
   ];
   return (
-    <div className="flex-1 grid grid-cols-4 gap-2">
+    <div className="flex-1 grid grid-cols-3 sm:grid-cols-6 gap-2">
       {tiles.map(([label, value]) => (
         <div key={label} className="rounded-[16px] bg-card-hi py-2.5 text-center flex flex-col items-center justify-center">
           <div className="display text-[clamp(24px,2.2vw,32px)] leading-none text-accent">{value}</div>
@@ -234,8 +238,7 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 
 // The person's card, beside the photo hanging from the banner. On the left,
 // the handle, then where they are and a line in their own words (both theirs
-// to set, and only there when set); on the right, Follow with the follower
-// counts under it.
+// to set, and only there when set); on the right, Follow.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
     <div className="relative flex">
@@ -265,19 +268,9 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         </div>
         {/* Follow, its top level with the top of the handle (a pixel down, to
             where the capitals start; FollowPill sizes itself to the handle's
-            line), and the counts under it, right-aligned to its edge. */}
-        <div className="shrink-0 mt-px flex flex-col items-end gap-2">
-          <div className="flex">
-            <FollowPill />
-          </div>
-          <div className="flex items-center gap-3 text-[12.5px] leading-none whitespace-nowrap">
-            <span>
-              <b className="text-ink">{v.followers}</b> <span className="text-dim">followers</span>
-            </span>
-            <span>
-              <b className="text-ink">{v.following}</b> <span className="text-dim">following</span>
-            </span>
-          </div>
+            line). The follower counts are with the numbers beside the card. */}
+        <div className="shrink-0 mt-px flex">
+          <FollowPill />
         </div>
       </div>
     </div>
