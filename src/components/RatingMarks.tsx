@@ -1,23 +1,19 @@
 import { TightHeart } from "./marks";
 
 // How a rating out of ten is drawn on the profile: the app's ten hearts, or
-// five stars (each worth two points) to see whether stars read better. One
-// switch, so trying one against the other is a one-word change. The value is
-// always the app's ten-point rating; only the drawing changes.
+// ten stars to see whether stars read better. Either way one mark a point,
+// half a mark for a half point. One switch, so trying one against the other
+// is a one-word change.
 const SHAPE: "hearts" | "stars" = "stars";
 
 export function RatingMarks({ value, size = 10 }: { value: number; size?: number }) {
-  const stars = SHAPE === "stars";
-  const count = stars ? 5 : 10;
-  const scaled = stars ? value / 2 : value;
-  const glyph = stars ? <Star size={size * 1.25} /> : <TightHeart size={size} />;
+  const glyph = SHAPE === "stars" ? <Star size={size * 1.15} /> : <TightHeart size={size} />;
   return (
-    <span className="inline-flex items-center gap-[2px]" title={`${value} out of 10`}>
-      {Array.from({ length: count }, (_, i) => {
-        // How much of this mark is lit: whole, part, or none. A star can be
-        // partly lit (7/10 is three and a half stars, 9.5 is four and three
-        // quarters); the lit part is the mark clipped to that width.
-        const fill = Math.max(0, Math.min(1, scaled - i));
+    <span className="inline-flex items-center gap-[1px]" title={`${value} out of 10`}>
+      {Array.from({ length: 10 }, (_, i) => {
+        // How much of this mark is lit: whole, half, or none; the lit part is
+        // the mark clipped to that width.
+        const fill = Math.max(0, Math.min(1, value - i));
         return (
           <span key={i} className="relative inline-flex">
             <span className="inline-flex text-ink/20">{glyph}</span>

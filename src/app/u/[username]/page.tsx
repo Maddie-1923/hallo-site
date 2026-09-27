@@ -198,7 +198,16 @@ function withSampleReviews(view: PublicProfileView): PublicProfileView {
         "That final scene by the water changes how I'll watch everything before it. Britt Lower is extraordinary.",
       ].join("\n\n"),
     });
-  return { ...view, reviews: [...view.reviews, ...reviews.filter((r) => !view.reviews.some((x) => x.key === r.key))] };
+  // Each review marks its title's latest Watchlog entry as reviewed, the way
+  // a real one would.
+  const reviewed = new Set(reviews.map((r) => r.key));
+  const marked = new Set<string>();
+  const diary = view.diary.map((e) => {
+    if (!reviewed.has(e.key) || marked.has(e.key)) return e;
+    marked.add(e.key);
+    return { ...e, reviewed: true };
+  });
+  return { ...view, diary, reviews: [...view.reviews, ...reviews.filter((r) => !view.reviews.some((x) => x.key === r.key))] };
 }
 
 // A year and more of made-up watching for the local preview's Watchlog, so
@@ -245,7 +254,7 @@ async function withSampleWatchlog(view: PublicProfileView): Promise<PublicProfil
       const date = `${ym}-${String(1 + Math.floor(rand() * days)).padStart(2, "0")}`;
       if (rand() < 0.45) {
         const t = pick(films);
-        samples.push({ ...t, date, rating: rand() < 0.7 ? Math.round((5 + rand() * 5) * 2) / 2 : null, loved: rand() < 0.2, rewatch: rand() < 0.12, reviewed: false, sample: true });
+        samples.push({ ...t, date, rating: rand() < 0.7 ? Math.round((5 + rand() * 5) * 2) / 2 : null, loved: rand() < 0.2, rewatch: rand() < 0.12, reviewed: rand() < 0.15, sample: true });
       } else {
         const t = pick(shows);
         const season = 1 + Math.floor(rand() * 3);
@@ -259,7 +268,7 @@ async function withSampleWatchlog(view: PublicProfileView): Promise<PublicProfil
           rating: rand() < 0.3 ? Math.round((6 + rand() * 4) * 2) / 2 : null,
           loved: rand() < 0.1,
           rewatch: false,
-          reviewed: false,
+          reviewed: rand() < 0.08,
           sample: true,
         });
       }

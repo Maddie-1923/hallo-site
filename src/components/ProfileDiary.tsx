@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import type { DiaryEntry } from "@/lib/public-profile";
-import { MarkReview, MarkRewatched } from "./marks";
+import { MarkRewatched } from "./marks";
 import { RatingMarks } from "./RatingMarks";
 
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -323,7 +323,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
             <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
               {e.reviewed ? (
                 <Link href={e.href} className="inline-flex text-accent" title="Has a review">
-                  <MarkReview size={22} />
+                  <ReviewGlyph />
                   <span className="sr-only">Read the review</span>
                 </Link>
               ) : null}
@@ -346,4 +346,16 @@ const HEAD = "bg-page";
 function weekday(date: string) {
   const [y, m, d] = date.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" });
+}
+
+// The Review column's mark: a page with lines of writing on it, drawn to match
+// the app's SF Symbol `text.document` (SF Symbols are licensed for Apple
+// platforms only, so the web draws its own). Only there when they wrote one.
+function ReviewGlyph() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="block">
+      <rect x="4.5" y="2.5" width="15" height="19" rx="3" />
+      <path d="M8.5 8h7M8.5 12h7M8.5 16h4.5" />
+    </svg>
+  );
 }
