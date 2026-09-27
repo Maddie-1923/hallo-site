@@ -55,7 +55,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
           somewhere else (FavouriteCard below is kept for that). */}
       <div className="grid gap-x-5 gap-y-4 mt-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] items-start">
         <ProfileCard v={v} />
-        <div className="rounded-[24px] bg-card border border-hair p-2.5 flex self-stretch">
+        <div className="rounded-[24px] bg-card border border-hair p-2 flex self-stretch">
           <NumberTiles v={v} />
         </div>
           <ProfileSections
@@ -171,7 +171,7 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
   ];
   return (
     // One row of six, as tall as the person's card beside it.
-    <div className="flex-1 grid grid-cols-6 gap-2">
+    <div className="flex-1 grid grid-cols-6 gap-1.5">
       {tiles.map(([label, value]) => (
         // The labels are set at 10px and scaled down to fit, rather than set
         // tiny: a browser with a minimum font size (a common reading setting)
@@ -179,7 +179,7 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
         // fits its tile.
         <div key={label} className="min-w-0 rounded-[14px] bg-card-hi py-1.5 px-1 text-center flex flex-col items-center justify-center">
           <div className="display text-[26px] xl:text-[30px] leading-none text-accent">{value}</div>
-          <div className="text-[10px] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.68] xl:scale-[.8]">{label}</div>
+          <div className="text-[10px] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.6] xl:scale-[.72]">{label}</div>
         </div>
       ))}
     </div>
