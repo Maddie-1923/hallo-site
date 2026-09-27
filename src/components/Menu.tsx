@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 // A button that drops a panel under itself and closes on outside click,
 // Escape, or navigation. The panel's contents come in as children, so the
 // server can render them (the upcoming list, the account links) and this
-// only owns the open/closed state.
+// only owns the open/closed state. A click on anything inside marked
+// `data-menu-close` (a choice in a picker menu) closes it too.
 export function Menu({
   label,
   button,
@@ -62,6 +63,7 @@ export function Menu({
           role="menu"
           className={`absolute top-[calc(100%+10px)] ${align === "right" ? "right-0" : "left-0"} z-50 rounded-2xl border border-hair bg-card shadow-[0_20px_50px_rgba(0,0,0,.6)] overflow-hidden`}
           style={{ width }}
+          onClick={(e) => (e.target as HTMLElement).closest("[data-menu-close]") && setOpen(false)}
         >
           {children}
         </div>

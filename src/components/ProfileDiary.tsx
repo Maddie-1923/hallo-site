@@ -7,6 +7,7 @@ import type { DiaryEntry } from "@/lib/public-profile";
 import { MarkRewatched } from "./marks";
 import { RatingMarks } from "./RatingMarks";
 import { MarkTip } from "./MarkTip";
+import { Menu } from "./Menu";
 import { ReviewSheet } from "./ReviewSheet";
 
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -28,6 +29,7 @@ export function ProfileDiary({ entries, owner = false, username = "" }: { entrie
   const now = new Date();
   const thisYear = String(now.getFullYear());
   const [kind, setKind] = useState<"all" | "movie" | "show">("all");
+  const [sort, setSort] = useState<SortId>("watched-new");
   const years = useMemo(() => [...new Set([thisYear, ...entries.map((e) => e.date.slice(0, 4))])].sort().reverse(), [entries, thisYear]);
   const [year, setYear] = useState(thisYear);
   const [month, setMonth] = useState(now.getMonth());
@@ -43,6 +45,22 @@ export function ProfileDiary({ entries, owner = false, username = "" }: { entrie
       setPictures(JSON.parse(localStorage.getItem(storeKey) ?? "{}"));
     } catch {}
   }, [owner, storeKey]);
+
+  // The order is a reader's preference, kept in this browser for every
+  // profile they look at.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(SORT_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (saved && SORTS.some((s) => s.id === saved)) setSort(saved as SortId);
+    } catch {}
+  }, []);
+  function chooseSort(id: SortId) {
+    setSort(id);
+    try {
+      localStorage.setItem(SORT_KEY, id);
+    } catch {}
+  }
 
   function choosePicture(m: number, entryKey: string | null) {
     const ym = `${year}-${String(m + 1).padStart(2, "0")}`;
@@ -60,7 +78,10 @@ export function ProfileDiary({ entries, owner = false, username = "" }: { entrie
   // list to films or series.
   const inYear = entries.filter((e) => e.date.startsWith(year));
   const byMonth = Array.from({ length: 12 }, (_, m) => inYear.filter((e) => Number(e.date.slice(5, 7)) === m + 1));
-  const rows = byMonth[month].filter((e) => kind === "all" || e.kind === kind);
+  const rows = sorted(
+    byMonth[month].filter((e) => kind === "all" || e.kind === kind),
+    sort,
+  );
 
   return (
     <div>
@@ -105,7 +126,8 @@ export function ProfileDiary({ entries, owner = false, username = "" }: { entrie
           <span className="text-[12.5px] text-dim">
             {rows.length} {rows.length === 1 ? "entry" : "entries"}
           </span>
-          <div className="ml-auto inline-flex p-[3px] rounded-full bg-page border border-hair">
+          <div className="ml-auto flex items-center gap-2">
+          <div className="inline-flex p-[3px] rounded-full bg-page border border-hair">
             {(
               [
                 ["all", "All"],
@@ -123,6 +145,8 @@ export function ProfileDiary({ entries, owner = false, username = "" }: { entrie
                 {label}
               </button>
             ))}
+          </div>
+          <SortMenu sort={sort} onChoose={chooseSort} />
           </div>
         </div>
         {rows.length === 0 ? <p className="text-sm text-dim m-0">{kind === "all" ? "Nothing logged this month." : `No ${kind === "movie" ? "films" : "series"} logged this month.`}</p> : <EntryTable rows={rows} username={username} />}
@@ -380,5 +404,87 @@ function ReviewGlyph() {
       <rect x="4.5" y="2.5" width="15" height="19" rx="3" />
       <path d="M8.5 8h7M8.5 12h7M8.5 16h4.5" />
     </svg>
+  );
+}
+
+// The order of the month's list. Watched newest first unless the reader
+// picks otherwise; each choice comes in both directions.
+const SORTS = [
+  { id: "watched-new", group: "Date watched", label: "Newest first", short: "Watched, newest" },
+  { id: "watched-old", group: "Date watched", label: "Oldest first", short: "Watched, oldest" },
+  { id: "title-az", group: "Title", label: "A to Z", short: "Title, A to Z" },
+  { id: "title-za", group: "Title", label: "Z to A", short: "Title, Z to A" },
+  { id: "released-new", group: "Released", label: "Newest first", short: "Released, newest" },
+  { id: "released-old", group: "Released", label: "Oldest first", short: "Released, oldest" },
+  { id: "rating-high", group: "Rating", label: "Highest first", short: "Rating, highest" },
+  { id: "rating-low", group: "Rating", label: "Lowest first", short: "Rating, lowest" },
+] as const;
+type SortId = (typeof SORTS)[number]["id"];
+const SORT_KEY = "kodigo.watchlog-sort";
+
+/** Titles filed the way a shelf files them: "The Office" under O. */
+const shelf = (t: string) => t.replace(/^(the|a|an)\s+/i, "");
+
+function sorted(rows: DiaryEntry[], sort: SortId) {
+  const byDate = (a: DiaryEntry, b: DiaryEntry) => b.date.localeCompare(a.date) || shelf(a.title).localeCompare(shelf(b.title));
+  // Entries with nothing to sort on (no rating, no year) go last either way.
+  const last = (x: unknown) => x == null || x === "";
+  const compare: Record<SortId, (a: DiaryEntry, b: DiaryEntry) => number> = {
+    "watched-new": byDate,
+    "watched-old": (a, b) => a.date.localeCompare(b.date) || shelf(a.title).localeCompare(shelf(b.title)),
+    "title-az": (a, b) => shelf(a.title).localeCompare(shelf(b.title)) || byDate(a, b),
+    "title-za": (a, b) => shelf(b.title).localeCompare(shelf(a.title)) || byDate(a, b),
+    "released-new": (a, b) => Number(last(a.year)) - Number(last(b.year)) || b.year.localeCompare(a.year) || byDate(a, b),
+    "released-old": (a, b) => Number(last(a.year)) - Number(last(b.year)) || a.year.localeCompare(b.year) || byDate(a, b),
+    "rating-high": (a, b) => Number(last(a.rating)) - Number(last(b.rating)) || (b.rating ?? 0) - (a.rating ?? 0) || byDate(a, b),
+    "rating-low": (a, b) => Number(last(a.rating)) - Number(last(b.rating)) || (a.rating ?? 0) - (b.rating ?? 0) || byDate(a, b),
+  };
+  return [...rows].sort(compare[sort]);
+}
+
+// The sort button beside the All / Films / Series switch: the order in force,
+// and a menu of the others grouped by what they sort on.
+function SortMenu({ sort, onChoose }: { sort: SortId; onChoose: (id: SortId) => void }) {
+  const current = SORTS.find((s) => s.id === sort)!;
+  const groups = [...new Set(SORTS.map((s) => s.group))];
+  return (
+    <Menu
+      label={`Sort the list: ${current.short}`}
+      width={220}
+      button={
+        <span className="h-9 inline-flex items-center gap-2 pl-3 pr-3.5 rounded-full bg-page border border-hair text-[12.5px] font-semibold text-dim hover:text-ink transition-colors">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M4 6h16M7 12h10M10 18h4" />
+          </svg>
+          {current.short}
+        </span>
+      }
+    >
+      <div className="py-2">
+        {groups.map((g) => (
+          <div key={g}>
+            <div className="px-4 pt-2 pb-1 text-[10.5px] font-bold tracking-[.14em] uppercase text-dim">{g}</div>
+            {SORTS.filter((s) => s.group === g).map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                role="menuitemradio"
+                aria-checked={s.id === sort}
+                data-menu-close
+                onClick={() => onChoose(s.id)}
+                className="w-full flex items-center gap-3 px-4 py-1.5 text-[13px] hover:bg-card-hi cursor-pointer text-ink"
+              >
+                <span className="flex-1 text-left">{s.label}</span>
+                {s.id === sort && (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-accent">
+                    <path d="M5 12l5 5L20 7" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    </Menu>
   );
 }
