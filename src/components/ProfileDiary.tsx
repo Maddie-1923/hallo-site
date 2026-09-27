@@ -273,7 +273,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
           what it heads; the title takes whatever is left. */}
       <thead>
         <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
-          <th className={`${HEAD} rounded-l-[14px] py-2 pl-3 pr-4 font-bold w-[76px] text-right`}>Day</th>
+          <th className={`${HEAD} rounded-l-[14px] py-2 pl-4 pr-3 font-bold w-[76px] text-left`}>Day</th>
           <th className={`${HEAD} py-2 px-4 font-bold`}>Title</th>
           <th className={`${HEAD} py-2 px-4 font-bold hidden md:table-cell w-[150px]`}>Episodes</th>
           <th className={`${HEAD} py-2 px-4 font-bold text-center w-[104px] hidden sm:table-cell`}>Rewatch</th>
@@ -285,7 +285,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
       <tbody>
         {rows.map((e) => (
           <tr key={`${e.key}${e.date}`} className="align-middle">
-            <td className={`${SHELL} rounded-l-[14px] py-2 pl-3 pr-4 text-right`}>
+            <td className={`${SHELL} rounded-l-[14px] py-2 pl-4 pr-3 text-left`}>
               <span className="block display text-[26px] leading-none text-dim">{Number(e.date.slice(8, 10))}</span>
               <span className="block mt-0.5 text-[9.5px] leading-none font-bold uppercase tracking-[.1em] text-dim">{weekday(e.date)}</span>
             </td>
