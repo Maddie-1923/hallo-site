@@ -6,7 +6,7 @@ import { TightHeart } from "./marks";
 // Under a review: like it, see its comments, share it. The like only changes
 // the page until likes are stored (docs/social-plan.md, step 4.2); comments
 // and sharing arrive with their own steps and are drawn now to judge the row.
-export function ReviewActions({ likes = 0, comments = 0, title, shareHref }: { likes?: number; comments?: number; title: string; shareHref?: string }) {
+export function ReviewActions({ likes = 0, comments = 0, title, shareHref, className = "mt-3" }: { likes?: number; comments?: number; title: string; shareHref?: string; className?: string }) {
   const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState(false);
   // Share hands out the review's own page. Where the device has a share
@@ -28,7 +28,7 @@ export function ReviewActions({ likes = 0, comments = 0, title, shareHref }: { l
   }
   const count = likes + (liked ? 1 : 0);
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-3 text-[13px]">
+    <div className={`flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] ${className}`}>
       <button
         type="button"
         aria-pressed={liked}
