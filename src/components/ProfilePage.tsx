@@ -173,11 +173,13 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
     // One row of six, as tall as the person's card beside it.
     <div className="flex-1 grid grid-cols-6 gap-2">
       {tiles.map(([label, value]) => (
-        // Fixed sizes, a step down on narrower screens, chosen so the longest
-        // label, FOLLOWERS, fits its tile with room either side.
+        // The labels are set at 10px and scaled down to fit, rather than set
+        // tiny: a browser with a minimum font size (a common reading setting)
+        // enlarges small type but leaves a scale alone, so FOLLOWERS still
+        // fits its tile.
         <div key={label} className="min-w-0 rounded-[14px] bg-card-hi py-1.5 px-1 text-center flex flex-col items-center justify-center">
           <div className="display text-[26px] xl:text-[30px] leading-none text-accent">{value}</div>
-          <div className="text-[7px] xl:text-[8px] leading-none font-bold tracking-[.04em] uppercase text-dim mt-1 whitespace-nowrap">{label}</div>
+          <div className="text-[10px] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.68] xl:scale-[.8]">{label}</div>
         </div>
       ))}
     </div>
