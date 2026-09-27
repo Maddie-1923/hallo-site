@@ -385,27 +385,32 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
         )}
       </Link>
       <div className="min-w-0 flex-1">
-        <div className="flex items-baseline justify-between gap-3 text-[13px] leading-none">
-          <span className="text-dim truncate">
-            <b className="text-ink font-semibold">@{username}</b> {r.rewatch ? "rewatched" : "watched"}
-          </span>
-          <span className="shrink-0 text-dim text-[12.5px]">{r.date ? prettyDate(r.date) : ""}</span>
-        </div>
-
-        <h3 className="!mt-2 !text-[clamp(26px,2.4vw,34px)] !leading-[.95]">
-          <Link href={r.href} className="no-underline text-ink hover:text-accent transition-colors">
-            {r.title}
-          </Link>{" "}
-          <span className="text-dim !text-[0.6em] tracking-normal">{r.year}</span>
-        </h3>
-        {/* For a series, the episode sits under the show's name, the way a
-            TV guide sets it. */}
-        {r.episode && <EpisodeLine episode={r.episode} name={r.episodeTitle} />}
-
-        <div className="mt-2.5 flex items-center gap-3 text-[12.5px]">
-          {r.rating != null && <RatingMarks value={r.rating} size={12} />}
-          {r.loved && <span className="text-loved text-[14px]" title="Loved">♥</span>}
-          {r.rewatch && <span className="text-dim">Rewatch</span>}
+        {/* Who, the title and (for a series) the episode on the left; the
+            date and the rating on the right, the date level with the byline
+            and the stars under it. */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="text-[13px] leading-none text-dim truncate">
+              <b className="text-ink font-semibold">@{username}</b> {r.rewatch ? "rewatched" : "watched"}
+            </div>
+            <h3 className="!mt-2 !text-[clamp(26px,2.4vw,34px)] !leading-[.95]">
+              <Link href={r.href} className="no-underline text-ink hover:text-accent transition-colors">
+                {r.title}
+              </Link>{" "}
+              <span className="text-dim !text-[0.6em] tracking-normal">{r.year}</span>
+            </h3>
+            {/* For a series, the episode sits under the show's name, the way a
+                TV guide sets it. */}
+            {r.episode && <EpisodeLine episode={r.episode} name={r.episodeTitle} />}
+          </div>
+          <div className="shrink-0 flex flex-col items-end">
+            <span className="text-dim text-[12.5px] leading-none">{r.date ? prettyDate(r.date) : ""}</span>
+            {r.rating != null && (
+              <div className="mt-2.5 flex">
+                <RatingMarks value={r.rating} size={12} />
+              </div>
+            )}
+          </div>
         </div>
 
         {r.spoilers ? (
