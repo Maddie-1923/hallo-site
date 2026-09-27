@@ -367,10 +367,13 @@ function ActivityList({ v }: { v: PublicProfileView }) {
 // marks, the review in readable paragraphs, and like / comment / share under
 // it. A review of a single episode says which one, which a films-only site
 // has no way to do. Spoilers stay hidden behind a tap.
+// Spaced like the review sheet (components/ReviewSheet.tsx): one 16px inset
+// all round, the heading (who, title, stars) set close as a group, and 16px
+// between every group under it.
 function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
   const paragraphs = r.text.split(/\n\s*\n/);
   const body = (
-    <div className="mt-2 grid gap-3 text-[15px] leading-[1.6] text-bone max-w-[72ch]">
+    <div className="mt-4 grid gap-2.5 text-[13.5px] leading-[1.6] text-bone max-w-[80ch]">
       {paragraphs.map((p, i) => (
         <p key={i} className="m-0">
           {p}
@@ -379,15 +382,15 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
     </div>
   );
   return (
-    <article className="rounded-[18px] bg-card-hi px-[clamp(14px,1.6vw,20px)] py-4 flex gap-[clamp(14px,1.6vw,22px)]">
-      <Link href={r.href} className="w-[clamp(64px,7vw,96px)] shrink-0 self-start">
+    <article className="rounded-[20px] bg-card-hi p-4 flex gap-4">
+      <Link href={r.href} className="w-[clamp(64px,7vw,88px)] shrink-0 self-start">
         {r.poster && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={r.poster} alt={r.title} className="w-full aspect-[2/3] rounded-[8px] object-cover border border-hair" />
         )}
       </Link>
       <div className="min-w-0 flex-1">
-        <div className="flex items-baseline justify-between gap-3 text-[13px]">
+        <div className="flex items-baseline justify-between gap-3 text-[13px] leading-none">
           <span className="text-dim truncate">
             <b className="text-ink font-semibold">@{username}</b> {r.rewatch ? "rewatched" : "watched"}
             {r.episode && (
@@ -401,21 +404,21 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
           <span className="shrink-0 text-dim text-[12.5px]">{r.date ? prettyDate(r.date) : ""}</span>
         </div>
 
-        <h3 className="mt-1 !text-[clamp(26px,2.4vw,34px)] !leading-[.95]">
+        <h3 className="!mt-2 !text-[clamp(26px,2.4vw,34px)] !leading-[.95]">
           <Link href={r.href} className="no-underline text-ink hover:text-accent transition-colors">
             {r.title}
           </Link>{" "}
           <span className="text-dim !text-[0.6em] tracking-normal">{r.year}</span>
         </h3>
 
-        <div className="mt-2 flex items-center gap-3">
+        <div className="mt-2.5 flex items-center gap-3 text-[12.5px]">
           {r.rating != null && <RatingMarks value={r.rating} size={12} />}
           {r.loved && <span className="text-loved text-[14px]" title="Loved">♥</span>}
-          {r.rewatch && <span className="text-[12px] text-dim">Rewatch</span>}
+          {r.rewatch && <span className="text-dim">Rewatch</span>}
         </div>
 
         {r.spoilers ? (
-          <details className="mt-2 group/sp">
+          <details className="mt-4 group/sp">
             <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[13px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
               <span className="px-2 py-[2px] rounded-full bg-card border border-hair text-[11px] font-bold uppercase tracking-[.08em]">Spoilers</span>
               <span className="group-open/sp:hidden">This review gives things away. Show it anyway</span>
@@ -427,7 +430,7 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
           body
         )}
 
-        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={`/u/${username}/review/${r.key}`} />
+        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={`/u/${username}/review/${r.key}`} className="mt-4" />
       </div>
     </article>
   );
