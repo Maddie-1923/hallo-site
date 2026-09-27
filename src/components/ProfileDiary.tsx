@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import type { DiaryEntry } from "@/lib/public-profile";
-import { MarkReview, MarkRewatched, TightHeart } from "./marks";
+import { MarkReview, MarkRewatched } from "./marks";
+import { RatingMarks } from "./RatingMarks";
 
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -327,7 +328,7 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
                 </Link>
               ) : null}
             </td>
-            <td className={`${SHELL} rounded-r-[14px] py-2 px-4`}>{e.rating != null ? <Hearts value={e.rating} /> : null}</td>
+            <td className={`${SHELL} rounded-r-[14px] py-2 px-4`}>{e.rating != null ? <RatingMarks value={e.rating} /> : null}</td>
           </tr>
         ))}
       </tbody>
@@ -340,28 +341,6 @@ const SHELL = "bg-card-hi";
 // The column headings' shell: the page tone, set apart from the entries.
 const HEAD = "bg-page";
 
-// A rating out of ten as the app shows it: ten small hearts, lit to the
-// rating, a half heart for a half point.
-function Hearts({ value }: { value: number }) {
-  return (
-    <span className="inline-flex items-center gap-[2px]" title={`${value} out of 10`}>
-      {Array.from({ length: 10 }, (_, i) => {
-        const fill = Math.max(0, Math.min(1, value - i));
-        return (
-          <span key={i} className="relative inline-flex">
-            <TightHeart size={10} className="text-ink/20" />
-            {fill > 0 && (
-              <span className="absolute inset-0 overflow-hidden text-accent" style={{ width: `${fill * 100}%` }}>
-                <TightHeart size={10} />
-              </span>
-            )}
-          </span>
-        );
-      })}
-      <span className="sr-only">{value} out of 10</span>
-    </span>
-  );
-}
 
 /** "Tue" for "2026-09-22": the day of the week the watch fell on. */
 function weekday(date: string) {

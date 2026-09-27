@@ -3,7 +3,7 @@ import type { ListEntry, ProfileTitle, PublicProfileView, ReviewEntry } from "@/
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
 import { ReviewActions } from "./ReviewActions";
-import { TightHeart } from "./marks";
+import { RatingMarks } from "./RatingMarks";
 import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
 import { FavouritesCard } from "./FavouritesCard";
@@ -409,7 +409,7 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
         </h3>
 
         <div className="mt-2 flex items-center gap-3">
-          {r.rating != null && <HeartRow value={r.rating} />}
+          {r.rating != null && <RatingMarks value={r.rating} size={12} />}
           {r.loved && <span className="text-loved text-[14px]" title="Loved">♥</span>}
           {r.rewatch && <span className="text-[12px] text-dim">Rewatch</span>}
         </div>
@@ -433,27 +433,6 @@ function ReviewCard({ r, username }: { r: ReviewEntry; username: string }) {
   );
 }
 
-/** Ten small hearts lit to a rating out of ten, half hearts for halves. */
-function HeartRow({ value }: { value: number }) {
-  return (
-    <span className="inline-flex items-center gap-[2px]" title={`${value} out of 10`}>
-      {Array.from({ length: 10 }, (_, i) => {
-        const fill = Math.max(0, Math.min(1, value - i));
-        return (
-          <span key={i} className="relative inline-flex">
-            <TightHeart size={12} className="text-ink/20" />
-            {fill > 0 && (
-              <span className="absolute inset-0 overflow-hidden text-accent" style={{ width: `${fill * 100}%` }}>
-                <TightHeart size={12} />
-              </span>
-            )}
-          </span>
-        );
-      })}
-      <span className="sr-only">{value} out of 10</span>
-    </span>
-  );
-}
 
 function ListCard({ l }: { l: ListEntry }) {
   return (
