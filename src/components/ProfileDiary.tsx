@@ -123,7 +123,7 @@ export function ProfileDiary({ entries, owner = false, username = "" }: { entrie
             ))}
           </div>
         </div>
-        {rows.length === 0 ? <p className="text-sm text-dim m-0">{kind === "all" ? "Nothing logged this month." : `No ${kind === "movie" ? "films" : "series"} logged this month.`}</p> : <EntryTable rows={rows} />}
+        {rows.length === 0 ? <p className="text-sm text-dim m-0">{kind === "all" ? "Nothing logged this month." : `No ${kind === "movie" ? "films" : "series"} logged this month.`}</p> : <EntryTable rows={rows} username={username} />}
       </div>
 
       {choosing != null && (
@@ -264,7 +264,7 @@ function PicturePicker({ month, list, onChoose, onClose }: { month: string; list
 // The month's watches, each in its own shell: the table is set with space
 // between its rows, and every cell from the day to the last mark is filled,
 // with the ends rounded.
-function EntryTable({ rows }: { rows: DiaryEntry[] }) {
+function EntryTable({ rows, username }: { rows: DiaryEntry[]; username: string }) {
   return (
     <table className="w-full table-fixed border-separate border-spacing-y-[6px] -mb-[6px] text-[14px]">
       {/* The column headings sit in a shell of their own, in the page tone,
@@ -322,9 +322,9 @@ function EntryTable({ rows }: { rows: DiaryEntry[] }) {
             </td>
             <td className={`${SHELL} py-2 px-4 text-center hidden sm:table-cell`}>
               {e.reviewed ? (
-                <Link href={e.href} className="inline-flex text-accent" title="Has a review">
+                <Link href={e.href} className="inline-flex text-accent" title={`@${username}'s review`}>
                   <ReviewGlyph />
-                  <span className="sr-only">Read the review</span>
+                  <span className="sr-only">Read @{username}&apos;s review of {e.title}</span>
                 </Link>
               ) : null}
             </td>
