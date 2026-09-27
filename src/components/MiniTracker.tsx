@@ -55,7 +55,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
           laid over the space the card has, so its length never counts toward
           the card's height, which Favourites beside it sets. */}
       <div className="relative flex-1 min-h-[240px] -mx-1">
-        <ul className="absolute inset-0 overflow-y-auto overscroll-contain m-0 px-1 pb-1 list-none grid gap-3 content-start [scrollbar-width:thin]">
+        <ul className="soft-scroll absolute inset-0 overflow-y-auto overscroll-contain m-0 px-1 pb-1 list-none grid gap-3 content-start rounded-[16px]">
           {tab === "show" &&
             (shows.length === 0 ? (
               <li className="text-sm text-dim py-3">Not in the middle of anything.</li>
