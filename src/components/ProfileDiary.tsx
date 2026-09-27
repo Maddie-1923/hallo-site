@@ -9,6 +9,7 @@ import { RatingMarks } from "./RatingMarks";
 import { MarkTip } from "./MarkTip";
 import { Menu } from "./Menu";
 import { ReviewSheet } from "./ReviewSheet";
+import { useLiveWatches, type LiveWatch } from "@/lib/live-watches";
 
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -25,7 +26,12 @@ const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "Ju
 // what (and the year it came out), how it was watched (which episodes, whether a rewatch), then what
 // they thought (a review), with the hearts rating last. Series get the Episodes column,
 // which a films-only log like Letterboxd's diary has no need for.
-export function ProfileDiary({ entries, owner = false, username = "", avatar = null }: { entries: DiaryEntry[]; owner?: boolean; username?: string; avatar?: string | null }) {
+export function ProfileDiary({ entries: logged, owner = false, username = "", avatar = null }: { entries: DiaryEntry[]; owner?: boolean; username?: string; avatar?: string | null }) {
+  // Watches just marked in the Tracker on this page join the log straight
+  // away, a show's episodes from one day as one entry, the way the log
+  // groups them.
+  const live = useLiveWatches();
+  const entries = useMemo(() => [...liveEntries(live), ...logged], [live, logged]);
   const now = new Date();
   const thisYear = String(now.getFullYear());
   const [kind, setKind] = useState<"all" | "movie" | "show">("all");
@@ -491,4 +497,23 @@ function SortMenu({ sort, onChoose }: { sort: SortId; onChoose: (id: SortId) => 
       </div>
     </Menu>
   );
+}
+
+/** Tracker check-offs as Watchlog entries: a film each, and a show's
+    episodes from one day as one entry ("S1 E17–E18"). */
+function liveEntries(live: LiveWatch[]): DiaryEntry[] {
+  const groups = new Map<string, { w: LiveWatch; eps: [number, number][] }>();
+  for (const w of live) {
+    const id = `${w.t.key}|${w.date}`;
+    const g = groups.get(id) ?? { w, eps: [] };
+    const m = w.detail?.match(/^S(\d+) E(\d+)$/);
+    if (m) g.eps.push([Number(m[1]), Number(m[2])]);
+    groups.set(id, g);
+  }
+  return [...groups.values()].map(({ w, eps }) => {
+    eps.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+    const [f, l] = [eps[0], eps[eps.length - 1]];
+    const episodes = !f ? undefined : eps.length === 1 ? `S${f[0]} E${f[1]}` : f[0] === l[0] ? `S${f[0]} E${f[1]}–E${l[1]}` : `S${f[0]} E${f[1]} – S${l[0]} E${l[1]}`;
+    return { ...w.t, date: w.date, episodes, episodeCount: eps.length || undefined, rating: null, loved: false, rewatch: false, reviewed: false };
+  });
 }
