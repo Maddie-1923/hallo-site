@@ -283,7 +283,7 @@ export function CastRail({ cast }: { cast: CastMember[] }) {
     for the credits tabs where the list scrolls down rather than along. */
 export function CastGrid({ cast }: { cast: CastMember[] }) {
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
+    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
       {cast.map((p) => (
         // No outer card here: the tiles sit straight on the credits' shell,
         // one shade lighter than it.
@@ -415,13 +415,14 @@ export function TitleBento({ about, actions, beside, side }: { about: React.Reac
   const R = "var(--shell-radius)";
   return (
     <div className="grid gap-4 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:[filter:drop-shadow(0_4px_9px_rgba(0,0,0,.35))]">
-      {/* The notch: the keys, apart from the bento, with a gap under them. */}
-      <div className="lg:col-start-2 lg:row-start-1 lg:pl-4 lg:pb-4 flex max-sm:flex-col gap-3 items-stretch">
+      {/* The notch: the keys and where to watch, apart from the bento by the
+          same 8px that is every shell's padding and every gap in them. */}
+      <div className="lg:col-start-2 lg:row-start-1 lg:pl-2 lg:pb-2 flex max-sm:flex-col gap-2 items-stretch">
         <div className="flex-1 min-w-0">{actions}</div>
         {beside}
       </div>
       {/* The long leg: About, and what sits under it. */}
-      <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 min-w-0 bg-card p-2 grid gap-5 content-start rounded-shell lg:rounded-br-none">{about}</div>
+      <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 min-w-0 bg-card p-2 grid gap-2 content-start rounded-shell lg:rounded-br-none">{about}</div>
       {/* The short leg, joined to the long one along its left side. It is
           as tall as the long leg leaves it, and what it holds scrolls inside
           rather than stretching the bento. */}
