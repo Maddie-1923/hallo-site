@@ -7,6 +7,9 @@ export interface ProfileSection {
   label: string;
   count?: number;
   content: React.ReactNode;
+  /** Drawn straight on the page rather than in the section's shell (a rail
+      of cards that are shells of their own). */
+  bare?: boolean;
 }
 
 // The profile's sections as tabs, lettered like the tables' column headings
@@ -98,7 +101,7 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
         role="tabpanel"
         id={`panel-${shown.id}`}
         aria-labelledby={`tab-${shown.id}`}
-        className={`${aside ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 min-h-[240px] rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-[clamp(14px,1.6vw,22px)]`}
+        className={`${aside ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 ${shown.bare ? "" : "min-h-[240px] rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-[clamp(14px,1.6vw,22px)]"}`}
       >
         {shown.content}
       </div>

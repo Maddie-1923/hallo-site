@@ -26,7 +26,7 @@ export function TitleCredits({
   airing?: { networks: { name: string; logo: string | null }[]; seasons: { name: string; date: string | null; episodes: number }[]; ratings: { country: string; rating: string }[] };
 }) {
   const sections = [
-    cast.length > 0 && { id: "cast", label: "Cast", count: cast.length, content: <CastRail cast={cast} /> },
+    cast.length > 0 && { id: "cast", label: "Cast", count: cast.length, bare: true, content: <CastRail cast={cast} /> },
     crew.length > 0 && {
       id: "crew",
       label: "Crew",
@@ -67,7 +67,7 @@ export function TitleCredits({
     },
     releases && releases.length > 0 && { id: "releases", label: "Releases", content: <Releases groups={releases} /> },
     airing && { id: "air-dates", label: "Air dates", content: <AirDates airing={airing} /> },
-  ].filter(Boolean) as { id: string; label: string; count?: number; content: React.ReactNode }[];
+  ].filter(Boolean) as { id: string; label: string; count?: number; bare?: boolean; content: React.ReactNode }[];
 
   // min-w-0: a grid item otherwise grows to its widest child, and a rail of
   // fifteen cards would stretch the whole section off the page.

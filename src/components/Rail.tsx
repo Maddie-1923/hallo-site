@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 // sign there is more; never smaller than their own width. Right moves on by
 // the whole cards in view, and at the end goes back to the start. Left
 // appears once the row has moved. Under the row, instead of a scrollbar, a
-// short line for each set of cards, the one in view lit: a press on a line
+// short line for each set of cards, centred, the one in view lit: a press on a line
 // goes to it. The row still scrolls by trackpad and touch.
 export function Rail({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -73,7 +73,7 @@ export function Rail({ children }: { children: React.ReactNode }) {
         {children}
       </div>
       {pages > 1 && (
-        <div className="mt-3 flex gap-1.5" role="tablist" aria-label="Sets of cards">
+        <div className="mt-3 flex justify-center gap-1.5" role="tablist" aria-label="Sets of cards">
           {Array.from({ length: pages }, (_, i) => (
             <button
               key={i}
