@@ -102,7 +102,7 @@ export function YourReview({ kind, title }: { kind: "movie" | "show"; title: Pro
           <div className={heading}>How did it make you feel?</div>
           <div className="mt-0.5 text-[12px] text-dim">Pick up to 3</div>
         </div>
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-[7px]">
+        <div className="grid grid-cols-4 sm:grid-cols-6 gap-[6px] max-w-[540px]">
           {MOODS.map(([emoji, label]) => {
             const on = moods.includes(label);
             const full = !on && moods.length >= 3;
@@ -113,10 +113,10 @@ export function YourReview({ kind, title }: { kind: "movie" | "show"; title: Pro
                 aria-pressed={on}
                 disabled={full}
                 onClick={() => setMoods((m) => (on ? m.filter((x) => x !== label) : [...m, label]))}
-                className={`h-[54px] rounded-[12px] flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors ${on ? "bg-accent-fill text-on-accent font-semibold" : "bg-[color:var(--quiet)] text-dim"} ${full ? "opacity-50 cursor-default" : ""}`}
+                className={`h-[46px] rounded-[10px] flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors ${on ? "bg-accent-fill text-on-accent font-semibold" : "bg-[color:var(--quiet)] text-dim"} ${full ? "opacity-50 cursor-default" : ""}`}
               >
-                <span className="text-[18px] leading-none">{emoji}</span>
-                <span className="text-[10px] leading-none">{label}</span>
+                <span className="text-[15px] leading-none">{emoji}</span>
+                <span className="text-[9.5px] leading-none">{label}</span>
               </button>
             );
           })}
