@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { People } from "@/components/People";
+import { TitleCredits } from "@/components/TitleCredits";
 import { TitleActivity } from "@/components/TitleActivity";
-import { CastSection, HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { TitleActions } from "@/components/TitleActions";
 import { optionalLibrary } from "@/lib/library";
 import { reviewsOfTitle } from "@/lib/profile-previews";
@@ -47,7 +48,16 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
     movie.release_date && { label: "Year", value: movie.release_date.slice(0, 4) },
     runtime && { label: "Runtime", value: runtime },
     movie.vote_average && { label: "TMDB", value: movie.vote_average.toFixed(1) },
-    page.released && { label: "Released", value: longDate(page.released), accent: true },
+    // The date opens the Releases tab below, as the app's row opens its
+    // release dates page.
+    page.released && {
+      label: "Released",
+      value: (
+        <a href="#releases" className="text-accent no-underline hover:underline">
+          {longDate(page.released)} →
+        </a>
+      ),
+    },
   ].filter(Boolean) as { label: string; value: React.ReactNode; accent?: boolean }[];
 
   return (
@@ -87,7 +97,8 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
           </div>
         </div>
         <div className="mt-8 grid gap-8">
-          {page.cast.length > 0 && <CastSection cast={page.cast} />}
+          {/* Cast, crew, details, genres and releases, as tabs. */}
+          <TitleCredits cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} releases={page.releases} />
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="movie" />}
           {lib.signedIn && <TitleActivity target={{ kind: "movie", movie }} archive={lib.archive} signedIn={lib.signedIn} />}
         </div>

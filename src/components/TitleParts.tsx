@@ -206,6 +206,14 @@ function Rail({ children }: { children: React.ReactNode }) {
 export function CastSection({ cast }: { cast: CastMember[] }) {
   return (
     <Section title="Cast">
+      <CastRail cast={cast} />
+    </Section>
+  );
+}
+
+/** The cast as the app's portrait tiles, in a rail. */
+export function CastRail({ cast }: { cast: CastMember[] }) {
+  return (
       <Rail>
         {cast.map((p) => (
           <RowCard key={`${p.id}-${p.character}`} width={120}>
@@ -228,7 +236,6 @@ export function CastSection({ cast }: { cast: CastMember[] }) {
           </RowCard>
         ))}
       </Rail>
-    </Section>
   );
 }
 

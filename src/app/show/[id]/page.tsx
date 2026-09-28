@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { People } from "@/components/People";
+import { TitleCredits } from "@/components/TitleCredits";
 import { TitleActivity } from "@/components/TitleActivity";
-import { CastSection, HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { TitleActions } from "@/components/TitleActions";
 import { SeasonList } from "@/components/SeasonList";
 import { seriesBadge } from "@/components/SeriesBadge";
@@ -117,7 +118,8 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
               </SectionCard>
             </Section>
           )}
-          {page.cast.length > 0 && <CastSection cast={page.cast} />}
+          {/* Cast, crew, details, genres and air dates, as tabs. */}
+          <TitleCredits cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} airing={page.airing} />
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" />}
           {lib.signedIn && <TitleActivity target={{ kind: "show", show }} archive={lib.archive} signedIn={lib.signedIn} />}
         </div>

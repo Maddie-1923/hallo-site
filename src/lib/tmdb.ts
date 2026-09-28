@@ -52,7 +52,7 @@ interface RawShow {
   seasons?: RawSeason[];
   credits?: { cast: RawPerson[]; crew?: { id: number; name: string; job?: string }[] };
   external_ids?: { imdb_id?: string | null };
-  networks?: { name: string }[];
+  networks?: { name: string; logo_path?: string | null }[];
   next_episode_to_air?: RawEpisode | null;
   last_episode_to_air?: RawEpisode | null;
   media_type?: string;
@@ -379,6 +379,115 @@ export function cardBackdrop(p: string | null | undefined) {
   return p ? `${IMG}/w780${p}` : null;
 }
 
+
+// ---- The credits and details tabs on a title's page ----
+
+/** A group of the crew, as Letterboxd sets it: "Writers", and who. */
+export interface CrewGroup {
+  label: string;
+  people: Credit[];
+}
+
+/** Studios, countries, languages and the other names it goes by. */
+export interface TitleDetails {
+  studios: string[];
+  countries: string[];
+  languages: string[];
+  alternativeTitles: string[];
+  imdb: string | null;
+  tmdb: string;
+  /** A series' networks. */
+  networks?: string[];
+}
+
+/** One release: a day, where, its age rating there, and a note (a festival). */
+export interface Release {
+  date: string;
+  country: string;
+  certification: string;
+  note: string;
+}
+
+/** A film's releases, by kind, in TMDB's order: premiere, limited, theatrical,
+    digital, physical, TV. */
+export interface ReleaseGroup {
+  label: string;
+  releases: Release[];
+}
+
+// The jobs worth a row, in the order Letterboxd lists them.
+const CREW_GROUPS: [string, string[]][] = [
+  ["Directors", ["Director"]],
+  ["Creators", ["Creator"]],
+  ["Writers", ["Screenplay", "Writer", "Story", "Novel", "Author", "Teleplay"]],
+  ["Producers", ["Producer"]],
+  ["Exec. producers", ["Executive Producer"]],
+  ["Casting", ["Casting", "Casting Director"]],
+  ["Editor", ["Editor"]],
+  ["Cinematography", ["Director of Photography"]],
+  ["Music", ["Original Music Composer", "Music", "Composer"]],
+  ["Production design", ["Production Design", "Production Designer"]],
+  ["Art direction", ["Art Direction"]],
+  ["Set decoration", ["Set Decoration"]],
+  ["Costume design", ["Costume Design", "Costume Designer"]],
+  ["Makeup", ["Makeup Department Head", "Makeup Artist"]],
+  ["Visual effects", ["Visual Effects Supervisor"]],
+  ["Sound", ["Sound Designer", "Supervising Sound Editor"]],
+];
+
+function crewGroups(crew: { id: number; name: string; job?: string }[], creators: Credit[] = []): CrewGroup[] {
+  return CREW_GROUPS.map(([label, jobs]) => {
+    const people = (label === "Creators" ? creators : crew.filter((c) => c.job && jobs.includes(c.job)).map((c) => ({ id: c.id, name: c.name }))).filter(
+      (c, i, a) => a.findIndex((x) => x.id === c.id) === i,
+    );
+    // One person is "Director", several "Directors", as a heading reads.
+    const single = people.length === 1 && label.endsWith("s") && !["Exec. producers"].includes(label) ? label.slice(0, -1) : label;
+    return { label: single, people };
+  }).filter((g) => g.people.length > 0);
+}
+
+type RawDetails = {
+  production_companies?: { name: string }[];
+  production_countries?: { name: string }[];
+  spoken_languages?: { english_name: string }[];
+  alternative_titles?: { titles?: { title: string }[]; results?: { title: string }[] };
+  external_ids?: { imdb_id?: string | null };
+  imdb_id?: string | null;
+  keywords?: { keywords?: { name: string }[]; results?: { name: string }[] };
+};
+
+function details(r: RawDetails, kind: "movie" | "tv", id: number, title: string): TitleDetails {
+  const alt = [...(r.alternative_titles?.titles ?? []), ...(r.alternative_titles?.results ?? [])].map((t) => t.title).filter((t, i, a) => t !== title && a.indexOf(t) === i);
+  const imdb = r.imdb_id ?? r.external_ids?.imdb_id ?? null;
+  return {
+    studios: (r.production_companies ?? []).map((c) => c.name),
+    countries: (r.production_countries ?? []).map((c) => c.name),
+    languages: (r.spoken_languages ?? []).map((l) => l.english_name).filter(Boolean),
+    alternativeTitles: alt,
+    imdb: imdb ? `https://www.imdb.com/title/${imdb}/` : null,
+    tmdb: `https://www.themoviedb.org/${kind}/${id}`,
+  };
+}
+
+function keywords(r: RawDetails) {
+  return [...(r.keywords?.keywords ?? []), ...(r.keywords?.results ?? [])].map((k) => k.name.replace(/\b\w/g, (c) => c.toUpperCase()));
+}
+
+const RELEASE_KINDS: Record<number, string> = { 1: "Premiere", 2: "Theatrical limited", 3: "Theatrical", 4: "Digital", 5: "Physical", 6: "TV" };
+
+function releaseGroups(r: { release_dates?: { results: { iso_3166_1: string; release_dates: { release_date: string; type: number; certification?: string; note?: string }[] }[] } }): ReleaseGroup[] {
+  const by = new Map<number, Release[]>();
+  for (const c of r.release_dates?.results ?? [])
+    for (const d of c.release_dates) {
+      const list = by.get(d.type) ?? [];
+      list.push({ date: d.release_date.slice(0, 10), country: c.iso_3166_1, certification: d.certification ?? "", note: d.note ?? "" });
+      by.set(d.type, list);
+    }
+  return [1, 2, 3, 4, 5, 6]
+    .filter((t) => by.has(t))
+    .map((t) => ({ label: RELEASE_KINDS[t], releases: by.get(t)!.sort((a, b) => a.date.localeCompare(b.date) || a.country.localeCompare(b.country)) }));
+}
+
 // ---- A title's own page, as the app's detail screens draw it ----
 
 export interface Provider {
@@ -471,17 +580,21 @@ export interface FilmPage {
   cast: CastMember[];
   moreLikeThis: RailTitle[];
   watch: WhereToWatch | null;
+  crew: CrewGroup[];
+  details: TitleDetails;
+  keywords: string[];
+  releases: ReleaseGroup[];
 }
 
 type RawFilmPage = RawMovie &
   RawVideos &
   RawProviders & {
     recommendations?: { results: RawMovie[] };
-    release_dates?: { results: { iso_3166_1: string; release_dates: { release_date: string; type: number }[] }[] };
-  };
+    release_dates?: { results: { iso_3166_1: string; release_dates: { release_date: string; type: number; certification?: string; note?: string }[] }[] };
+  } & RawDetails;
 
 export async function filmPage(id: number, region = RATING_FALLBACK): Promise<FilmPage | null> {
-  const r = await tmdb<RawFilmPage>(`/movie/${id}`, { append_to_response: "credits,videos,recommendations,watch/providers,release_dates" });
+  const r = await tmdb<RawFilmPage>(`/movie/${id}`, { append_to_response: "credits,videos,recommendations,watch/providers,release_dates,keywords,alternative_titles" });
   if (!r) return null;
   // The theatrical (3) or limited (2) release where the visitor is.
   const local = r.release_dates?.results
@@ -501,6 +614,10 @@ export async function filmPage(id: number, region = RATING_FALLBACK): Promise<Fi
       .slice(0, 15)
       .map((x) => ({ id: x.id, title: x.title, year: (x.release_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w342") })),
     watch: whereToWatch(r, region),
+    crew: crewGroups(r.credits?.crew ?? []),
+    details: details(r, "movie", r.id, r.title),
+    keywords: keywords(r),
+    releases: releaseGroups(r),
   };
 }
 
@@ -530,6 +647,11 @@ export interface SeriesPage {
   cast: CastMember[];
   moreLikeThis: RailTitle[];
   watch: WhereToWatch | null;
+  crew: CrewGroup[];
+  details: TitleDetails;
+  keywords: string[];
+  /** Where it premiered, season by season, and its age ratings by country. */
+  airing: { networks: { name: string; logo: string | null }[]; seasons: { name: string; date: string | null; episodes: number }[]; ratings: { country: string; rating: string }[] };
 }
 
 type RawSeriesPage = RawShow &
@@ -540,11 +662,12 @@ type RawSeriesPage = RawShow &
     content_ratings?: { results: { iso_3166_1: string; rating: string }[] };
     created_by?: { id: number; name: string }[];
     recommendations?: { results: RawShow[] };
+    origin_country?: string[];
     aggregate_credits?: { cast: { id: number; name: string; profile_path?: string | null; roles?: { character: string }[] }[] };
-  };
+  } & RawDetails;
 
 export async function seriesPage(id: number, region = RATING_FALLBACK): Promise<SeriesPage | null> {
-  const r = await tmdb<RawSeriesPage>(`/tv/${id}`, { append_to_response: "credits,videos,recommendations,watch/providers,content_ratings" });
+  const r = await tmdb<RawSeriesPage>(`/tv/${id}`, { append_to_response: "credits,videos,recommendations,watch/providers,content_ratings,keywords,alternative_titles,external_ids" });
   if (!r) return null;
   const rating = (c: string) => r.content_ratings?.results.find((x) => x.iso_3166_1 === c)?.rating || null;
   return {
@@ -566,6 +689,14 @@ export async function seriesPage(id: number, region = RATING_FALLBACK): Promise<
       .slice(0, 15)
       .map((x) => ({ id: x.id, title: x.name, year: (x.first_air_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w342") })),
     watch: whereToWatch(r, region),
+    crew: crewGroups(r.credits?.crew ?? [], (r.created_by ?? []).map((c) => ({ id: c.id, name: c.name }))),
+    details: { ...details(r, "tv", r.id, r.name), networks: (r.networks ?? []).map((n) => n.name) },
+    keywords: keywords(r),
+    airing: {
+      networks: (r.networks ?? []).map((n) => ({ name: n.name, logo: n.logo_path ? `${IMG}/w92${n.logo_path}` : null })),
+      seasons: (r.seasons ?? []).filter((x) => x.season_number > 0).map((x) => ({ name: x.name, date: (x as { air_date?: string | null }).air_date ?? null, episodes: x.episode_count })),
+      ratings: (r.content_ratings?.results ?? []).filter((x) => x.rating).map((x) => ({ country: x.iso_3166_1, rating: x.rating })),
+    },
   };
 }
 

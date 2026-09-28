@@ -20,13 +20,17 @@ export interface ProfileSection {
 // tall as the shell, so the two end on the same line whichever tab is open
 // (its own list scrolls inside; a short tab still leaves it room for a few
 // rows). On a phone it comes before the tabs, at a fixed height.
-export function ProfileSections({ sections, className = "mt-10", aside }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode }) {
+export function ProfileSections({ sections, className = "mt-10", aside, label = "Profile sections" }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode; label?: string }) {
   const [current, setCurrent] = useState(sections[0].id);
 
   useEffect(() => {
-    const fromHash = () => {
+    const fromHash = (e?: Event) => {
       const id = window.location.hash.slice(1);
-      if (sections.some((s) => s.id === id)) setCurrent(id);
+      if (!sections.some((s) => s.id === id)) return;
+      setCurrent(id);
+      // A link on the page to one of the tabs (a title's Released date to
+      // Releases) brings the tabs into view as well as opening it.
+      if (e) root.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
     fromHash();
     window.addEventListener("hashchange", fromHash);
@@ -44,6 +48,7 @@ export function ProfileSections({ sections, className = "mt-10", aside }: { sect
   // card above can be exactly as wide as the bar (whatever size the browser
   // sets its lettering at).
   const bar = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLElement>(null);
   useLayoutEffect(() => {
     const el = bar.current;
     if (!el) return;
@@ -55,7 +60,7 @@ export function ProfileSections({ sections, className = "mt-10", aside }: { sect
   }, []);
 
   return (
-    <section className={`${className} ${aside ? "grid gap-x-5 gap-y-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
+    <section ref={root} className={`scroll-mt-24 ${className} ${aside ? "grid gap-x-5 gap-y-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
       {aside && (
         <div className="lg:col-start-2 lg:row-start-2 max-lg:h-[640px] lg:min-h-[480px] flex flex-col">{aside}</div>
       )}
@@ -63,7 +68,7 @@ export function ProfileSections({ sections, className = "mt-10", aside }: { sect
       <div
         ref={bar}
         role="tablist"
-        aria-label="Profile sections"
+        aria-label={label}
         className="inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center gap-1 p-1 rounded-full bg-card border border-hair"
       >
         {sections.map((s) => {
