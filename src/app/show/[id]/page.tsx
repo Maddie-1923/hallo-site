@@ -78,12 +78,13 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={image.banner(show.backdrop_path) ?? image.poster(show.poster_path, "w780")} logo={logo} title={show.name} />
-        {/* The top as one L-shaped bento: About down the left, the trailer
-            and where to watch on the right, and the keys set into the notch
-            above them. */}
+        {/* The top as one L-shaped bento: About down the left with the
+            trailer and where to watch side by side under it, the credits
+            tabs on the right, and the keys set into the notch above them. */}
         <div className="mt-5">
           <TitleBento
             about={
+              <>
               <Section title="About">
             <HeaderCard flat
               title={show.name}
@@ -101,14 +102,15 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             >
             </HeaderCard>
           </Section>
-            }
-            actions={<TitleActions kind="show" title={show.name} tracked={!!tracked} loved={loved} stopped={tracked?.status === "Dropped"} />}
-            side={
-              <>
-            {page.trailer && <TrailerSection flat id={page.trailer} />}
-            {page.watch && <WhereToWatchSection flat watch={page.watch} />}
+              {/* The trailer and where to watch, side by side under About. */}
+              <div className="grid gap-5 sm:grid-cols-2 items-start">
+                {page.trailer && <TrailerSection flat id={page.trailer} />}
+                {page.watch && <WhereToWatchSection flat watch={page.watch} />}
+              </div>
               </>
             }
+            actions={<TitleActions kind="show" title={show.name} tracked={!!tracked} loved={loved} stopped={tracked?.status === "Dropped"} />}
+            side={<TitleCredits flat cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} airing={page.airing} />}
           />
         </div>
         {/* Under it, at the About card's width: Your take and the reviews. */}
@@ -133,8 +135,6 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           </div>
         </div>
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
-          {/* Cast, crew, details, genres and air dates, as tabs. */}
-          <TitleCredits cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} airing={page.airing} />
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" />}
           {lib.signedIn && <TitleActivity target={{ kind: "show", show }} archive={lib.archive} signedIn={lib.signedIn} />}
         </div>

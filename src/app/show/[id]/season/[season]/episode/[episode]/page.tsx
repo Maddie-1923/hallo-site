@@ -63,19 +63,21 @@ export default async function EpisodePage({ params }: Params) {
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={ep.still ?? image.banner(show.show.backdrop_path)} logo={logo} title={show.show.name} />
-        {/* The top as one L-shaped bento: About down the left, the trailer
-            and where to watch on the right, and the keys set into the notch
-            above them. */}
+        {/* The top as one L-shaped bento: About down the left with the
+            trailer and where to watch side by side under it, the credits
+            tabs on the right, and the keys set into the notch above them. */}
         <div className="mt-5">
           <TitleBento
             about={
+              <>
               <Section title="About">
               <HeaderCard flat title={ep.name} subtitle={code(ep.season, ep.episode)} facts={facts} overview={ep.overview} />
             </Section>
-            }
-            actions={<TitleActions kind="episode" title={`${show.show.name} ${code(ep.season, ep.episode)}`} tracked={!!lib.archive?.shows.some((s) => s.show.id === showID)} watched={watched} loved={loved} />}
-            side={
-              <>
+              {/* The trailer and where to watch, side by side under About. */}
+              <div className="grid gap-5 sm:grid-cols-2 items-start">
+                {ep.trailer && <TrailerSection flat id={ep.trailer} />}
+                {show.watch && <WhereToWatchSection flat watch={show.watch} />}
+              </div>
             {/* Back and on an episode, as the app pages through a season. */}
             {(ep.previous || ep.next) && (
               <SectionCard flat>
@@ -85,10 +87,10 @@ export default async function EpisodePage({ params }: Params) {
                 </div>
               </SectionCard>
             )}
-            {ep.trailer && <TrailerSection flat id={ep.trailer} />}
-            {show.watch && <WhereToWatchSection flat watch={show.watch} />}
               </>
             }
+            actions={<TitleActions kind="episode" title={`${show.show.name} ${code(ep.season, ep.episode)}`} tracked={!!lib.archive?.shows.some((s) => s.show.id === showID)} watched={watched} loved={loved} />}
+            side={(ep.cast.length > 0 || ep.crew.length > 0) && <TitleCredits flat cast={ep.cast} crew={ep.crew} />}
           />
         </div>
         {/* Under it, at the About card's width: Your take and the reviews. */}
@@ -104,7 +106,6 @@ export default async function EpisodePage({ params }: Params) {
         </div>
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
           {ep.seasonEpisodes.length > 1 && <EpisodesSection showID={showID} episodes={ep.seasonEpisodes} current={ep.episode} title={ep.season === 0 ? "Specials" : `Season ${ep.season}`} />}
-          {(ep.cast.length > 0 || ep.crew.length > 0) && <TitleCredits cast={ep.cast} crew={ep.crew} />}
         </div>
       </main>
       <SiteFooter />

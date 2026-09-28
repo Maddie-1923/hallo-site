@@ -347,13 +347,15 @@ export function TitleBento({ about, actions, side }: { about: React.ReactNode; a
     <div className="grid gap-4 lg:gap-0 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:grid-rows-[auto_1fr] lg:[filter:drop-shadow(0_4px_9px_rgba(0,0,0,.35))]">
       {/* The notch: the keys, apart from the bento, with a gap under them. */}
       <div className="lg:col-start-2 lg:row-start-1 lg:pl-4 lg:pb-4">{actions}</div>
-      {/* The long leg: About. */}
-      <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 min-w-0 bg-card p-2 pt-3 rounded-[20px] lg:rounded-br-none">{about}</div>
-      {/* The short leg, joined to the long one along its left side. */}
-      <div className="relative lg:col-start-2 lg:row-start-2 min-w-0 bg-card p-2 pt-3 grid gap-4 content-start rounded-[20px] lg:rounded-l-none">
+      {/* The long leg: About, and what sits under it. */}
+      <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 min-w-0 bg-card p-2 pt-3 grid gap-5 content-start rounded-[20px] lg:rounded-br-none">{about}</div>
+      {/* The short leg, joined to the long one along its left side. It is
+          as tall as the long leg leaves it, and what it holds scrolls inside
+          rather than stretching the bento. */}
+      <div className="relative lg:col-start-2 lg:row-start-2 min-w-0 bg-card rounded-[20px] lg:rounded-l-none lg:min-h-[420px]">
         {/* The inside corner, where the short leg's top meets the long leg. */}
         <span aria-hidden className="hidden lg:block absolute left-0 bottom-full" style={{ width: R, height: R, background: `radial-gradient(circle at 100% 0, transparent ${R - 0.5}px, var(--card) ${R}px)` }} />
-        {side}
+        <div className="lg:absolute lg:inset-0 lg:overflow-y-auto soft-scroll p-2 pt-3 min-w-0">{side}</div>
       </div>
     </div>
   );

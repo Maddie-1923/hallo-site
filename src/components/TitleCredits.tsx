@@ -16,6 +16,7 @@ export function TitleCredits({
   keywords = [],
   releases,
   airing,
+  flat = false,
 }: {
   cast: CastMember[];
   crew: CrewGroup[];
@@ -24,6 +25,8 @@ export function TitleCredits({
   keywords?: string[];
   releases?: ReleaseGroup[];
   airing?: { networks: { name: string; logo: string | null }[]; seasons: { name: string; date: string | null; episodes: number }[]; ratings: { country: string; rating: string }[] };
+  /** In the title's bento rather than on the page. */
+  flat?: boolean;
 }) {
   const sections = [
     cast.length > 0 && { id: "cast", label: "Cast", count: cast.length, bare: true, content: <CastRail cast={cast} /> },
@@ -71,17 +74,19 @@ export function TitleCredits({
 
   // min-w-0: a grid item otherwise grows to its widest child, and a rail of
   // fifteen cards would stretch the whole section off the page.
-  return <ProfileSections sections={sections} className="min-w-0" label="Credits and details" />;
+  return <ProfileSections sections={sections} className="min-w-0" label="Credits and details" flat={flat} />;
 }
 
 function Rows({ children }: { children: React.ReactNode }) {
-  return <div className="divide-y divide-hair">{children}</div>;
+  // Measured by its own width, so a narrow column stacks the label over
+  // its chips.
+  return <div className="@container divide-y divide-hair">{children}</div>;
 }
 
 /** A label on the left, what it holds on the right. */
 export function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid gap-2 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-4 py-3 first:pt-0 last:pb-0">
+    <div className="grid gap-2 @[520px]:grid-cols-[170px_minmax(0,1fr)] @[520px]:gap-4 py-3 first:pt-0 last:pb-0">
       <div className="pt-[5px] text-[11px] font-bold uppercase tracking-[.1em] text-dim">{label}</div>
       <div className="flex flex-wrap gap-1.5 min-w-0">{children}</div>
     </div>

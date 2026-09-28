@@ -23,7 +23,9 @@ export interface ProfileSection {
 // tall as the shell, so the two end on the same line whichever tab is open
 // (its own list scrolls inside; a short tab still leaves it room for a few
 // rows). On a phone it comes before the tabs, at a fixed height.
-export function ProfileSections({ sections, className = "mt-10", aside, label = "Profile sections" }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode; label?: string }) {
+// `flat`: inside a card already (a title's credits in its bento), so the
+// tab bar sits on the card's panel colour and the sections have no shell.
+export function ProfileSections({ sections, className = "mt-10", aside, label = "Profile sections", flat = false }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode; label?: string; flat?: boolean }) {
   const [current, setCurrent] = useState(sections[0].id);
 
   useEffect(() => {
@@ -72,7 +74,9 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
         ref={bar}
         role="tablist"
         aria-label={label}
-        className="inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center gap-1 p-1 rounded-full bg-card border border-hair"
+        // Flat, in a narrower column: the bar fills it, and the tabs share a
+        // second line rather than any hiding off its end.
+        className={`${flat ? "flex w-full flex-wrap rounded-[18px] bg-piece" : "inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-full bg-card border border-hair"} items-center gap-1 p-1`}
       >
         {sections.map((s) => {
           const on = s.id === shown.id;
@@ -85,10 +89,10 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
               aria-selected={on}
               aria-controls={`panel-${s.id}`}
               onClick={() => choose(s.id)}
-              className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+              className={`shrink-0 inline-flex items-center gap-1.5 ${flat ? "grow justify-center px-2 tracking-[.07em]" : "px-4 tracking-[.12em]"} py-2 rounded-full text-[10.5px] leading-none font-bold uppercase cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
             >
               {s.label}
-              {s.count != null && <span className={`font-normal tracking-normal ${on ? "opacity-70" : "opacity-60"}`}>{s.count}</span>}
+              {s.count != null && !flat && <span className={`font-normal tracking-normal ${on ? "opacity-70" : "opacity-60"}`}>{s.count}</span>}
             </button>
           );
         })}
@@ -101,7 +105,7 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
         role="tabpanel"
         id={`panel-${shown.id}`}
         aria-labelledby={`tab-${shown.id}`}
-        className={`${aside ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 ${shown.bare ? "" : "min-h-[240px] rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-[clamp(14px,1.6vw,22px)]"}`}
+        className={`${aside ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 ${shown.bare ? "" : flat ? "px-1" : "min-h-[240px] rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-[clamp(14px,1.6vw,22px)]"}`}
       >
         {shown.content}
       </div>
