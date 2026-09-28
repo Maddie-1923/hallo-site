@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { ProfileTitle } from "@/lib/public-profile";
 import { readTakes, saveTake } from "@/lib/local-takes";
+import { ConfirmKey } from "./ConfirmKey";
 
 // The person's own take on a title, as the app's "Your take". Its cards, as the app draws them (kodigoTakeCard): the
 // rating, ten stars in half steps; how it made them feel, up to three of the
@@ -107,17 +108,22 @@ export function YourReview({ kind, title }: { kind: "movie" | "show"; title: Pro
             const on = moods.includes(label);
             const full = !on && moods.length >= 3;
             return (
-              <button
+              // The app's confirmation as a mood is picked; taking one off is at once.
+              <ConfirmKey
                 key={label}
-                type="button"
-                aria-pressed={on}
-                disabled={full}
-                onClick={() => setMoods((m) => (on ? m.filter((x) => x !== label) : [...m, label]))}
-                className={`h-[46px] rounded-[10px] flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors ${on ? "bg-accent-fill text-on-accent font-semibold" : "bg-[color:var(--quiet)] text-dim"} ${full ? "opacity-50 cursor-default" : ""}`}
+                label={label}
+                on={on}
+                onFill="var(--accent-fill)"
+                onInk="var(--on-accent)"
+                confirm={on ? undefined : "var(--accent-fill)"}
+                off={full}
+                radius={10}
+                run={() => setMoods((m) => (on ? m.filter((x) => x !== label) : m.length >= 3 ? m : [...m, label]))}
+                className={`h-[46px] flex flex-col items-center justify-center gap-1 disabled:!opacity-50 ${on ? "font-semibold" : "bg-[color:var(--quiet)] text-dim"}`}
               >
                 <span className="text-[15px] leading-none">{emoji}</span>
                 <span className="text-[9.5px] leading-none">{label}</span>
-              </button>
+              </ConfirmKey>
             );
           })}
         </div>
