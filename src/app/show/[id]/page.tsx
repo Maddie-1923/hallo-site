@@ -112,7 +112,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           />
         </div>
         {/* Under it, at the About card's width: Your take and the reviews. */}
-        <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="mt-8 grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <div className="grid gap-8 min-w-0">
           {/* Their own take on it, as the app calls it: rating, moods, tags,
               the review and the private note. */}

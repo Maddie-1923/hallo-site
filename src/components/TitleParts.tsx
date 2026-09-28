@@ -344,7 +344,7 @@ export function EpisodesSection({ showID, episodes, current, title }: { showID: 
 export function TitleBento({ about, actions, side }: { about: React.ReactNode; actions: React.ReactNode; side: React.ReactNode }) {
   const R = 20;
   return (
-    <div className="grid gap-4 lg:gap-0 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:[filter:drop-shadow(0_4px_9px_rgba(0,0,0,.35))]">
+    <div className="grid gap-4 lg:gap-0 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:grid-rows-[auto_1fr] lg:[filter:drop-shadow(0_4px_9px_rgba(0,0,0,.35))]">
       {/* The notch: the keys, apart from the bento, with a gap under them. */}
       <div className="lg:col-start-2 lg:row-start-1 lg:pl-4 lg:pb-4">{actions}</div>
       {/* The long leg: About. */}
