@@ -33,7 +33,9 @@ export function SectionCard({ children, className = "" }: { children: React.Reac
 /** A section: its heading pill, then its content 12px under it. */
 export function Section({ title, children, tight = false }: { title: string; children: React.ReactNode; tight?: boolean }) {
   return (
-    <section className={`grid ${tight ? "gap-2" : "gap-3"} content-start`}>
+    // One column that can't grow past the section: a rail inside would
+    // otherwise stretch it to its full length.
+    <section className={`grid grid-cols-[minmax(0,1fr)] ${tight ? "gap-2" : "gap-3"} content-start min-w-0`}>
       <div>
         <HeadingPill>{title}</HeadingPill>
       </div>
@@ -193,7 +195,10 @@ function RowCard({ width, children }: { width: number; children: React.ReactNode
   return (
     <div
       className="shrink-0 rounded-[16px] bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] snap-start"
-      style={{ width }}
+      // At least its own width; the rail may widen it so a whole number of
+      // cards and a glimpse of the next fill the row (see Rail).
+      style={{ width: `var(--rail-card, ${width}px)` }}
+      data-base={width}
     >
       {children}
     </div>
