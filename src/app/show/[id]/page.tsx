@@ -88,8 +88,9 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
               <ShowTray tracked={!!tracked} loved={loved} allWatched={!!tracked && left <= 0} stopped={tracked?.status === "Dropped"} />
             </HeaderCard>
           </Section>
-          {/* Their own review: the app's "Your take", renamed. */}
-          <Section title="Review">
+          {/* Their own take on it, as the app calls it: rating, moods, tags,
+              the review and the private note. */}
+          <Section title="Your take">
             <SectionCard>
               <YourReview kind="show" />
             </SectionCard>

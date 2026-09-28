@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 
-// The person's own Review of a title, after the app's "Your take" (renamed:
-// it is a review). Its cards, as the app draws them (kodigoTakeCard): the
+// The person's own take on a title, as the app's "Your take". Its cards, as the app draws them (kodigoTakeCard): the
 // rating, ten stars in half steps; how it made them feel, up to three of the
 // app's twelve moods; tags; the review itself, with spoilers, the day they
 // watched and whether it was a rewatch; and the note, which stays private.

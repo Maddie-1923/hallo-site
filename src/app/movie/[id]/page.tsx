@@ -65,8 +65,9 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
               <FilmTray tracked={!!tracked} watched={watched} loved={loved} signedIn={lib.signedIn} />
             </HeaderCard>
           </Section>
-          {/* Their own review: the app's "Your take", renamed. */}
-          <Section title="Review">
+          {/* Their own take on it, as the app calls it: rating, moods, tags,
+              the review and the private note. */}
+          <Section title="Your take">
             <SectionCard>
               <YourReview kind="movie" />
             </SectionCard>
