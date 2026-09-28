@@ -47,7 +47,9 @@ export function TrailerCard({ video }: { video: Video }) {
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} aria-label={`Play ${video.name}`} className="group block w-full min-w-0 text-left text-ink cursor-pointer">
-        <span className="relative block aspect-video rounded-shell overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
+        {/* A small curve, not the shell's: a studio's lettering often runs
+            to the picture's corners, and a big curve cuts it off. */}
+        <span className="relative block aspect-video rounded-[8px] overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`https://img.youtube.com/vi/${video.key}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
           <span className="absolute inset-0 flex items-center justify-center">
