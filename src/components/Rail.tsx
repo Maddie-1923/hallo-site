@@ -65,15 +65,18 @@ export function Rail({ children }: { children: React.ReactNode }) {
     else el.scrollBy({ left: dir * (step || el.clientWidth), behavior: "smooth" });
   }
 
-  // Halfway down the cards (the lines under them are left out of the sum).
-  const arrow = "absolute top-[calc(50%-9px)] -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card/90 backdrop-blur border border-hair text-ink shadow-[0_6px_18px_rgba(0,0,0,.4)] flex items-center justify-center cursor-pointer hover:bg-piece transition-colors";
+  // Halfway down the cards.
+  const arrow = "absolute top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card/90 backdrop-blur border border-hair text-ink shadow-[0_6px_18px_rgba(0,0,0,.4)] flex items-center justify-center cursor-pointer hover:bg-piece transition-colors";
   return (
     <div className="relative">
       <div ref={ref} className="flex gap-3 overflow-x-auto snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style={card ? ({ "--rail-card": `${card}px` } as React.CSSProperties) : undefined}>
         {children}
       </div>
       {pages > 1 && (
-        <div className="mt-3 flex justify-center gap-1.5" role="tablist" aria-label="Sets of cards">
+        // Laid under the cards rather than after them, so the rail is as tall as
+        // its cards and the space to whatever comes next is the page's usual
+        // gap, the same as under any other section; the lines sit in it.
+        <div className="absolute left-0 right-0 top-full mt-3 flex justify-center gap-1.5" role="tablist" aria-label="Sets of cards">
           {Array.from({ length: pages }, (_, i) => (
             <button
               key={i}
