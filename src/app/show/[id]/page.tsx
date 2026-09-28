@@ -102,10 +102,11 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             >
             </HeaderCard>
           </Section>
-              {/* The trailer and where to watch, side by side under About. */}
-              <div className="grid gap-5 sm:grid-cols-2 items-start">
+              {/* The trailer and where to watch, side by side under About: the
+                  trailer takes the room, where to watch only what its logos need. */}
+              <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] items-start">
                 {page.trailer && <TrailerSection flat id={page.trailer} />}
-                {page.watch && <WhereToWatchSection flat watch={page.watch} />}
+                <div className="min-w-0 sm:max-w-[260px]">{page.watch && <WhereToWatchSection flat watch={page.watch} />}</div>
               </div>
               </>
             }
@@ -114,7 +115,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           />
         </div>
         {/* Under it, at the About card's width: Your take and the reviews. */}
-        <div className="mt-8 grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="grid gap-8 min-w-0">
           {/* Their own take on it, as the app calls it: rating, moods, tags,
               the review and the private note. */}

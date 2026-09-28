@@ -73,10 +73,11 @@ export default async function EpisodePage({ params }: Params) {
               <Section title="About">
               <HeaderCard flat title={ep.name} subtitle={code(ep.season, ep.episode)} facts={facts} overview={ep.overview} />
             </Section>
-              {/* The trailer and where to watch, side by side under About. */}
-              <div className="grid gap-5 sm:grid-cols-2 items-start">
+              {/* The trailer and where to watch, side by side under About: the
+                  trailer takes the room, where to watch only what its logos need. */}
+              <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] items-start">
                 {ep.trailer && <TrailerSection flat id={ep.trailer} />}
-                {show.watch && <WhereToWatchSection flat watch={show.watch} />}
+                <div className="min-w-0 sm:max-w-[260px]">{show.watch && <WhereToWatchSection flat watch={show.watch} />}</div>
               </div>
             {/* Back and on an episode, as the app pages through a season. */}
             {(ep.previous || ep.next) && (
@@ -94,7 +95,7 @@ export default async function EpisodePage({ params }: Params) {
           />
         </div>
         {/* Under it, at the About card's width: Your take and the reviews. */}
-        <div className="mt-8 grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="grid gap-8 min-w-0">
             <Section title="Your take">
               <SectionCard>

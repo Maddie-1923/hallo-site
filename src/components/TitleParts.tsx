@@ -222,30 +222,50 @@ export function CastSection({ cast }: { cast: CastMember[] }) {
 /** The cast as the app's portrait tiles, in a rail. */
 export function CastRail({ cast }: { cast: CastMember[] }) {
   return (
-      <Rail>
-        {cast.map((p) => (
-          <RowCard key={`${p.id}-${p.character}`} width={120}>
-            <div className="rounded-[12px] bg-piece overflow-hidden">
-              <div className="aspect-[2/3] rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card flex items-center justify-center">
-                {p.photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.photo} alt="" loading="lazy" className="w-full h-full object-cover" />
-                ) : (
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="text-dim opacity-45" aria-hidden>
-                    <circle cx="12" cy="12" r="10" />
-                  </svg>
-                )}
-              </div>
-              <div className="p-2.5">
-                {/* One line each, cut short with an ellipsis, as the app's grids and
-                    rails do: a two-line name would leave a gap under the short ones. */}
-                <div className="text-[12px] leading-[15px] font-semibold text-ink truncate">{p.name}</div>
-                <div className="text-[12px] leading-[15px] text-dim truncate">{p.character}</div>
-              </div>
-            </div>
-          </RowCard>
-        ))}
-      </Rail>
+    <Rail>
+      {cast.map((p) => (
+        <RowCard key={`${p.id}-${p.character}`} width={120}>
+          <CastTile p={p} />
+        </RowCard>
+      ))}
+    </Rail>
+  );
+}
+
+/** The cast as a grid of the same tiles, as many across as fit, for the
+    credits tabs where the list scrolls down rather than along. */
+export function CastGrid({ cast }: { cast: CastMember[] }) {
+  return (
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3">
+      {cast.map((p) => (
+        <div key={`${p.id}-${p.character}`} className="min-w-0 rounded-[16px] bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+          <CastTile p={p} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CastTile({ p }: { p: CastMember }) {
+  return (
+    <div className="rounded-[12px] bg-piece overflow-hidden">
+      <div className="aspect-[2/3] rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card flex items-center justify-center">
+        {p.photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={p.photo} alt="" loading="lazy" className="w-full h-full object-cover" />
+        ) : (
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="text-dim opacity-45" aria-hidden>
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+        )}
+      </div>
+      <div className="p-2.5">
+        {/* One line each, cut short with an ellipsis, as the app's grids and
+            rails do: a two-line name would leave a gap under the short ones. */}
+        <div className="text-[12px] leading-[15px] font-semibold text-ink truncate">{p.name}</div>
+        <div className="text-[12px] leading-[15px] text-dim truncate">{p.character}</div>
+      </div>
+    </div>
   );
 }
 
@@ -344,7 +364,7 @@ export function EpisodesSection({ showID, episodes, current, title }: { showID: 
 export function TitleBento({ about, actions, side }: { about: React.ReactNode; actions: React.ReactNode; side: React.ReactNode }) {
   const R = 20;
   return (
-    <div className="grid gap-4 lg:gap-0 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:grid-rows-[auto_1fr] lg:[filter:drop-shadow(0_4px_9px_rgba(0,0,0,.35))]">
+    <div className="grid gap-4 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:[filter:drop-shadow(0_4px_9px_rgba(0,0,0,.35))]">
       {/* The notch: the keys, apart from the bento, with a gap under them. */}
       <div className="lg:col-start-2 lg:row-start-1 lg:pl-4 lg:pb-4">{actions}</div>
       {/* The long leg: About, and what sits under it. */}

@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { CastMember, CrewGroup, ReleaseGroup, TitleDetails } from "@/lib/tmdb";
 import { ProfileSections } from "./ProfileNav";
-import { CastRail } from "./TitleParts";
+import { CastGrid } from "./TitleParts";
 import { Themes } from "./Themes";
 
 // The credits and facts under a title, as Letterboxd keeps them, in the
-// profile's tabs: Cast (the app's portrait rail), Crew, Details, Genres, and
+// profile's tabs: Cast (the app's portrait tiles, in a grid), Crew, Details, Genres, and
 // Releases for a film or Air dates for a series. Each tab is rows of a label
 // on the left and chips on the right, ruled between like the About card.
 export function TitleCredits({
@@ -29,7 +29,7 @@ export function TitleCredits({
   flat?: boolean;
 }) {
   const sections = [
-    cast.length > 0 && { id: "cast", label: "Cast", count: cast.length, bare: true, content: <CastRail cast={cast} /> },
+    cast.length > 0 && { id: "cast", label: "Cast", count: cast.length, bare: true, content: <CastGrid cast={cast} /> },
     crew.length > 0 && {
       id: "crew",
       label: "Crew",
