@@ -262,6 +262,9 @@ privacy labels to mention crash data before it ships.
   `app/u/[username]/page.tsx`), kept for testing at the user's request.
 - The sample Watchlog entries on `/u/preview` for 2025 and 2026
   (`withSampleWatchlog`, same file), kept for testing.
+- The three made-up members' reviews (moviemarta, joelwatches,
+  night.owl.nadia) on every title page (`sampleReviewers` in
+  `lib/profile-previews.ts`).
 - The two sample lists in the preview's Categories (`withSampleLists` in
   `lib/profile-previews.ts`).
 - The `/u/preview` and `/u/sample` pages themselves, and their links in the

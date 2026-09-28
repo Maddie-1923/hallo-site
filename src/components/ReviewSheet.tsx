@@ -155,10 +155,14 @@ export function ReviewHeading({
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
         <div className="flex items-center gap-2 text-[13px] leading-none text-dim">
-          <Link href={`/u/${username}`} className="shrink-0 w-7 h-7 rounded-full overflow-hidden bg-card-hi border border-hair" aria-hidden tabIndex={-1}>
-            {avatar && (
+          {/* Their photo, or their initial on the accent when they have none,
+              as the profile draws it. */}
+          <Link href={`/u/${username}`} className="shrink-0 w-7 h-7 rounded-full overflow-hidden bg-accent-fill text-on-accent border border-hair flex items-center justify-center display text-[15px] leading-none no-underline" aria-hidden tabIndex={-1}>
+            {avatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatar} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="pt-[2px]">{username[0]?.toUpperCase()}</span>
             )}
           </Link>
           <span className="truncate">

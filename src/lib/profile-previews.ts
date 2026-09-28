@@ -301,5 +301,71 @@ export async function reviewsOfTitle(key: string): Promise<{ review: ReviewEntry
     const r = v.reviews.find((x) => x.key === key);
     if (r) out.push({ review: r, username: v.username, avatar: v.avatar });
   }
-  return out;
+  return [...out, ...sampleReviewers(key, views[0])];
+}
+
+// Three made-up members' reviews on every title's page in development, so
+// the Reviews section can be judged with several people in it. The words
+// fit any film or series. Kept for testing until the user says to remove it
+// (see docs/social-plan.md).
+function sampleReviewers(key: string, like?: PublicProfileView): { review: ReviewEntry; username: string; avatar: string | null }[] {
+  // The title's own name, picture and link, borrowed from whichever preview
+  // review or entry has it, else left plain.
+  const t = like?.reviews.find((r) => r.key === key) ?? like?.diary.find((e) => e.key === key);
+  const base = {
+    key,
+    kind: key.startsWith("s") ? ("show" as const) : ("movie" as const),
+    title: t?.title ?? "",
+    href: t?.href ?? `/${key.startsWith("s") ? "show" : "movie"}/${key.slice(1)}`,
+    poster: t?.poster ?? null,
+    backdrop: t?.backdrop ?? null,
+    year: t?.year ?? "",
+    sample: true,
+  };
+  return [
+    {
+      username: "moviemarta",
+      avatar: null,
+      review: {
+        ...base,
+        date: "2026-09-26",
+        rating: 8.5,
+        loved: true,
+        spoilers: false,
+        likes: 31,
+        comments: 5,
+        text: [
+          "Went in knowing almost nothing and came out wanting to tell everyone about it. The first half takes its time, but every scene is doing something, and by the end it all clicks into place.",
+          "The performances carry it. There's one quiet scene near the middle that I'll be thinking about for a while.",
+        ].join("\n\n"),
+      },
+    },
+    {
+      username: "joelwatches",
+      avatar: null,
+      review: {
+        ...base,
+        date: "2026-09-24",
+        rating: 6,
+        spoilers: false,
+        likes: 9,
+        comments: 2,
+        text: "Looks gorgeous and the music is great, but it lost me for a stretch in the middle. Worth seeing on the biggest screen you can find.",
+      },
+    },
+    {
+      username: "night.owl.nadia",
+      avatar: null,
+      review: {
+        ...base,
+        date: "2026-09-19",
+        rating: 9.5,
+        rewatch: true,
+        spoilers: true,
+        likes: 54,
+        comments: 12,
+        text: "Second time through and I caught so much I missed the first time. The ending lands completely differently once you know where it's going, and the last scene wrecked me all over again.",
+      },
+    },
+  ];
 }
