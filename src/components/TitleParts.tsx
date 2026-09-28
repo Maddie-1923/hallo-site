@@ -98,7 +98,7 @@ export function HeaderCard({
         <h1 className={titleOnBanner ? "sr-only" : "!text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase"}>{title}</h1>
         {subtitle && <div className={`display text-[22px] leading-none tracking-[.03em] uppercase ${titleOnBanner ? "" : "mt-0.5"}`}>{subtitle}</div>}
         {/* A hairline under the title, when there is one to sit under. */}
-        <div className={subtitle || !titleOnBanner ? "mt-2.5 border-t border-hair" : "-mt-[9px]"}>
+        <div className={subtitle || !titleOnBanner ? "mt-2.5 border-t border-hair" : "-mt-[8px]"}>
           {facts.map((f, i) => (
             <div key={f.label} className={`flex items-baseline justify-between gap-4 py-[8px] text-[12.5px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
               <span className="text-dim shrink-0">{f.label}</span>
@@ -200,8 +200,9 @@ export function TrailerSection({ videos, flat = false }: { videos: Video[]; flat
   );
 }
 
-/** Where to watch beside the keys, a square shell of its own drawn like
-    the keys' box and exactly as tall (its contents are laid over it, so
+/** Where to watch beside the keys, a shell of its own drawn like the
+    keys' box and exactly as tall, with the same space on every side of
+    each piece in it (its contents are laid over it, so
     they never push it taller): its heading on a piece, and under it the
     services' piece, two here (or, when it streams nowhere here, from
     elsewhere), the second a "+N" when there are more, and the arrow level
@@ -212,12 +213,13 @@ export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
   const pool = here.length ? here : watch.elsewhere.map((e) => e.provider);
   const shown = pool.length > 2 ? pool.slice(0, 1) : pool;
   const more = pool.length - shown.length;
-  const tile = "shrink-0 w-10 h-10 rounded-[9px] overflow-hidden border border-hair bg-card";
+  // As tall as the piece leaves them, 12px in from every side of it.
+  const tile = "shrink-0 h-full aspect-square rounded-[9px] overflow-hidden border border-hair bg-card";
   return (
-    <div className="relative shrink-0 w-[141px] max-sm:w-auto max-sm:h-[120px] self-stretch rounded-shell bg-card border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+    <div className="relative shrink-0 w-[188px] max-sm:w-auto max-sm:h-[120px] self-stretch rounded-shell bg-card border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
       <div className="absolute inset-0 p-2 flex flex-col gap-2">
         <h2 className="shrink-0 h-[34px] px-1 rounded-[12px] bg-piece flex items-center justify-center text-center ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink">{here.length ? "Where to watch" : "Elsewhere"}</h2>
-        <div className="flex-1 min-h-0 rounded-[12px] bg-piece px-2.5 flex items-center gap-1.5">
+        <div className="flex-1 min-h-0 rounded-[12px] bg-piece p-3 flex items-stretch gap-1.5">
           {shown.map((p) => (
             <span key={p.id} title={p.name} className={`${tile} ${here.length ? "" : "opacity-60"}`}>
               {p.logo && (
@@ -229,7 +231,7 @@ export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
           {more > 0 && <span className={`${tile} flex items-center justify-center text-[12.5px] font-semibold text-dim`}>+{more}</span>}
           {pool.length === 0 && <span className="text-[12.5px] text-dim">Nowhere yet</span>}
           {watch.elsewhere.length > 0 && (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="ml-auto shrink-0 text-accent">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="ml-auto shrink-0 self-start text-accent">
               <path d="M4 12h15M13 6l6 6-6 6" />
             </svg>
           )}
@@ -419,14 +421,14 @@ export function TitleBento({ about, actions, beside, side }: { about: React.Reac
         {beside}
       </div>
       {/* The long leg: About, and what sits under it. */}
-      <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 min-w-0 bg-card p-2 pt-3 grid gap-5 content-start rounded-shell lg:rounded-br-none">{about}</div>
+      <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 min-w-0 bg-card p-2 grid gap-5 content-start rounded-shell lg:rounded-br-none">{about}</div>
       {/* The short leg, joined to the long one along its left side. It is
           as tall as the long leg leaves it, and what it holds scrolls inside
           rather than stretching the bento. */}
       <div className="relative lg:col-start-2 lg:row-start-2 min-w-0 bg-card rounded-shell lg:rounded-l-none lg:min-h-[420px]">
         {/* The inside corner, where the short leg's top meets the long leg. */}
         <span aria-hidden className="hidden lg:block absolute left-0 bottom-full" style={{ width: R, height: R, background: `radial-gradient(circle at 100% 0, transparent calc(${R} - 0.5px), var(--card) ${R})` }} />
-        <div className="lg:absolute lg:inset-0 p-2 pt-3 min-w-0 flex flex-col [&>*]:flex-1 [&>*]:min-h-0">{side}</div>
+        <div className="lg:absolute lg:inset-0 p-2 min-w-0 flex flex-col [&>*]:flex-1 [&>*]:min-h-0">{side}</div>
       </div>
     </div>
   );

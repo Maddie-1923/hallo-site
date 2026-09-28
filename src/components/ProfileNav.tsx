@@ -106,7 +106,7 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
         role="tabpanel"
         id={`panel-${shown.id}`}
         aria-labelledby={`tab-${shown.id}`}
-        className={`${aside || flat ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 ${flat ? "flex-1 min-h-0 overflow-y-auto soft-scroll rounded-shell bg-piece p-3" : shown.bare ? "" : "min-h-[240px] rounded-shell bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-[clamp(14px,1.6vw,22px)]"}`}
+        className={`${aside || flat ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 ${flat ? "flex-1 min-h-0 overflow-y-auto soft-scroll [scrollbar-gutter:stable] rounded-shell bg-piece p-3 pr-[1px]" : shown.bare ? "" : "min-h-[240px] rounded-shell bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-[clamp(14px,1.6vw,22px)]"}`}
       >
         {shown.content}
       </div>
