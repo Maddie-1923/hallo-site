@@ -21,7 +21,7 @@ import { visitorRegion } from "@/lib/region";
 // app's show screen (ShowDetailView): the header card with the title, how
 // many seasons and episodes, the facts, the last-aired line and the series
 // pill, the overview and the five keys; Where to watch and the trailer
-// beside it; then All episodes, the cast and more like this.
+// beside it; then All episodes, Your take, the reviews and more like this.
 export async function generateMetadata({ params }: PageProps<"/show/[id]">): Promise<Metadata> {
   const { id } = await params;
   const d = await seriesPage(Number(id));
@@ -113,6 +113,17 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             side={<TitleCredits flat cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} airing={page.airing} />}
           />
         </div>
+        {/* The season list, straight under the bento and before their take,
+            at the About card's width. */}
+        {seasons.length > 0 && (
+          <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <Section title="All episodes" tight small>
+              <SectionCard>
+                <SeasonList showID={showID} seasons={seasons} watched={watched} open={openSeason} />
+              </SectionCard>
+            </Section>
+          </div>
+        )}
         {/* Their own take on it, as the app calls it, across the page's
             full width so its parts sit side by side: the rating beside the
             moods, the review beside the note and tags. */}
@@ -127,14 +138,6 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
         <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="grid gap-8 min-w-0">
           <ReviewsSection reviews={reviews} />
-          {/* The season list, the same width as the reviews above it. */}
-          {seasons.length > 0 && (
-            <Section title="All episodes" tight small>
-              <SectionCard>
-                <SeasonList showID={showID} seasons={seasons} watched={watched} open={openSeason} />
-              </SectionCard>
-            </Section>
-          )}
           </div>
         </div>
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
