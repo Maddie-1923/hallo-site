@@ -124,7 +124,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           <ReviewsSection reviews={reviews} />
           {/* The season list, the same width as the reviews above it. */}
           {seasons.length > 0 && (
-            <Section title="All episodes" tight>
+            <Section title="All episodes" tight small>
               <SectionCard>
                 <SeasonList showID={showID} seasons={seasons} watched={watched} open={openSeason} />
               </SectionCard>
