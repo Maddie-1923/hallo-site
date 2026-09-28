@@ -4,7 +4,7 @@ import { ExpandableText } from "./ExpandableText";
 import { Glyph } from "./Glyph";
 import { ElsewhereSheet } from "./ElsewhereSheet";
 import { Rail } from "./Rail";
-import { TrailerCard } from "./TrailerPlayer";
+import { TrailerCard, TrailerRail } from "./TrailerPlayer";
 
 // The pieces of a title's page, drawn after the app's detail screens
 // (MovieDetailView and ShowDetailView): a header card of the artwork, a facts
@@ -206,11 +206,18 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
 export function TrailerSection({ videos, flat = false }: { videos: Video[]; flat?: boolean }) {
   return (
     <Section title={videos.length > 1 ? "Trailers" : "Trailer"} small={flat}>
+      {/* More than two (a series' seasons each have theirs): a row that moves. */}
       <SectionCard flat={flat}>
-        <div className={`grid gap-2 sm:grid-cols-2 ${flat ? "rounded-shell bg-piece p-2" : ""}`}>
-          {videos.map((v) => (
-            <TrailerCard key={v.key} video={v} />
-          ))}
+        <div className={flat ? "rounded-shell bg-piece p-2" : ""}>
+          {videos.length > 2 ? (
+            <TrailerRail videos={videos} />
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {videos.map((v) => (
+                <TrailerCard key={v.key} video={v} />
+              ))}
+            </div>
+          )}
         </div>
       </SectionCard>
     </Section>

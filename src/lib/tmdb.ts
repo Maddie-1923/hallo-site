@@ -680,6 +680,36 @@ type RawSeriesPage = RawShow &
     aggregate_credits?: { cast: { id: number; name: string; profile_path?: string | null; roles?: { character: string }[] }[] };
   } & RawDetails;
 
+/** A series' trailers for its page: the newest trailer it has, then each
+    season's own (its official trailer, else any trailer, else a teaser),
+    newest season first, none twice. */
+export async function showTrailers(id: number, seasons: number[]): Promise<Video[]> {
+  type Raw = { results: NonNullable<RawVideos["videos"]>["results"] };
+  const best = (v: Raw["results"]) => {
+    const yt = v.filter((x) => x.site === "YouTube");
+    return yt.find((x) => x.type === "Trailer" && x.official) ?? yt.find((x) => x.type === "Trailer") ?? yt.find((x) => x.type === "Teaser");
+  };
+  const [own, ...each] = await Promise.all([
+    tmdb<Raw>(`/tv/${id}/videos`),
+    ...[...seasons].sort((a, b) => b - a).map((n) => tmdb<Raw>(`/tv/${id}/season/${n}/videos`).then((r) => ({ n, r }))),
+  ]);
+  const all = [own?.results ?? [], ...each.map((e) => (e as { r: Raw | null }).r?.results ?? [])].flat();
+  const newest = all
+    .filter((x) => x.site === "YouTube" && x.type === "Trailer")
+    .sort((a, b) => (b.published_at ?? "").localeCompare(a.published_at ?? ""))[0];
+  const out: Video[] = [];
+  const add = (x: Raw["results"][number] | undefined, name?: string) => {
+    if (x && !out.some((o) => o.key === x.key)) out.push({ key: x.key, name: name ?? x.name ?? "Trailer" });
+  };
+  add(newest);
+  for (const e of each as { n: number; r: Raw | null }[]) {
+    const v = e.r ? best(e.r.results) : undefined;
+    // Named by its season when its own name doesn't say.
+    add(v, v && !/season|s\d/i.test(v.name ?? "") ? `Season ${e.n} · ${v.name ?? "Trailer"}` : undefined);
+  }
+  return out.length ? out : pickTrailers(own ? { results: own.results } : undefined);
+}
+
 export async function seriesPage(id: number, region = RATING_FALLBACK): Promise<SeriesPage | null> {
   const r = await tmdb<RawSeriesPage>(`/tv/${id}`, { append_to_response: "credits,videos,recommendations,watch/providers,content_ratings,keywords,alternative_titles,external_ids" });
   if (!r) return null;

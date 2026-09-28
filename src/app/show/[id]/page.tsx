@@ -13,7 +13,7 @@ import { optionalLibrary } from "@/lib/library";
 import { reviewsOfTitle } from "@/lib/profile-previews";
 import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
-import { image, seriesPage, titleLogo } from "@/lib/tmdb";
+import { image, seriesPage, showTrailers, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 
 // A series' page, laid out like the film page and the profile (the picture
@@ -36,6 +36,8 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   const region = await visitorRegion();
   const [page, lib, logo, reviews] = await Promise.all([seriesPage(showID, region), optionalLibrary(), titleLogo("show", showID), reviewsOfTitle(`s${showID}`)]);
   if (!page) notFound();
+  // The newest trailer, then each season's own, newest season first.
+  const trailers = await showTrailers(showID, page.seasons.filter((x) => x.season_number > 0).map((x) => x.season_number));
   const { show } = page;
 
   const tracked = lib.archive?.shows.find((s) => s.show.id === showID) ?? null;
@@ -103,7 +105,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             </HeaderCard>
           </Section>
               {/* The trailers, one or two, under About. */}
-              {page.trailers.length > 0 && <TrailerSection flat videos={page.trailers} />}
+              {trailers.length > 0 && <TrailerSection flat videos={trailers} />}
               </>
             }
             actions={<TitleActions kind="show" title={show.name} tracked={!!tracked} loved={loved} stopped={tracked?.status === "Dropped"} />}

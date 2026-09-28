@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Video } from "@/lib/tmdb";
 
@@ -66,5 +66,52 @@ export function TrailerCard({ video }: { video: Video }) {
       </button>
       {open && <TrailerModal id={video.key} onClose={() => setOpen(false)} />}
     </>
+  );
+}
+
+/** More trailers than fit: two across (most of the width on a phone), the
+    rest along the row, with a chevron at each end to move a pair at a time. */
+export function TrailerRail({ videos }: { videos: Video[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [ends, setEnds] = useState({ start: true, end: true });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const read = () => setEnds({ start: el.scrollLeft < 4, end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 4 });
+    read();
+    el.addEventListener("scroll", read, { passive: true });
+    window.addEventListener("resize", read);
+    return () => {
+      el.removeEventListener("scroll", read);
+      window.removeEventListener("resize", read);
+    };
+  }, [videos.length]);
+  const go = (dir: 1 | -1) => ref.current?.scrollBy({ left: dir * (ref.current.clientWidth + 8), behavior: "smooth" });
+  // Halfway down the pictures, the name line under them left out.
+  const arrow = "absolute top-[calc(50%-14px)] -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card/90 backdrop-blur border border-hair text-ink shadow-[0_6px_18px_rgba(0,0,0,.4)] flex items-center justify-center cursor-pointer hover:bg-piece transition-colors";
+  return (
+    <div className="relative">
+      <div ref={ref} className="flex gap-2 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {videos.map((v) => (
+          <div key={v.key} className="shrink-0 w-[85%] sm:w-[calc(50%-4px)] snap-start">
+            <TrailerCard video={v} />
+          </div>
+        ))}
+      </div>
+      {!ends.start && (
+        <button type="button" onClick={() => go(-1)} aria-label="Earlier trailers" className={`${arrow} left-2`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M15 5l-7 7 7 7" />
+          </svg>
+        </button>
+      )}
+      {!ends.end && (
+        <button type="button" onClick={() => go(1)} aria-label="More trailers" className={`${arrow} right-2`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      )}
+    </div>
   );
 }
