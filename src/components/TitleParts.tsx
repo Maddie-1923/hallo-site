@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CastMember, RailTitle, WhereToWatch } from "@/lib/tmdb";
 import { ExpandableText } from "./ExpandableText";
 import { Glyph } from "./Glyph";
+import { ElsewhereSheet } from "./ElsewhereSheet";
 
 // The pieces of a title's page, drawn after the app's detail screens
 // (MovieDetailView and ShowDetailView): a header card of the artwork, a facts
@@ -104,27 +105,52 @@ export function HeaderCard({
     free ones under a small label; each logo goes on to TMDB's page for the
     country, which lists them through JustWatch. */
 export function WhereToWatchSection({ watch }: { watch: WhereToWatch }) {
-  const row = (ps: WhereToWatch["subscription"]) => (
-    <div className="flex gap-2.5 overflow-x-auto [scrollbar-width:none]">
-      {ps.map((p) => (
-        <a key={p.id} href={watch.link ?? undefined} target="_blank" rel="noreferrer" title={p.name} className="shrink-0 w-10 h-10 rounded-[8px] overflow-hidden border border-hair bg-card">
-          {p.logo && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={p.logo} alt={p.name} className="w-full h-full object-cover" />
-          )}
-        </a>
-      ))}
+  const logo = (p: WhereToWatch["subscription"][number]) => (
+    <a key={p.id} href={watch.link ?? undefined} target="_blank" rel="noreferrer" title={p.name} className="shrink-0 w-10 h-10 rounded-[8px] overflow-hidden border border-hair bg-card">
+      {p.logo && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={p.logo} alt={p.name} className="w-full h-full object-cover" />
+      )}
+    </a>
+  );
+  // A row of logos; the first row ends on the arrow to the other countries.
+  const row = (ps: WhereToWatch["subscription"], first: boolean) => (
+    <div className="flex items-center gap-2.5">
+      <div className="flex gap-2.5 overflow-x-auto [scrollbar-width:none] min-w-0">{ps.map(logo)}</div>
+      {first && <span className="ml-auto"><ElsewhereSheet entries={watch.elsewhere} /></span>}
     </div>
   );
+  const home = watch.subscription.length > 0 || watch.free.length > 0;
+  // Nowhere here: five of the services elsewhere, and how many more.
+  const abroad = watch.elsewhere.slice(0, 5).map((e) => e.provider);
   return (
     <Section title="Where to watch" tight>
       <SectionCard>
         <div className="rounded-[14px] bg-piece p-3 grid gap-2">
-          {watch.subscription.length > 0 && row(watch.subscription)}
+          {watch.subscription.length > 0 && row(watch.subscription, true)}
           {watch.free.length > 0 && (
             <>
               <div className="text-[11px] font-bold uppercase text-dim">Free</div>
-              {row(watch.free)}
+              {row(watch.free, watch.subscription.length === 0)}
+            </>
+          )}
+          {!home && (
+            <>
+              <div className="text-[13px] text-dim">Not streaming here. Elsewhere:</div>
+              <div className="flex items-center gap-2.5">
+                <div className="flex gap-2.5 min-w-0">
+                  {abroad.map((p) => (
+                    <span key={p.id} title={p.name} className="shrink-0 w-10 h-10 rounded-[8px] overflow-hidden border border-hair bg-card">
+                      {p.logo && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.logo} alt={p.name} className="w-full h-full object-cover" />
+                      )}
+                    </span>
+                  ))}
+                  {watch.elsewhere.length > 5 && <span className="self-center text-[13px] text-dim">+{watch.elsewhere.length - 5}</span>}
+                </div>
+                <span className="ml-auto"><ElsewhereSheet entries={watch.elsewhere} /></span>
+              </div>
             </>
           )}
           <div className="text-[11px] text-dim">Streaming data by JustWatch</div>

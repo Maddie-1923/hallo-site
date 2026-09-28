@@ -385,6 +385,10 @@ export interface WhereToWatch {
   subscription: Provider[];
   free: Provider[];
   link: string | null;
+  /** The services carrying it in other countries and not here, by name,
+      each with the countries (ISO codes) that have it: the app's "Also
+      streaming in" list. */
+  elsewhere: { provider: Provider; countries: string[] }[];
 }
 
 type RawProviders = {
@@ -392,13 +396,50 @@ type RawProviders = {
 };
 type RawProvider = { provider_id: number; provider_name: string; logo_path?: string | null };
 
+/** What two listings of the same service share, as the app keys them:
+    TMDB lists each tier apart ("Netflix Standard with Ads"), so the tier
+    words are peeled off the end until the service's own name is left. */
+function serviceKey(name: string) {
+  let key = name.toLowerCase().trim();
+  const tiers = ["with ads", "premium", "standard", "basic", "free"];
+  for (let peeled = true; peeled; ) {
+    peeled = false;
+    for (const t of tiers)
+      if (key.endsWith(" " + t)) {
+        key = key.slice(0, -(t.length + 1)).trim();
+        peeled = true;
+      }
+  }
+  return key;
+}
+
 function whereToWatch(r: RawProviders, region: string): WhereToWatch | null {
-  const c = r["watch/providers"]?.results?.[region];
-  if (!c) return null;
+  const all = r["watch/providers"]?.results ?? {};
   const one = (p: RawProvider): Provider => ({ id: p.provider_id, name: p.provider_name, logo: p.logo_path ? `${IMG}/w92${p.logo_path}` : null });
-  const subscription = (c.flatrate ?? []).map(one);
-  const free = [...(c.free ?? []), ...(c.ads ?? [])].map(one).filter((p, i, a) => a.findIndex((x) => x.id === p.id) === i);
-  return subscription.length || free.length ? { subscription, free, link: c.link ?? null } : null;
+  const c = all[region];
+  const subscription = (c?.flatrate ?? []).map(one);
+  // The app's Free row is the ad-supported services.
+  const free = (c?.ads ?? []).map(one).filter((p, i, a) => a.findIndex((x) => x.id === p.id) === i);
+
+  // Everywhere else, the services not already carrying it here, by name.
+  const here = new Set([...subscription, ...free].map((p) => serviceKey(p.name)));
+  const countries = new Map<string, Set<string>>();
+  const services = new Map<string, Provider>();
+  for (const [code, rc] of Object.entries(all)) {
+    if (code === region) continue;
+    for (const raw of [...(rc.flatrate ?? []), ...(rc.ads ?? [])]) {
+      const k = serviceKey(raw.provider_name);
+      if (here.has(k)) continue;
+      countries.set(k, (countries.get(k) ?? new Set()).add(code));
+      const held = services.get(k);
+      if (!held || raw.provider_name.length < held.name.length) services.set(k, one(raw));
+    }
+  }
+  const elsewhere = [...countries.entries()]
+    .map(([k, codes]) => ({ provider: services.get(k)!, countries: [...codes].sort() }))
+    .sort((x, y) => x.provider.name.localeCompare(y.provider.name, undefined, { sensitivity: "base" }));
+
+  return subscription.length || free.length || elsewhere.length ? { subscription, free, link: c?.link ?? null, elsewhere } : null;
 }
 
 export interface CastMember {
