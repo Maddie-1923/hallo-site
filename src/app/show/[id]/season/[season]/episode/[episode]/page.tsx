@@ -70,7 +70,7 @@ export default async function EpisodePage({ params }: Params) {
           <TitleBento
             about={
               <>
-              <Section title="About">
+              <Section title="About" small>
               <HeaderCard flat title={ep.name} subtitle={code(ep.season, ep.episode)} facts={facts} overview={ep.overview} />
             </Section>
               {/* The trailer and where to watch, side by side under About: the

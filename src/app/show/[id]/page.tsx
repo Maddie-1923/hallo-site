@@ -85,7 +85,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           <TitleBento
             about={
               <>
-              <Section title="About">
+              <Section title="About" small>
             <HeaderCard flat
               title={show.name}
               titleOnBanner={!!logo}

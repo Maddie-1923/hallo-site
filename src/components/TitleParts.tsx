@@ -13,7 +13,15 @@ import { Rail } from "./Rail";
 // `well` for a row card, `hair` for hairlines.
 
 /** A section's heading, as the app draws it: Bebas capitals on a pill. */
-export function HeadingPill({ children }: { children: React.ReactNode }) {
+export function HeadingPill({ children, small = false }: { children: React.ReactNode; small?: boolean }) {
+  // Small: lettered as the credits' tab bar beside it (bold capitals, widely
+  // spaced), on a pill of the bar's height, for the headings in the bento.
+  if (small)
+    return (
+      <h2 className="inline-flex items-center h-[34px] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink">
+        {children}
+      </h2>
+    );
   return (
     <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece !text-[24px] !leading-none tracking-[.02em] uppercase pt-1">
       {children}
@@ -33,13 +41,13 @@ export function SectionCard({ children, className = "", flat = false }: { childr
 }
 
 /** A section: its heading pill, then its content 12px under it. */
-export function Section({ title, children, tight = false }: { title: string; children: React.ReactNode; tight?: boolean }) {
+export function Section({ title, children, tight = false, small = false }: { title: string; children: React.ReactNode; tight?: boolean; small?: boolean }) {
   return (
     // One column that can't grow past the section: a rail inside would
     // otherwise stretch it to its full length.
-    <section className={`grid grid-cols-[minmax(0,1fr)] ${tight ? "gap-2" : "gap-3"} content-start min-w-0`}>
+    <section className={`grid grid-cols-[minmax(0,1fr)] ${tight || small ? "gap-2" : "gap-3"} content-start min-w-0`}>
       <div>
-        <HeadingPill>{title}</HeadingPill>
+        <HeadingPill small={small}>{title}</HeadingPill>
       </div>
       {children}
     </section>
@@ -98,8 +106,14 @@ export function HeaderCard({
           ))}
         </div>
         {factsFooter && <div className="pt-[9px] border-t border-hair">{factsFooter}</div>}
+        {/* In the bento, the overview shares the facts' shell, under a hairline. */}
+        {flat && overview && (
+          <div className="mt-[9px] pt-[9px] border-t border-hair">
+            <ExpandableText text={overview} />
+          </div>
+        )}
       </div>
-      {overview && (
+      {!flat && overview && (
         <div className="rounded-[20px] bg-piece p-3">
           <ExpandableText text={overview} />
         </div>
@@ -132,9 +146,9 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
   // Nowhere here: five of the services elsewhere, and how many more.
   const abroad = watch.elsewhere.slice(0, 5).map((e) => e.provider);
   return (
-    <Section title="Where to watch" tight>
+    <Section title="Where to watch" tight small={flat}>
       <SectionCard flat={flat}>
-        <div className="rounded-[14px] bg-piece p-3 grid gap-2">
+        <div className="rounded-[20px] bg-piece p-3 grid gap-2">
           {watch.subscription.length > 0 && row(watch.subscription, true)}
           {watch.free.length > 0 && (
             <>
@@ -172,9 +186,10 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
     picture's corners are the card's own curve, 20px. */
 export function TrailerSection({ id, flat = false }: { id: string; flat?: boolean }) {
   return (
-    <Section title="Trailer">
+    <Section title="Trailer" small={flat}>
       <SectionCard flat={flat}>
-        <a href={`https://www.youtube.com/watch?v=${id}`} target="_blank" rel="noreferrer" className="group block no-underline text-ink">
+        {/* In the bento, in a shell of its own like where to watch's. */}
+        <a href={`https://www.youtube.com/watch?v=${id}`} target="_blank" rel="noreferrer" className={`group block no-underline text-ink ${flat ? "rounded-[20px] bg-piece p-2" : ""}`}>
           <span className="relative block aspect-video rounded-[20px] overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />

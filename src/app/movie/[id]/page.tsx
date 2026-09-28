@@ -74,7 +74,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
           <TitleBento
             about={
               <>
-              <Section title="About">
+              <Section title="About" small>
             <HeaderCard flat title={movie.title} titleOnBanner={!!logo} facts={facts} overview={movie.overview ?? null}>
             </HeaderCard>
           </Section>
