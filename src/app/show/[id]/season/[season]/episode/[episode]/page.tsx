@@ -8,7 +8,7 @@ import { TitleCredits } from "@/components/TitleCredits";
 import { TitleActions } from "@/components/TitleActions";
 import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
-import { EpisodesSection, HeaderCard, TitleBento, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { EpisodesSection, HeaderCard, TitleBento, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { optionalLibrary } from "@/lib/library";
 import { episodePage, image, seriesPage, titleLogo, type EpisodeLink } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
@@ -64,8 +64,8 @@ export default async function EpisodePage({ params }: Params) {
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={ep.still ?? image.banner(show.show.backdrop_path)} logo={logo} title={show.show.name} />
         {/* The top as one L-shaped bento: About down the left with the
-            trailer and where to watch side by side under it, the credits
-            tabs on the right, and the keys set into the notch above them. */}
+            trailers under it, the credits tabs on the right, and the keys
+            and where to watch set into the notch above them. */}
         <div className="mt-5">
           <TitleBento
             about={
@@ -73,12 +73,8 @@ export default async function EpisodePage({ params }: Params) {
               <Section title="About" small>
               <HeaderCard flat title={ep.name} subtitle={code(ep.season, ep.episode)} facts={facts} overview={ep.overview} />
             </Section>
-              {/* The trailer and where to watch, side by side under About: the
-                  trailer takes the room, where to watch only what its logos need. */}
-              <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] items-start">
-                {ep.trailer && <TrailerSection flat id={ep.trailer} />}
-                <div className="min-w-0 sm:max-w-[260px]">{show.watch && <WhereToWatchSection flat watch={show.watch} />}</div>
-              </div>
+              {/* The trailers, one or two, under About. */}
+              {ep.trailers.length > 0 && <TrailerSection flat videos={ep.trailers} />}
             {/* Back and on an episode, as the app pages through a season. */}
             {(ep.previous || ep.next) && (
               <SectionCard flat>
@@ -91,6 +87,7 @@ export default async function EpisodePage({ params }: Params) {
               </>
             }
             actions={<TitleActions kind="episode" title={`${show.show.name} ${code(ep.season, ep.episode)}`} tracked={!!lib.archive?.shows.some((s) => s.show.id === showID)} watched={watched} loved={loved} />}
+            beside={show.watch && <WhereToWatchTile watch={show.watch} />}
             side={(ep.cast.length > 0 || ep.crew.length > 0) && <TitleCredits flat cast={ep.cast} crew={ep.crew} />}
           />
         </div>

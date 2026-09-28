@@ -12,7 +12,9 @@ import type { WhereToWatch } from "@/lib/tmdb";
 // outlined chips (the country's name on hover), ruled between the rows,
 // sorted by name because a reader is scanning for a service they have.
 // The app pushes a page; the web opens a sheet over this one.
-export function ElsewhereSheet({ entries }: { entries: WhereToWatch["elsewhere"] }) {
+// `cover`: the opener is the whole of the box it sits in (the Where to watch
+// tile), drawn by the box itself, rather than the arrow.
+export function ElsewhereSheet({ entries, cover = false }: { entries: WhereToWatch["elsewhere"]; cover?: boolean }) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!open) return;
@@ -35,11 +37,17 @@ export function ElsewhereSheet({ entries }: { entries: WhereToWatch["elsewhere"]
         onClick={() => setOpen(true)}
         aria-label={`Where it streams worldwide: ${entries.length} services`}
         title="Streaming worldwide"
-        className="shrink-0 w-10 h-10 flex items-center justify-center text-accent cursor-pointer hover:brightness-125"
+        className={
+          cover
+            ? "absolute inset-0 rounded-[inherit] cursor-pointer ring-inset ring-[color:var(--dim)] hover:ring-[1.5px] focus-visible:ring-[1.5px] focus-visible:outline-none"
+            : "shrink-0 w-10 h-10 flex items-center justify-center text-accent cursor-pointer hover:brightness-125"
+        }
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M4 12h15M13 6l6 6-6 6" />
-        </svg>
+        {!cover && (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M4 12h15M13 6l6 6-6 6" />
+          </svg>
+        )}
       </button>
       {open &&
         createPortal(

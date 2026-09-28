@@ -289,7 +289,10 @@ export function genreNames(ids: number[] | null | undefined, limit = 3) {
 
 // ---- The home page's billboard ----
 
-type RawVideos = { videos?: { results: { key: string; site: string; type: string; official?: boolean }[] } };
+type RawVideos = { videos?: { results: { key: string; name?: string; site: string; type: string; official?: boolean; published_at?: string }[] } };
+
+/** A title's video on YouTube, with the name the studio gave it. */
+export type Video = { key: string; name: string };
 type RawMovieBillboard = RawMovie & RawVideos & { release_dates?: { results: { iso_3166_1: string; release_dates: { certification: string }[] }[] } };
 type RawShowBillboard = RawShow & RawVideos & { episode_run_time?: number[]; content_ratings?: { results: { iso_3166_1: string; rating: string }[] } };
 
@@ -317,6 +320,14 @@ function pickTrailer(v: RawVideos["videos"]): string | null {
     yt.find((x) => x.type === "Trailer") ??
     yt.find((x) => x.type === "Teaser");
   return best?.key ?? null;
+}
+
+/** Up to two trailers for a title's page: official trailers first (oldest
+    first, so the first trailer leads), then any trailer, then teasers. */
+function pickTrailers(v: RawVideos["videos"]): Video[] {
+  const yt = (v?.results.filter((x) => x.site === "YouTube") ?? []).sort((a, b) => (a.published_at ?? "").localeCompare(b.published_at ?? ""));
+  const ranked = [...yt.filter((x) => x.type === "Trailer" && x.official), ...yt.filter((x) => x.type === "Trailer" && !x.official), ...yt.filter((x) => x.type === "Teaser")];
+  return ranked.slice(0, 2).map((x) => ({ key: x.key, name: x.name ?? "Trailer" }));
 }
 
 function duration(minutes: number | null | undefined): string | null {
@@ -577,6 +588,7 @@ export interface FilmPage {
   /** The release in the visitor's country when TMDB has one, else the film's own date. */
   released: string | null;
   trailer: string | null;
+  trailers: Video[];
   cast: CastMember[];
   moreLikeThis: RailTitle[];
   watch: WhereToWatch | null;
@@ -608,6 +620,7 @@ export async function filmPage(id: number, region = RATING_FALLBACK): Promise<Fi
     directors: (r.credits?.crew ?? []).filter((c) => c.job === "Director").map((c) => ({ id: c.id, name: c.name })).filter((c, i, a) => a.findIndex((x) => x.id === c.id) === i),
     released: local ?? r.release_date ?? null,
     trailer: pickTrailer(r.videos),
+    trailers: pickTrailers(r.videos),
     cast: (r.credits?.cast ?? []).slice(0, 15).map((p) => ({ id: p.id, name: p.name, character: p.character ?? "", photo: image.profile(p.profile_path) })),
     moreLikeThis: (r.recommendations?.results ?? [])
       .filter((x) => x.poster_path)
@@ -644,6 +657,7 @@ export interface SeriesPage {
   certification: string | null;
   lastAired: string | null;
   trailer: string | null;
+  trailers: Video[];
   cast: CastMember[];
   moreLikeThis: RailTitle[];
   watch: WhereToWatch | null;
@@ -683,6 +697,7 @@ export async function seriesPage(id: number, region = RATING_FALLBACK): Promise<
     certification: rating(region) ?? rating(RATING_FALLBACK),
     lastAired: r.last_air_date ?? r.last_episode_to_air?.air_date ?? null,
     trailer: pickTrailer(r.videos),
+    trailers: pickTrailers(r.videos),
     cast: (r.credits?.cast ?? []).slice(0, 15).map((p) => ({ id: p.id, name: p.name, character: p.character ?? "", photo: image.profile(p.profile_path) })),
     moreLikeThis: (r.recommendations?.results ?? [])
       .filter((x) => x.poster_path)
@@ -820,6 +835,7 @@ export interface EpisodePage {
   cast: CastMember[];
   crew: CrewGroup[];
   trailer: string | null;
+  trailers: Video[];
   /** The season's episodes, for the rail and for stepping back and on. */
   seasonEpisodes: EpisodeLink[];
   previous: EpisodeLink | null;
@@ -874,6 +890,7 @@ export async function episodePage(showID: number, season: number, episode: numbe
     cast,
     crew: crewGroups(crew),
     trailer: pickTrailer(r.videos),
+    trailers: pickTrailers(r.videos),
     seasonEpisodes: list,
     previous,
     next,

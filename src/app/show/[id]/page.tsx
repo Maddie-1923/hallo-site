@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { People } from "@/components/People";
 import { TitleCredits } from "@/components/TitleCredits";
 import { TitleActivity } from "@/components/TitleActivity";
-import { HeaderCard, TitleBento, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { HeaderCard, TitleBento, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { TitleActions } from "@/components/TitleActions";
 import { SeasonList } from "@/components/SeasonList";
 import { seriesBadge } from "@/components/SeriesBadge";
@@ -79,8 +79,8 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={image.banner(show.backdrop_path) ?? image.poster(show.poster_path, "w780")} logo={logo} title={show.name} />
         {/* The top as one L-shaped bento: About down the left with the
-            trailer and where to watch side by side under it, the credits
-            tabs on the right, and the keys set into the notch above them. */}
+            trailers under it, the credits tabs on the right, and the keys
+            and where to watch set into the notch above them. */}
         <div className="mt-5">
           <TitleBento
             about={
@@ -102,15 +102,12 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             >
             </HeaderCard>
           </Section>
-              {/* The trailer and where to watch, side by side under About: the
-                  trailer takes the room, where to watch only what its logos need. */}
-              <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] items-start">
-                {page.trailer && <TrailerSection flat id={page.trailer} />}
-                <div className="min-w-0 sm:max-w-[260px]">{page.watch && <WhereToWatchSection flat watch={page.watch} />}</div>
-              </div>
+              {/* The trailers, one or two, under About. */}
+              {page.trailers.length > 0 && <TrailerSection flat videos={page.trailers} />}
               </>
             }
             actions={<TitleActions kind="show" title={show.name} tracked={!!tracked} loved={loved} stopped={tracked?.status === "Dropped"} />}
+            beside={page.watch && <WhereToWatchTile watch={page.watch} />}
             side={<TitleCredits flat cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} airing={page.airing} />}
           />
         </div>

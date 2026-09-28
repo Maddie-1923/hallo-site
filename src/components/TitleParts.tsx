@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { CastMember, RailTitle, WhereToWatch } from "@/lib/tmdb";
+import type { CastMember, RailTitle, Video, WhereToWatch } from "@/lib/tmdb";
 import { ExpandableText } from "./ExpandableText";
 import { Glyph } from "./Glyph";
 import { ElsewhereSheet } from "./ElsewhereSheet";
@@ -182,31 +182,73 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
   );
 }
 
-/** The trailer: its YouTube picture with a play mark, going to YouTube. The
-    picture's corners are the card's own curve, 20px. */
-export function TrailerSection({ id, flat = false }: { id: string; flat?: boolean }) {
+/** The trailers, one or two side by side: each its YouTube picture with a
+    play mark, going to YouTube, and its name under it. The pictures' corners
+    are the shell's own curve, 20px. */
+export function TrailerSection({ videos, flat = false }: { videos: Video[]; flat?: boolean }) {
   return (
-    <Section title="Trailer" small={flat}>
+    <Section title={videos.length > 1 ? "Trailers" : "Trailer"} small={flat}>
       <SectionCard flat={flat}>
-        {/* In the bento, in a shell of its own like where to watch's. */}
-        <a href={`https://www.youtube.com/watch?v=${id}`} target="_blank" rel="noreferrer" className={`group block no-underline text-ink ${flat ? "rounded-[20px] bg-piece p-2" : ""}`}>
-          <span className="relative block aspect-video rounded-[20px] overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
-            <span className="absolute inset-0 flex items-center justify-center">
-              <svg width="54" height="54" viewBox="0 0 24 24" aria-hidden className="drop-shadow-[0_4px_8px_rgba(0,0,0,.5)] group-hover:scale-105 transition-transform">
-                <circle cx="12" cy="12" r="11" fill="white" />
-                <path d="M10 8.2v7.6L16 12z" fill="#1a1a19" />
-              </svg>
-            </span>
-          </span>
-          <span className="block mt-2 px-1 pb-0.5">
-            <span className="text-[12.5px] font-semibold">Watch trailer</span>
-            <span className="text-[12.5px] text-dim"> · YouTube</span>
-          </span>
-        </a>
+        <div className={`grid gap-2 ${videos.length > 1 ? "sm:grid-cols-2" : ""} ${flat ? "rounded-[20px] bg-piece p-2" : ""}`}>
+          {videos.map((v) => (
+            <a key={v.key} href={`https://www.youtube.com/watch?v=${v.key}`} target="_blank" rel="noreferrer" className="group block min-w-0 no-underline text-ink">
+              <span className="relative block aspect-video rounded-[20px] overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`https://img.youtube.com/vi/${v.key}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <svg width="54" height="54" viewBox="0 0 24 24" aria-hidden className="drop-shadow-[0_4px_8px_rgba(0,0,0,.5)] group-hover:scale-105 transition-transform">
+                    <circle cx="12" cy="12" r="11" fill="white" />
+                    <path d="M10 8.2v7.6L16 12z" fill="#1a1a19" />
+                  </svg>
+                </span>
+              </span>
+              <span className="flex mt-2 px-1 pb-0.5 text-[12.5px] min-w-0">
+                <span className="font-semibold truncate">{v.name}</span>
+                <span className="shrink-0 text-dim">&nbsp;· YouTube</span>
+              </span>
+            </a>
+          ))}
+        </div>
       </SectionCard>
     </Section>
+  );
+}
+
+/** Where to watch as a small square beside the keys: its heading inside, the
+    first three services here (or, when it streams nowhere here, three from
+    elsewhere), how many more, and the arrow. Always the same size: the whole
+    square opens the full list, every service anywhere. */
+export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
+  const here = [...watch.subscription, ...watch.free.filter((f) => !watch.subscription.some((s) => s.id === f.id))];
+  const shown = (here.length ? here : watch.elsewhere.map((e) => e.provider)).slice(0, 3);
+  const total = here.length || watch.elsewhere.length;
+  return (
+    <div className="relative shrink-0 self-stretch aspect-square max-sm:aspect-auto max-sm:min-h-[120px] rounded-[20px] bg-card p-3 flex flex-col border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+      <h2 className="![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-[1.3] !tracking-[.12em] uppercase text-ink">Where to watch</h2>
+      <div className="mt-auto">
+        {!here.length && <div className="mb-1.5 text-[12.5px] leading-none text-dim">Elsewhere</div>}
+        <div className="flex gap-1.5">
+          {shown.map((p) => (
+            <span key={p.id} title={p.name} className={`shrink-0 w-8 h-8 rounded-[8px] overflow-hidden border border-hair bg-piece ${here.length ? "" : "opacity-60"}`}>
+              {p.logo && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={p.logo} alt={p.name} className="w-full h-full object-cover" />
+              )}
+            </span>
+          ))}
+          {shown.length === 0 && <span className="text-[12.5px] text-dim">Nowhere yet</span>}
+        </div>
+      </div>
+      <div className="mt-2 flex items-center justify-between text-[12.5px] leading-none">
+        <span className="text-dim">{total > shown.length ? `+${total - shown.length} more` : ""}</span>
+        {watch.elsewhere.length > 0 && (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-accent">
+            <path d="M4 12h15M13 6l6 6-6 6" />
+          </svg>
+        )}
+      </div>
+      <ElsewhereSheet entries={watch.elsewhere} cover />
+    </div>
   );
 }
 
@@ -379,12 +421,15 @@ export function EpisodesSection({ showID, episodes, current, title }: { showID: 
  * inside corner, and one shadow cast by the whole shape. On a narrower
  * screen it stacks: keys, About, then the rest, each in its own card.
  */
-export function TitleBento({ about, actions, side }: { about: React.ReactNode; actions: React.ReactNode; side: React.ReactNode }) {
+export function TitleBento({ about, actions, beside, side }: { about: React.ReactNode; actions: React.ReactNode; beside?: React.ReactNode; side: React.ReactNode }) {
   const R = 20;
   return (
     <div className="grid gap-4 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:[filter:drop-shadow(0_4px_9px_rgba(0,0,0,.35))]">
       {/* The notch: the keys, apart from the bento, with a gap under them. */}
-      <div className="lg:col-start-2 lg:row-start-1 lg:pl-4 lg:pb-4">{actions}</div>
+      <div className="lg:col-start-2 lg:row-start-1 lg:pl-4 lg:pb-4 flex max-sm:flex-col gap-3 items-stretch">
+        <div className="flex-1 min-w-0">{actions}</div>
+        {beside}
+      </div>
       {/* The long leg: About, and what sits under it. */}
       <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 min-w-0 bg-card p-2 pt-3 grid gap-5 content-start rounded-[20px] lg:rounded-br-none">{about}</div>
       {/* The short leg, joined to the long one along its left side. It is
