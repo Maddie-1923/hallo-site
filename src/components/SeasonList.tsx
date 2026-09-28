@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
-import { loadSeason } from "@/lib/title-actions";
+import { loadSeason, type SeasonEpisode } from "@/lib/title-actions";
 import { Glyph } from "./Glyph";
 
 type Season = { number: number; name: string; count: number };
-type Episode = { season: number; episode: number; name: string; airDate: string | null };
+type Episode = SeasonEpisode;
 
 // All episodes, as the app's season list (ShowDetailView): a panel a season,
 // one open at a time, each with its name and chevron, the count watched of
@@ -18,7 +18,11 @@ type Episode = { season: number; episode: number; name: string; airDate: string 
 // A season's episodes are fetched when it is opened. Checking off from the
 // website comes with accounts; until then the keys show the library's state
 // and the page says so when pressed.
-export function SeasonList({ showID, seasons, watched, open: initial }: { showID: number; seasons: Season[]; watched: string[]; open: number }) {
+// With `onPick`, a row shows its episode beside the list (the small episode
+// page) rather than going to the episode's own page; the one shown is marked,
+// and when a season opens with nothing shown yet, its first episode not yet
+// watched is.
+export function SeasonList({ showID, seasons, watched, open: initial, picked, onPick }: { showID: number; seasons: Season[]; watched: string[]; open: number; picked?: string | null; onPick?: (e: Episode) => void }) {
   const [open, setOpen] = useState<number | null>(initial);
   const [episodes, setEpisodes] = useState<Record<number, Episode[]>>({});
   const [pending, start] = useTransition();
@@ -34,6 +38,13 @@ export function SeasonList({ showID, seasons, watched, open: initial }: { showID
   }, [open, episodes, showID]);
 
   const today = new Date().toISOString().slice(0, 10);
+  useEffect(() => {
+    if (!onPick || picked || open == null) return;
+    const eps = episodes[open];
+    if (!eps?.length) return;
+    onPick(eps.find((e) => !seen.has(`${showID}-${e.season}-${e.episode}`) && !!e.airDate && e.airDate <= today) ?? eps[0]);
+  }, [episodes, open, picked, onPick]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="grid gap-2">
       {note && <p className="m-0 px-1 text-[12px] text-dim">Checking off episodes on the website opens with accounts. Until then, check them off in the app.</p>}
@@ -69,15 +80,25 @@ export function SeasonList({ showID, seasons, watched, open: initial }: { showID
                   const aired = !!e.airDate && e.airDate <= today;
                   const days = e.airDate ? Math.ceil((Date.parse(e.airDate) - Date.parse(today)) / 86400000) : null;
                   return (
-                    <div key={key} className={`rounded-[10px] bg-[color:var(--quiet)] px-2.5 py-2.5 flex items-center gap-3 ${aired ? "" : "opacity-70"}`}>
+                    <div key={key} className={`rounded-[10px] bg-[color:var(--quiet)] px-2.5 py-2.5 flex items-center gap-3 ${aired ? "" : "opacity-70"} ${picked === key ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
                       {/* The episode's own page, as a tap on the row opens it in the app. */}
-                      <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className="min-w-0 flex-1 grid gap-[3px] no-underline text-ink group">
+                      {onPick ? (
+                        <button type="button" onClick={() => onPick(e)} aria-pressed={picked === key} className="min-w-0 flex-1 grid gap-[3px] text-left text-ink group cursor-pointer">
                         <div className="text-[12px] leading-none">
                           <span className="font-semibold text-ink">{code(e.season, e.episode)}</span>
                           {e.airDate && <span className="ml-1.5 text-dim">{shortDate(e.airDate)}</span>}
                         </div>
                         <div className="text-[12px] leading-[15px] text-dim truncate group-hover:text-accent transition-colors">{e.name}</div>
-                      </Link>
+                        </button>
+                      ) : (
+                        <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className="min-w-0 flex-1 grid gap-[3px] no-underline text-ink group">
+                        <div className="text-[12px] leading-none">
+                          <span className="font-semibold text-ink">{code(e.season, e.episode)}</span>
+                          {e.airDate && <span className="ml-1.5 text-dim">{shortDate(e.airDate)}</span>}
+                        </div>
+                        <div className="text-[12px] leading-[15px] text-dim truncate group-hover:text-accent transition-colors">{e.name}</div>
+                        </Link>
+                      )}
                       {aired ? (
                         <div className="flex gap-1.5">
                           <button type="button" onClick={() => setNote(true)} aria-label={`Skip ${code(e.season, e.episode)}`} className="w-[34px] h-7 rounded-[9px] bg-hair text-dim flex items-center justify-center cursor-pointer">

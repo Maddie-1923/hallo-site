@@ -50,7 +50,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
           Favourites is parked while this layout is tried; it comes back
           somewhere else (FavouriteCard below is kept for that). */}
-      <div className="grid gap-2 mt-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
+      <div className="grid gap-2 mt-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
         <ProfileCard v={v} />
         <div className="rounded-shell bg-card border border-hair p-2 flex self-stretch">
           <NumberTiles v={v} />

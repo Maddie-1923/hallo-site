@@ -7,7 +7,7 @@ import { TitleCredits } from "@/components/TitleCredits";
 import { TitleActivity } from "@/components/TitleActivity";
 import { HeaderCard, TitleBento, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { TitleActions } from "@/components/TitleActions";
-import { SeasonList } from "@/components/SeasonList";
+import { SeasonBrowser } from "@/components/SeasonBrowser";
 import { SeriesPill, seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
 import { reviewsOfTitle } from "@/lib/profile-previews";
@@ -21,7 +21,8 @@ import { visitorRegion } from "@/lib/region";
 // app's show screen (ShowDetailView): the header card with the title, how
 // many seasons and episodes, the facts, the last-aired line and the series
 // pill, the overview and the five keys; Where to watch and the trailer
-// beside it; then All episodes, Your take, the reviews and more like this.
+// beside it; then All episodes with a small episode page beside it, the
+// reviews, Your take and more like this.
 export async function generateMetadata({ params }: PageProps<"/show/[id]">): Promise<Metadata> {
   const { id } = await params;
   const d = await seriesPage(Number(id));
@@ -116,14 +117,16 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
         {/* The season list, straight under the bento and before their take,
             at the About card's width. */}
         {seasons.length > 0 && (
-          <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            <Section title="All episodes" tight small>
-              <SectionCard>
-                <SeasonList showID={showID} seasons={seasons} watched={watched} open={openSeason} />
-              </SectionCard>
-            </Section>
+          <div className="mt-8">
+            <SeasonBrowser showID={showID} seasons={seasons} watched={watched} open={openSeason} />
           </div>
         )}
+        {/* Under it, at the About card's width: the reviews. */}
+        <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="grid gap-8 min-w-0">
+          <ReviewsSection reviews={reviews} />
+          </div>
+        </div>
         {/* Their own take on it, as the app calls it, across the page's
             full width so its parts sit side by side: the rating beside the
             moods, the review beside the note and tags. */}
@@ -133,12 +136,6 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
               <YourReview kind="show" out={show.first_air_date ?? null} title={{ key: `s${showID}`, kind: "show", title: show.name, href: `/show/${showID}`, poster: image.poster(show.poster_path, "w342"), backdrop: image.backdrop(show.backdrop_path), year: (show.first_air_date ?? "").slice(0, 4) }} />
             </SectionCard>
           </Section>
-        </div>
-        {/* Under it, at the About card's width: the reviews. */}
-        <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <div className="grid gap-8 min-w-0">
-          <ReviewsSection reviews={reviews} />
-          </div>
         </div>
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" />}

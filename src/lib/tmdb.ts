@@ -94,6 +94,8 @@ export interface RawEpisode {
   overview?: string | null;
   runtime?: number | null;
   still_path?: string | null;
+  vote_average?: number;
+  crew?: { id: number; name: string; job?: string }[];
 }
 
 export interface RawPerson {
