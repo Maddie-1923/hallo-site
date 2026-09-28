@@ -723,6 +723,9 @@ export interface PersonPage {
   place: string | null;
   directed: PersonCredit[];
   acted: PersonCredit[];
+  /** Everything else behind the camera (writing, producing, music…), one
+      card a title with its jobs together. */
+  crew: PersonCredit[];
 }
 
 type RawCombined = {
@@ -768,6 +771,16 @@ export async function personPage(id: number): Promise<PersonPage | null> {
       .filter((c) => c.job === "Director" || c.job === "Creator" || c.job === "Series Director")
       .map((c) => one(c, c.job === "Creator" ? "Creator" : "Director")),
   ).sort(order);
+  // The rest of their crew work, a title once with its jobs joined.
+  const jobs = new Map<string, { c: RawCombined; jobs: string[] }>();
+  for (const c of crew) {
+    if (c.job === "Director" || c.job === "Creator" || c.job === "Series Director" || !c.job) continue;
+    const k = `${c.media_type}${c.id}`;
+    const e = jobs.get(k) ?? { c, jobs: [] };
+    if (!e.jobs.includes(c.job)) e.jobs.push(c.job);
+    jobs.set(k, e);
+  }
+  const otherCrew = [...jobs.values()].map(({ c, jobs }) => one(c, jobs.join(", "))).sort(order);
   const acted = unique((r.combined_credits?.cast ?? []).filter((c) => !(c.media_type === "tv" && (c.episode_count ?? 0) < 2 && !c.character)).map((c) => one(c, c.character ?? ""))).sort(order);
   return {
     id: r.id,
@@ -779,6 +792,7 @@ export async function personPage(id: number): Promise<PersonPage | null> {
     place: r.place_of_birth ?? null,
     directed,
     acted,
+    crew: otherCrew,
   };
 }
 

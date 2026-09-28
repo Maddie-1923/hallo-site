@@ -248,9 +248,10 @@ export function CastGrid({ cast }: { cast: CastMember[] }) {
   );
 }
 
+/** A cast member's tile, going to their page and filmography. */
 function CastTile({ p, fill = "bg-piece" }: { p: CastMember; fill?: string }) {
   return (
-    <div className={`rounded-[12px] ${fill} overflow-hidden`}>
+    <Link href={`/person/${p.id}`} className={`group block rounded-[12px] ${fill} overflow-hidden no-underline`}>
       <div className="aspect-[2/3] rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card flex items-center justify-center">
         {p.photo ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -264,10 +265,10 @@ function CastTile({ p, fill = "bg-piece" }: { p: CastMember; fill?: string }) {
       <div className="p-2.5">
         {/* One line each, cut short with an ellipsis, as the app's grids and
             rails do: a two-line name would leave a gap under the short ones. */}
-        <div className="text-[12.5px] leading-[16px] font-semibold text-ink truncate">{p.name}</div>
+        <div className="text-[12.5px] leading-[16px] font-semibold text-ink truncate group-hover:text-accent transition-colors">{p.name}</div>
         <div className="text-[12.5px] leading-[16px] text-dim truncate">{p.character}</div>
       </div>
-    </div>
+    </Link>
   );
 }
 

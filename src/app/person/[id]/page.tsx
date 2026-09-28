@@ -7,9 +7,10 @@ import { ExpandableText } from "@/components/ExpandableText";
 import { Section, SectionCard } from "@/components/TitleParts";
 import { personPage, type PersonCredit } from "@/lib/tmdb";
 
-// A person's page, reached from a film's director or a series' creator: who
-// they are, then what they have directed or created (anything still to come
-// first, marked so), then what they have acted in. Laid out in the title
+// A person's page, reached from a title's cast, crew, director or creator:
+// who they are, then their filmography: what they have directed or created
+// (anything still to come first, marked so), what they have acted in, and
+// their other crew work, with whatever they are known for leading. Laid out in the title
 // pages' pieces: section heading pills over cards, poster cards in a grid.
 export async function generateMetadata({ params }: PageProps<"/person/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -65,8 +66,10 @@ export default async function PersonPage({ params }: PageProps<"/person/[id]">) 
           </div>
         </div>
 
+        {p.knownFor === "Acting" && p.acted.length > 0 && <Credits title="Acting" items={p.acted} showRole />}
         {p.directed.length > 0 && <Credits title="Directed" items={p.directed} showRole={p.directed.some((c) => c.role === "Creator")} />}
-        {p.acted.length > 0 && <Credits title="Acting" items={p.acted} showRole />}
+        {p.knownFor !== "Acting" && p.acted.length > 0 && <Credits title="Acting" items={p.acted} showRole />}
+        {p.crew.length > 0 && <Credits title="Crew" items={p.crew} showRole />}
       </main>
       <SiteFooter />
     </div>
