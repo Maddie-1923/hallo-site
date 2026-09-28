@@ -123,13 +123,13 @@ var p=function(k,x){r.style.setProperty(k,x)};p("--accent",v[0]);p("--accent-fil
  * light logo even when the page around it is in Day.
  */
 export const nightTokens = {
-  "--ink": "#e6e0d6",
-  "--bone": "#e6e0d6",
+  "--ink": "#eeeff2",
+  "--bone": "#eeeff2",
   "--dim": "#c9c4bb",
-  "--hair": "#42423f",
-  "--card": "#30302e",
-  "--card-hi": "#383836",
-  "--page": "#1a1a19",
+  "--hair": "#464b53",
+  "--card": "#2a2d32",
+  "--card-hi": "#353a41",
+  "--page": "#17191c",
   // Accent *type* on the photograph takes the night tone; the fill and its
   // lettering are left as the page has them, so a filled control inside the
   // billboard is the same colour as the pill in the nav.

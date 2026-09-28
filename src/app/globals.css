@@ -12,25 +12,27 @@
    script; the values here are Lagune's night ones for the moment before the
    script runs. */
 :root {
-  --page: #1a1a19;
+  /* Night is the app's Dark Slate (KodigoNeutral in Theme.swift): cool
+     greys, where the warm style's are brown. */
+  --page: #17191c;
   --graphite: #1a1a19;
-  --bone: #e6e0d6;
-  --ink: #e6e0d6;
-  --card: #30302e;
-  --card-hi: #383836;
+  --bone: #eeeff2;
+  --ink: #eeeff2;
+  --card: #2a2d32;
+  --card-hi: #353a41;
   /* The app's list-row pieces (Theme.swift, night): the row's card
      (`kodigoWell`), the panel and keys inside it (`kodigoRowPiece`), the lit
      top of its edge (`kodigoLitEdge`), the mid tone for an episode code, and
      a progress bar's track. */
-  --well: #262421;
-  --piece: #3c3934;
-  --lit-edge: #5d5951;
-  --mid-tone: #bfbeb7;
-  --track: #33322e;
+  --well: #202327;
+  --piece: #33373d;
+  --lit-edge: #4f555f;
+  --mid-tone: #babec4;
+  --track: #2c3035;
   /* `kodigoQuietFill`: an episode's band in a season list. */
-  --quiet: #47443e;
-  --dim: #918e88;
-  --hair: #42423f;
+  --quiet: #3c4148;
+  --dim: #8c9097;
+  --hair: #464b53;
   --shows: #ffc300;
   --movies: #ff5a6e;
   /* The app's `loved` and `badgeOn` pairs — the heart and the watched tick. */
@@ -100,12 +102,12 @@
    the default, and a light `data-scheme` has already overridden them by the
    time this applies. */
 .scheme-dark {
-  --page: #1a1a19;
-  --ink: #e6e0d6;
-  --card: #30302e;
-  --card-hi: #383836;
-  --dim: #918e88;
-  --hair: #42423f;
+  --page: #17191c;
+  --ink: #eeeff2;
+  --card: #2a2d32;
+  --card-hi: #353a41;
+  --dim: #8c9097;
+  --hair: #464b53;
   --movies: #ff5a6e;
   --loved: #ff5a6e;
   /* `lovedQuiet` in Theme.swift — the app's own answer for a loved mark on a
