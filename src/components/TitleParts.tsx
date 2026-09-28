@@ -299,3 +299,31 @@ export function TitleBanner({ art, logo, title }: { art: string | null; logo?: s
     </div>
   );
 }
+
+/** The season's episodes as wide cards, the one on the page ringed: its
+    still, its code and its name. */
+export function EpisodesSection({ showID, episodes, current, title }: { showID: number; episodes: { season: number; episode: number; name: string; still: string | null; airDate: string | null }[]; current: number; title: string }) {
+  const code = (s: number, e: number) => `S${String(s).padStart(2, "0")} | E${String(e).padStart(2, "0")}`;
+  return (
+    <Section title={title}>
+      <Rail>
+        {episodes.map((e) => (
+          <RowCard key={e.episode} width={240}>
+            <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className={`block rounded-[12px] bg-piece overflow-hidden no-underline text-ink group ${e.episode === current ? "ring-2 ring-accent-fill" : ""}`}>
+              <div className="aspect-video rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card">
+                {e.still && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={e.still} alt="" loading="lazy" className="w-full h-full object-cover" />
+                )}
+              </div>
+              <div className="px-2.5 pt-2 pb-2.5">
+                <div className="text-[12px] leading-[15px] font-semibold text-mid-tone">{code(e.season, e.episode)}</div>
+                <div className="text-[12px] leading-[15px] truncate group-hover:text-accent transition-colors">{e.name}</div>
+              </div>
+            </Link>
+          </RowCard>
+        ))}
+      </Rail>
+    </Section>
+  );
+}

@@ -28,7 +28,7 @@ const MOODS = [
   ["🙃", "Confused"],
 ] as const;
 
-export function YourReview({ kind, title }: { kind: "movie" | "show"; title: ProfileTitle }) {
+export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"; title: ProfileTitle }) {
   const [rating, setRating] = useState<number | null>(null);
   const [moods, setMoods] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
@@ -66,7 +66,7 @@ export function YourReview({ kind, title }: { kind: "movie" | "show"; title: Pro
   const card = "rounded-[14px] bg-piece p-3 grid gap-2.5";
   const heading = "text-[13.5px] font-semibold text-ink";
   const field = "w-full rounded-[12px] bg-card border border-hair px-3 py-2 text-[12.5px] leading-[1.6] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
-  const what = kind === "movie" ? "movie" : "show";
+  const what = kind === "movie" ? "movie" : kind === "episode" ? "episode" : "show";
 
   return (
     <div className="grid gap-2">

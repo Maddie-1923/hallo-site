@@ -16,7 +16,7 @@ import { ConfirmKey } from "./ConfirmKey";
 // the first press says so.
 type Key = { id: string; icon: Parameters<typeof Glyph>[0]["name"]; iconOn?: Parameters<typeof Glyph>[0]["name"]; label: string; labelOn?: string; fill?: string; ink?: string; off?: boolean; toggle?: boolean };
 
-export function TitleActions({ kind, title, tracked, watched = false, loved, stopped = false }: { kind: "movie" | "show"; title: string; tracked: boolean; watched?: boolean; loved: boolean; stopped?: boolean }) {
+export function TitleActions({ kind, title, tracked, watched = false, loved, stopped = false }: { kind: "movie" | "show" | "episode"; title: string; tracked: boolean; watched?: boolean; loved: boolean; stopped?: boolean }) {
   const [state, setState] = useState<Record<string, boolean>>({
     watched,
     like: loved,
@@ -54,7 +54,16 @@ export function TitleActions({ kind, title, tracked, watched = false, loved, sto
 
   const LIKE = "#CF8DB5";
   const keys: Key[] =
-    kind === "movie"
+    kind === "episode"
+      ? [
+          { id: "watched", icon: "check", label: "Watched", fill: "var(--accent-fill)", ink: "var(--on-accent)", toggle: true },
+          { id: "like", icon: "heart", iconOn: "heart-fill", label: "Like", labelOn: "Liked", fill: LIKE, toggle: true },
+          { id: "rewatch", icon: "repeat", label: "Rewatch", fill: "var(--accent-fill)", ink: "var(--on-accent)", off: !state.watched },
+          { id: "skip", icon: "skip", label: "Skip", labelOn: "Skipped", fill: "#D9BC52", ink: "#5A4200", toggle: true },
+          { id: "recap", icon: "recap", label: "Recap", off: true },
+          { id: "share", icon: "share", label: "Share" },
+        ]
+      : kind === "movie"
       ? [
           { id: "watched", icon: "check", label: "Watched", fill: "var(--accent-fill)", ink: "var(--on-accent)", toggle: true },
           { id: "like", icon: "heart", iconOn: "heart-fill", label: "Like", labelOn: "Liked", fill: LIKE, toggle: true },

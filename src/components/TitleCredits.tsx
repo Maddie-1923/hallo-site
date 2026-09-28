@@ -12,16 +12,16 @@ export function TitleCredits({
   cast,
   crew,
   details,
-  genres,
-  keywords,
+  genres = [],
+  keywords = [],
   releases,
   airing,
 }: {
   cast: CastMember[];
   crew: CrewGroup[];
-  details: TitleDetails;
-  genres: string[];
-  keywords: string[];
+  details?: TitleDetails;
+  genres?: string[];
+  keywords?: string[];
   releases?: ReleaseGroup[];
   airing?: { networks: { name: string; logo: string | null }[]; seasons: { name: string; date: string | null; episodes: number }[]; ratings: { country: string; rating: string }[] };
 }) {
@@ -44,7 +44,7 @@ export function TitleCredits({
         </Rows>
       ),
     },
-    { id: "details", label: "Details", content: <Details d={details} /> },
+    details && { id: "details", label: "Details", content: <Details d={details} /> },
     (genres.length > 0 || keywords.length > 0) && {
       id: "genres",
       label: "Genres",

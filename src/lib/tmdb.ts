@@ -781,3 +781,87 @@ export async function personPage(id: number): Promise<PersonPage | null> {
     acted,
   };
 }
+
+// ---- An episode's own page ----
+
+export interface EpisodeLink {
+  season: number;
+  episode: number;
+  name: string;
+  airDate: string | null;
+  still: string | null;
+}
+
+export interface EpisodePage {
+  season: number;
+  episode: number;
+  name: string;
+  overview: string | null;
+  airDate: string | null;
+  runtime: number | null;
+  vote: number | null;
+  still: string | null;
+  directors: Credit[];
+  writers: Credit[];
+  cast: CastMember[];
+  crew: CrewGroup[];
+  trailer: string | null;
+  /** The season's episodes, for the rail and for stepping back and on. */
+  seasonEpisodes: EpisodeLink[];
+  previous: EpisodeLink | null;
+  next: EpisodeLink | null;
+}
+
+type RawEpisodePage = RawEpisode & {
+  vote_average?: number;
+  crew?: { id: number; name: string; job?: string }[];
+  guest_stars?: RawPerson[];
+  credits?: { cast?: RawPerson[]; guest_stars?: RawPerson[]; crew?: { id: number; name: string; job?: string }[] };
+} & RawVideos;
+
+export async function episodePage(showID: number, season: number, episode: number, seasonCount: number): Promise<EpisodePage | null> {
+  const [r, eps] = await Promise.all([
+    tmdb<RawEpisodePage>(`/tv/${showID}/season/${season}/episode/${episode}`, { append_to_response: "credits,videos" }),
+    seasonEpisodes(showID, season),
+  ]);
+  if (!r) return null;
+  const link = (e: RawEpisode): EpisodeLink => ({ season: e.season_number, episode: e.episode_number, name: e.name, airDate: e.air_date ?? null, still: image.backdrop(e.still_path) });
+  const list = eps.map(link);
+  const at = list.findIndex((e) => e.episode === episode);
+  // Stepping past a season's ends goes on into the next season or back into
+  // the last one.
+  let previous = at > 0 ? list[at - 1] : null;
+  let next = at >= 0 && at < list.length - 1 ? list[at + 1] : null;
+  if (!previous && season > 1) {
+    const before = await seasonEpisodes(showID, season - 1);
+    previous = before.length ? link(before[before.length - 1]) : null;
+  }
+  if (!next && season < seasonCount) {
+    const after = await seasonEpisodes(showID, season + 1);
+    next = after.length ? link(after[0]) : null;
+  }
+  const crew = [...(r.crew ?? []), ...(r.credits?.crew ?? [])].filter((c, i, a) => a.findIndex((x) => x.id === c.id && x.job === c.job) === i);
+  const people = (jobs: string[]) => crew.filter((c) => c.job && jobs.includes(c.job)).map((c) => ({ id: c.id, name: c.name })).filter((c, i, a) => a.findIndex((x) => x.id === c.id) === i);
+  const cast = [...(r.credits?.cast ?? []), ...(r.guest_stars ?? r.credits?.guest_stars ?? [])]
+    .filter((p, i, a) => a.findIndex((x) => x.id === p.id) === i)
+    .slice(0, 30)
+    .map((p) => ({ id: p.id, name: p.name, character: p.character ?? "", photo: image.profile(p.profile_path) }));
+  return {
+    season,
+    episode,
+    name: r.name,
+    overview: r.overview || null,
+    airDate: r.air_date ?? null,
+    runtime: r.runtime ?? null,
+    vote: r.vote_average || null,
+    still: r.still_path ? `${IMG}/original${r.still_path}` : null,
+    directors: people(["Director"]),
+    writers: people(["Writer", "Teleplay", "Story", "Screenplay"]),
+    cast,
+    crew: crewGroups(crew),
+    trailer: pickTrailer(r.videos),
+    seasonEpisodes: list,
+    previous,
+    next,
+  };
+}

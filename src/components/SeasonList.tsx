@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { loadSeason } from "@/lib/title-actions";
 import { Glyph } from "./Glyph";
@@ -69,13 +70,14 @@ export function SeasonList({ showID, seasons, watched, open: initial }: { showID
                   const days = e.airDate ? Math.ceil((Date.parse(e.airDate) - Date.parse(today)) / 86400000) : null;
                   return (
                     <div key={key} className={`rounded-[10px] bg-[color:var(--quiet)] px-2.5 py-2.5 flex items-center gap-3 ${aired ? "" : "opacity-70"}`}>
-                      <div className="min-w-0 flex-1 grid gap-[3px]">
+                      {/* The episode's own page, as a tap on the row opens it in the app. */}
+                      <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className="min-w-0 flex-1 grid gap-[3px] no-underline text-ink group">
                         <div className="text-[12px] leading-none">
                           <span className="font-semibold text-ink">{code(e.season, e.episode)}</span>
                           {e.airDate && <span className="ml-1.5 text-dim">{shortDate(e.airDate)}</span>}
                         </div>
-                        <div className="text-[12px] leading-[15px] text-dim truncate">{e.name}</div>
-                      </div>
+                        <div className="text-[12px] leading-[15px] text-dim truncate group-hover:text-accent transition-colors">{e.name}</div>
+                      </Link>
                       {aired ? (
                         <div className="flex gap-1.5">
                           <button type="button" onClick={() => setNote(true)} aria-label={`Skip ${code(e.season, e.episode)}`} className="w-[34px] h-7 rounded-[9px] bg-hair text-dim flex items-center justify-center cursor-pointer">
