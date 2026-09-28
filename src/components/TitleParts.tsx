@@ -35,7 +35,7 @@ export function SectionCard({ children, className = "", flat = false }: { childr
   // Flat: the content alone, when it already sits inside a larger card.
   if (flat) return <div className={className}>{children}</div>;
   return (
-    <div className={`rounded-[20px] bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] ${className}`}>
+    <div className={`rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] ${className}`}>
       {children}
     </div>
   );
@@ -85,16 +85,16 @@ export function HeaderCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className={flat ? "grid gap-2" : "rounded-[20px] bg-card p-2 grid gap-2"}>
+    <div className={flat ? "grid gap-2" : "rounded-shell bg-card p-2 grid gap-2"}>
       {art !== undefined && (
-        <div className="aspect-video rounded-[14px] overflow-hidden bg-piece border-[0.5px] border-[color:color-mix(in_srgb,var(--dim)_35%,transparent)]">
+        <div className="aspect-video rounded-shell overflow-hidden bg-piece border-[0.5px] border-[color:color-mix(in_srgb,var(--dim)_35%,transparent)]">
           {art && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={art} alt="" className="w-full h-full object-cover" />
           )}
         </div>
       )}
-      <div className="rounded-[20px] bg-piece p-3">
+      <div className="rounded-shell bg-piece p-3">
         <h1 className={titleOnBanner ? "sr-only" : "!text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase"}>{title}</h1>
         {subtitle && <div className={`display text-[22px] leading-none tracking-[.03em] uppercase ${titleOnBanner ? "" : "mt-0.5"}`}>{subtitle}</div>}
         {/* A hairline under the title, when there is one to sit under. */}
@@ -115,7 +115,7 @@ export function HeaderCard({
         )}
       </div>
       {!flat && overview && (
-        <div className="rounded-[20px] bg-piece p-3">
+        <div className="rounded-shell bg-piece p-3">
           <ExpandableText text={overview} />
         </div>
       )}
@@ -149,7 +149,7 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
   return (
     <Section title="Where to watch" tight small={flat}>
       <SectionCard flat={flat}>
-        <div className="rounded-[20px] bg-piece p-3 grid gap-2">
+        <div className="rounded-shell bg-piece p-3 grid gap-2">
           {watch.subscription.length > 0 && row(watch.subscription, true)}
           {watch.free.length > 0 && (
             <>
@@ -190,7 +190,7 @@ export function TrailerSection({ videos, flat = false }: { videos: Video[]; flat
   return (
     <Section title={videos.length > 1 ? "Trailers" : "Trailer"} small={flat}>
       <SectionCard flat={flat}>
-        <div className={`grid gap-2 ${videos.length > 1 ? "sm:grid-cols-2" : ""} ${flat ? "rounded-[20px] bg-piece p-2" : ""}`}>
+        <div className={`grid gap-2 ${videos.length > 1 ? "sm:grid-cols-2" : ""} ${flat ? "rounded-shell bg-piece p-2" : ""}`}>
           {videos.map((v) => (
             <TrailerCard key={v.key} video={v} />
           ))}
@@ -214,7 +214,7 @@ export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
   const more = pool.length - shown.length;
   const tile = "shrink-0 w-10 h-10 rounded-[9px] overflow-hidden border border-hair bg-card";
   return (
-    <div className="relative shrink-0 w-[141px] max-sm:w-auto max-sm:h-[120px] self-stretch rounded-[20px] bg-card border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+    <div className="relative shrink-0 w-[141px] max-sm:w-auto max-sm:h-[120px] self-stretch rounded-shell bg-card border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
       <div className="absolute inset-0 p-2 flex flex-col gap-2">
         <h2 className="shrink-0 h-[34px] px-1 rounded-[12px] bg-piece flex items-center justify-center text-center ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink">{here.length ? "Where to watch" : "Elsewhere"}</h2>
         <div className="flex-1 min-h-0 rounded-[12px] bg-piece px-2.5 flex items-center gap-1.5">
@@ -244,7 +244,7 @@ export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
 function RowCard({ width, children }: { width: number; children: React.ReactNode }) {
   return (
     <div
-      className="shrink-0 rounded-[16px] bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] snap-start"
+      className="shrink-0 rounded-shell bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] snap-start"
       // At least its own width; the rail may widen it so a whole number of
       // cards and a glimpse of the next fill the row (see Rail).
       style={{ width: `var(--rail-card, ${width}px)` }}
@@ -354,7 +354,7 @@ export function MoreLikeThisSection({ items, kind }: { items: RailTitle[]; kind:
     crop keeps the upper part, where faces usually are. */
 export function TitleBanner({ art, logo, title }: { art: string | null; logo?: string | null; title?: string }) {
   return (
-    <div className="relative overflow-hidden rounded-[28px] h-[clamp(300px,40vw,540px)] bg-card">
+    <div className="relative overflow-hidden rounded-shell h-[clamp(300px,40vw,540px)] bg-card">
       {art && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={art} alt="" className="absolute inset-0 w-full h-full object-cover object-[center_25%]" />
@@ -410,7 +410,7 @@ export function EpisodesSection({ showID, episodes, current, title }: { showID: 
  * screen it stacks: keys, About, then the rest, each in its own card.
  */
 export function TitleBento({ about, actions, beside, side }: { about: React.ReactNode; actions: React.ReactNode; beside?: React.ReactNode; side: React.ReactNode }) {
-  const R = 20;
+  const R = "var(--shell-radius)";
   return (
     <div className="grid gap-4 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:[filter:drop-shadow(0_4px_9px_rgba(0,0,0,.35))]">
       {/* The notch: the keys, apart from the bento, with a gap under them. */}
@@ -419,13 +419,13 @@ export function TitleBento({ about, actions, beside, side }: { about: React.Reac
         {beside}
       </div>
       {/* The long leg: About, and what sits under it. */}
-      <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 min-w-0 bg-card p-2 pt-3 grid gap-5 content-start rounded-[20px] lg:rounded-br-none">{about}</div>
+      <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 min-w-0 bg-card p-2 pt-3 grid gap-5 content-start rounded-shell lg:rounded-br-none">{about}</div>
       {/* The short leg, joined to the long one along its left side. It is
           as tall as the long leg leaves it, and what it holds scrolls inside
           rather than stretching the bento. */}
-      <div className="relative lg:col-start-2 lg:row-start-2 min-w-0 bg-card rounded-[20px] lg:rounded-l-none lg:min-h-[420px]">
+      <div className="relative lg:col-start-2 lg:row-start-2 min-w-0 bg-card rounded-shell lg:rounded-l-none lg:min-h-[420px]">
         {/* The inside corner, where the short leg's top meets the long leg. */}
-        <span aria-hidden className="hidden lg:block absolute left-0 bottom-full" style={{ width: R, height: R, background: `radial-gradient(circle at 100% 0, transparent ${R - 0.5}px, var(--card) ${R}px)` }} />
+        <span aria-hidden className="hidden lg:block absolute left-0 bottom-full" style={{ width: R, height: R, background: `radial-gradient(circle at 100% 0, transparent calc(${R} - 0.5px), var(--card) ${R})` }} />
         <div className="lg:absolute lg:inset-0 p-2 pt-3 min-w-0 flex flex-col [&>*]:flex-1 [&>*]:min-h-0">{side}</div>
       </div>
     </div>

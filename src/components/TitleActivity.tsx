@@ -49,7 +49,7 @@ export function TitleActivity({ target, archive, signedIn }: { target: Target; a
         ) : (
           <dl className="grid gap-3 grid-cols-2 sm:grid-cols-4 m-0">
             {facts.map((f) => (
-              <div key={f.label} className="rounded-2xl border border-hair bg-card p-4">
+              <div key={f.label} className="rounded-shell border border-hair bg-card p-4">
                 <dt className="eyebrow">{f.label}</dt>
                 <dd className="m-0 mt-1 text-lg font-semibold text-ink truncate" title={f.value}>
                   {f.value}
@@ -57,7 +57,7 @@ export function TitleActivity({ target, archive, signedIn }: { target: Target; a
               </div>
             ))}
             {review?.text && (
-              <div className="rounded-2xl border border-hair bg-card p-4 col-span-2 sm:col-span-4">
+              <div className="rounded-shell border border-hair bg-card p-4 col-span-2 sm:col-span-4">
                 <dt className="eyebrow">Review{review.spoilers ? " · spoilers" : ""}</dt>
                 <dd className="m-0 mt-1 text-[15px] text-bone whitespace-pre-wrap">{review.text}</dd>
               </div>

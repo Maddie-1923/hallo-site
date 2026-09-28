@@ -77,7 +77,7 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
         aria-label={label}
         // Flat, in a narrower column: the bar fills it, and the tabs share a
         // second line rather than any hiding off its end.
-        className={`${flat ? "flex w-full flex-wrap rounded-[18px] bg-piece" : "inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-full bg-card border border-hair"} items-center gap-1 p-1`}
+        className={`${flat ? "flex w-full flex-wrap rounded-shell bg-piece" : "inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-full bg-card border border-hair"} items-center gap-1 p-1`}
       >
         {sections.map((s) => {
           const on = s.id === shown.id;
@@ -106,7 +106,7 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
         role="tabpanel"
         id={`panel-${shown.id}`}
         aria-labelledby={`tab-${shown.id}`}
-        className={`${aside || flat ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 ${flat ? "flex-1 min-h-0 overflow-y-auto soft-scroll rounded-[20px] bg-piece p-3" : shown.bare ? "" : "min-h-[240px] rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-[clamp(14px,1.6vw,22px)]"}`}
+        className={`${aside || flat ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 ${flat ? "flex-1 min-h-0 overflow-y-auto soft-scroll rounded-shell bg-piece p-3" : shown.bare ? "" : "min-h-[240px] rounded-shell bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-[clamp(14px,1.6vw,22px)]"}`}
       >
         {shown.content}
       </div>

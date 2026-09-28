@@ -53,7 +53,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
           somewhere else (FavouriteCard below is kept for that). */}
       <div className="grid gap-x-5 gap-y-4 mt-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
         <ProfileCard v={v} />
-        <div className="rounded-[24px] bg-card border border-hair p-2 flex self-stretch">
+        <div className="rounded-shell bg-card border border-hair p-2 flex self-stretch">
           <NumberTiles v={v} />
         </div>
           <ProfileSections
@@ -148,7 +148,7 @@ function Dashboard({ v }: { v: PublicProfileView }) {
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-[20px] bg-card border border-hair px-[clamp(12px,1.2vw,16px)] py-3 flex flex-col min-w-0">
+    <div className="rounded-shell bg-card border border-hair px-[clamp(12px,1.2vw,16px)] py-3 flex flex-col min-w-0">
       <div className="text-[10.5px] font-bold tracking-[.14em] uppercase text-dim mb-2">{title}</div>
       {children}
     </div>
@@ -176,7 +176,7 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
         // tiny: a browser with a minimum font size (a common reading setting)
         // enlarges small type but leaves a scale alone, so FOLLOWERS still
         // fits its tile.
-        <div key={label} className="min-w-0 rounded-[14px] bg-card-hi pt-2 pb-1.5 px-1 text-center flex flex-col items-center justify-center">
+        <div key={label} className="min-w-0 rounded-shell bg-card-hi pt-2 pb-1.5 px-1 text-center flex flex-col items-center justify-center">
           <div className="display text-[21px] xl:text-[23px] leading-none text-accent">{value}</div>
           <div className="text-[10px] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.54] xl:scale-[.72]">{label}</div>
         </div>
@@ -252,7 +252,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         // below it, and on a wide screen is exactly as wide as the tab bar
         // (--tabs-w, set by the bar); the photo sits over its left end, and
         // the writing starts past the photo.
-        className="flex-1 lg:flex-none lg:w-[var(--tabs-w,100%)] rounded-[24px] bg-card border border-hair pr-[clamp(14px,1.6vw,20px)] py-3 min-w-0"
+        className="flex-1 lg:flex-none lg:w-[var(--tabs-w,100%)] rounded-shell bg-card border border-hair pr-[clamp(14px,1.6vw,20px)] py-3 min-w-0"
         style={{ paddingLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 16px)` }}
       >
         <div className="flex items-start gap-4 min-w-0">

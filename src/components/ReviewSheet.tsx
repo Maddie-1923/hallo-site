@@ -119,7 +119,7 @@ export function ReviewSheet({ r, username, avatar, onClose }: { r: SheetReview; 
   }, [onClose]);
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`@${username}'s review of ${r.title}`} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
-      <div className="w-full sm:max-w-[600px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px] bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
+      <div className="w-full sm:max-w-[600px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
         <ReviewSheetCard r={r} username={username} avatar={avatar} onClose={onClose} />
       </div>
     </div>,

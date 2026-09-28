@@ -87,7 +87,7 @@ function AboutSheet({ location, quote, onSave, onClose }: { location: string; qu
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label="About you" className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <form
-        className="w-full sm:max-w-[480px] rounded-t-[28px] sm:rounded-[28px] bg-card border border-hair shadow-2xl p-4 grid gap-3"
+        className="w-full sm:max-w-[480px] rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl p-4 grid gap-3"
         onClick={(x) => x.stopPropagation()}
         onSubmit={(e) => {
           e.preventDefault();

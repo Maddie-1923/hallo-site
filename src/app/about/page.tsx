@@ -25,7 +25,7 @@ const faq = [
 
 function Shot({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-[22px] bg-card border border-hair aspect-[4/3] flex items-center justify-center text-center p-6 text-[13px] text-dim">
+    <div className="rounded-shell bg-card border border-hair aspect-[4/3] flex items-center justify-center text-center p-6 text-[13px] text-dim">
       {children}
     </div>
   );

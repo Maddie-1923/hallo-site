@@ -63,7 +63,7 @@ export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"
     setSaid(true);
   }
 
-  const card = "rounded-[14px] bg-piece p-3 grid gap-2.5";
+  const card = "rounded-shell bg-piece p-3 grid gap-2.5";
   const heading = "text-[13.5px] font-semibold text-ink";
   const field = "w-full rounded-[12px] bg-card border border-hair px-3 py-2 text-[12.5px] leading-[1.6] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
   const what = kind === "movie" ? "movie" : kind === "episode" ? "episode" : "show";
@@ -150,7 +150,7 @@ export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"
       </div>
 
       {/* The note: the app's private one, never shown to anyone else. */}
-      <div className="rounded-[14px] bg-piece p-3 flex items-start gap-2.5">
+      <div className="rounded-shell bg-piece p-3 flex items-start gap-2.5">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-[3px] shrink-0 text-dim">
           <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
         </svg>

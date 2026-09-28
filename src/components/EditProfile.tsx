@@ -42,7 +42,7 @@ export function EditProfile({ profile, backdrops, posters, fallbackName }: { pro
           <div
             role="dialog"
             aria-label="Edit profile"
-            className="w-full max-w-[640px] max-h-[88vh] overflow-y-auto rounded-2xl border border-hair bg-card p-5 shadow-[0_30px_80px_rgba(0,0,0,.6)]"
+            className="w-full max-w-[640px] max-h-[88vh] overflow-y-auto rounded-shell border border-hair bg-card p-5 shadow-[0_30px_80px_rgba(0,0,0,.6)]"
             onClick={(e) => e.stopPropagation()}
           >
             <h3>Edit profile</h3>

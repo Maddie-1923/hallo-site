@@ -11,7 +11,7 @@ import { TightHeart } from "./marks";
 // change depending on how much somebody wrote.
 export function HistoryDay({ entries }: { entries: DiaryEntry[] }) {
   return (
-    <div className="rounded-2xl bg-card p-3 grid gap-3">
+    <div className="rounded-shell bg-card p-3 grid gap-3">
       {entries.map((e) => (
         <Entry key={e.key} e={e} />
       ))}

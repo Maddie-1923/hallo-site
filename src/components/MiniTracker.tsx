@@ -25,7 +25,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
   const filmsLeft = films.filter((f) => !watchedFilms.includes(f.key));
 
   return (
-    <div className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col">
+    <div className="flex-1 rounded-shell bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col">
       {/* Headed like Favourites beside it: the card's name, then the
           section's in small capitals, "Up next" as the app calls it. */}
       <div className="h-7 flex items-center justify-between gap-3">
@@ -56,7 +56,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
           laid over the space the card has, so its length never counts toward
           the card's height, which Favourites beside it sets. */}
       <div className="relative flex-1 min-h-[240px] -mx-1">
-        <ul className="soft-scroll absolute inset-0 overflow-y-auto overscroll-contain m-0 px-1 pb-1 list-none grid gap-3 content-start rounded-[16px]">
+        <ul className="soft-scroll absolute inset-0 overflow-y-auto overscroll-contain m-0 px-1 pb-1 list-none grid gap-3 content-start rounded-shell">
           {tab === "show" &&
             (shows.length === 0 ? (
               <li className="text-sm text-dim py-3">Not in the middle of anything.</li>
@@ -172,7 +172,7 @@ const HOLD = "#D9BC52";
 // panel and keys `kodigoRowPiece`, a lit top edge and a soft shadow.
 function Row({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null }) {
   return (
-    <li className="rounded-[14px] bg-well p-1.5 grid gap-1.5 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
+    <li className="rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
       <div className="h-[56px] rounded-[10px] bg-piece flex gap-2.5 overflow-hidden">
         <Link href={t.href} className="w-[100px] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
           {(t.backdrop ?? t.poster) && (

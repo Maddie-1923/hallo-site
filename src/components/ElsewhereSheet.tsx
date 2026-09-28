@@ -52,7 +52,7 @@ export function ElsewhereSheet({ entries, cover = false }: { entries: WhereToWat
       {open &&
         createPortal(
           <div role="dialog" aria-modal="true" aria-label="Streaming worldwide" className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={() => setOpen(false)}>
-            <div className="w-full sm:max-w-[560px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px] bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
+            <div className="w-full sm:max-w-[560px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
               <div className="p-4 flex items-center justify-between gap-3 border-b border-hair">
                 <h3 className="!text-[clamp(24px,2.6vw,30px)] !leading-none uppercase">Streaming worldwide</h3>
                 <button type="button" onClick={() => setOpen(false)} aria-label="Close" autoFocus className="shrink-0 w-9 h-9 rounded-full bg-card-hi hover:bg-hair text-ink flex items-center justify-center cursor-pointer">

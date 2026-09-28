@@ -20,7 +20,7 @@ export function ReviewCard({ r, username, avatar, onTitlePage = false }: { r: Re
     </div>
   );
   return (
-    <article className="rounded-[20px] bg-card-hi p-4 flex gap-4">
+    <article className="rounded-shell bg-card-hi p-4 flex gap-4">
       {!onTitlePage && (
         <Link href={r.href} className="w-[clamp(64px,7vw,88px)] shrink-0 self-start">
           {r.poster && (

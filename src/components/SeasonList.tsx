@@ -42,7 +42,7 @@ export function SeasonList({ showID, seasons, watched, open: initial }: { showID
         const isOpen = open === s.number;
         const eps = episodes[s.number];
         return (
-          <div key={s.number} className="rounded-[14px] bg-piece p-3">
+          <div key={s.number} className="rounded-shell bg-piece p-3">
             <div className="flex items-center gap-3">
               <button type="button" onClick={() => setOpen(isOpen ? null : s.number)} aria-expanded={isOpen} className="flex items-center gap-2 text-[15px] font-medium text-ink cursor-pointer">
                 {s.number === 0 ? "Specials" : `Season ${s.number}`}

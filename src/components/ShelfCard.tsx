@@ -10,7 +10,7 @@ export function ShelfCard({ shelf, href }: { shelf: Shelf; href: string }) {
   return (
     <Link
       href={href}
-      className={`no-underline text-ink rounded-2xl p-4 min-h-[132px] flex flex-col justify-between transition-colors ${
+      className={`no-underline text-ink rounded-shell p-4 min-h-[132px] flex flex-col justify-between transition-colors ${
         shelf.kind === "custom" ? "border border-hair hover:bg-card" : "bg-card hover:bg-card-hi"
       }`}
     >

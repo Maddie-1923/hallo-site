@@ -17,7 +17,7 @@ export function ActivityFeed({ items }: { items: ActivityItem[] }) {
     // Each entry in its own rounded shell, as in the Watchlog.
     <ul className="m-0 p-0 list-none grid gap-[6px]">
       {all.map((it) => (
-        <li key={it.key} className="rounded-[14px] bg-card-hi">
+        <li key={it.key} className="rounded-shell bg-card-hi">
           <Link href={it.t.href} className="group flex items-center gap-4 px-3 py-2 no-underline text-ink">
             <span className="w-[72px] aspect-video rounded-[6px] overflow-hidden bg-card shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}

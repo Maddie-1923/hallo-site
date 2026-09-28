@@ -42,7 +42,7 @@ export function PosterFrame({ posters }: { posters: { key: string; src: string }
       </div>
 
       <div
-        className="relative aspect-[2/3] rounded-[24px] overflow-hidden border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,.6)]"
+        className="relative aspect-[2/3] rounded-shell overflow-hidden border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,.6)]"
         style={{ background: "var(--card)" }}
       >
         {posters.map((p, i) => (

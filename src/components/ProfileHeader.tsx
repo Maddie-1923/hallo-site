@@ -41,7 +41,7 @@ export function ProfileHeader({ profile, archive, email }: { profile: Profile; a
           corner and the name sits on the artwork beside it, which is what
           makes the two read as one object rather than a picture with a header
           under it. */}
-      <div className="relative rounded-3xl overflow-hidden bg-card aspect-[2.5/1] sm:aspect-[3.2/1] lg:aspect-[4/1] max-h-[300px]">
+      <div className="relative rounded-shell overflow-hidden bg-card aspect-[2.5/1] sm:aspect-[3.2/1] lg:aspect-[4/1] max-h-[300px]">
         {banner ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

@@ -107,7 +107,7 @@ function Month({ month, entries }: { month: string; entries: DiaryEntry[] }) {
           })}
         </div>
 
-        <div className="grid grid-cols-3 rounded-2xl bg-card py-3 text-center divide-x divide-hair">
+        <div className="grid grid-cols-3 rounded-shell bg-card py-3 text-center divide-x divide-hair">
           <div>
             <div className="display text-2xl leading-none">{episodes}</div>
             <div className="text-[10px] tracking-[.14em] uppercase text-dim mt-1.5">Episodes</div>

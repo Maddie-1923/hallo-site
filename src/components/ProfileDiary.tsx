@@ -140,7 +140,7 @@ export function ProfileDiary({ entries: logged, owner = false, username = "", av
       {/* The selected month in full. */}
       <div className="mt-6">
         {/* The month's heading, its count and the switch share one shell. */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[14px] bg-card-hi pl-4 pr-2 py-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-shell bg-card-hi pl-4 pr-2 py-2">
           <h3 className="!text-[clamp(22px,2vw,28px)]">
             {MONTHS_LONG[month]} {year}
           </h3>
@@ -221,7 +221,7 @@ function MonthCard({
         aria-label={`${MONTHS_LONG[month]}: ${films} ${films === 1 ? "film" : "films"}, ${series} series, ${episodes} ${episodes === 1 ? "episode" : "episodes"}`}
         // The month and its numbers share one shell, a tile like the other
         // boxes on the profile; the selected month is ringed in the accent.
-        className={`block w-full text-left rounded-[16px] bg-card-hi p-1.5 cursor-pointer transition-[box-shadow,background-color] hover:bg-page ${selected ? "ring-2 ring-accent-fill" : ""}`}
+        className={`block w-full text-left rounded-shell bg-card-hi p-1.5 cursor-pointer transition-[box-shadow,background-color] hover:bg-page ${selected ? "ring-2 ring-accent-fill" : ""}`}
       >
         <span className="block aspect-video rounded-[11px] overflow-hidden bg-card border border-hair">
           {picture && (
@@ -286,7 +286,7 @@ function PicturePicker({ month, list, onChoose, onClose }: { month: string; list
   const titles = list.filter((e, i) => e.backdrop && list.findIndex((x) => x.key === e.key) === i);
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`Picture for ${month}`} className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-[24px] bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-shell bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b border-hair flex items-center justify-between gap-3">
           <div className="display text-[24px] leading-none">Picture for {month}</div>
           <div className="flex items-center gap-2">
@@ -336,19 +336,19 @@ function EntryTable({ rows, username, avatar }: { rows: DiaryEntry[]; username: 
           what it heads; the title takes whatever is left. */}
       <thead>
         <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
-          <th className={`${HEAD} rounded-l-[14px] py-2 pl-4 pr-2 font-bold w-[64px] text-left`}>Day</th>
+          <th className={`${HEAD} rounded-l-shell py-2 pl-4 pr-2 font-bold w-[64px] text-left`}>Day</th>
           <th className={`${HEAD} py-2 px-4 font-bold`}>Title</th>
           <th className={`${HEAD} py-2 px-2 font-bold text-center hidden @2xl:table-cell w-[68px]`}>Released</th>
           <th className={`${HEAD} py-2 px-2 font-bold text-center hidden @2xl:table-cell w-[108px]`}>Episodes</th>
           <th className={`${HEAD} py-2 px-2 font-bold text-center w-[72px] hidden @xl:table-cell`}>Rewatch</th>
           <th className={`${HEAD} py-2 px-2 font-bold text-center w-[68px] hidden @xl:table-cell`}>Review</th>
-          <th className={`${HEAD} rounded-r-[14px] py-2 px-4 font-bold text-center w-[118px]`}>Rating</th>
+          <th className={`${HEAD} rounded-r-shell py-2 px-4 font-bold text-center w-[118px]`}>Rating</th>
         </tr>
       </thead>
       <tbody>
         {rows.map((e) => (
           <tr key={`${e.key}${e.date}`} className="align-middle">
-            <td className={`${SHELL} rounded-l-[14px] py-2 pl-4 pr-2 text-left`}>
+            <td className={`${SHELL} rounded-l-shell py-2 pl-4 pr-2 text-left`}>
               <span className="block display text-[26px] leading-none text-dim">{Number(e.date.slice(8, 10))}</span>
               <span className="block mt-0.5 text-[9.5px] leading-none font-bold uppercase tracking-[.1em] text-dim">{weekday(e.date)}</span>
             </td>
@@ -398,7 +398,7 @@ function EntryTable({ rows, username, avatar }: { rows: DiaryEntry[]; username: 
                 </MarkTip>
               ) : null}
             </td>
-            <td className={`${SHELL} rounded-r-[14px] py-2 px-4 text-center`}>{e.rating != null ? <RatingMarks value={e.rating} size={14} rows={2} /> : null}</td>
+            <td className={`${SHELL} rounded-r-shell py-2 px-4 text-center`}>{e.rating != null ? <RatingMarks value={e.rating} size={14} rows={2} /> : null}</td>
           </tr>
         ))}
       </tbody>

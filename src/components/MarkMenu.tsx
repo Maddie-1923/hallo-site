@@ -110,7 +110,7 @@ export function MarkMenu({
         e.stopPropagation();
       }}
       style={{ position: "fixed", ...pos }}
-      className="z-[70] w-[232px] rounded-2xl border border-hair bg-card shadow-[0_20px_50px_rgba(0,0,0,.6)] overflow-hidden text-left font-normal"
+      className="z-[70] w-[232px] rounded-shell border border-hair bg-card shadow-[0_20px_50px_rgba(0,0,0,.6)] overflow-hidden text-left font-normal"
     >
       <div className="px-1.5 pt-2 pb-1.5 border-b border-hair">
         <HeartRating

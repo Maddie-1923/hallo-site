@@ -105,7 +105,7 @@ export function ReviewDialog({
         aria-modal="true"
         aria-label={`Log ${title}`}
         tabIndex={-1}
-        className="w-full max-w-[760px] max-h-[90vh] overflow-y-auto rounded-2xl border border-hair bg-card shadow-[0_40px_120px_rgba(0,0,0,.7)] outline-none"
+        className="w-full max-w-[760px] max-h-[90vh] overflow-y-auto rounded-shell border border-hair bg-card shadow-[0_40px_120px_rgba(0,0,0,.7)] outline-none"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-hair">
           <div className="text-[15px] font-semibold tracking-[.02em] text-ink">Review &amp; catalogue</div>

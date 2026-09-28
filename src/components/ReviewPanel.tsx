@@ -39,7 +39,7 @@ export function ReviewPanel({
   const [heart, setHeart] = useState(loved);
   const title = target.kind === "show" ? target.show.name : target.movie.title;
 
-  const tile = "rounded-2xl border border-hair bg-card p-4";
+  const tile = "rounded-shell border border-hair bg-card p-4";
 
   function submit() {
     if (!signedIn) {

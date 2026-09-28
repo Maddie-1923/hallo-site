@@ -87,7 +87,7 @@ export function FavouritesCard({
   const custom = picked.movie != null || picked.show != null;
 
   return (
-    <div className="flex-1 rounded-[24px] bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col justify-between gap-3">
+    <div className="flex-1 rounded-shell bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col justify-between gap-3">
       <div className="flex items-center justify-between gap-2">
         <h2 className="!text-[clamp(22px,2vw,28px)] leading-none">Favourites</h2>
         {owner && (
@@ -239,7 +239,7 @@ function Picker({ kind, library, onChoose, onClose }: { kind: Kind; library: Pro
 
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`Choose a ${noun}`} className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-[24px] bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-shell bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b border-hair flex items-center gap-3">
           <input
             ref={input}

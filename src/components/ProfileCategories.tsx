@@ -232,7 +232,7 @@ export function ProfileCategories({ categories: given, owner = false, username =
                 else return;
                 e.preventDefault();
               }}
-              className={`relative rounded-[20px] outline-2 outline-dashed outline-accent outline-offset-2 touch-none select-none transition-transform ${dragging === c.id ? "z-10 scale-[1.04] shadow-[0_18px_40px_rgba(0,0,0,.45)] cursor-grabbing" : "cursor-grab"}`}
+              className={`relative rounded-shell outline-2 outline-dashed outline-accent outline-offset-2 touch-none select-none transition-transform ${dragging === c.id ? "z-10 scale-[1.04] shadow-[0_18px_40px_rgba(0,0,0,.45)] cursor-grabbing" : "cursor-grab"}`}
             >
               {/* The tile can't be opened while editing; the wrapper takes
                   every press except those on the controls. */}
@@ -318,7 +318,7 @@ function CategoryTile({
   const chip = "w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center cursor-pointer";
   return (
     <div className="relative group">
-      <button type="button" onClick={onOpen} tabIndex={editing ? -1 : 0} className="w-full text-left rounded-[20px] bg-card-hi overflow-hidden cursor-pointer">
+      <button type="button" onClick={onOpen} tabIndex={editing ? -1 : 0} className="w-full text-left rounded-shell bg-card-hi overflow-hidden cursor-pointer">
         <span className="block aspect-video rounded-b-[8px] overflow-hidden bg-card">
           {picture && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -403,7 +403,7 @@ function PicturePicker({ c, current, onChoose, onClose }: { c: CategoryEntry; cu
   const titles = c.titles.filter((t) => t.backdrop);
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`Picture for ${c.name}`} className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-[28px] bg-card border border-hair shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-shell bg-card border border-hair shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b border-hair flex items-center justify-between gap-3">
           <div className="display text-[24px] leading-none">Picture for {c.name}</div>
           <div className="flex items-center gap-2">
@@ -449,7 +449,7 @@ function CategorySheet({ c, onClose, onDelete }: { c: CategoryEntry; onClose: ()
   }, [onClose]);
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={c.name} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
-      <div className="w-full sm:max-w-[760px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px] bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
+      <div className="w-full sm:max-w-[760px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
         <div className="p-4 flex items-start justify-between gap-4 border-b border-hair">
           <div className="min-w-0">
             <h3 className="!text-[clamp(26px,3vw,34px)] !leading-[.95]">{c.name}</h3>
@@ -578,7 +578,7 @@ interface MadeCategory {
 // The last tile, for the owner only: the app's "Create Custom List" tile.
 function NewCategoryTile({ onClick }: { onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} className="group text-left rounded-[20px] border-2 border-dashed border-hair hover:border-accent transition-colors cursor-pointer flex flex-col">
+    <button type="button" onClick={onClick} className="group text-left rounded-shell border-2 border-dashed border-hair hover:border-accent transition-colors cursor-pointer flex flex-col">
       <span className="aspect-video flex items-center justify-center text-dim group-hover:text-accent transition-colors">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
           <path d="M12 5v14M5 12h14" />
@@ -616,7 +616,7 @@ function NewCategorySheet({ library, onCreate, onClose }: { library: ProfileTitl
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label="New category" className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <form
-        className="w-full sm:max-w-[760px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px] bg-card border border-hair shadow-2xl"
+        className="w-full sm:max-w-[760px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl"
         onClick={(x) => x.stopPropagation()}
         onSubmit={(e) => {
           e.preventDefault();

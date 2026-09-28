@@ -61,7 +61,7 @@ export function Menu({
       {isOpen && (
         <div
           role="menu"
-          className={`absolute top-[calc(100%+10px)] ${align === "right" ? "right-0" : "left-0"} z-50 rounded-2xl border border-hair bg-card shadow-[0_20px_50px_rgba(0,0,0,.6)] overflow-hidden`}
+          className={`absolute top-[calc(100%+10px)] ${align === "right" ? "right-0" : "left-0"} z-50 rounded-shell border border-hair bg-card shadow-[0_20px_50px_rgba(0,0,0,.6)] overflow-hidden`}
           style={{ width }}
           onClick={(e) => (e.target as HTMLElement).closest("[data-menu-close]") && setOpen(false)}
         >

@@ -23,7 +23,7 @@ export function TrailerModal({ id, onClose }: { id: string; onClose: () => void 
 
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label="Trailer" className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
-      <div className="relative w-full max-w-[1100px] aspect-video rounded-2xl overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="relative w-full max-w-[1100px] aspect-video rounded-shell overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <iframe
           src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`}
           title="Trailer"
@@ -47,7 +47,7 @@ export function TrailerCard({ video }: { video: Video }) {
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} aria-label={`Play ${video.name}`} className="group block w-full min-w-0 text-left text-ink cursor-pointer">
-        <span className="relative block aspect-video rounded-[20px] overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
+        <span className="relative block aspect-video rounded-shell overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`https://img.youtube.com/vi/${video.key}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
           <span className="absolute inset-0 flex items-center justify-center">

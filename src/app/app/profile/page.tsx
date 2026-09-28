@@ -55,7 +55,7 @@ export default async function Profile() {
           <>
             <div className="grid gap-3 mt-9 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
               {tiles.map(([label, value]) => (
-                <div key={label} className="rounded-2xl bg-card p-5 text-center">
+                <div key={label} className="rounded-shell bg-card p-5 text-center">
                   <div className="display text-4xl leading-none">{value}</div>
                   <div className="text-[10px] font-bold tracking-[.16em] uppercase text-dim mt-2">{label}</div>
                 </div>
@@ -63,7 +63,7 @@ export default async function Profile() {
               {/* A tile that goes somewhere, sitting in the row it belongs to
                   rather than in the nav — History is a thing you look at
                   occasionally, not a place you live. */}
-              <Link href="/app/history" className="rounded-2xl bg-card hover:bg-card-hi p-5 text-center no-underline transition-colors">
+              <Link href="/app/history" className="rounded-shell bg-card hover:bg-card-hi p-5 text-center no-underline transition-colors">
                 <div className="display text-4xl leading-none text-accent">◷</div>
                 <div className="text-[10px] font-bold tracking-[.16em] uppercase text-dim mt-2">History</div>
               </Link>

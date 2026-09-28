@@ -82,7 +82,7 @@ export function TitleActions({ kind, title, tracked, watched = false, loved, sto
         ];
 
   return (
-    <div className="rounded-[20px] bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+    <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
       <div className="grid grid-cols-3 gap-2">
         {keys.map((k) => {
           const on = !!(k.toggle && state[k.id]);
