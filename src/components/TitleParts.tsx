@@ -47,7 +47,6 @@ export function HeaderCard({
   title,
   titleOnBanner = false,
   subtitle,
-  kicker,
   facts,
   overview,
   factsFooter,
@@ -61,8 +60,6 @@ export function HeaderCard({
       it for screen readers only. */
   titleOnBanner?: boolean;
   subtitle?: string;
-  /** A small line at the card's top, the year and how long it runs. */
-  kicker?: string;
   facts: { label: string; value: React.ReactNode; accent?: boolean }[];
   overview: string | null;
   /** A closing line under the facts (a show's "Last aired" and its pill). */
@@ -80,10 +77,9 @@ export function HeaderCard({
         </div>
       )}
       <div className="rounded-[12px] bg-piece p-3">
-        {kicker && <div className="mb-1.5 text-[13px] leading-none font-semibold tracking-[.06em] uppercase text-dim">{kicker}</div>}
         <h1 className={titleOnBanner ? "sr-only" : "!text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase"}>{title}</h1>
         {subtitle && <div className={`display text-[22px] leading-none tracking-[.03em] uppercase ${titleOnBanner ? "" : "mt-0.5"}`}>{subtitle}</div>}
-        <div className={`${subtitle || kicker || !titleOnBanner ? "mt-2.5" : ""} border-t border-hair`}>
+        <div className={`${subtitle || !titleOnBanner ? "mt-2.5" : ""} border-t border-hair`}>
           {facts.map((f, i) => (
             <div key={f.label} className={`flex items-baseline justify-between gap-4 py-[9px] text-[15px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
               <span className="text-dim shrink-0">{f.label}</span>

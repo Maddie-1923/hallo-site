@@ -42,7 +42,11 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   const left = page.episodeCount - watched.length;
   const facts = [
     page.genres.length > 0 && { label: "Genres", value: page.genres.join(" · ") },
+    page.seasonCount && { label: "Seasons", value: String(page.seasonCount) },
+    page.episodeCount && { label: "Episodes", value: String(page.episodeCount) },
+    show.first_air_date && { label: "Year", value: show.first_air_date.slice(0, 4) },
     page.certification && { label: "Rated", value: page.certification },
+    page.episodeRuntime && { label: "Episode", value: `${page.episodeRuntime}m` },
     show.vote_average && { label: "TMDB", value: show.vote_average.toFixed(1) },
     tracked && { label: "Progress", value: left > 0 ? `${left} episodes left` : "Up to date", accent: true },
   ].filter(Boolean) as { label: string; value: string; accent?: boolean }[];
@@ -59,24 +63,25 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={image.banner(show.backdrop_path) ?? image.poster(show.poster_path, "w780")} logo={logo} title={show.name} />
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
-          <HeaderCard
-            title={show.name}
-            titleOnBanner={!!logo}
-            kicker={[(show.first_air_date ?? "").slice(0, 4), page.episodeRuntime && `${page.episodeRuntime}m an episode`].filter(Boolean).join(" · ")}
-            subtitle={[page.seasonCount && `${page.seasonCount} ${page.seasonCount === 1 ? "season" : "seasons"}`, page.episodeCount && `${page.episodeCount} episodes`].filter(Boolean).join(" · ")}
-            facts={facts}
-            overview={show.overview ?? null}
-            factsFooter={
-              (page.lastAired || badge) && (
-                <div className="flex items-center justify-between gap-3 text-[15px] text-dim">
-                  <span>{page.lastAired ? `Last aired ${longDate(page.lastAired)}` : ""}</span>
-                  {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING" || badge.label === "PILOT"} />}
-                </div>
-              )
-            }
-          >
-            <ShowTray tracked={!!tracked} loved={loved} allWatched={!!tracked && left <= 0} stopped={tracked?.status === "Dropped"} />
-          </HeaderCard>
+          {/* Headed like the sections beside and below it. */}
+          <Section title="About">
+            <HeaderCard
+              title={show.name}
+              titleOnBanner={!!logo}
+              facts={facts}
+              overview={show.overview ?? null}
+              factsFooter={
+                (page.lastAired || badge) && (
+                  <div className="flex items-center justify-between gap-3 text-[15px] text-dim">
+                    <span>{page.lastAired ? `Last aired ${longDate(page.lastAired)}` : ""}</span>
+                    {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING" || badge.label === "PILOT"} />}
+                  </div>
+                )
+              }
+            >
+              <ShowTray tracked={!!tracked} loved={loved} allWatched={!!tracked && left <= 0} stopped={tracked?.status === "Dropped"} />
+            </HeaderCard>
+          </Section>
           <div className="grid gap-4">
             {page.watch && <WhereToWatchSection watch={page.watch} />}
             {page.trailer && <TrailerSection id={page.trailer} />}

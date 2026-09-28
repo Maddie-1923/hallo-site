@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { TitleActivity } from "@/components/TitleActivity";
-import { CastSection, HeaderCard, MoreLikeThisSection, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { CastSection, HeaderCard, MoreLikeThisSection, Section, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { FilmTray } from "@/components/FilmTray";
 import { optionalLibrary } from "@/lib/library";
 import { filmPage, image, titleLogo } from "@/lib/tmdb";
@@ -34,13 +34,13 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
   const watched = tracked?.status === "Watched" || !!lib.archive?.movieWatchedDates?.[String(movieID)];
   const loved = lib.archive?.reactions?.[`movie:${movieID}`] === "loved";
 
-  // The year and running time go on a small line at the card's top.
   const runtime = movie.runtime ? (movie.runtime >= 60 ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : `${movie.runtime}m`) : null;
-  const kicker = [(movie.release_date ?? "").slice(0, 4), runtime].filter(Boolean).join(" · ");
 
-  // The facts, in the app's order (less the running time, which is above), each only when there is something to say.
+  // The facts, in the app's order with the year added, each only when there is something to say.
   const facts = [
     page.genres.length > 0 && { label: "Genres", value: page.genres.join(" · ") },
+    movie.release_date && { label: "Year", value: movie.release_date.slice(0, 4) },
+    runtime && { label: "Runtime", value: runtime },
     movie.vote_average && { label: "TMDB", value: movie.vote_average.toFixed(1) },
     page.released && { label: "Released", value: longDate(page.released), accent: true },
   ].filter(Boolean) as { label: string; value: string; accent?: boolean }[];
@@ -53,9 +53,12 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={image.banner(movie.backdrop_path) ?? image.poster(movie.poster_path, "w780")} logo={logo} title={movie.title} />
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
-          <HeaderCard title={movie.title} titleOnBanner={!!logo} kicker={kicker} facts={facts} overview={movie.overview ?? null}>
-            <FilmTray tracked={!!tracked} watched={watched} loved={loved} signedIn={lib.signedIn} />
-          </HeaderCard>
+          {/* Headed like the sections beside and below it. */}
+          <Section title="About">
+            <HeaderCard title={movie.title} titleOnBanner={!!logo} facts={facts} overview={movie.overview ?? null}>
+              <FilmTray tracked={!!tracked} watched={watched} loved={loved} signedIn={lib.signedIn} />
+            </HeaderCard>
+          </Section>
           <div className="grid gap-4">
             {page.watch && <WhereToWatchSection watch={page.watch} />}
             {page.trailer && <TrailerSection id={page.trailer} />}
