@@ -55,19 +55,23 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={image.banner(movie.backdrop_path) ?? image.poster(movie.poster_path, "w780")} logo={logo} title={movie.title} />
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
+          {/* The left column: About, then the members' reviews under it at
+              the same width. */}
+          <div className="grid gap-8 min-w-0">
           {/* Headed like the sections beside and below it. */}
           <Section title="About">
             <HeaderCard title={movie.title} titleOnBanner={!!logo} facts={facts} overview={movie.overview ?? null}>
               <FilmTray tracked={!!tracked} watched={watched} loved={loved} signedIn={lib.signedIn} />
             </HeaderCard>
           </Section>
+          <ReviewsSection reviews={reviews} />
+          </div>
           <div className="grid gap-4">
             {page.trailer && <TrailerSection id={page.trailer} />}
             {page.watch && <WhereToWatchSection watch={page.watch} />}
           </div>
         </div>
         <div className="mt-8 grid gap-8">
-          <ReviewsSection reviews={reviews} />
           {page.cast.length > 0 && <CastSection cast={page.cast} />}
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="movie" />}
           {lib.signedIn && <TitleActivity target={{ kind: "movie", movie }} archive={lib.archive} signedIn={lib.signedIn} />}

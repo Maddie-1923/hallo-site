@@ -65,6 +65,9 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={image.banner(show.backdrop_path) ?? image.poster(show.poster_path, "w780")} logo={logo} title={show.name} />
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
+          {/* The left column: About, then the members' reviews under it at
+              the same width. */}
+          <div className="grid gap-8 min-w-0">
           {/* Headed like the sections beside and below it. */}
           <Section title="About">
             <HeaderCard
@@ -84,6 +87,8 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
               <ShowTray tracked={!!tracked} loved={loved} allWatched={!!tracked && left <= 0} stopped={tracked?.status === "Dropped"} />
             </HeaderCard>
           </Section>
+          <ReviewsSection reviews={reviews} />
+          </div>
           <div className="grid gap-4">
             {page.trailer && <TrailerSection id={page.trailer} />}
             {page.watch && <WhereToWatchSection watch={page.watch} />}
@@ -97,7 +102,6 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
               </SectionCard>
             </Section>
           )}
-          <ReviewsSection reviews={reviews} />
           {page.cast.length > 0 && <CastSection cast={page.cast} />}
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" />}
           {lib.signedIn && <TitleActivity target={{ kind: "show", show }} archive={lib.archive} signedIn={lib.signedIn} />}
