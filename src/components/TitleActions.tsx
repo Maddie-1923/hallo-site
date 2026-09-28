@@ -61,9 +61,11 @@ export function TitleActions({ kind, title, tracked, watched = false, loved, sto
             type="button"
             disabled={k.off}
             onClick={() => (k.icon === "share" ? share() : say("Saving on the website opens with accounts. Until then, use the app."))}
-            className="h-[58px] rounded-[12px] bg-piece text-dim flex flex-col items-center justify-center gap-1 cursor-pointer enabled:hover:text-ink transition-colors disabled:opacity-35 disabled:cursor-default"
+            className="h-[58px] pb-[2px] rounded-[12px] bg-piece text-dim flex flex-col items-center justify-center gap-1 cursor-pointer enabled:hover:text-ink transition-colors disabled:opacity-35 disabled:cursor-default"
             style={k.on ? { background: k.fill, color: k.ink ?? "#F0EFE9" } : undefined}
           >
+            {/* 2px more below than above: the label's line keeps room under
+                its letters, so this centres what is drawn. */}
             <Glyph name={k.icon} size={18} />
             <span className="text-[11px] font-semibold leading-none">{k.label}</span>
           </button>
