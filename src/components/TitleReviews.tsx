@@ -7,7 +7,7 @@ import { Section, SectionCard } from "./TitleParts";
 // accounts open, only the development previews' reviews are here.
 export function ReviewsSection({ reviews }: { reviews: { review: ReviewEntry; username: string; avatar: string | null }[] }) {
   return (
-    <Section title={reviews.length ? `Reviews · ${reviews.length}` : "Reviews"}>
+    <Section title={reviews.length ? `Reviews · ${reviews.length}` : "Reviews"} small>
       <SectionCard>
         {reviews.length ? (
           <div className="grid gap-[6px]">

@@ -334,7 +334,7 @@ function CastTile({ p, fill = "bg-piece" }: { p: CastMember; fill?: string }) {
 /** More like this: poster cards with the app's two keys under them. */
 export function MoreLikeThisSection({ items, kind }: { items: RailTitle[]; kind: "movie" | "show" }) {
   return (
-    <Section title="More like this">
+    <Section title="More like this" small>
       <Rail>
         {items.map((m) => (
           <RowCard key={m.id} width={150}>
