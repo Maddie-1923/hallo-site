@@ -4,6 +4,7 @@ import { ExpandableText } from "./ExpandableText";
 import { Glyph } from "./Glyph";
 import { ElsewhereSheet } from "./ElsewhereSheet";
 import { Rail } from "./Rail";
+import { TrailerCard } from "./TrailerPlayer";
 
 // The pieces of a title's page, drawn after the app's detail screens
 // (MovieDetailView and ShowDetailView): a header card of the artwork, a facts
@@ -183,7 +184,7 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
 }
 
 /** The trailers, one or two side by side: each its YouTube picture with a
-    play mark, going to YouTube, and its name under it. The pictures' corners
+    play mark, playing over the page, and its name under it. The pictures' corners
     are the shell's own curve, 20px. */
 export function TrailerSection({ videos, flat = false }: { videos: Video[]; flat?: boolean }) {
   return (
@@ -191,22 +192,7 @@ export function TrailerSection({ videos, flat = false }: { videos: Video[]; flat
       <SectionCard flat={flat}>
         <div className={`grid gap-2 ${videos.length > 1 ? "sm:grid-cols-2" : ""} ${flat ? "rounded-[20px] bg-piece p-2" : ""}`}>
           {videos.map((v) => (
-            <a key={v.key} href={`https://www.youtube.com/watch?v=${v.key}`} target="_blank" rel="noreferrer" className="group block min-w-0 no-underline text-ink">
-              <span className="relative block aspect-video rounded-[20px] overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`https://img.youtube.com/vi/${v.key}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
-                <span className="absolute inset-0 flex items-center justify-center">
-                  <svg width="54" height="54" viewBox="0 0 24 24" aria-hidden className="drop-shadow-[0_4px_8px_rgba(0,0,0,.5)] group-hover:scale-105 transition-transform">
-                    <circle cx="12" cy="12" r="11" fill="white" />
-                    <path d="M10 8.2v7.6L16 12z" fill="#1a1a19" />
-                  </svg>
-                </span>
-              </span>
-              <span className="flex mt-2 px-1 pb-0.5 text-[12.5px] min-w-0">
-                <span className="font-semibold truncate">{v.name}</span>
-                <span className="shrink-0 text-dim">&nbsp;· YouTube</span>
-              </span>
-            </a>
+            <TrailerCard key={v.key} video={v} />
           ))}
         </div>
       </SectionCard>

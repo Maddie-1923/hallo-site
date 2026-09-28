@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { TrailerModal } from "./TrailerPlayer";
 import type { Movie, Show } from "@/lib/archive";
 import { trackMovie, trackShow } from "@/lib/library-actions";
 import { nightTokens } from "@/lib/theme";
@@ -387,30 +388,5 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
       </svg>
       {on ? "In your library" : "Add to watchlist"}
     </button>
-  );
-}
-
-function TrailerModal({ id, onClose }: { id: string; onClose: () => void }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  return (
-    <div role="dialog" aria-modal="true" aria-label="Trailer" className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
-      <div className="relative w-full max-w-[1100px] aspect-video rounded-2xl overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <iframe
-          src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`}
-          title="Trailer"
-          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-          allowFullScreen
-          className="absolute inset-0 w-full h-full border-0"
-        />
-      </div>
-      <button type="button" onClick={onClose} aria-label="Close trailer" className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white text-xl cursor-pointer">
-        ×
-      </button>
-    </div>
   );
 }
