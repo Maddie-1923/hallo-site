@@ -12,7 +12,7 @@
    script; the values here are Lagune's night ones for the moment before the
    script runs. */
 :root {
-  --shell-radius: 20px;
+  --shell-radius: 14px;
   /* Night is the app's Dark Slate (KodigoNeutral in Theme.swift): cool
      greys, where the warm style's are brown. */
   --page: #17191c;
