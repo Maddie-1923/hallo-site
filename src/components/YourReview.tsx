@@ -70,15 +70,15 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
   const what = kind === "movie" ? "movie" : kind === "episode" ? "episode" : "show";
 
   return (
-    <div className="grid gap-2">
-      {/* On a wide screen, two rows on three columns: the rating (as wide
-          as its stars), the moods and the tags; then the review under the
-          first two and the note beside it, as tall as the review, scrolling
-          inside rather than stretching it. On a narrower one, each card
-          under the last. */}
-      <div className="grid gap-2 lg:grid-cols-[auto_minmax(0,5fr)_minmax(0,4fr)]">
+    <div className="take grid gap-2">
+      {/* Laid out by the width it has (take-grid in globals.css): wide, the
+          rating, moods and tags in a row, the review under the first two
+          and the note beside it; half a page, the rating beside the tags,
+          then the moods, the review and the note each across; narrow, each
+          card under the last. */}
+      <div className="take-grid grid gap-2">
       {/* The rating: ten stars, a press on a star's left half sets the half. */}
-      <div className={card + " content-start"}>
+      <div className={card + " content-start take-rate"}>
         <div className="flex items-center justify-between">
           <span className={heading}>Rate this {what}</span>
           {rating != null && (
@@ -105,7 +105,7 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
       </div>
 
       {/* How it made them feel: the app's twelve moods, up to three. */}
-      <div className={card}>
+      <div className={card + " take-moods"}>
         <div className={heading}>How did it make you feel?</div>
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-[6px]">
           {MOODS.map(([emoji, label]) => {
@@ -134,7 +134,7 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
       </div>
 
       {/* Tags: chips, and a dashed one to add another. */}
-      <div className={card + " content-start"}>
+      <div className={card + " content-start take-tags"}>
         <div className={heading}>Tags</div>
         <div className="soft-scroll flex flex-wrap content-start gap-2 max-h-[96px] overflow-y-auto p-[2px] -m-[2px]">
           {tags.map((t) => (
@@ -162,7 +162,7 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
       </div>
 
       {/* The review itself: what everyone else reads. */}
-      <div className={card + " content-start lg:col-span-2"}>
+      <div className={card + " content-start take-review"}>
         <div className={heading}>Your review</div>
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} placeholder={`What did you think of this ${what}?`} className={`${field} resize-y min-h-[96px]`} />
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink">
@@ -182,7 +182,7 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
       </div>
 
       {/* The note: the app's private one, never shown to anyone else. */}
-      <div className="relative max-lg:h-[132px]">
+      <div className="relative take-note">
       <div className="absolute inset-0 rounded-shell bg-piece p-3 flex items-start gap-2.5">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-[3px] shrink-0 text-dim">
           <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />

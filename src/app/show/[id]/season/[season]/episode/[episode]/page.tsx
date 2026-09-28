@@ -128,21 +128,19 @@ export default async function EpisodePage({ params }: Params) {
             <EpisodesSection showID={showID} episodes={ep.seasonEpisodes} current={ep.episode} title={ep.season === 0 ? "Specials" : `Season ${ep.season}`} />
           </div>
         )}
-        {/* Under it, at the About card's width: the reviews. */}
-        <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        {/* Under it, the reviews at the About card's width, and their own
+            take beside them, as the keys sit beside About. */}
+        <div className="mt-8 grid gap-8 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start">
           <div className="grid gap-8 min-w-0">
             <ReviewsSection reviews={[]} />
           </div>
-        </div>
-        {/* Their own take on it, as the app calls it, across the page's
-            full width so its parts sit side by side: the rating beside the
-            moods, the review beside the note and tags. */}
-        <div className="mt-8">
-          <Section title="Your take" small>
-            <SectionCard>
-              <YourReview kind="episode" out={ep.airDate ?? null} title={{ key: `e${key}`, kind: "show", title: `${show.show.name} ${code(ep.season, ep.episode)}`, href: `/show/${showID}/season/${ep.season}/episode/${ep.episode}`, poster: image.poster(show.show.poster_path, "w342"), backdrop: ep.still, year: (ep.airDate ?? "").slice(0, 4) }} />
-            </SectionCard>
-          </Section>
+          <div className="lg:pl-2 min-w-0">
+            <Section title="Your take" small>
+              <SectionCard>
+                <YourReview kind="episode" out={ep.airDate ?? null} title={{ key: `e${key}`, kind: "show", title: `${show.show.name} ${code(ep.season, ep.episode)}`, href: `/show/${showID}/season/${ep.season}/episode/${ep.episode}`, poster: image.poster(show.show.poster_path, "w342"), backdrop: ep.still, year: (ep.airDate ?? "").slice(0, 4) }} />
+              </SectionCard>
+            </Section>
+          </div>
         </div>
       </main>
       <SiteFooter />

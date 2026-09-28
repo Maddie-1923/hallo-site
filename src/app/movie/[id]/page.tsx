@@ -87,21 +87,19 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
             side={<TitleCredits flat cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} releases={page.releases} />}
           />
         </div>
-        {/* Under it, at the About card's width: the reviews. */}
-        <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        {/* Under it, the reviews at the About card's width, and their own
+            take beside them, as the keys sit beside About. */}
+        <div className="mt-8 grid gap-8 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start">
           <div className="grid gap-8 min-w-0">
           <ReviewsSection reviews={reviews} />
           </div>
-        </div>
-        {/* Their own take on it, as the app calls it, across the page's
-            full width so its parts sit side by side: the rating beside the
-            moods, the review beside the note and tags. */}
-        <div className="mt-8">
-          <Section title="Your take" small>
-            <SectionCard>
-              <YourReview kind="movie" out={page.released ?? movie.release_date ?? null} title={{ key: `m${movieID}`, kind: "movie", title: movie.title, href: `/movie/${movieID}`, poster: image.poster(movie.poster_path, "w342"), backdrop: image.backdrop(movie.backdrop_path), year: (movie.release_date ?? "").slice(0, 4) }} />
-            </SectionCard>
-          </Section>
+          <div className="lg:pl-2 min-w-0">
+            <Section title="Your take" small>
+              <SectionCard>
+                <YourReview kind="movie" out={page.released ?? movie.release_date ?? null} title={{ key: `m${movieID}`, kind: "movie", title: movie.title, href: `/movie/${movieID}`, poster: image.poster(movie.poster_path, "w342"), backdrop: image.backdrop(movie.backdrop_path), year: (movie.release_date ?? "").slice(0, 4) }} />
+              </SectionCard>
+            </Section>
+          </div>
         </div>
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="movie" />}

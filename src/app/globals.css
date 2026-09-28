@@ -365,3 +365,28 @@ section.band p + p { margin-top: 1em; }
 .soft-scroll::-webkit-scrollbar-thumb:hover {
   background: var(--dim);
 }
+
+/* Your take's cards, placed by the width Your take has rather than the
+   window's: beside the reviews it has half a page, across the page all of
+   it. The note is laid over its space (it never sets a row's height), so it
+   takes the review's height when beside it and a fixed one otherwise. */
+.take { container-type: inline-size; }
+.take-note { height: 132px; }
+@container (min-width: 560px) {
+  .take-grid {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "rate tags" "moods moods" "review review" "note note";
+  }
+  .take-rate { grid-area: rate; }
+  .take-tags { grid-area: tags; }
+  .take-moods { grid-area: moods; }
+  .take-review { grid-area: review; }
+  .take-note { grid-area: note; }
+}
+@container (min-width: 1000px) {
+  .take-grid {
+    grid-template-columns: auto minmax(0, 5fr) minmax(0, 4fr);
+    grid-template-areas: "rate moods tags" "review review note";
+  }
+  .take-note { height: auto; }
+}
