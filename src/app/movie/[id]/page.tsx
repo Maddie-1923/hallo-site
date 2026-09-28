@@ -34,10 +34,13 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
   const watched = tracked?.status === "Watched" || !!lib.archive?.movieWatchedDates?.[String(movieID)];
   const loved = lib.archive?.reactions?.[`movie:${movieID}`] === "loved";
 
-  // The facts, in the app's order, each only when there is something to say.
+  // The year and running time go on a small line at the card's top.
+  const runtime = movie.runtime ? (movie.runtime >= 60 ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : `${movie.runtime}m`) : null;
+  const kicker = [(movie.release_date ?? "").slice(0, 4), runtime].filter(Boolean).join(" · ");
+
+  // The facts, in the app's order (less the running time, which is above), each only when there is something to say.
   const facts = [
     page.genres.length > 0 && { label: "Genres", value: page.genres.join(" · ") },
-    movie.runtime && { label: "Runtime", value: movie.runtime >= 60 ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : `${movie.runtime}m` },
     movie.vote_average && { label: "TMDB", value: movie.vote_average.toFixed(1) },
     page.released && { label: "Released", value: longDate(page.released), accent: true },
   ].filter(Boolean) as { label: string; value: string; accent?: boolean }[];
@@ -50,7 +53,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={image.banner(movie.backdrop_path) ?? image.poster(movie.poster_path, "w780")} logo={logo} title={movie.title} />
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
-          <HeaderCard title={movie.title} titleOnBanner={!!logo} facts={facts} overview={movie.overview ?? null}>
+          <HeaderCard title={movie.title} titleOnBanner={!!logo} kicker={kicker} facts={facts} overview={movie.overview ?? null}>
             <FilmTray tracked={!!tracked} watched={watched} loved={loved} signedIn={lib.signedIn} />
           </HeaderCard>
           <div className="grid gap-4">

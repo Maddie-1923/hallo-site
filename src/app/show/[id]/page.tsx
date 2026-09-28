@@ -42,9 +42,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   const left = page.episodeCount - watched.length;
   const facts = [
     page.genres.length > 0 && { label: "Genres", value: page.genres.join(" · ") },
-    show.first_air_date && { label: "Year", value: show.first_air_date.slice(0, 4) },
     page.certification && { label: "Rated", value: page.certification },
-    page.episodeRuntime && { label: "Episode", value: `${page.episodeRuntime}m` },
     show.vote_average && { label: "TMDB", value: show.vote_average.toFixed(1) },
     tracked && { label: "Progress", value: left > 0 ? `${left} episodes left` : "Up to date", accent: true },
   ].filter(Boolean) as { label: string; value: string; accent?: boolean }[];
@@ -64,6 +62,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           <HeaderCard
             title={show.name}
             titleOnBanner={!!logo}
+            kicker={[(show.first_air_date ?? "").slice(0, 4), page.episodeRuntime && `${page.episodeRuntime}m an episode`].filter(Boolean).join(" · ")}
             subtitle={[page.seasonCount && `${page.seasonCount} ${page.seasonCount === 1 ? "season" : "seasons"}`, page.episodeCount && `${page.episodeCount} episodes`].filter(Boolean).join(" · ")}
             facts={facts}
             overview={show.overview ?? null}
