@@ -238,17 +238,19 @@ export function CastGrid({ cast }: { cast: CastMember[] }) {
   return (
     <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
       {cast.map((p) => (
-        <div key={`${p.id}-${p.character}`} className="min-w-0 rounded-[16px] bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
-          <CastTile p={p} />
+        // No outer card here: the tiles sit straight on the credits' shell,
+        // one shade lighter than it.
+        <div key={`${p.id}-${p.character}`} className="min-w-0">
+          <CastTile p={p} fill="bg-[color:var(--quiet)]" />
         </div>
       ))}
     </div>
   );
 }
 
-function CastTile({ p }: { p: CastMember }) {
+function CastTile({ p, fill = "bg-piece" }: { p: CastMember; fill?: string }) {
   return (
-    <div className="rounded-[12px] bg-piece overflow-hidden">
+    <div className={`rounded-[12px] ${fill} overflow-hidden`}>
       <div className="aspect-[2/3] rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card flex items-center justify-center">
         {p.photo ? (
           // eslint-disable-next-line @next/next/no-img-element
