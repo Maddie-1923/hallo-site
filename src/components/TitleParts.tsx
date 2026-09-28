@@ -45,6 +45,7 @@ export function Section({ title, children, tight = false }: { title: string; chi
 export function HeaderCard({
   art,
   title,
+  titleOnBanner = false,
   subtitle,
   facts,
   overview,
@@ -55,6 +56,9 @@ export function HeaderCard({
       the page shows the picture as a banner across the top instead. */
   art?: string | null;
   title: string;
+  /** The title is on the banner as its own logo artwork, so the card keeps
+      it for screen readers only. */
+  titleOnBanner?: boolean;
   subtitle?: string;
   facts: { label: string; value: React.ReactNode; accent?: boolean }[];
   overview: string | null;
@@ -73,9 +77,9 @@ export function HeaderCard({
         </div>
       )}
       <div className="rounded-[12px] bg-piece p-3">
-        <h1 className="!text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase">{title}</h1>
-        {subtitle && <div className="display mt-0.5 text-[22px] leading-none tracking-[.03em] uppercase">{subtitle}</div>}
-        <div className="mt-2.5 border-t border-hair">
+        <h1 className={titleOnBanner ? "sr-only" : "!text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase"}>{title}</h1>
+        {subtitle && <div className={`display text-[22px] leading-none tracking-[.03em] uppercase ${titleOnBanner ? "" : "mt-0.5"}`}>{subtitle}</div>}
+        <div className={`${subtitle || !titleOnBanner ? "mt-2.5" : ""} border-t border-hair`}>
           {facts.map((f, i) => (
             <div key={f.label} className={`flex items-baseline justify-between gap-4 py-[9px] text-[15px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
               <span className="text-dim shrink-0">{f.label}</span>
@@ -235,12 +239,22 @@ export function MoreLikeThisSection({ items, kind }: { items: RailTitle[]; kind:
 /** The title's picture across the top of its page, the way a profile's
     banner is drawn: the whole width, rounded, the full-size picture. The
     crop keeps the upper part, where faces usually are. */
-export function TitleBanner({ art }: { art: string | null }) {
+export function TitleBanner({ art, logo, title }: { art: string | null; logo?: string | null; title?: string }) {
   return (
     <div className="relative overflow-hidden rounded-[28px] h-[clamp(300px,40vw,540px)] bg-card">
       {art && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={art} alt="" className="absolute inset-0 w-full h-full object-cover object-[center_25%]" />
+      )}
+      {/* The title in its own lettering: the studio's logo artwork, low on
+          the left, over a shade that keeps a pale logo readable whatever the
+          picture is doing there. */}
+      {logo && (
+        <>
+          <div aria-hidden className="absolute inset-0 bg-[linear-gradient(20deg,rgba(0,0,0,.62)_0%,rgba(0,0,0,.25)_35%,transparent_60%)]" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logo} alt={title ?? ""} className="absolute left-[clamp(20px,3vw,44px)] bottom-[clamp(20px,3vw,40px)] max-w-[min(42%,460px)] max-h-[38%] object-contain object-left-bottom drop-shadow-[0_2px_12px_rgba(0,0,0,.5)]" />
+        </>
       )}
     </div>
   );

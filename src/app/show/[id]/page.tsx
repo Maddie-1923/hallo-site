@@ -8,7 +8,7 @@ import { ShowTray } from "@/components/ShowTray";
 import { SeasonList } from "@/components/SeasonList";
 import { seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
-import { image, seriesPage } from "@/lib/tmdb";
+import { image, seriesPage, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 
 // A series' page, laid out like the film page and the profile (the picture
@@ -29,7 +29,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   if (!Number.isInteger(showID)) notFound();
 
   const region = await visitorRegion();
-  const [page, lib] = await Promise.all([seriesPage(showID, region), optionalLibrary()]);
+  const [page, lib, logo] = await Promise.all([seriesPage(showID, region), optionalLibrary(), titleLogo("show", showID)]);
   if (!page) notFound();
   const { show } = page;
 
@@ -59,10 +59,11 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
-        <TitleBanner art={image.banner(show.backdrop_path) ?? image.poster(show.poster_path, "w780")} />
+        <TitleBanner art={image.banner(show.backdrop_path) ?? image.poster(show.poster_path, "w780")} logo={logo} title={show.name} />
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
           <HeaderCard
             title={show.name}
+            titleOnBanner={!!logo}
             subtitle={[page.seasonCount && `${page.seasonCount} ${page.seasonCount === 1 ? "season" : "seasons"}`, page.episodeCount && `${page.episodeCount} episodes`].filter(Boolean).join(" · ")}
             facts={facts}
             overview={show.overview ?? null}

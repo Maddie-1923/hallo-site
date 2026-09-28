@@ -6,7 +6,7 @@ import { TitleActivity } from "@/components/TitleActivity";
 import { CastSection, HeaderCard, MoreLikeThisSection, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { FilmTray } from "@/components/FilmTray";
 import { optionalLibrary } from "@/lib/library";
-import { filmPage, image } from "@/lib/tmdb";
+import { filmPage, image, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 
 // A film's page, laid out after the app's film screen (MovieDetailView): the
@@ -26,7 +26,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
   if (!Number.isInteger(movieID)) notFound();
 
   const region = await visitorRegion();
-  const [page, lib] = await Promise.all([filmPage(movieID, region), optionalLibrary()]);
+  const [page, lib, logo] = await Promise.all([filmPage(movieID, region), optionalLibrary(), titleLogo("movie", movieID)]);
   if (!page) notFound();
   const { movie } = page;
 
@@ -48,9 +48,9 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
       {/* Laid out like the profile: the picture as a banner across the whole
           width, then two columns on the same widths as the profile's. */}
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
-        <TitleBanner art={image.banner(movie.backdrop_path) ?? image.poster(movie.poster_path, "w780")} />
+        <TitleBanner art={image.banner(movie.backdrop_path) ?? image.poster(movie.poster_path, "w780")} logo={logo} title={movie.title} />
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
-          <HeaderCard title={movie.title} facts={facts} overview={movie.overview ?? null}>
+          <HeaderCard title={movie.title} titleOnBanner={!!logo} facts={facts} overview={movie.overview ?? null}>
             <FilmTray tracked={!!tracked} watched={watched} loved={loved} signedIn={lib.signedIn} />
           </HeaderCard>
           <div className="grid gap-4">
