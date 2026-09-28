@@ -253,7 +253,7 @@ export function TitleBanner({ art, logo, title }: { art: string | null; logo?: s
         <>
           <div aria-hidden className="absolute inset-0 bg-[linear-gradient(20deg,rgba(0,0,0,.62)_0%,rgba(0,0,0,.25)_35%,transparent_60%)]" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={logo} alt={title ?? ""} className="absolute left-[clamp(20px,3vw,44px)] bottom-[clamp(20px,3vw,40px)] max-w-[min(42%,460px)] max-h-[38%] object-contain object-left-bottom drop-shadow-[0_2px_12px_rgba(0,0,0,.5)]" />
+          <img src={logo} alt={title ?? ""} className="absolute left-[clamp(20px,3vw,44px)] bottom-[clamp(20px,3vw,40px)] max-w-[33%] max-h-[30%] object-contain object-left-bottom drop-shadow-[0_2px_12px_rgba(0,0,0,.5)]" />
         </>
       )}
     </div>
