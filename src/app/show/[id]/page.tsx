@@ -10,6 +10,7 @@ import { seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
 import { reviewsOfTitle } from "@/lib/profile-previews";
 import { ReviewsSection } from "@/components/TitleReviews";
+import { YourReview } from "@/components/YourReview";
 import { image, seriesPage, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 
@@ -86,6 +87,12 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             >
               <ShowTray tracked={!!tracked} loved={loved} allWatched={!!tracked && left <= 0} stopped={tracked?.status === "Dropped"} />
             </HeaderCard>
+          </Section>
+          {/* Their own review: the app's "Your take", renamed. */}
+          <Section title="Review">
+            <SectionCard>
+              <YourReview kind="show" />
+            </SectionCard>
           </Section>
           <ReviewsSection reviews={reviews} />
           </div>

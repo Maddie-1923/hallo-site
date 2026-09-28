@@ -3,11 +3,12 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { TitleActivity } from "@/components/TitleActivity";
-import { CastSection, HeaderCard, MoreLikeThisSection, Section, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { CastSection, HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { FilmTray } from "@/components/FilmTray";
 import { optionalLibrary } from "@/lib/library";
 import { reviewsOfTitle } from "@/lib/profile-previews";
 import { ReviewsSection } from "@/components/TitleReviews";
+import { YourReview } from "@/components/YourReview";
 import { filmPage, image, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 
@@ -63,6 +64,12 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
             <HeaderCard title={movie.title} titleOnBanner={!!logo} facts={facts} overview={movie.overview ?? null}>
               <FilmTray tracked={!!tracked} watched={watched} loved={loved} signedIn={lib.signedIn} />
             </HeaderCard>
+          </Section>
+          {/* Their own review: the app's "Your take", renamed. */}
+          <Section title="Review">
+            <SectionCard>
+              <YourReview kind="movie" />
+            </SectionCard>
           </Section>
           <ReviewsSection reviews={reviews} />
           </div>

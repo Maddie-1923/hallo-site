@@ -290,6 +290,10 @@ Review. Android picks the same up when it resumes.
   built-in ones included (today only a list's cover is stored).
 - **Category order:** the owner's arrangement (`kodigo.profileShelfOrder`)
   moves into the archive so the website can show it.
+- **"Your take" becomes "Review"** on the film and show screens (decided
+  27 Sep): the section holds the rating, moods, tags, the review text (with
+  spoilers, watched-on and rewatch, which the app gains) and the private
+  note, still private and labelled so.
 - **Visibility:** every category has an eye the owner toggles, public or
   private. All start public except On Hold and Stopped Watching, which start
   private. The choice is stored in the library and the server leaves private
