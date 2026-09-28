@@ -392,8 +392,8 @@ export function EpisodesSection({ showID, episodes, current, title }: { showID: 
                 )}
               </div>
               <div className="px-2.5 pt-2 pb-2.5">
-                <div className="text-[12px] leading-[15px] font-semibold text-mid-tone">{code(e.season, e.episode)}</div>
-                <div className="text-[12px] leading-[15px] truncate group-hover:text-accent transition-colors">{e.name}</div>
+                <div className="text-[12.5px] leading-[16px] font-semibold text-mid-tone">{code(e.season, e.episode)}</div>
+                <div className="text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{e.name}</div>
               </div>
             </Link>
           </RowCard>

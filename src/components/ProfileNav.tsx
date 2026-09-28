@@ -66,7 +66,7 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
   }, []);
 
   return (
-    <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-x-5 gap-y-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
+    <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
       {aside && (
         <div className="lg:col-start-2 lg:row-start-2 max-lg:h-[640px] lg:min-h-[480px] flex flex-col">{aside}</div>
       )}
@@ -106,7 +106,7 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
         role="tabpanel"
         id={`panel-${shown.id}`}
         aria-labelledby={`tab-${shown.id}`}
-        className={`${aside || flat ? "" : "mt-4"} min-w-0 lg:col-start-1 lg:row-start-2 ${flat ? "flex-1 min-h-0 overflow-y-auto soft-scroll [scrollbar-gutter:stable] rounded-shell bg-piece p-3 pr-[1px]" : shown.bare ? "" : "min-h-[240px] rounded-shell bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-[clamp(14px,1.6vw,22px)]"}`}
+        className={`${aside || flat ? "" : "mt-2"} min-w-0 lg:col-start-1 lg:row-start-2 ${flat ? "flex-1 min-h-0 overflow-y-auto soft-scroll [scrollbar-gutter:stable] rounded-shell bg-piece p-3 pr-[1px]" : shown.bare ? "" : "min-h-[240px] rounded-shell bg-card border border-hair p-2"}`}
       >
         {shown.content}
       </div>

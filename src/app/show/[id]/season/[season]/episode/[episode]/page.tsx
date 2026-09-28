@@ -91,6 +91,12 @@ export default async function EpisodePage({ params }: Params) {
             side={(ep.cast.length > 0 || ep.crew.length > 0) && <TitleCredits flat cast={ep.cast} crew={ep.crew} />}
           />
         </div>
+        {/* The season's episodes, straight under the bento, before their take. */}
+        {ep.seasonEpisodes.length > 1 && (
+          <div className="mt-8 grid grid-cols-[minmax(0,1fr)]">
+            <EpisodesSection showID={showID} episodes={ep.seasonEpisodes} current={ep.episode} title={ep.season === 0 ? "Specials" : `Season ${ep.season}`} />
+          </div>
+        )}
         {/* Their own take on it, as the app calls it, across the page's
             full width so its parts sit side by side: the rating beside the
             moods, the review beside the note and tags. */}
@@ -106,9 +112,6 @@ export default async function EpisodePage({ params }: Params) {
           <div className="grid gap-8 min-w-0">
             <ReviewsSection reviews={[]} />
           </div>
-        </div>
-        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
-          {ep.seasonEpisodes.length > 1 && <EpisodesSection showID={showID} episodes={ep.seasonEpisodes} current={ep.episode} title={ep.season === 0 ? "Specials" : `Season ${ep.season}`} />}
         </div>
       </main>
       <SiteFooter />

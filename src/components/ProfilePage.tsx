@@ -23,7 +23,6 @@ import { MiniTracker } from "./MiniTracker";
 
 const GUTTER = "px-[clamp(16px,3.2vw,64px)]";
 // The banner's corner radius.
-const R = 28;
 // The profile photo's size and where it sits, shared by the banner (which
 // draws it) and the card (which leaves room for it).
 const AVATAR = "clamp(92px, 9vw, 128px)";
@@ -51,7 +50,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
           Favourites is parked while this layout is tried; it comes back
           somewhere else (FavouriteCard below is kept for that). */}
-      <div className="grid gap-x-5 gap-y-4 mt-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
+      <div className="grid gap-2 mt-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
         <ProfileCard v={v} />
         <div className="rounded-shell bg-card border border-hair p-2 flex self-stretch">
           <NumberTiles v={v} />
@@ -66,7 +65,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                 count: v.reviews.length,
                 content:
                   v.reviews.length > 0 ? (
-                    <div className="grid gap-[6px]">
+                    <div className="grid gap-2">
                       {v.reviews.map((r) => (
                         <ReviewCard key={r.key} r={r} username={v.username} avatar={v.avatar} />
                       ))}
@@ -107,7 +106,7 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
     <section id="top" className="relative scroll-mt-24">
       <div
         className="relative overflow-hidden h-[clamp(420px,40vw,540px)]"
-        style={{ borderRadius: R, ...nightTokens }}
+        style={{ borderRadius: "var(--shell-radius)", ...nightTokens }}
       >
         {art ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -132,7 +131,7 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
 // watching, three in a row.
 function Dashboard({ v }: { v: PublicProfileView }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-2 sm:grid-cols-3">
       <Panel title="Ratings">
         <RatingsSpread values={v.ratingValues} />
       </Panel>
@@ -148,8 +147,8 @@ function Dashboard({ v }: { v: PublicProfileView }) {
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-shell bg-card border border-hair px-[clamp(12px,1.2vw,16px)] py-3 flex flex-col min-w-0">
-      <div className="text-[10.5px] font-bold tracking-[.14em] uppercase text-dim mb-2">{title}</div>
+    <div className="rounded-shell bg-piece p-3 flex flex-col min-w-0">
+      <div className="text-[10.5px] font-bold tracking-[.12em] uppercase text-dim mb-2">{title}</div>
       {children}
     </div>
   );
@@ -191,7 +190,7 @@ function RatingsSpread({ values }: { values: number[] }) {
   const avg = values.length ? values.reduce((x, y) => x + y, 0) / values.length : null;
   return (
     <div className="flex-1 flex flex-col">
-      <div className="text-[12px] mb-2">
+      <div className="text-[12.5px] mb-2">
         <b className="text-ink">{values.length}</b> <span className="text-dim">ratings{avg != null ? ` · avg ${avg.toFixed(1)}` : ""}</span>
       </div>
       <div className="flex items-end gap-[3px] h-[64px]">
@@ -208,12 +207,12 @@ function RatingsSpread({ values }: { values: number[] }) {
 }
 
 function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
-  if (genres.length === 0) return <p className="m-0 text-sm text-dim">Nothing tracked yet.</p>;
+  if (genres.length === 0) return <p className="m-0 text-[12.5px] text-dim">Nothing tracked yet.</p>;
   const most = Math.max(...genres.map((g) => g.share));
   return (
     <ul className="m-0 p-0 list-none grid gap-[7px]">
       {genres.map((g) => (
-        <li key={g.name} className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_30px] items-center gap-1.5 text-[11.5px]">
+        <li key={g.name} className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_30px] items-center gap-1.5 text-[12.5px]">
           <span className="truncate text-ink">{g.name}</span>
           <span className="h-[5px] rounded-full bg-card-hi overflow-hidden">
             <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${(g.share / most) * 100}%` }} />
@@ -252,7 +251,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         // below it, and on a wide screen is exactly as wide as the tab bar
         // (--tabs-w, set by the bar); the photo sits over its left end, and
         // the writing starts past the photo.
-        className="flex-1 lg:flex-none lg:w-[var(--tabs-w,100%)] rounded-shell bg-card border border-hair pr-[clamp(14px,1.6vw,20px)] py-3 min-w-0"
+        className="flex-1 lg:flex-none lg:w-[var(--tabs-w,100%)] rounded-shell bg-card border border-hair pr-3 py-3 min-w-0"
         style={{ paddingLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 16px)` }}
       >
         <div className="flex items-start gap-4 min-w-0">
@@ -289,7 +288,7 @@ function FavouriteCard({ v }: { v: PublicProfileView }) {
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm text-dim m-0">{children}</p>;
+  return <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">{children}</p>;
 }
 
 // What they have been doing lately, newest first: watches from the diary

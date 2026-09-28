@@ -79,8 +79,8 @@ export function ReviewSheetCard({ r, username, avatar, onClose }: { r: SheetRevi
         <ReviewHeading username={username} avatar={avatar} r={r} />
         {r.spoilers ? (
           <details className="mt-4 group/sp">
-            <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[13px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
-              <span className="px-2 py-[2px] rounded-full bg-card-hi border border-hair text-[11px] font-bold uppercase tracking-[.08em]">Spoilers</span>
+            <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[12.5px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
+              <span className="px-2 py-[2px] rounded-full bg-card-hi border border-hair text-[10.5px] font-bold uppercase tracking-[.12em]">Spoilers</span>
               <span className="group-open/sp:hidden">This review gives things away. Show it anyway.</span>
               <span className="hidden group-open/sp:inline">Hide it again</span>
             </summary>
@@ -91,7 +91,7 @@ export function ReviewSheetCard({ r, username, avatar, onClose }: { r: SheetRevi
         )}
         <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={reviewPath(username, r.key)} className="mt-4" />
         <div className="mt-4 pt-4 border-t border-hair flex justify-end">
-          <Link href={r.href} className="inline-block text-[13.5px] leading-none font-semibold text-accent no-underline hover:underline">
+          <Link href={r.href} className="inline-block text-[12.5px] leading-none font-semibold text-accent no-underline hover:underline">
             Go to {r.title} →
           </Link>
         </div>
@@ -154,7 +154,7 @@ export function ReviewHeading({
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <div className="flex items-center gap-2 text-[13px] leading-none text-dim">
+        <div className="flex items-center gap-2 text-[12.5px] leading-none text-dim">
           {/* Their photo, or their initial on the accent when they have none,
               as the profile draws it. */}
           <Link href={`/u/${username}`} className="shrink-0 w-7 h-7 rounded-full overflow-hidden bg-accent-fill text-on-accent border border-hair flex items-center justify-center display text-[15px] leading-none no-underline" aria-hidden tabIndex={-1}>
@@ -204,7 +204,7 @@ export function ReviewHeading({
 /** "S2 E4 · Woe's Hollow": a series review's episode, under the show's name. */
 export function EpisodeLine({ episode, name }: { episode: string; name?: string }) {
   return (
-    <div className="mt-2 text-[13px] leading-none text-dim">
+    <div className="mt-2 text-[12.5px] leading-none text-dim">
       <b className="text-ink font-semibold">{episode}</b>
       {name && <> · {name}</>}
     </div>

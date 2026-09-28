@@ -12,10 +12,10 @@ export type ActivityItem = { key: string; date: string; t: ProfileTitle; verb: s
 export function ActivityFeed({ items }: { items: ActivityItem[] }) {
   const live = useLiveWatches();
   const all: ActivityItem[] = [...live.map((w): ActivityItem => ({ key: `live-${w.key}`, date: w.date, t: w.t, verb: "Watched", detail: w.detail })), ...items].slice(0, 10);
-  if (all.length === 0) return <p className="text-sm text-dim m-0">Nothing yet.</p>;
+  if (all.length === 0) return <p className="text-[12.5px] text-dim m-0">Nothing yet.</p>;
   return (
     // Each entry in its own rounded shell, as in the Watchlog.
-    <ul className="m-0 p-0 list-none grid gap-[6px]">
+    <ul className="m-0 p-0 list-none grid gap-2">
       {all.map((it) => (
         <li key={it.key} className="rounded-shell bg-card-hi">
           <Link href={it.t.href} className="group flex items-center gap-4 px-3 py-2 no-underline text-ink">
@@ -23,7 +23,7 @@ export function ActivityFeed({ items }: { items: ActivityItem[] }) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {it.t.backdrop && <img src={it.t.backdrop} alt="" className="w-full h-full object-cover" />}
             </span>
-            <span className="min-w-0 flex-1 text-[14.5px]">
+            <span className="min-w-0 flex-1 text-[12.5px]">
               <span className="text-dim">{it.verb} </span>
               <span className="font-semibold group-hover:text-accent transition-colors">{it.t.title}</span>
               {it.detail && <span className="text-dim"> · {it.detail}</span>}

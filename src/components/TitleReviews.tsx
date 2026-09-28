@@ -10,13 +10,13 @@ export function ReviewsSection({ reviews }: { reviews: { review: ReviewEntry; us
     <Section title={reviews.length ? `Reviews · ${reviews.length}` : "Reviews"} small>
       <SectionCard>
         {reviews.length ? (
-          <div className="grid gap-[6px]">
+          <div className="grid gap-2">
             {reviews.map(({ review, username, avatar }) => (
               <ReviewCard key={`${username}-${review.key}`} r={review} username={username} avatar={avatar} onTitlePage />
             ))}
           </div>
         ) : (
-          <p className="m-0 px-3 py-4 text-[14px] text-dim">No reviews yet. Members&apos; reviews show here once accounts open.</p>
+          <p className="m-0 px-3 py-4 text-[12.5px] text-dim">No reviews yet. Members&apos; reviews show here once accounts open.</p>
         )}
       </SectionCard>
     </Section>

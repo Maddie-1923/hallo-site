@@ -213,7 +213,7 @@ export function ProfileCategories({ categories: given, owner = false, username =
           )}
         </div>
       </div>
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
+      <div className="grid gap-2 grid-cols-2 md:grid-cols-3">
         {shown.map((c, i) =>
           arranging ? (
             <div
@@ -424,7 +424,7 @@ function PicturePicker({ c, current, onChoose, onClose }: { c: CategoryEntry; cu
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={t.backdrop!} alt="" className="w-full h-full object-cover" />
               </span>
-              <span className="block mt-1 text-[12px] text-ink truncate">{t.title}</span>
+              <span className="block mt-1 text-[12.5px] text-ink truncate">{t.title}</span>
             </button>
           ))}
         </div>
@@ -456,7 +456,7 @@ function CategorySheet({ c, onClose, onDelete }: { c: CategoryEntry; onClose: ()
             <div className="mt-2 text-[12.5px] leading-none text-dim">
               {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
             </div>
-            {c.detail && <p className="m-0 mt-3 text-[13.5px] leading-[1.5] text-bone">{c.detail}</p>}
+            {c.detail && <p className="m-0 mt-3 text-[12.5px] leading-[1.5] text-bone">{c.detail}</p>}
             {/* The app's wording: a category is a way of grouping titles, not
                 a place they live, so deleting one loses nothing tracked. */}
             {onDelete && (
@@ -482,8 +482,8 @@ function CategorySheet({ c, onClose, onDelete }: { c: CategoryEntry; onClose: ()
                   <span className="w-full h-full flex items-center justify-center p-2 text-center text-xs text-dim">{t.title}</span>
                 )}
               </span>
-              <span className="block mt-1.5 text-[12px] leading-tight truncate group-hover:text-accent transition-colors">{t.title}</span>
-              {t.year && <span className="block text-[11.5px] leading-tight text-dim">{t.year}</span>}
+              <span className="block mt-1.5 text-[12.5px] leading-tight truncate group-hover:text-accent transition-colors">{t.title}</span>
+              {t.year && <span className="block text-[12.5px] leading-tight text-dim">{t.year}</span>}
             </Link>
           ))}
         </div>
@@ -551,7 +551,7 @@ function SortMenu({ sort, onChoose }: { sort: SortId; onChoose: (id: SortId) => 
             aria-checked={s.id === sort}
             data-menu-close
             onClick={() => onChoose(s.id)}
-            className="w-full flex items-center gap-3 px-4 py-1.5 text-[13px] hover:bg-card-hi cursor-pointer text-ink"
+            className="w-full flex items-center gap-3 px-4 py-1.5 text-[12.5px] hover:bg-card-hi cursor-pointer text-ink"
           >
             <span className="flex-1 text-left">{s.label}</span>
             {s.id === sort && (
@@ -612,7 +612,7 @@ function NewCategorySheet({ library, onCreate, onClose }: { library: ProfileTitl
   const shown = library.filter((t) => t.title.toLowerCase().includes(query.trim().toLowerCase()));
   const toggle = (k: string) => setKeys((ks) => (ks.includes(k) ? ks.filter((x) => x !== k) : [...ks, k]));
   const ready = name.trim().length > 0;
-  const field = "w-full rounded-[12px] bg-card-hi border border-hair px-3 py-2 text-[14px] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
+  const field = "w-full rounded-[12px] bg-card-hi border border-hair px-3 py-2 text-[12.5px] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label="New category" className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <form
@@ -654,17 +654,17 @@ function NewCategorySheet({ library, onCreate, onClose }: { library: ProfileTitl
                     </span>
                   )}
                 </span>
-                <span className="block mt-1.5 text-[12px] leading-tight truncate text-ink">{t.title}</span>
+                <span className="block mt-1.5 text-[12.5px] leading-tight truncate text-ink">{t.title}</span>
               </button>
             );
           })}
-          {shown.length === 0 && <p className="col-span-full m-0 text-[13px] text-dim">Nothing in your library matches.</p>}
+          {shown.length === 0 && <p className="col-span-full m-0 text-[12.5px] text-dim">Nothing in your library matches.</p>}
         </div>
         <div className="p-4 border-t border-hair flex items-center justify-between gap-3">
           <span className="text-[12.5px] text-dim">
             {keys.length} {keys.length === 1 ? "title" : "titles"} picked
           </span>
-          <button type="submit" disabled={!ready} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+          <button type="submit" disabled={!ready} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
             Create
           </button>
         </div>

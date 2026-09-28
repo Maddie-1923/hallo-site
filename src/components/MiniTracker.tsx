@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HeadingPill } from "./TitleParts";
 import { useState } from "react";
 import { addWatch, today } from "@/lib/live-watches";
 import { ConfirmKey } from "./ConfirmKey";
@@ -25,12 +26,12 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
   const filmsLeft = films.filter((f) => !watchedFilms.includes(f.key));
 
   return (
-    <div className="flex-1 rounded-shell bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col">
+    <div className="flex-1 rounded-shell bg-card border border-hair p-2 flex flex-col">
       {/* Headed like Favourites beside it: the card's name, then the
           section's in small capitals, "Up next" as the app calls it. */}
-      <div className="h-7 flex items-center justify-between gap-3">
-        <h2 className="!text-[clamp(22px,2vw,28px)] leading-none">Tracker</h2>
-        <div className="inline-flex p-[3px] rounded-full bg-page border border-hair">
+      <div className="flex items-center justify-between gap-2">
+        <HeadingPill small>Tracker</HeadingPill>
+        <div className="inline-flex p-1 rounded-full bg-piece">
           {(
             [
               ["show", "Shows"],
@@ -42,7 +43,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
               type="button"
               aria-pressed={tab === k}
               onClick={() => setTab(k)}
-              className={`px-3 py-0.5 rounded-full text-[12px] font-semibold cursor-pointer transition-colors ${tab === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+              className={`px-4 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${tab === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
             >
               {label}
             </button>
@@ -50,16 +51,16 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
         </div>
       </div>
 
-      <div className="mt-3 mb-2 text-[11px] font-bold tracking-[.14em] uppercase text-dim">Up next</div>
+      <div className="mt-3 mb-2 px-1 text-[10.5px] font-bold tracking-[.12em] uppercase text-dim">Up next</div>
 
       {/* The list scrolls inside the card rather than making it taller: it is
           laid over the space the card has, so its length never counts toward
           the card's height, which Favourites beside it sets. */}
       <div className="relative flex-1 min-h-[240px] -mx-1">
-        <ul className="soft-scroll absolute inset-0 overflow-y-auto overscroll-contain m-0 px-1 pb-1 list-none grid gap-3 content-start rounded-shell">
+        <ul className="soft-scroll absolute inset-0 overflow-y-auto overscroll-contain m-0 px-1 pb-1 list-none grid gap-2 content-start rounded-shell">
           {tab === "show" &&
             (shows.length === 0 ? (
-              <li className="text-sm text-dim py-3">Not in the middle of anything.</li>
+              <li className="text-[12.5px] text-dim py-3">Not in the middle of anything.</li>
             ) : (
               shows.map((s) => {
                 const p = progress(s, seen[s.key] ?? []);
@@ -108,7 +109,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
             ))}
           {tab === "movie" &&
             (filmsLeft.length === 0 ? (
-              <li className="text-sm text-dim py-3">Nothing on the watchlist.</li>
+              <li className="text-[12.5px] text-dim py-3">Nothing on the watchlist.</li>
             ) : (
               filmsLeft.map((f) => (
                 <Row
@@ -181,11 +182,11 @@ function Row({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]
           )}
         </Link>
         <div className="min-w-0 flex-1 flex flex-col py-1.5 pr-2.5">
-          <Link href={t.href} className="block text-[13px] leading-[16px] font-semibold text-ink truncate no-underline hover:text-accent">
+          <Link href={t.href} className="block text-[12.5px] leading-[16px] font-semibold text-ink truncate no-underline hover:text-accent">
             {t.title}
           </Link>
           {/* The code and the name share a line at this size. */}
-          <div className="text-[12px] leading-[15px] truncate">
+          <div className="text-[12.5px] leading-[15px] truncate">
             <span className="text-mid-tone">{lines[0]}</span>
             {lines[1] && <span className="text-dim"> · {lines[1]}</span>}
           </div>
