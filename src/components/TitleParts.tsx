@@ -77,7 +77,7 @@ export function HeaderCard({
           )}
         </div>
       )}
-      <div className="rounded-[12px] bg-piece p-3">
+      <div className="rounded-[20px] bg-piece p-3">
         <h1 className={titleOnBanner ? "sr-only" : "!text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase"}>{title}</h1>
         {subtitle && <div className={`display text-[22px] leading-none tracking-[.03em] uppercase ${titleOnBanner ? "" : "mt-0.5"}`}>{subtitle}</div>}
         {/* A hairline under the title, when there is one to sit under. */}
@@ -92,7 +92,7 @@ export function HeaderCard({
         {factsFooter && <div className="pt-[9px] border-t border-hair">{factsFooter}</div>}
       </div>
       {overview && (
-        <div className="rounded-[12px] bg-piece p-3">
+        <div className="rounded-[20px] bg-piece p-3">
           <ExpandableText text={overview} />
         </div>
       )}
