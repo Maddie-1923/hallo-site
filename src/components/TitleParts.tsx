@@ -232,7 +232,9 @@ export function CastRail({ cast }: { cast: CastMember[] }) {
                 )}
               </div>
               <div className="p-2.5">
-                <div className="text-[12px] leading-[15px] font-semibold text-ink line-clamp-2 min-h-[30px]">{p.name}</div>
+                {/* One line each, cut short with an ellipsis, as the app's grids and
+                    rails do: a two-line name would leave a gap under the short ones. */}
+                <div className="text-[12px] leading-[15px] font-semibold text-ink truncate">{p.name}</div>
                 <div className="text-[12px] leading-[15px] text-dim truncate">{p.character}</div>
               </div>
             </div>
