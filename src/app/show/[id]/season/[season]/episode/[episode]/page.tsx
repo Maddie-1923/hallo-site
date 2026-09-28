@@ -97,7 +97,7 @@ export default async function EpisodePage({ params }: Params) {
         {/* Under it, at the About card's width: Your take and the reviews. */}
         <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="grid gap-8 min-w-0">
-            <Section title="Your take">
+            <Section title="Your take" small>
               <SectionCard>
                 <YourReview kind="episode" title={{ key: `e${key}`, kind: "show", title: `${show.show.name} ${code(ep.season, ep.episode)}`, href: `/show/${showID}/season/${ep.season}/episode/${ep.episode}`, poster: image.poster(show.show.poster_path, "w342"), backdrop: ep.still, year: (ep.airDate ?? "").slice(0, 4) }} />
               </SectionCard>

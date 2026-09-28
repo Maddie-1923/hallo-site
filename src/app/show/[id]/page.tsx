@@ -119,7 +119,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           <div className="grid gap-8 min-w-0">
           {/* Their own take on it, as the app calls it: rating, moods, tags,
               the review and the private note. */}
-          <Section title="Your take">
+          <Section title="Your take" small>
             <SectionCard>
               <YourReview kind="show" title={{ key: `s${showID}`, kind: "show", title: show.name, href: `/show/${showID}`, poster: image.poster(show.poster_path, "w342"), backdrop: image.backdrop(show.backdrop_path), year: (show.first_air_date ?? "").slice(0, 4) }} />
             </SectionCard>
