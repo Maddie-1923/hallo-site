@@ -5,7 +5,8 @@ import { useState } from "react";
 // The person's own take on a title, as the app's "Your take". Its cards, as the app draws them (kodigoTakeCard): the
 // rating, ten stars in half steps; how it made them feel, up to three of the
 // app's twelve moods; tags; the review itself, with spoilers, the day they
-// watched and whether it was a rewatch; and the note, which stays private.
+// watched and whether it was a rewatch; the note, which stays private; and
+// tags last.
 //
 // Saving from the website opens with accounts; until then everything here
 // can be tried on the page and the Save button says so.
@@ -97,34 +98,6 @@ export function YourReview({ kind }: { kind: "movie" | "show" }) {
         </div>
       </div>
 
-      {/* Tags: chips, and a dashed one to add another. */}
-      <div className={card}>
-        <div className={heading}>Tags</div>
-        <div className="flex flex-wrap gap-2">
-          {tags.map((t) => (
-            <button key={t} type="button" onClick={() => setTags((ts) => ts.filter((x) => x !== t))} title="Remove" className="rounded-full border border-[color:color-mix(in_srgb,var(--ink)_18%,transparent)] px-[11px] py-[7px] text-[13px] font-semibold text-ink leading-none cursor-pointer">
-              {t}
-            </button>
-          ))}
-          {tagDraft == null ? (
-            <button type="button" onClick={() => setTagDraft("")} className="rounded-full border border-dashed border-[color:color-mix(in_srgb,var(--dim)_50%,transparent)] px-[11px] py-[7px] text-[13px] text-dim leading-none cursor-pointer inline-flex items-center gap-1">
-              <span className="font-bold">+</span> {tags.length ? "Tag" : "Add a tag"}
-            </button>
-          ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const t = tagDraft.trim();
-                if (t && !tags.includes(t)) setTags([...tags, t]);
-                setTagDraft(null);
-              }}
-            >
-              <input autoFocus value={tagDraft} onChange={(e) => setTagDraft(e.target.value)} onBlur={() => setTagDraft(null)} placeholder="New tag" maxLength={30} className="rounded-full bg-card border border-hair px-3 py-[6px] text-[13px] text-ink w-[140px] focus:outline-none focus:border-accent" />
-            </form>
-          )}
-        </div>
-      </div>
-
       {/* The review itself: what everyone else reads. */}
       <div className={card}>
         <div className={heading}>Your review</div>
@@ -153,6 +126,34 @@ export function YourReview({ kind }: { kind: "movie" | "show" }) {
         <div className="min-w-0 flex-1">
           <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={1} placeholder={`Note on this ${what}`} className="w-full bg-transparent text-[15px] text-ink placeholder:text-dim resize-none focus:outline-none [field-sizing:content] max-h-[9lh]" />
           <div className="text-[11px] text-dim">Only you can see your note.</div>
+        </div>
+      </div>
+
+      {/* Tags: chips, and a dashed one to add another. */}
+      <div className={card}>
+        <div className={heading}>Tags</div>
+        <div className="flex flex-wrap gap-2">
+          {tags.map((t) => (
+            <button key={t} type="button" onClick={() => setTags((ts) => ts.filter((x) => x !== t))} title="Remove" className="rounded-full border border-[color:color-mix(in_srgb,var(--ink)_18%,transparent)] px-[11px] py-[7px] text-[13px] font-semibold text-ink leading-none cursor-pointer">
+              {t}
+            </button>
+          ))}
+          {tagDraft == null ? (
+            <button type="button" onClick={() => setTagDraft("")} className="rounded-full border border-dashed border-[color:color-mix(in_srgb,var(--dim)_50%,transparent)] px-[11px] py-[7px] text-[13px] text-dim leading-none cursor-pointer inline-flex items-center gap-1">
+              <span className="font-bold">+</span> {tags.length ? "Tag" : "Add a tag"}
+            </button>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const t = tagDraft.trim();
+                if (t && !tags.includes(t)) setTags([...tags, t]);
+                setTagDraft(null);
+              }}
+            >
+              <input autoFocus value={tagDraft} onChange={(e) => setTagDraft(e.target.value)} onBlur={() => setTagDraft(null)} placeholder="New tag" maxLength={30} className="rounded-full bg-card border border-hair px-3 py-[6px] text-[13px] text-ink w-[140px] focus:outline-none focus:border-accent" />
+            </form>
+          )}
         </div>
       </div>
 

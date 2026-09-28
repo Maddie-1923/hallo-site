@@ -293,7 +293,8 @@ Review. Android picks the same up when it resumes.
 - **"Your take" keeps its name** (decided 27 Sep; "Review" was tried and
   dropped). The app's section gains the review text, with spoilers,
   watched-on and rewatch, as the website has it; the note stays private and
-  is labelled so.
+  is labelled so. Its cards run: rating, mood, review, note, then tags (the
+  app has tags before the note today).
 - **Visibility:** every category has an eye the owner toggles, public or
   private. All start public except On Hold and Stopped Watching, which start
   private. The choice is stored in the library and the server leaves private
