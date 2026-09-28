@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
+import { People } from "@/components/People";
 import { TitleActivity } from "@/components/TitleActivity";
 import { CastSection, HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { ShowTray } from "@/components/ShowTray";
@@ -45,6 +46,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   const left = page.episodeCount - watched.length;
   const facts = [
     page.genres.length > 0 && { label: "Genres", value: page.genres.join(" · ") },
+    page.creators.length > 0 && { label: "Created by", value: <People people={page.creators} /> },
     page.seasonCount && { label: "Seasons", value: String(page.seasonCount) },
     page.episodeCount && { label: "Episodes", value: String(page.episodeCount) },
     show.first_air_date && { label: "Year", value: show.first_air_date.slice(0, 4) },
@@ -52,7 +54,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
     page.episodeRuntime && { label: "Episode", value: `${page.episodeRuntime}m` },
     show.vote_average && { label: "TMDB", value: show.vote_average.toFixed(1) },
     tracked && { label: "Progress", value: left > 0 ? `${left} episodes left` : "Up to date", accent: true },
-  ].filter(Boolean) as { label: string; value: string; accent?: boolean }[];
+  ].filter(Boolean) as { label: string; value: React.ReactNode; accent?: boolean }[];
 
   const badge = seriesBadge(show.status, page.type);
   const seasons = page.seasons.map((s) => ({ number: s.season_number, name: s.name, count: s.episode_count }));

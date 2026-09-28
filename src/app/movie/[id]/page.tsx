@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
+import { People } from "@/components/People";
 import { TitleActivity } from "@/components/TitleActivity";
 import { CastSection, HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { FilmTray } from "@/components/FilmTray";
@@ -42,11 +43,12 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
   // The facts, in the app's order with the year added, each only when there is something to say.
   const facts = [
     page.genres.length > 0 && { label: "Genres", value: page.genres.join(" · ") },
+    page.directors.length > 0 && { label: page.directors.length > 1 ? "Directors" : "Director", value: <People people={page.directors} /> },
     movie.release_date && { label: "Year", value: movie.release_date.slice(0, 4) },
     runtime && { label: "Runtime", value: runtime },
     movie.vote_average && { label: "TMDB", value: movie.vote_average.toFixed(1) },
     page.released && { label: "Released", value: longDate(page.released), accent: true },
-  ].filter(Boolean) as { label: string; value: string; accent?: boolean }[];
+  ].filter(Boolean) as { label: string; value: React.ReactNode; accent?: boolean }[];
 
   return (
     <div className="min-h-screen flex flex-col">

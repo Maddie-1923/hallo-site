@@ -50,7 +50,7 @@ interface RawShow {
   number_of_seasons?: number;
   number_of_episodes?: number;
   seasons?: RawSeason[];
-  credits?: { cast: RawPerson[] };
+  credits?: { cast: RawPerson[]; crew?: { id: number; name: string; job?: string }[] };
   external_ids?: { imdb_id?: string | null };
   networks?: { name: string }[];
   next_episode_to_air?: RawEpisode | null;
@@ -70,7 +70,7 @@ interface RawMovie {
   genre_ids?: number[];
   genres?: { id: number; name: string }[];
   tagline?: string | null;
-  credits?: { cast: RawPerson[] };
+  credits?: { cast: RawPerson[]; crew?: { id: number; name: string; job?: string }[] };
   media_type?: string;
 }
 
@@ -455,8 +455,15 @@ export interface CastMember {
   photo: string | null;
 }
 
+/** Someone behind a title, for its page and a link to their own. */
+export interface Credit {
+  id: number;
+  name: string;
+}
+
 export interface FilmPage {
   movie: Movie;
+  directors: Credit[];
   genres: string[];
   /** The release in the visitor's country when TMDB has one, else the film's own date. */
   released: string | null;
@@ -485,6 +492,7 @@ export async function filmPage(id: number, region = RATING_FALLBACK): Promise<Fi
   return {
     movie: toMovie(r),
     genres: r.genres?.map((g) => g.name) ?? [],
+    directors: (r.credits?.crew ?? []).filter((c) => c.job === "Director").map((c) => ({ id: c.id, name: c.name })).filter((c, i, a) => a.findIndex((x) => x.id === c.id) === i),
     released: local ?? r.release_date ?? null,
     trailer: pickTrailer(r.videos),
     cast: (r.credits?.cast ?? []).slice(0, 15).map((p) => ({ id: p.id, name: p.name, character: p.character ?? "", photo: image.profile(p.profile_path) })),
@@ -506,6 +514,9 @@ export interface RailTitle {
 
 export interface SeriesPage {
   show: Show;
+  /** Who created the series: a series' directors change from episode to
+      episode, so its creators stand where a film's director does. */
+  creators: Credit[];
   type: string | null;
   genres: string[];
   seasons: RawSeason[];
@@ -527,6 +538,7 @@ type RawSeriesPage = RawShow &
     episode_run_time?: number[];
     last_air_date?: string | null;
     content_ratings?: { results: { iso_3166_1: string; rating: string }[] };
+    created_by?: { id: number; name: string }[];
     recommendations?: { results: RawShow[] };
     aggregate_credits?: { cast: { id: number; name: string; profile_path?: string | null; roles?: { character: string }[] }[] };
   };
@@ -537,6 +549,7 @@ export async function seriesPage(id: number, region = RATING_FALLBACK): Promise<
   const rating = (c: string) => r.content_ratings?.results.find((x) => x.iso_3166_1 === c)?.rating || null;
   return {
     show: toShow(r),
+    creators: (r.created_by ?? []).map((c) => ({ id: c.id, name: c.name })),
     type: r.type ?? null,
     genres: r.genres?.map((g) => g.name) ?? [],
     // Specials are season 0 on TMDB; the app lists them last, and so do we.
@@ -553,5 +566,87 @@ export async function seriesPage(id: number, region = RATING_FALLBACK): Promise<
       .slice(0, 15)
       .map((x) => ({ id: x.id, title: x.name, year: (x.first_air_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w342") })),
     watch: whereToWatch(r, region),
+  };
+}
+
+// ---- A person's page ----
+
+export interface PersonCredit {
+  kind: "movie" | "show";
+  id: number;
+  title: string;
+  /** "YYYY-MM-DD", or "" when TMDB has no date yet. */
+  date: string;
+  poster: string | null;
+  /** What they did on it: "Director", "Creator", or the character played. */
+  role: string;
+}
+
+export interface PersonPage {
+  id: number;
+  name: string;
+  photo: string | null;
+  knownFor: string;
+  biography: string;
+  born: string | null;
+  place: string | null;
+  directed: PersonCredit[];
+  acted: PersonCredit[];
+}
+
+type RawCombined = {
+  id: number;
+  media_type: "movie" | "tv";
+  title?: string;
+  name?: string;
+  release_date?: string;
+  first_air_date?: string;
+  poster_path?: string | null;
+  job?: string;
+  character?: string;
+  episode_count?: number;
+  popularity?: number;
+};
+
+export async function personPage(id: number): Promise<PersonPage | null> {
+  const r = await tmdb<{
+    id: number;
+    name: string;
+    profile_path?: string | null;
+    known_for_department?: string;
+    biography?: string;
+    birthday?: string | null;
+    place_of_birth?: string | null;
+    combined_credits?: { cast: RawCombined[]; crew: RawCombined[] };
+  }>(`/person/${id}`, { append_to_response: "combined_credits" });
+  if (!r) return null;
+  const one = (c: RawCombined, role: string): PersonCredit => ({
+    kind: c.media_type === "tv" ? "show" : "movie",
+    id: c.id,
+    title: c.title ?? c.name ?? "",
+    date: c.release_date ?? c.first_air_date ?? "",
+    poster: image.poster(c.poster_path, "w342"),
+    role,
+  });
+  // Newest first, with what's still to come (no date, or a date ahead) on top.
+  const order = (a: PersonCredit, b: PersonCredit) => (b.date || "9999").localeCompare(a.date || "9999");
+  const unique = (xs: PersonCredit[]) => xs.filter((x, i) => xs.findIndex((y) => y.kind === x.kind && y.id === x.id) === i);
+  const crew = r.combined_credits?.crew ?? [];
+  const directed = unique(
+    crew
+      .filter((c) => c.job === "Director" || c.job === "Creator" || c.job === "Series Director")
+      .map((c) => one(c, c.job === "Creator" ? "Creator" : "Director")),
+  ).sort(order);
+  const acted = unique((r.combined_credits?.cast ?? []).filter((c) => !(c.media_type === "tv" && (c.episode_count ?? 0) < 2 && !c.character)).map((c) => one(c, c.character ?? ""))).sort(order);
+  return {
+    id: r.id,
+    name: r.name,
+    photo: r.profile_path ? `${IMG}/h632${r.profile_path}` : null,
+    knownFor: r.known_for_department ?? "",
+    biography: r.biography ?? "",
+    born: r.birthday ?? null,
+    place: r.place_of_birth ?? null,
+    directed,
+    acted,
   };
 }
