@@ -111,16 +111,19 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             side={<TitleCredits flat cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} airing={page.airing} />}
           />
         </div>
-        {/* Under it, at the About card's width: Your take and the reviews. */}
-        <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <div className="grid gap-8 min-w-0">
-          {/* Their own take on it, as the app calls it: rating, moods, tags,
-              the review and the private note. */}
+        {/* Their own take on it, as the app calls it, across the page's
+            full width so its parts sit side by side: the rating beside the
+            moods, the review beside the note and tags. */}
+        <div className="mt-8">
           <Section title="Your take" small>
             <SectionCard>
               <YourReview kind="show" title={{ key: `s${showID}`, kind: "show", title: show.name, href: `/show/${showID}`, poster: image.poster(show.poster_path, "w342"), backdrop: image.backdrop(show.backdrop_path), year: (show.first_air_date ?? "").slice(0, 4) }} />
             </SectionCard>
           </Section>
+        </div>
+        {/* Under it, at the About card's width: the reviews. */}
+        <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="grid gap-8 min-w-0">
           <ReviewsSection reviews={reviews} />
           {/* The season list, the same width as the reviews above it. */}
           {seasons.length > 0 && (

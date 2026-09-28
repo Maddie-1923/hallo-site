@@ -70,8 +70,12 @@ export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"
 
   return (
     <div className="grid gap-2">
+      {/* Two rows on a wide screen: the rating as wide as its stars, the
+          moods beside it; then the review, with the note and tags beside it.
+          On a narrower one, each card under the last. */}
+      <div className="grid gap-2 lg:grid-cols-[auto_minmax(0,1fr)]">
       {/* The rating: ten stars, a press on a star's left half sets the half. */}
-      <div className={card}>
+      <div className={card + " content-start"}>
         <div className="flex items-center justify-between">
           <span className={heading}>Rate this {what}</span>
           {rating != null && (
@@ -103,7 +107,7 @@ export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"
           <div className={heading}>How did it make you feel?</div>
           <div className="mt-0.5 text-[12px] text-dim">Pick up to 3</div>
         </div>
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-[6px] max-w-[540px]">
+        <div className="grid grid-cols-4 sm:grid-cols-6 xl:grid-cols-12 gap-[6px]">
           {MOODS.map(([emoji, label]) => {
             const on = moods.includes(label);
             const full = !on && moods.length >= 3;
@@ -129,8 +133,11 @@ export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"
         </div>
       </div>
 
+      </div>
+
+      <div className="grid gap-2 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       {/* The review itself: what everyone else reads. */}
-      <div className={card}>
+      <div className={card + " content-start"}>
         <div className={heading}>Your review</div>
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} placeholder={`What did you think of this ${what}?`} className={`${field} resize-y min-h-[96px]`} />
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink">
@@ -149,6 +156,7 @@ export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"
         </div>
       </div>
 
+      <div className="grid gap-2 content-start">
       {/* The note: the app's private one, never shown to anyone else. */}
       <div className="rounded-shell bg-piece p-3 flex items-start gap-2.5">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-[3px] shrink-0 text-dim">
@@ -186,6 +194,9 @@ export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"
             </form>
           )}
         </div>
+      </div>
+
+      </div>
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-1">

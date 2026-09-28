@@ -91,14 +91,19 @@ export default async function EpisodePage({ params }: Params) {
             side={(ep.cast.length > 0 || ep.crew.length > 0) && <TitleCredits flat cast={ep.cast} crew={ep.crew} />}
           />
         </div>
-        {/* Under it, at the About card's width: Your take and the reviews. */}
+        {/* Their own take on it, as the app calls it, across the page's
+            full width so its parts sit side by side: the rating beside the
+            moods, the review beside the note and tags. */}
+        <div className="mt-8">
+          <Section title="Your take" small>
+            <SectionCard>
+              <YourReview kind="episode" title={{ key: `e${key}`, kind: "show", title: `${show.show.name} ${code(ep.season, ep.episode)}`, href: `/show/${showID}/season/${ep.season}/episode/${ep.episode}`, poster: image.poster(show.show.poster_path, "w342"), backdrop: ep.still, year: (ep.airDate ?? "").slice(0, 4) }} />
+            </SectionCard>
+          </Section>
+        </div>
+        {/* Under it, at the About card's width: the reviews. */}
         <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="grid gap-8 min-w-0">
-            <Section title="Your take" small>
-              <SectionCard>
-                <YourReview kind="episode" title={{ key: `e${key}`, kind: "show", title: `${show.show.name} ${code(ep.season, ep.episode)}`, href: `/show/${showID}/season/${ep.season}/episode/${ep.episode}`, poster: image.poster(show.show.poster_path, "w342"), backdrop: ep.still, year: (ep.airDate ?? "").slice(0, 4) }} />
-              </SectionCard>
-            </Section>
             <ReviewsSection reviews={[]} />
           </div>
         </div>

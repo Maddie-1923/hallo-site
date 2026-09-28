@@ -87,16 +87,19 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
             side={<TitleCredits flat cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} releases={page.releases} />}
           />
         </div>
-        {/* Under it, at the About card's width: Your take and the reviews. */}
-        <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <div className="grid gap-8 min-w-0">
-          {/* Their own take on it, as the app calls it: rating, moods, tags,
-              the review and the private note. */}
+        {/* Their own take on it, as the app calls it, across the page's
+            full width so its parts sit side by side: the rating beside the
+            moods, the review beside the note and tags. */}
+        <div className="mt-8">
           <Section title="Your take" small>
             <SectionCard>
               <YourReview kind="movie" title={{ key: `m${movieID}`, kind: "movie", title: movie.title, href: `/movie/${movieID}`, poster: image.poster(movie.poster_path, "w342"), backdrop: image.backdrop(movie.backdrop_path), year: (movie.release_date ?? "").slice(0, 4) }} />
             </SectionCard>
           </Section>
+        </div>
+        {/* Under it, at the About card's width: the reviews. */}
+        <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="grid gap-8 min-w-0">
           <ReviewsSection reviews={reviews} />
           </div>
         </div>
