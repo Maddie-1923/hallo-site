@@ -10,8 +10,8 @@ import { HeadingPill, SectionCard } from "./TitleParts";
 // All episodes on a show's page, with a small episode page beside the list:
 // pressing an episode shows its still, its name and code, when it aired, how
 // long it runs, its rating, who directed it and what happens, and the way on
-// to its own page. It stays in view while the list scrolls past. On a phone
-// it comes under the list.
+// to its own page. It stays at the top beside the list, where it starts. On
+// a phone it comes under the list.
 export function SeasonBrowser({ showID, seasons, watched, open }: { showID: number; seasons: { number: number; name: string; count: number }[]; watched: string[]; open: number }) {
   const [ep, setEp] = useState<SeasonEpisode | null>(null);
   const key = ep ? `${showID}-${ep.season}-${ep.episode}` : null;
@@ -26,7 +26,7 @@ export function SeasonBrowser({ showID, seasons, watched, open }: { showID: numb
         </SectionCard>
       </section>
       {/* The notch's 8px from the list, as the keys are from About above. */}
-      <section className="lg:pl-2 lg:sticky lg:top-24 grid grid-cols-[minmax(0,1fr)] gap-2 content-start min-w-0">
+      <section className="lg:pl-2 grid grid-cols-[minmax(0,1fr)] gap-2 content-start min-w-0">
         <div>
           <HeadingPill small>{ep ? code(ep.season, ep.episode) : "Episode"}</HeadingPill>
         </div>
