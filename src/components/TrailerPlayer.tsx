@@ -70,7 +70,8 @@ export function TrailerCard({ video }: { video: Video }) {
 }
 
 /** More trailers than fit: two across (most of the width on a phone), the
-    rest along the row, with a chevron at each end to move a pair at a time. */
+    rest along the row, with a chevron at each end to move a pair at a time;
+    the right one, at the end, goes back to the start. */
 export function TrailerRail({ videos }: { videos: Video[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [ends, setEnds] = useState({ start: true, end: true });
@@ -86,7 +87,14 @@ export function TrailerRail({ videos }: { videos: Video[] }) {
       window.removeEventListener("resize", read);
     };
   }, [videos.length]);
-  const go = (dir: 1 | -1) => ref.current?.scrollBy({ left: dir * (ref.current.clientWidth + 8), behavior: "smooth" });
+  // Right from the last pair goes back to the first, as the cast and
+  // home rows do.
+  const go = (dir: 1 | -1) => {
+    const el = ref.current;
+    if (!el) return;
+    if (dir === 1 && ends.end) el.scrollTo({ left: 0, behavior: "smooth" });
+    else el.scrollBy({ left: dir * (el.clientWidth + 8), behavior: "smooth" });
+  };
   // Halfway down the pictures, the name line under them left out.
   const arrow = "absolute top-[calc(50%-14px)] -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card/90 backdrop-blur border border-hair text-ink shadow-[0_6px_18px_rgba(0,0,0,.4)] flex items-center justify-center cursor-pointer hover:bg-piece transition-colors";
   return (
@@ -105,7 +113,7 @@ export function TrailerRail({ videos }: { videos: Video[] }) {
           </svg>
         </button>
       )}
-      {!ends.end && (
+      {!(ends.start && ends.end) && (
         <button type="button" onClick={() => go(1)} aria-label="More trailers" className={`${arrow} right-2`}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M9 5l7 7-7 7" />
