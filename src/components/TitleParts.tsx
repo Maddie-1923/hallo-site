@@ -160,13 +160,14 @@ export function WhereToWatchSection({ watch }: { watch: WhereToWatch }) {
   );
 }
 
-/** The trailer: its YouTube picture with a play mark, going to YouTube. */
+/** The trailer: its YouTube picture with a play mark, going to YouTube. The
+    picture's corners follow the card's (20px, less the card's 8px inset). */
 export function TrailerSection({ id }: { id: string }) {
   return (
     <Section title="Trailer">
       <SectionCard>
         <a href={`https://www.youtube.com/watch?v=${id}`} target="_blank" rel="noreferrer" className="group block no-underline text-ink">
-          <span className="relative block aspect-video rounded-[8px] overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
+          <span className="relative block aspect-video rounded-[12px] overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
             <span className="absolute inset-0 flex items-center justify-center">
