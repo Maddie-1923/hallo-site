@@ -71,9 +71,11 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
 
   return (
     <div className="grid gap-2">
-      {/* On a wide screen, one row of the rating (as wide as its stars),
-          the moods, and the note over the tags; then the review under them
-          across the width. On a narrower one, each card under the last. */}
+      {/* On a wide screen, two rows on three columns: the rating (as wide
+          as its stars), the moods and the tags; then the review under the
+          first two and the note beside it, as tall as the review, scrolling
+          inside rather than stretching it. On a narrower one, each card
+          under the last. */}
       <div className="grid gap-2 lg:grid-cols-[auto_minmax(0,5fr)_minmax(0,4fr)]">
       {/* The rating: ten stars, a press on a star's left half sets the half. */}
       <div className={card + " content-start"}>
@@ -131,16 +133,10 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
         </div>
       </div>
 
-      {/* Tags over the note, in the row's height (the rating and moods set
-      it): the tags as tall as one line of chips needs, up to two before
-      they scroll, and the note the rest, scrolling inside. Neither
-      stretches the row. */}
-      <div className="relative lg:min-h-[150px]">
-      <div className="lg:absolute lg:inset-0 grid gap-2 lg:grid-rows-[auto_minmax(0,1fr)]">
       {/* Tags: chips, and a dashed one to add another. */}
-      <div className={card}>
+      <div className={card + " content-start"}>
         <div className={heading}>Tags</div>
-        <div className="soft-scroll flex flex-wrap content-start gap-2 max-h-[64px] overflow-y-auto p-[2px] -m-[2px]">
+        <div className="soft-scroll flex flex-wrap content-start gap-2 max-h-[96px] overflow-y-auto p-[2px] -m-[2px]">
           {tags.map((t) => (
             <button key={t} type="button" onClick={() => setTags((ts) => ts.filter((x) => x !== t))} title="Remove" className="rounded-full border border-[color:color-mix(in_srgb,var(--ink)_18%,transparent)] px-[10px] py-[6px] text-[12px] font-semibold text-ink leading-none cursor-pointer">
               {t}
@@ -165,21 +161,8 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
         </div>
       </div>
 
-      {/* The note: the app's private one, never shown to anyone else. */}
-      <div className="rounded-shell bg-piece p-3 flex items-start gap-2.5 max-lg:h-[132px] min-h-0">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-[3px] shrink-0 text-dim">
-          <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
-        </svg>
-        <div className="min-w-0 flex-1 h-full flex flex-col">
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder={`Note on this ${what}: only you can see it`} className="soft-scroll flex-1 min-h-0 w-full bg-transparent text-[12.5px] leading-[1.6] text-ink placeholder:text-dim resize-none focus:outline-none overflow-y-auto" />
-        </div>
-      </div>
-      </div>
-      </div>
-      </div>
-
       {/* The review itself: what everyone else reads. */}
-      <div className={card + " content-start"}>
+      <div className={card + " content-start lg:col-span-2"}>
         <div className={heading}>Your review</div>
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} placeholder={`What did you think of this ${what}?`} className={`${field} resize-y min-h-[96px]`} />
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink">
@@ -196,6 +179,19 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
             <WatchedOn value={watchedOn} onChange={setWatchedOn} out={out ? { label: kind === "movie" ? "Release day" : kind === "episode" ? "Air date" : "First aired", date: out } : null} />
           </span>
         </div>
+      </div>
+
+      {/* The note: the app's private one, never shown to anyone else. */}
+      <div className="relative max-lg:h-[132px]">
+      <div className="absolute inset-0 rounded-shell bg-piece p-3 flex items-start gap-2.5">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-[3px] shrink-0 text-dim">
+          <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
+        </svg>
+        <div className="min-w-0 flex-1 h-full flex flex-col">
+          <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder={`Note on this ${what}: only you can see it`} className="soft-scroll flex-1 min-h-0 w-full bg-transparent text-[12.5px] leading-[1.6] text-ink placeholder:text-dim resize-none focus:outline-none overflow-y-auto" />
+        </div>
+      </div>
+      </div>
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-1">
