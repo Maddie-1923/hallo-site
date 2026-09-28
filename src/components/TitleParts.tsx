@@ -232,11 +232,11 @@ export function CastRail({ cast }: { cast: CastMember[] }) {
   );
 }
 
-/** The cast as a grid of the same tiles, as many across as fit, for the
-    credits tabs where the list scrolls down rather than along. */
+/** The cast as a grid of the same tiles, five across (three on a phone),
+    for the credits tabs where the list scrolls down rather than along. */
 export function CastGrid({ cast }: { cast: CastMember[] }) {
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3">
+    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
       {cast.map((p) => (
         <div key={`${p.id}-${p.character}`} className="min-w-0 rounded-[16px] bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
           <CastTile p={p} />
