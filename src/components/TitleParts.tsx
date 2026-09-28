@@ -52,7 +52,9 @@ export function HeaderCard({
   overview,
   children,
 }: {
-  art: string | null;
+  /** The wide artwork at the card's head, as the app has it; left out when
+      the page shows the picture as a banner across the top instead. */
+  art?: string | null;
   title: string;
   subtitle?: string;
   facts: { label: string; value: React.ReactNode; accent?: boolean }[];
@@ -61,12 +63,14 @@ export function HeaderCard({
 }) {
   return (
     <div className="rounded-[20px] bg-card p-2 grid gap-2">
-      <div className="aspect-video rounded-[14px] overflow-hidden bg-piece border-[0.5px] border-[color:color-mix(in_srgb,var(--dim)_35%,transparent)]">
-        {art && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={art} alt="" className="w-full h-full object-cover" />
-        )}
-      </div>
+      {art !== undefined && (
+        <div className="aspect-video rounded-[14px] overflow-hidden bg-piece border-[0.5px] border-[color:color-mix(in_srgb,var(--dim)_35%,transparent)]">
+          {art && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={art} alt="" className="w-full h-full object-cover" />
+          )}
+        </div>
+      )}
       <div className="rounded-[12px] bg-piece p-3">
         <h1 className="!text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase">{title}</h1>
         {subtitle && <div className="display mt-0.5 text-[22px] leading-none tracking-[.03em] uppercase">{subtitle}</div>}
@@ -223,5 +227,19 @@ export function MoreLikeThisSection({ items, kind }: { items: Movie[]; kind: "mo
         ))}
       </Rail>
     </Section>
+  );
+}
+
+/** The title's picture across the top of its page, the way a profile's
+    banner is drawn: the whole width, rounded, the full-size picture. The
+    crop keeps the upper part, where faces usually are. */
+export function TitleBanner({ art }: { art: string | null }) {
+  return (
+    <div className="relative overflow-hidden rounded-[28px] h-[clamp(300px,40vw,540px)] bg-card">
+      {art && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={art} alt="" className="absolute inset-0 w-full h-full object-cover object-[center_25%]" />
+      )}
+    </div>
   );
 }

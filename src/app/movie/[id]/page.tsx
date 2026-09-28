@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { TitleActivity } from "@/components/TitleActivity";
-import { CastSection, HeaderCard, MoreLikeThisSection, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { CastSection, HeaderCard, MoreLikeThisSection, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { FilmTray } from "@/components/FilmTray";
 import { optionalLibrary } from "@/lib/library";
 import { filmPage, image } from "@/lib/tmdb";
@@ -45,9 +45,12 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
-      <main className="w-full max-w-[1240px] mx-auto px-[clamp(16px,3.2vw,48px)] pt-6 pb-20 flex-1">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-start">
-          <HeaderCard art={image.backdrop(movie.backdrop_path) ?? image.poster(movie.poster_path, "w780")} title={movie.title} facts={facts} overview={movie.overview ?? null}>
+      {/* Laid out like the profile: the picture as a banner across the whole
+          width, then two columns on the same widths as the profile's. */}
+      <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
+        <TitleBanner art={image.banner(movie.backdrop_path) ?? image.poster(movie.poster_path, "w780")} />
+        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
+          <HeaderCard title={movie.title} facts={facts} overview={movie.overview ?? null}>
             <FilmTray tracked={!!tracked} watched={watched} loved={loved} signedIn={lib.signedIn} />
           </HeaderCard>
           <div className="grid gap-4">
