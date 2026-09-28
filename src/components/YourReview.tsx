@@ -131,15 +131,16 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
         </div>
       </div>
 
-      {/* Tags over the note, each a fixed half of the row's height (the
-      rating and moods set it): a long note or many tags scroll inside
-      rather than stretching the row. */}
+      {/* Tags over the note, in the row's height (the rating and moods set
+      it): the tags as tall as one line of chips needs, up to two before
+      they scroll, and the note the rest, scrolling inside. Neither
+      stretches the row. */}
       <div className="relative lg:min-h-[150px]">
-      <div className="lg:absolute lg:inset-0 grid gap-2 lg:grid-rows-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="lg:absolute lg:inset-0 grid gap-2 lg:grid-rows-[auto_minmax(0,1fr)]">
       {/* Tags: chips, and a dashed one to add another. */}
-      <div className={card + " grid-rows-[auto_minmax(0,1fr)] max-lg:h-[110px] min-h-0"}>
+      <div className={card}>
         <div className={heading}>Tags</div>
-        <div className="soft-scroll flex flex-wrap content-start gap-2 min-h-0 overflow-y-auto">
+        <div className="soft-scroll flex flex-wrap content-start gap-2 max-h-[64px] overflow-y-auto p-[2px] -m-[2px]">
           {tags.map((t) => (
             <button key={t} type="button" onClick={() => setTags((ts) => ts.filter((x) => x !== t))} title="Remove" className="rounded-full border border-[color:color-mix(in_srgb,var(--ink)_18%,transparent)] px-[10px] py-[6px] text-[12px] font-semibold text-ink leading-none cursor-pointer">
               {t}
