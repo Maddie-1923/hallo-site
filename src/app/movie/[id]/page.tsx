@@ -69,7 +69,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
               the review and the private note. */}
           <Section title="Your take">
             <SectionCard>
-              <YourReview kind="movie" />
+              <YourReview kind="movie" title={{ key: `m${movieID}`, kind: "movie", title: movie.title, href: `/movie/${movieID}`, poster: image.poster(movie.poster_path, "w342"), backdrop: image.backdrop(movie.backdrop_path), year: (movie.release_date ?? "").slice(0, 4) }} />
             </SectionCard>
           </Section>
           <ReviewsSection reviews={reviews} />

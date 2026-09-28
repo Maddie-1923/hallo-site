@@ -10,6 +10,7 @@ import { MarkTip } from "./MarkTip";
 import { Menu } from "./Menu";
 import { ReviewSheet } from "./ReviewSheet";
 import { useLiveWatches, type LiveWatch } from "@/lib/live-watches";
+import { takesAsEntries } from "@/lib/local-takes";
 
 // The month cards' lettering: set at 12px and 11px, drawn at 78% of that
 // (about 9.4px and 8.6px). TEXT_HEIGHT is the block's unscaled height: the
@@ -38,7 +39,14 @@ export function ProfileDiary({ entries: logged, owner = false, username = "", av
   // away, a show's episodes from one day as one entry, the way the log
   // groups them.
   const live = useLiveWatches();
-  const entries = useMemo(() => [...liveEntries(live), ...logged], [live, logged]);
+  // And what they saved in Your take on a title's page, from this browser
+  // (the owner's own log only), read after mount.
+  const [takes, setTakes] = useState<DiaryEntry[]>([]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (owner) setTakes(takesAsEntries());
+  }, [owner]);
+  const entries = useMemo(() => [...takes, ...liveEntries(live), ...logged], [takes, live, logged]);
   const now = new Date();
   const thisYear = String(now.getFullYear());
   const [kind, setKind] = useState<"all" | "movie" | "show">("all");
