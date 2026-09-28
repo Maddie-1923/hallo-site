@@ -22,8 +22,9 @@ export interface WideItem {
 
 // A home-page row the way Netflix sets one: landscape cards, about four
 // across with the next one peeking in at the edge to say there is more, and
-// arrows that appear on the row's edges when the pointer is over it. The
-// arrows wrap: past the end goes back to the start. On a phone it is a swipe.
+// the round chevrons the title pages' rails have, halfway down its sides:
+// right moves on by the whole cards in view and past the end goes back to
+// the start; left appears once the row has moved. On a phone it is a swipe.
 //
 // Each card is the title's backdrop with its logo artwork over the lower left,
 // the way a streaming service shows its catalogue; a title with no logo gets
@@ -55,8 +56,11 @@ export function WideRow({ title, href, items, lists = [] }: { title: string; hre
     const el = strip.current;
     if (!el) return;
     if (dir === 1 && edges.end) return el.scrollTo({ left: 0, behavior: "smooth" });
-    if (dir === -1 && edges.start) return el.scrollTo({ left: el.scrollWidth, behavior: "smooth" });
-    el.scrollBy({ left: dir * el.clientWidth * 0.92, behavior: "smooth" });
+    // The whole cards in view: the peeking one leads the next.
+    const first = el.firstElementChild as HTMLElement | null;
+    const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
+    const card = first ? first.offsetWidth + gap : el.clientWidth;
+    el.scrollBy({ left: dir * Math.max(1, Math.floor((el.clientWidth + gap) / card)) * card, behavior: "smooth" });
   }
 
   if (items.length === 0) return null;
@@ -120,7 +124,7 @@ export function WideRow({ title, href, items, lists = [] }: { title: string; hre
 
         {edges.scrollable && (
           <>
-            <EdgeArrow dir={-1} onClick={() => page(-1)} label={`Scroll ${title} back`} />
+            {!edges.start && <EdgeArrow dir={-1} onClick={() => page(-1)} label={`Scroll ${title} back`} />}
             <EdgeArrow dir={1} onClick={() => page(1)} label={`Scroll ${title} forward`} />
           </>
         )}
@@ -135,9 +139,9 @@ function EdgeArrow({ dir, onClick, label }: { dir: 1 | -1; onClick: () => void; 
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={`hidden sm:flex absolute top-0 bottom-0 ${dir === 1 ? "-right-[clamp(16px,3.2vw,64px)] rounded-l-[8px]" : "-left-[clamp(16px,3.2vw,64px)] rounded-r-[8px]"} w-[clamp(16px,3.2vw,64px)] items-center justify-center bg-black/45 text-white opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer`}
+      className={`hidden sm:flex absolute top-1/2 -translate-y-1/2 z-10 ${dir === 1 ? "right-2" : "left-2"} w-10 h-10 rounded-full bg-card/90 backdrop-blur border border-hair text-ink shadow-[0_6px_18px_rgba(0,0,0,.4)] items-center justify-center cursor-pointer hover:bg-piece transition-colors`}
     >
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d={dir === 1 ? "M9 5l7 7-7 7" : "M15 5l-7 7 7 7"} />
       </svg>
     </button>

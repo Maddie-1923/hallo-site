@@ -54,6 +54,16 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
     page.certification && { label: "Rated", value: page.certification },
     page.episodeRuntime && { label: "Episode", value: `${page.episodeRuntime}m` },
     show.vote_average && { label: "TMDB", value: show.vote_average.toFixed(1) },
+    // As a film's Released date opens its Releases tab, the first air date
+    // opens Air dates.
+    show.first_air_date && {
+      label: "First aired",
+      value: (
+        <a href="#air-dates" className="text-accent no-underline hover:underline">
+          {longDate(show.first_air_date)} →
+        </a>
+      ),
+    },
     tracked && { label: "Progress", value: left > 0 ? `${left} episodes left` : "Up to date", accent: true },
   ].filter(Boolean) as { label: string; value: React.ReactNode; accent?: boolean }[];
 
