@@ -16,7 +16,7 @@ export function ExpandableText({ text }: { text: string }) {
     <p
       ref={ref}
       onClick={() => overflows && setOpen((o) => !o)}
-      className={`m-0 text-[15px] leading-[1.45] text-mid-tone ${open ? "" : "line-clamp-3"} ${overflows ? "cursor-pointer" : ""}`}
+      className={`m-0 text-[12.5px] leading-[1.6] text-mid-tone ${open ? "" : "line-clamp-3"} ${overflows ? "cursor-pointer" : ""}`}
     >
       {text}
     </p>

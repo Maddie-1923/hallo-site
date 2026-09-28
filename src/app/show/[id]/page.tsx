@@ -80,7 +80,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
               overview={show.overview ?? null}
               factsFooter={
                 (page.lastAired || badge) && (
-                  <div className="flex items-center justify-between gap-3 text-[15px] text-dim">
+                  <div className="flex items-center justify-between gap-3 text-[12.5px] text-dim">
                     <span>{page.lastAired ? `Last aired ${longDate(page.lastAired)}` : ""}</span>
                     {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING" || badge.label === "PILOT"} />}
                   </div>

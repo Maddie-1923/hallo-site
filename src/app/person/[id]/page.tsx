@@ -49,7 +49,7 @@ export default async function PersonPage({ params }: PageProps<"/person/[id]">) 
               {facts.length > 0 && (
                 <div className="mt-2.5 border-t border-hair">
                   {facts.map((f, i) => (
-                    <div key={f.label} className={`flex items-baseline justify-between gap-4 py-[9px] text-[15px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
+                    <div key={f.label} className={`flex items-baseline justify-between gap-4 py-[8px] text-[12.5px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
                       <span className="text-dim shrink-0">{f.label}</span>
                       <span className="text-right min-w-0 text-ink">{f.value}</span>
                     </div>
