@@ -108,6 +108,14 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             </SectionCard>
           </Section>
           <ReviewsSection reviews={reviews} />
+          {/* The season list, the same width as the reviews above it. */}
+          {seasons.length > 0 && (
+            <Section title="All episodes" tight>
+              <SectionCard>
+                <SeasonList showID={showID} seasons={seasons} watched={watched} open={openSeason} />
+              </SectionCard>
+            </Section>
+          )}
           </div>
           <div className="grid gap-4">
             {/* What can be done with it, above the trailer, its top level with
@@ -121,13 +129,6 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           </div>
         </div>
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
-          {seasons.length > 0 && (
-            <Section title="All episodes" tight>
-              <SectionCard>
-                <SeasonList showID={showID} seasons={seasons} watched={watched} open={openSeason} />
-              </SectionCard>
-            </Section>
-          )}
           {/* Cast, crew, details, genres and air dates, as tabs. */}
           <TitleCredits cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} airing={page.airing} />
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" />}
