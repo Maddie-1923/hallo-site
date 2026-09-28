@@ -183,7 +183,7 @@ export function YourReview({ kind, title }: { kind: "movie" | "show"; title: Pro
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-1">
-        {said && <span className="text-[12px] text-dim">Saved in this browser: it shows in your Watchlog. Saving to your account opens with accounts.</span>}
+        {said && <span className="text-[12px] text-dim">Submitted in this browser: it shows in your Watchlog. Sending it to your account opens with accounts.</span>}
         <button type="button" onClick={save} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold cursor-pointer hover:brightness-110">
           Submit
         </button>
