@@ -1,131 +1,117 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
-import { Poster } from "@/components/Poster";
-import { TrackControls } from "@/components/TrackControls";
-import { EpisodeList } from "@/components/EpisodeList";
-import { CastRow, Hero } from "@/components/TitleHero";
 import { TitleActivity } from "@/components/TitleActivity";
-import { SeriesBadge } from "@/components/SeriesBadge";
+import { CastSection, HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { ShowTray } from "@/components/ShowTray";
+import { SeasonList } from "@/components/SeasonList";
+import { seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
-import { seasonEpisodes, showDetail } from "@/lib/tmdb";
-import { year } from "@/lib/archive";
+import { image, seriesPage } from "@/lib/tmdb";
+import { visitorRegion } from "@/lib/region";
 
+// A series' page, laid out like the film page and the profile (the picture
+// as a banner across the top, then two columns), with the pieces of the
+// app's show screen (ShowDetailView): the header card with the title, how
+// many seasons and episodes, the facts, the last-aired line and the series
+// pill, the overview and the five keys; Where to watch and the trailer
+// beside it; then All episodes, the cast and more like this.
 export async function generateMetadata({ params }: PageProps<"/show/[id]">): Promise<Metadata> {
   const { id } = await params;
-  const d = await showDetail(Number(id));
+  const d = await seriesPage(Number(id));
   return { title: d ? `${d.show.name} — Kodigo` : "Show — Kodigo" };
 }
 
-export default async function ShowPage({ params, searchParams }: PageProps<"/show/[id]">) {
+export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   const { id } = await params;
-  const sp = await searchParams;
   const showID = Number(id);
   if (!Number.isInteger(showID)) notFound();
 
-  const [detail, lib] = await Promise.all([showDetail(showID), optionalLibrary()]);
-  if (!detail) notFound();
-  const { show } = detail;
+  const region = await visitorRegion();
+  const [page, lib] = await Promise.all([seriesPage(showID, region), optionalLibrary()]);
+  if (!page) notFound();
+  const { show } = page;
 
   const tracked = lib.archive?.shows.find((s) => s.show.id === showID) ?? null;
   const watched = lib.archive?.watched.filter((k) => k.startsWith(`${showID}-`)) ?? [];
+  const loved = lib.archive?.reactions?.[`show:${showID}`] === "loved";
 
-  const requested = typeof sp.season === "string" ? Number(sp.season) : NaN;
-  const seasonNumbers = detail.seasons.map((s) => s.season_number);
-  // Open on the season with the next unwatched episode when the show is
-  // tracked, the way the app does; otherwise the first.
-  const defaultSeason = (() => {
-    if (Number.isInteger(requested) && seasonNumbers.includes(requested)) return requested;
-    if (tracked && watched.length) {
-      const seen = watched.map((k) => Number(k.split("-")[1]));
-      return Math.max(...seen);
-    }
-    return seasonNumbers[0] ?? 1;
-  })();
-  const episodes = seasonNumbers.length ? await seasonEpisodes(showID, defaultSeason) : [];
-
+  // The facts, in the app's order, each only when there is something to say;
+  // a tracked show adds how far along it is, in the accent.
+  const left = page.episodeCount - watched.length;
   const facts = [
-    year(show.first_air_date),
-    detail.seasonCount ? `${detail.seasonCount} season${detail.seasonCount === 1 ? "" : "s"}` : "",
-    detail.episodeCount ? `${detail.episodeCount} episodes` : "",
-    show.status ?? "",
-    detail.networks[0] ?? "",
-  ].filter(Boolean);
+    page.genres.length > 0 && { label: "Genres", value: page.genres.join(" · ") },
+    show.first_air_date && { label: "Year", value: show.first_air_date.slice(0, 4) },
+    page.certification && { label: "Rated", value: page.certification },
+    page.episodeRuntime && { label: "Episode", value: `${page.episodeRuntime}m` },
+    show.vote_average && { label: "TMDB", value: show.vote_average.toFixed(1) },
+    tracked && { label: "Progress", value: left > 0 ? `${left} episodes left` : "Up to date", accent: true },
+  ].filter(Boolean) as { label: string; value: string; accent?: boolean }[];
+
+  const badge = seriesBadge(show.status, page.type);
+  const seasons = page.seasons.map((s) => ({ number: s.season_number, name: s.name, count: s.episode_count }));
+  // Open on the season they are up to, as the app does, else the first.
+  const upTo = watched.length ? Math.max(...watched.map((k) => Number(k.split("-")[1]))) : null;
+  const openSeason = upTo ?? seasons[0]?.number ?? 1;
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <SiteNav />
-      <Hero backdrop={show.backdrop_path}>
-        <div className="w-[160px] sm:w-[200px] shrink-0">
-          <Poster path={show.poster_path} alt={show.name} />
-        </div>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2.5">
-            <span className="eyebrow">Show</span>
-            <SeriesBadge status={show.status} />
+      <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
+        <TitleBanner art={image.banner(show.backdrop_path) ?? image.poster(show.poster_path, "w780")} />
+        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
+          <HeaderCard
+            title={show.name}
+            subtitle={[page.seasonCount && `${page.seasonCount} ${page.seasonCount === 1 ? "season" : "seasons"}`, page.episodeCount && `${page.episodeCount} episodes`].filter(Boolean).join(" · ")}
+            facts={facts}
+            overview={show.overview ?? null}
+            factsFooter={
+              (page.lastAired || badge) && (
+                <div className="flex items-center justify-between gap-3 text-[15px] text-dim">
+                  <span>{page.lastAired ? `Last aired ${longDate(page.lastAired)}` : ""}</span>
+                  {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING" || badge.label === "PILOT"} />}
+                </div>
+              )
+            }
+          >
+            <ShowTray tracked={!!tracked} loved={loved} allWatched={!!tracked && left <= 0} stopped={tracked?.status === "Dropped"} />
+          </HeaderCard>
+          <div className="grid gap-4">
+            {page.watch && <WhereToWatchSection watch={page.watch} />}
+            {page.trailer && <TrailerSection id={page.trailer} />}
           </div>
-          <h1 className="!text-[clamp(40px,7vw,72px)]">{show.name}</h1>
-          <p className="text-sm text-dim mt-3">{facts.join(" · ")}</p>
-          {detail.genres.length > 0 && <p className="text-sm text-dim mt-1">{detail.genres.join(", ")}</p>}
-          {detail.tagline && <p className="italic text-bone mt-4">{detail.tagline}</p>}
-          {show.overview && <p className="text-[15px] text-bone max-w-[64ch] mt-3">{show.overview}</p>}
-          <div className="mt-5">
-            <TrackControls kind="show" show={show} status={tracked?.status ?? null} signedIn={lib.signedIn} />
-          </div>
-          {tracked && (
-            <p className="text-xs text-dim mt-3">
-              {watched.length} of {detail.episodeCount || "?"} episodes watched
-            </p>
-          )}
-          {detail.nextEpisode && (
-            <p className="text-sm mt-3">
-              <span className="text-accent font-bold">Next:</span> S{detail.nextEpisode.season_number} E
-              {detail.nextEpisode.episode_number} · {detail.nextEpisode.name} · {detail.nextEpisode.air_date}
-            </p>
-          )}
-          {show.vote_average ? <p className="text-xs text-dim mt-3">TMDB {show.vote_average.toFixed(1)} / 10</p> : null}
         </div>
-      </Hero>
-
-      <main className="wrap flex-1 py-10">
-        {detail.cast.length > 0 && <CastRow cast={detail.cast} />}
-
-        {seasonNumbers.length > 0 && (
-          <section className="mt-10">
-            <div className="rule" />
-            <div className="eyebrow">Episodes</div>
-            <div className="flex gap-2 flex-wrap mb-4">
-              {detail.seasons.map((s) => {
-                const on = s.season_number === defaultSeason;
-                return (
-                  <Link
-                    key={s.id}
-                    href={`/show/${showID}?season=${s.season_number}`}
-                    scroll={false}
-                    className={`px-3.5 py-1.5 rounded-full border text-sm font-semibold no-underline ${
-                      on ? "bg-accent-fill text-on-accent border-accent-fill" : "border-hair text-dim hover:text-ink"
-                    }`}
-                    aria-current={on ? "true" : undefined}
-                  >
-                    {s.season_number === 0 ? "Specials" : `Season ${s.season_number}`}
-                  </Link>
-                );
-              })}
-            </div>
-            {!lib.signedIn && (
-              <p className="text-sm text-dim mb-3">
-                <Link href={`/login?next=/show/${showID}`} className="text-accent">Sign in</Link> to check episodes off.
-              </p>
-            )}
-            {lib.signedIn && !tracked && <p className="text-sm text-dim mb-3">Add the show to your library to check episodes off.</p>}
-            <EpisodeList showID={showID} episodes={episodes} watched={watched} canTrack={!!tracked} />
-          </section>
-        )}
-        <TitleActivity target={{ kind: "show", show }} archive={lib.archive} signedIn={lib.signedIn} />
+        <div className="mt-8 grid gap-8">
+          {seasons.length > 0 && (
+            <Section title="All episodes" tight>
+              <SectionCard>
+                <SeasonList showID={showID} seasons={seasons} watched={watched} open={openSeason} />
+              </SectionCard>
+            </Section>
+          )}
+          {page.cast.length > 0 && <CastSection cast={page.cast} />}
+          {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" />}
+          {lib.signedIn && <TitleActivity target={{ kind: "show", show }} archive={lib.archive} signedIn={lib.signedIn} />}
+        </div>
       </main>
       <SiteFooter />
-    </>
+    </div>
   );
+}
+
+// The app's series pill: small bold capitals on a rounded chip; blue for a
+// show still going, stone for one that has ended.
+function SeriesPill({ label, returning }: { label: string; returning: boolean }) {
+  return (
+    <span className={`shrink-0 rounded-[6px] px-1.5 py-[2px] text-[11px] font-bold tracking-[.04em] ${returning ? "bg-[#6FAECF] text-[#0D2E40]" : "bg-[#CFCAC0] text-[#3A3833]"}`}>
+      {label}
+    </span>
+  );
+}
+
+/** "23 September 2022". */
+function longDate(d: string) {
+  const [y, m, day] = d.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }

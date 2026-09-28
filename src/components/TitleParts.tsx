@@ -1,7 +1,5 @@
 import Link from "next/link";
-import type { Movie } from "@/lib/archive";
-import type { CastMember, WhereToWatch } from "@/lib/tmdb";
-import { image } from "@/lib/tmdb";
+import type { CastMember, RailTitle, WhereToWatch } from "@/lib/tmdb";
 import { ExpandableText } from "./ExpandableText";
 import { Glyph } from "./Glyph";
 
@@ -50,6 +48,7 @@ export function HeaderCard({
   subtitle,
   facts,
   overview,
+  factsFooter,
   children,
 }: {
   /** The wide artwork at the card's head, as the app has it; left out when
@@ -59,6 +58,8 @@ export function HeaderCard({
   subtitle?: string;
   facts: { label: string; value: React.ReactNode; accent?: boolean }[];
   overview: string | null;
+  /** A closing line under the facts (a show's "Last aired" and its pill). */
+  factsFooter?: React.ReactNode;
   children?: React.ReactNode;
 }) {
   return (
@@ -82,6 +83,7 @@ export function HeaderCard({
             </div>
           ))}
         </div>
+        {factsFooter && <div className="pt-[9px] border-t border-hair">{factsFooter}</div>}
       </div>
       {overview && (
         <div className="rounded-[12px] bg-piece p-3">
@@ -199,7 +201,7 @@ export function CastSection({ cast }: { cast: CastMember[] }) {
 }
 
 /** More like this: poster cards with the app's two keys under them. */
-export function MoreLikeThisSection({ items, kind }: { items: Movie[]; kind: "movie" }) {
+export function MoreLikeThisSection({ items, kind }: { items: RailTitle[]; kind: "movie" | "show" }) {
   return (
     <Section title="More like this">
       <Rail>
@@ -208,11 +210,11 @@ export function MoreLikeThisSection({ items, kind }: { items: Movie[]; kind: "mo
             <Link href={`/${kind}/${m.id}`} className="block rounded-[12px] bg-piece overflow-hidden no-underline text-ink group">
               <div className="aspect-[2/3] rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image.poster(m.poster_path, "w342") ?? ""} alt="" loading="lazy" className="w-full h-full object-cover" />
+                {m.poster && <img src={m.poster} alt="" loading="lazy" className="w-full h-full object-cover" />}
               </div>
               <div className="px-2.5 pt-2.5 pb-1">
                 <div className="text-[12px] leading-[15px] font-semibold truncate group-hover:text-accent transition-colors">{m.title}</div>
-                <div className="text-[12px] leading-[15px] text-dim">{(m.release_date ?? "").slice(0, 4)}</div>
+                <div className="text-[12px] leading-[15px] text-dim">{m.year}</div>
               </div>
             </Link>
             <div className="mt-2 flex gap-2">

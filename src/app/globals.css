@@ -27,6 +27,8 @@
   --lit-edge: #5d5951;
   --mid-tone: #bfbeb7;
   --track: #33322e;
+  /* `kodigoQuietFill`: an episode's band in a season list. */
+  --quiet: #47443e;
   --dim: #918e88;
   --hair: #42423f;
   --shows: #ffc300;
@@ -72,6 +74,7 @@
   --lit-edge: #fffdf6;
   --mid-tone: color-mix(in srgb, #1a1a19 78%, transparent);
   --track: #cfc8bb;
+  --quiet: #cfc8bb;
   --dim: #6b665d;
   --hair: #b4aea2;
   --movies: #a3122b;

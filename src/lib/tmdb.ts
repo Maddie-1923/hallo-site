@@ -415,7 +415,7 @@ export interface FilmPage {
   released: string | null;
   trailer: string | null;
   cast: CastMember[];
-  moreLikeThis: Movie[];
+  moreLikeThis: RailTitle[];
   watch: WhereToWatch | null;
 }
 
@@ -441,7 +441,70 @@ export async function filmPage(id: number, region = RATING_FALLBACK): Promise<Fi
     released: local ?? r.release_date ?? null,
     trailer: pickTrailer(r.videos),
     cast: (r.credits?.cast ?? []).slice(0, 15).map((p) => ({ id: p.id, name: p.name, character: p.character ?? "", photo: image.profile(p.profile_path) })),
-    moreLikeThis: (r.recommendations?.results ?? []).filter((x) => x.poster_path).slice(0, 15).map(toMovie),
+    moreLikeThis: (r.recommendations?.results ?? [])
+      .filter((x) => x.poster_path)
+      .slice(0, 15)
+      .map((x) => ({ id: x.id, title: x.title, year: (x.release_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w342") })),
+    watch: whereToWatch(r, region),
+  };
+}
+
+/** A card in a More like this rail, film or series. */
+export interface RailTitle {
+  id: number;
+  title: string;
+  year: string;
+  poster: string | null;
+}
+
+export interface SeriesPage {
+  show: Show;
+  type: string | null;
+  genres: string[];
+  seasons: RawSeason[];
+  seasonCount: number;
+  episodeCount: number;
+  /** Minutes an episode, when TMDB says. */
+  episodeRuntime: number | null;
+  certification: string | null;
+  lastAired: string | null;
+  trailer: string | null;
+  cast: CastMember[];
+  moreLikeThis: RailTitle[];
+  watch: WhereToWatch | null;
+}
+
+type RawSeriesPage = RawShow &
+  RawVideos &
+  RawProviders & {
+    episode_run_time?: number[];
+    last_air_date?: string | null;
+    content_ratings?: { results: { iso_3166_1: string; rating: string }[] };
+    recommendations?: { results: RawShow[] };
+    aggregate_credits?: { cast: { id: number; name: string; profile_path?: string | null; roles?: { character: string }[] }[] };
+  };
+
+export async function seriesPage(id: number, region = RATING_FALLBACK): Promise<SeriesPage | null> {
+  const r = await tmdb<RawSeriesPage>(`/tv/${id}`, { append_to_response: "credits,videos,recommendations,watch/providers,content_ratings" });
+  if (!r) return null;
+  const rating = (c: string) => r.content_ratings?.results.find((x) => x.iso_3166_1 === c)?.rating || null;
+  return {
+    show: toShow(r),
+    type: r.type ?? null,
+    genres: r.genres?.map((g) => g.name) ?? [],
+    // Specials are season 0 on TMDB; the app lists them last, and so do we.
+    seasons: (r.seasons ?? []).filter((s) => s.season_number > 0).concat((r.seasons ?? []).filter((s) => s.season_number === 0)),
+    seasonCount: r.number_of_seasons ?? 0,
+    episodeCount: r.number_of_episodes ?? 0,
+    episodeRuntime: r.episode_run_time?.[0] ?? r.last_episode_to_air?.runtime ?? null,
+    certification: rating(region) ?? rating(RATING_FALLBACK),
+    lastAired: r.last_air_date ?? r.last_episode_to_air?.air_date ?? null,
+    trailer: pickTrailer(r.videos),
+    cast: (r.credits?.cast ?? []).slice(0, 15).map((p) => ({ id: p.id, name: p.name, character: p.character ?? "", photo: image.profile(p.profile_path) })),
+    moreLikeThis: (r.recommendations?.results ?? [])
+      .filter((x) => x.poster_path)
+      .slice(0, 15)
+      .map((x) => ({ id: x.id, title: x.name, year: (x.first_air_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w342") })),
     watch: whereToWatch(r, region),
   };
 }
