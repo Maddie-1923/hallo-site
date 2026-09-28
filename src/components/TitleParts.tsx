@@ -214,23 +214,25 @@ export function TrailerSection({ videos, flat = false }: { videos: Video[]; flat
   );
 }
 
-/** Where to watch as a small square beside the keys: its heading inside,
-    then up to four services here (or, when it streams nowhere here, from
-    elsewhere) two to a row, the last a "+N" when there are more, and the
-    arrow level with the first row. Always the same size, the keys' box's
-    height (two 58px keys, the 8px between, 8px padding and the edge): the
-    whole square opens the full list, every service anywhere. */
+/** Where to watch beside the keys, in the keys' box's height (141px: two
+    58px keys, the 8px between, 8px padding and the edge) and as wide: its
+    heading on a shell of its own, and under it the services' shell, up to
+    four here (or, when it streams nowhere here, from elsewhere) two to a
+    row, the last a "+N" when there are more, and the arrow level with the
+    first row. Always the same size: the services' shell opens the full
+    list, every service anywhere. */
 export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
   const here = [...watch.subscription, ...watch.free.filter((f) => !watch.subscription.some((s) => s.id === f.id))];
   const pool = here.length ? here : watch.elsewhere.map((e) => e.provider);
   const shown = pool.length > 4 ? pool.slice(0, 3) : pool;
   const more = pool.length - shown.length;
+  const shell = "rounded-[20px] bg-card border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
   const tile = "shrink-0 w-10 h-10 rounded-[9px] overflow-hidden border border-hair bg-piece";
   return (
-    <div className="relative shrink-0 w-[141px] h-[141px] max-sm:w-auto max-sm:h-auto rounded-[20px] bg-card p-3 flex flex-col gap-2.5 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
-      <h2 className="![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-[1.3] !tracking-[.12em] uppercase text-ink">{here.length ? "Where to watch" : "Elsewhere"}</h2>
-      <div className="flex items-start gap-2">
-        <div className="grid grid-cols-2 gap-1.5">
+    <div className="shrink-0 w-[141px] h-[141px] max-sm:w-auto max-sm:h-auto flex flex-col gap-1.5">
+      <h2 className={`${shell} shrink-0 h-[34px] flex items-center justify-center ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink`}>{here.length ? "Where to watch" : "Elsewhere"}</h2>
+      <div className={`${shell} relative flex-1 min-h-0 p-2 flex items-start gap-2`}>
+        <div className="grid grid-cols-2 gap-1">
           {shown.map((p) => (
             <span key={p.id} title={p.name} className={`${tile} ${here.length ? "" : "opacity-60"}`}>
               {p.logo && (
@@ -244,12 +246,12 @@ export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
         </div>
         {watch.elsewhere.length > 0 && (
           // Its top level with the top of the first row of logos.
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="ml-auto text-accent">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="ml-auto mr-1 text-accent">
             <path d="M4 12h15M13 6l6 6-6 6" />
           </svg>
         )}
+        <ElsewhereSheet entries={watch.elsewhere} cover />
       </div>
-      <ElsewhereSheet entries={watch.elsewhere} cover />
     </div>
   );
 }
