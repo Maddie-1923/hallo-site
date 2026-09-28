@@ -94,7 +94,7 @@ export function Row({ label, children }: { label: string; children: React.ReactN
 }
 
 export function Chip({ href, children }: { href?: string; children: React.ReactNode }) {
-  const cls = "inline-flex items-center rounded-[8px] bg-piece px-2 py-[4px] text-[12.5px] leading-[1.2] text-ink no-underline";
+  const cls = "inline-flex items-center rounded-[8px] bg-[color:var(--quiet)] px-2 py-[4px] text-[12.5px] leading-[1.2] text-ink no-underline";
   return href ? (
     <Link href={href} className={`${cls} hover:text-accent transition-colors`}>
       {children}
@@ -229,7 +229,7 @@ function AirDates({ airing }: { airing: { networks: { name: string; logo: string
       {airing.ratings.length > 0 && (
         <Row label="Rated">
           {airing.ratings.map((r) => (
-            <span key={r.country} className="inline-flex items-center gap-1.5 rounded-[8px] bg-piece px-2 py-[4px] text-[12.5px] leading-[1.2] text-ink" title={country(r.country)}>
+            <span key={r.country} className="inline-flex items-center gap-1.5 rounded-[8px] bg-[color:var(--quiet)] px-2 py-[4px] text-[12.5px] leading-[1.2] text-ink" title={country(r.country)}>
               <span aria-hidden>{flag(r.country)}</span>
               {r.rating}
             </span>

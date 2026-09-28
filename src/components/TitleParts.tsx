@@ -375,7 +375,7 @@ export function TitleBento({ about, actions, side }: { about: React.ReactNode; a
       <div className="relative lg:col-start-2 lg:row-start-2 min-w-0 bg-card rounded-[20px] lg:rounded-l-none lg:min-h-[420px]">
         {/* The inside corner, where the short leg's top meets the long leg. */}
         <span aria-hidden className="hidden lg:block absolute left-0 bottom-full" style={{ width: R, height: R, background: `radial-gradient(circle at 100% 0, transparent ${R - 0.5}px, var(--card) ${R}px)` }} />
-        <div className="lg:absolute lg:inset-0 lg:overflow-y-auto soft-scroll p-2 pt-3 min-w-0">{side}</div>
+        <div className="lg:absolute lg:inset-0 p-2 pt-3 min-w-0 flex flex-col [&>*]:flex-1 [&>*]:min-h-0">{side}</div>
       </div>
     </div>
   );
