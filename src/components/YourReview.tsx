@@ -7,7 +7,7 @@ import { ConfirmKey } from "./ConfirmKey";
 
 // The person's own take on a title, as the app's "Your take". Its cards, as the app draws them (kodigoTakeCard): the
 // rating, ten stars in half steps; how it made them feel, up to three of the
-// app's twelve moods; tags; the review itself, with spoilers, the day they
+// app's twelve moods (the fourth waits until one is taken off); tags; the review itself, with spoilers, the day they
 // watched and whether it was a rewatch; the note, which stays private; and
 // tags last.
 //
@@ -103,11 +103,8 @@ export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"
 
       {/* How it made them feel: the app's twelve moods, up to three. */}
       <div className={card}>
-        <div>
-          <div className={heading}>How did it make you feel?</div>
-          <div className="mt-0.5 text-[12px] text-dim">Pick up to 3</div>
-        </div>
-        <div className="grid grid-cols-4 sm:grid-cols-6 xl:grid-cols-12 gap-[6px]">
+        <div className={heading}>How did it make you feel?</div>
+        <div className="grid grid-cols-4 sm:grid-cols-6 gap-[6px]">
           {MOODS.map(([emoji, label]) => {
             const on = moods.includes(label);
             const full = !on && moods.length >= 3;
