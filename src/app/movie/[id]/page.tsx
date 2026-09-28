@@ -76,8 +76,12 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
           <ReviewsSection reviews={reviews} />
           </div>
           <div className="grid gap-4">
-            {/* What can be done with it, above the trailer. */}
-            <TitleActions kind="movie" title={movie.title} tracked={!!tracked} watched={watched} loved={loved} />
+            {/* What can be done with it, above the trailer, its top level with
+                the About card's rather than its heading (the heading pill,
+                44px, and the 12px under it). */}
+            <div className="lg:mt-14">
+              <TitleActions kind="movie" title={movie.title} tracked={!!tracked} watched={watched} loved={loved} />
+            </div>
             {page.trailer && <TrailerSection id={page.trailer} />}
             {page.watch && <WhereToWatchSection watch={page.watch} />}
           </div>

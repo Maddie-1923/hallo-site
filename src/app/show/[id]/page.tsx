@@ -99,8 +99,12 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           <ReviewsSection reviews={reviews} />
           </div>
           <div className="grid gap-4">
-            {/* What can be done with it, above the trailer. */}
-            <TitleActions kind="show" title={show.name} tracked={!!tracked} loved={loved} stopped={tracked?.status === "Dropped"} />
+            {/* What can be done with it, above the trailer, its top level with
+                the About card's rather than its heading (the heading pill,
+                44px, and the 12px under it). */}
+            <div className="lg:mt-14">
+              <TitleActions kind="show" title={show.name} tracked={!!tracked} loved={loved} stopped={tracked?.status === "Dropped"} />
+            </div>
             {page.trailer && <TrailerSection id={page.trailer} />}
             {page.watch && <WhereToWatchSection watch={page.watch} />}
           </div>
