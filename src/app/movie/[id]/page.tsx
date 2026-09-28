@@ -96,7 +96,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
             {page.watch && <WhereToWatchSection watch={page.watch} />}
           </div>
         </div>
-        <div className="mt-8 grid gap-8">
+        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
           {/* Cast, crew, details, genres and releases, as tabs. */}
           <TitleCredits cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} releases={page.releases} />
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="movie" />}

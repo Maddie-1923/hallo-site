@@ -69,7 +69,9 @@ export function TitleCredits({
     airing && { id: "air-dates", label: "Air dates", content: <AirDates airing={airing} /> },
   ].filter(Boolean) as { id: string; label: string; count?: number; content: React.ReactNode }[];
 
-  return <ProfileSections sections={sections} className="" label="Credits and details" />;
+  // min-w-0: a grid item otherwise grows to its widest child, and a rail of
+  // fifteen cards would stretch the whole section off the page.
+  return <ProfileSections sections={sections} className="min-w-0" label="Credits and details" />;
 }
 
 function Rows({ children }: { children: React.ReactNode }) {

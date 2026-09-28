@@ -110,7 +110,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             {page.watch && <WhereToWatchSection watch={page.watch} />}
           </div>
         </div>
-        <div className="mt-8 grid gap-8">
+        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
           {seasons.length > 0 && (
             <Section title="All episodes" tight>
               <SectionCard>

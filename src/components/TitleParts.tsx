@@ -3,6 +3,7 @@ import type { CastMember, RailTitle, WhereToWatch } from "@/lib/tmdb";
 import { ExpandableText } from "./ExpandableText";
 import { Glyph } from "./Glyph";
 import { ElsewhereSheet } from "./ElsewhereSheet";
+import { Rail } from "./Rail";
 
 // The pieces of a title's page, drawn after the app's detail screens
 // (MovieDetailView and ShowDetailView): a header card of the artwork, a facts
@@ -199,9 +200,6 @@ function RowCard({ width, children }: { width: number; children: React.ReactNode
   );
 }
 
-function Rail({ children }: { children: React.ReactNode }) {
-  return <div className="soft-scroll flex gap-3 overflow-x-auto snap-x pb-3 -mb-3">{children}</div>;
-}
 
 export function CastSection({ cast }: { cast: CastMember[] }) {
   return (
