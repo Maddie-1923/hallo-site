@@ -8,14 +8,36 @@ import type { markLookup } from "@/lib/marks";
 // from a list of trending titles, and rows of wide cards. Explore is the home
 // page's layout with one catalogue at a time.
 
-export async function billboard(shows: Show[], movies: Movie[], archive: LibraryArchive | null, region: string): Promise<CinemaSlide[]> {
+export async function billboard(
+  shows: Show[],
+  movies: Movie[],
+  archive: LibraryArchive | null,
+  region: string,
+  // The most anticipated titles still to come, mixed in among the trending
+  // ones so the billboard shows what's next as well as what's now.
+  anticipated: { shows?: Show[]; movies?: Movie[] } = {},
+): Promise<CinemaSlide[]> {
+  type Pick = ({ kind: "show"; show: Show } | { kind: "movie"; movie: Movie }) & { coming?: string };
   // Films and series taking turns, only titles with artwork behind them.
-  const picks: ({ kind: "show"; show: Show } | { kind: "movie"; movie: Movie })[] = [];
-  const s = shows.filter((x) => x.backdrop_path);
-  const m = movies.filter((x) => x.backdrop_path);
-  for (let i = 0; picks.length < 8 && (i < s.length || i < m.length); i++) {
-    if (m[i]) picks.push({ kind: "movie", movie: m[i] });
-    if (s[i] && picks.length < 8) picks.push({ kind: "show", show: s[i] });
+  const alternate = (s: Show[], m: Movie[], n: number, coming = false) => {
+    const out: Pick[] = [];
+    const ss = s.filter((x) => x.backdrop_path);
+    const mm = m.filter((x) => x.backdrop_path);
+    for (let i = 0; out.length < n && (i < ss.length || i < mm.length); i++) {
+      if (mm[i]) out.push({ kind: "movie", movie: mm[i], ...(coming ? { coming: mm[i].release_date ?? "" } : {}) });
+      if (ss[i] && out.length < n) out.push({ kind: "show", show: ss[i], ...(coming ? { coming: ss[i].first_air_date ?? "" } : {}) });
+    }
+    return out;
+  };
+  const soon = alternate(anticipated.shows ?? [], anticipated.movies ?? [], 3, true);
+  const now = alternate(shows, movies, 8 - soon.length).filter((p) => !soon.some((q) => q.kind === p.kind && (q.kind === "show" ? q.show.id === (p as { show: Show }).show?.id : q.movie.id === (p as { movie: Movie }).movie?.id)));
+  // Two trending, one to come, and so on: the anticipated ones are seen early.
+  const picks: Pick[] = [];
+  for (let i = 0, j = 0; picks.length < now.length + soon.length; ) {
+    if (i < now.length) picks.push(now[i++]);
+    if (i < now.length) picks.push(now[i++]);
+    if (j < soon.length) picks.push(soon[j++]);
+    if (i >= now.length && j >= soon.length) break;
   }
 
   const tracked = {
@@ -35,7 +57,7 @@ export async function billboard(shows: Show[], movies: Movie[], archive: Library
     const id = t.id;
     return {
       key: `${isShow ? "s" : "m"}${id}`,
-      eyebrow: isShow ? "Trending series" : "Trending film",
+      eyebrow: p.coming ? `${isShow ? "Series" : "Film"} coming ${comingDate(p.coming)}` : isShow ? "Trending series" : "Trending film",
       title: isShow ? p.show.name : p.movie.title,
       href: isShow ? `/show/${id}` : `/movie/${id}`,
       backdrop: image.banner(t.backdrop_path)!,
@@ -52,6 +74,14 @@ export async function billboard(shows: Show[], movies: Movie[], archive: Library
       tracked: isShow ? tracked.show.has(id) : tracked.movie.has(id),
     };
   });
+}
+
+/** "12 December" this year, "12 December 2027" beyond it. */
+function comingDate(d: string) {
+  if (!d) return "soon";
+  const [y, m, day] = d.split("-").map(Number);
+  const sameYear = y === new Date().getFullYear();
+  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", ...(sameYear ? {} : { year: "numeric" }), timeZone: "UTC" });
 }
 
 // A title on its way into a row, before it is turned into a card.

@@ -21,7 +21,7 @@ export default async function Home() {
   const region = await visitorRegion();
   const marks = markLookup(lib.archive);
 
-  const [trendingShows, trendingMovies, inCinemas, airing, comingFilms, topFilms, topShows] = await Promise.all([
+  const [trendingShows, trendingMovies, inCinemas, airing, comingFilms, topFilms, topShows, soonShows, soonFilms] = await Promise.all([
     showRails.trending(),
     movieRails.trending(),
     movieRails.nowPlaying(region),
@@ -29,8 +29,11 @@ export default async function Home() {
     movieRails.upcoming(region),
     movieRails.topRated(),
     showRails.topRated(),
+    showRails.anticipated(),
+    movieRails.anticipated(region),
   ]);
-  const slides = await billboard(trendingShows, trendingMovies, lib.archive, region);
+  // Trending, with the most anticipated films and series still to come mixed in.
+  const slides = await billboard(trendingShows, trendingMovies, lib.archive, region, { shows: soonShows, movies: soonFilms });
   const shown = new Set(slides.map((s) => s.key));
   // Below the billboard, the trending row starts where the billboard stops.
   const trending = interleave(asMovies(trendingMovies), asShows(trendingShows)).filter((x) => !shown.has(x.key));

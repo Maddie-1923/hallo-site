@@ -25,14 +25,15 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
   const place = regionName(region);
 
   if (kind === "show") {
-    const [trending, airing, upcoming, popular, topRated] = await Promise.all([
+    const [trending, airing, upcoming, popular, topRated, soon] = await Promise.all([
       showRails.trending(),
       showRails.airingNow(),
       showRails.upcoming(),
       showRails.popular(),
       showRails.topRated(),
+      showRails.anticipated(),
     ]);
-    const slides = await billboard(trending, [], lib.archive, region);
+    const slides = await billboard(trending, [], lib.archive, region, { shows: soon });
     const shown = new Set(slides.map((s) => s.key));
     return (
       <Layout slides={slides} kind={kind}>
@@ -45,14 +46,15 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
     );
   }
 
-  const [trending, inCinemas, upcoming, popular, topRated] = await Promise.all([
+  const [trending, inCinemas, upcoming, popular, topRated, soon] = await Promise.all([
     movieRails.trending(),
     movieRails.nowPlaying(region),
     movieRails.upcoming(region),
     movieRails.popular(),
     movieRails.topRated(),
+    movieRails.anticipated(region),
   ]);
-  const slides = await billboard([], trending, lib.archive, region);
+  const slides = await billboard([], trending, lib.archive, region, { movies: soon });
   const shown = new Set(slides.map((s) => s.key));
   return (
     <Layout slides={slides} kind={kind}>

@@ -145,6 +145,7 @@ export function toMovie(r: RawMovie): Movie {
 }
 
 const today = () => new Date().toISOString().slice(0, 10);
+const tomorrow = () => new Date(Date.now() + 86400000).toISOString().slice(0, 10);
 
 async function showPage(path: string, params: Record<string, string | number> = {}) {
   const page = await tmdb<PageOf<RawShow>>(path, params);
@@ -164,6 +165,9 @@ export const showRails = {
   airingNow: () => showPage("/tv/on_the_air"),
   upcoming: () =>
     showPage("/discover/tv", { "first_air_date.gte": today(), sort_by: "popularity.desc", "vote_count.gte": 0 }),
+  /** The most anticipated series still to come: not yet premiered, the most
+      talked about first. */
+  anticipated: () => showPage("/discover/tv", { "first_air_date.gte": tomorrow(), sort_by: "popularity.desc" }),
 };
 
 export const movieRails = {
@@ -174,6 +178,10 @@ export const movieRails = {
   // country, and TMDB answers per region when asked.
   nowPlaying: (region?: string) => moviePage("/movie/now_playing", region ? { region } : {}),
   upcoming: (region?: string) => moviePage("/movie/upcoming", region ? { region } : {}),
+  /** The most anticipated films still to come in the visitor's country: not
+      yet out in cinemas there, the most talked about first. */
+  anticipated: (region?: string) =>
+    moviePage("/discover/movie", { "primary_release_date.gte": tomorrow(), sort_by: "popularity.desc", with_release_type: "2|3", ...(region ? { region } : {}) }),
 };
 
 // ---- Search ----
