@@ -68,7 +68,7 @@ export default async function EpisodePage({ params }: Params) {
         {/* The top as one L-shaped bento: About down the left with the
             trailers under it, the credits tabs on the right, and the keys
             and where to watch set into the notch above them. */}
-        <div className="mt-5">
+        <div className="mt-8">
           <TitleBento
             about={
               <>
