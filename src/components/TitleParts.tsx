@@ -378,7 +378,7 @@ export function TitleBanner({ art, logo, title }: { art: string | null; logo?: s
 export function EpisodesSection({ showID, episodes, current, title }: { showID: number; episodes: { season: number; episode: number; name: string; still: string | null; airDate: string | null }[]; current: number; title: string }) {
   const code = (s: number, e: number) => `S${String(s).padStart(2, "0")} | E${String(e).padStart(2, "0")}`;
   return (
-    <Section title={title}>
+    <Section title={title} small>
       <Rail>
         {episodes.map((e) => (
           <RowCard key={e.episode} width={240}>
