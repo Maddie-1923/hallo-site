@@ -53,11 +53,13 @@ export function YourReview({ kind }: { kind: "movie" | "show" }) {
             </button>
           )}
         </div>
-        <div className="flex justify-between">
+        {/* Close together, as the ratings read elsewhere on the site, rather
+            than spread across the card. */}
+        <div className="flex gap-0.5">
           {Array.from({ length: 10 }, (_, i) => {
             const fill = rating == null ? 0 : Math.max(0, Math.min(1, rating - i));
             return (
-              <span key={i} className="relative h-11 flex-1 flex items-center justify-center">
+              <span key={i} className="relative h-11 w-[30px] flex items-center justify-center">
                 <Star fill={fill} />
                 <button type="button" aria-label={`${i + 0.5} out of 10`} onClick={() => setRating(i + 0.5)} className="absolute inset-y-0 left-0 w-1/2 cursor-pointer" />
                 <button type="button" aria-label={`${i + 1} out of 10`} onClick={() => setRating(i + 1)} className="absolute inset-y-0 right-0 w-1/2 cursor-pointer" />
