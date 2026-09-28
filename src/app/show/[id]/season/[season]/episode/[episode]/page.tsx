@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SeriesPill, seriesBadge } from "@/components/SeriesBadge";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
@@ -48,9 +49,9 @@ export default async function EpisodePage({ params }: Params) {
   const watched = !!lib.archive?.watched.includes(key);
   const loved = lib.archive?.reactions?.[`episode:${key}`] === "loved";
 
+  const badge = seriesBadge(show.show.status, show.type);
   const facts = [
-    { label: "Show", value: <Link href={`/show/${showID}`} className="text-accent no-underline hover:underline">{show.show.name}</Link> },
-    { label: "Episode", value: code(ep.season, ep.episode) },
+    { label: "Episode", value: `${code(ep.season, ep.episode)} · ${ep.name}` },
     ep.airDate && { label: "Aired", value: longDate(ep.airDate) },
     ep.runtime && { label: "Runtime", value: `${ep.runtime}m` },
     ep.vote && { label: "TMDB", value: ep.vote.toFixed(1) },
@@ -71,7 +72,36 @@ export default async function EpisodePage({ params }: Params) {
             about={
               <>
               <Section title="About" small>
-              <HeaderCard flat title={ep.name} subtitle={code(ep.season, ep.episode)} facts={facts} overview={ep.overview} />
+              <HeaderCard
+                flat
+                title={ep.name}
+                heading={
+                  // As the app heads an episode: its show, going to the show's
+                  // page, and the show's seasons and episodes under it.
+                  <div>
+                    <Link href={`/show/${showID}`} className="group no-underline text-ink">
+                      <h1 className="inline !text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase group-hover:text-accent transition-colors">
+                        {show.show.name}
+                        <span aria-hidden className="ml-2 text-[.55em] align-[.25em] text-dim">→</span>
+                      </h1>
+                    </Link>
+                    <div className="mt-1 text-[12.5px] font-semibold text-mid-tone">
+                      {plural(show.seasonCount, "Season")} · {plural(show.episodeCount, "Episode")}
+                    </div>
+                  </div>
+                }
+                facts={facts}
+                overview={ep.overview}
+                factsFooter={
+                  // The show's status, as the show page closes its facts.
+                  (show.lastAired || badge) && (
+                    <div className="flex items-center justify-between gap-3 text-[12.5px] text-dim">
+                      <span>{show.lastAired ? `Last aired ${longDate(show.lastAired)}` : ""}</span>
+                      {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING" || badge.label === "PILOT"} />}
+                    </div>
+                  )
+                }
+              />
             </Section>
               {/* The trailers, one or two, under About. */}
               {ep.trailers.length > 0 && <TrailerSection flat videos={ep.trailers} />}
@@ -134,3 +164,5 @@ function longDate(d: string) {
   const [y, m, day] = d.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
+
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;

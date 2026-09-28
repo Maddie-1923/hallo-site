@@ -27,3 +27,13 @@ export function SeriesBadge({ status, type, className = "" }: { status: string |
     </span>
   );
 }
+
+// The app's series pill: small bold capitals on a rounded chip; blue for a
+// show still going, stone for one that has ended.
+export function SeriesPill({ label, returning }: { label: string; returning: boolean }) {
+  return (
+    <span className={`shrink-0 rounded-[6px] px-1.5 py-[2px] text-[11px] font-bold tracking-[.04em] ${returning ? "bg-[#6FAECF] text-[#0D2E40]" : "bg-[#CFCAC0] text-[#3A3833]"}`}>
+      {label}
+    </span>
+  );
+}

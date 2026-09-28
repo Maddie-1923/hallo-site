@@ -8,7 +8,7 @@ import { TitleActivity } from "@/components/TitleActivity";
 import { HeaderCard, TitleBento, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { TitleActions } from "@/components/TitleActions";
 import { SeasonList } from "@/components/SeasonList";
-import { seriesBadge } from "@/components/SeriesBadge";
+import { SeriesPill, seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
 import { reviewsOfTitle } from "@/lib/profile-previews";
 import { ReviewsSection } from "@/components/TitleReviews";
@@ -145,15 +145,6 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   );
 }
 
-// The app's series pill: small bold capitals on a rounded chip; blue for a
-// show still going, stone for one that has ended.
-function SeriesPill({ label, returning }: { label: string; returning: boolean }) {
-  return (
-    <span className={`shrink-0 rounded-[6px] px-1.5 py-[2px] text-[11px] font-bold tracking-[.04em] ${returning ? "bg-[#6FAECF] text-[#0D2E40]" : "bg-[#CFCAC0] text-[#3A3833]"}`}>
-      {label}
-    </span>
-  );
-}
 
 /** "23 September 2022". */
 function longDate(d: string) {
