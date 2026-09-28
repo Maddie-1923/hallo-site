@@ -74,7 +74,7 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
       {/* On a wide screen, one row of the rating (as wide as its stars),
           the moods, and the note over the tags; then the review under them
           across the width. On a narrower one, each card under the last. */}
-      <div className="grid gap-2 lg:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid gap-2 lg:grid-cols-[auto_minmax(0,5fr)_minmax(0,4fr)]">
       {/* The rating: ten stars, a press on a star's left half sets the half. */}
       <div className={card + " content-start"}>
         <div className="flex items-center justify-between">
@@ -87,11 +87,11 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
         </div>
         {/* Close together, as the ratings read elsewhere on the site, rather
             than spread across the card. */}
-        <div className="flex gap-0.5">
+        <div className="flex">
           {Array.from({ length: 10 }, (_, i) => {
             const fill = rating == null ? 0 : Math.max(0, Math.min(1, rating - i));
             return (
-              <span key={i} className="relative h-9 w-[24px] flex items-center justify-center">
+              <span key={i} className="relative h-9 w-[21px] flex items-center justify-center">
                 <Star fill={fill} />
                 <button type="button" aria-label={`${i + 0.5} out of 10`} onClick={() => setRating(i + 0.5)} className="absolute inset-y-0 left-0 w-1/2 cursor-pointer" />
                 <button type="button" aria-label={`${i + 1} out of 10`} onClick={() => setRating(i + 1)} className="absolute inset-y-0 right-0 w-1/2 cursor-pointer" />
@@ -121,7 +121,7 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
                 off={full}
                 radius={10}
                 run={() => setMoods((m) => (on ? m.filter((x) => x !== label) : m.length >= 3 ? m : [...m, label]))}
-                className={`h-[46px] flex flex-col items-center justify-center gap-1 disabled:!opacity-50 ${on ? "font-semibold" : "bg-[color:var(--quiet)] text-dim"}`}
+                className={`h-[46px] px-1.5 flex flex-col items-center justify-center gap-1 disabled:!opacity-50 ${on ? "font-semibold" : "bg-[color:var(--quiet)] text-dim"}`}
               >
                 <span className="text-[15px] leading-none">{emoji}</span>
                 <span className="text-[9.5px] leading-none">{label}</span>
@@ -131,22 +131,15 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
         </div>
       </div>
 
-      <div className="grid gap-2 grid-rows-[auto_1fr]">
-      {/* The note: the app's private one, never shown to anyone else. */}
-      <div className="rounded-shell bg-piece p-3 flex items-start gap-2.5">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-[3px] shrink-0 text-dim">
-          <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
-        </svg>
-        <div className="min-w-0 flex-1">
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={1} placeholder={`Note on this ${what}`} className="w-full bg-transparent text-[12.5px] leading-[1.6] text-ink placeholder:text-dim resize-none focus:outline-none [field-sizing:content] max-h-[9lh]" />
-          <div className="text-[11px] text-dim">Only you can see your note.</div>
-        </div>
-      </div>
-
+      {/* Tags over the note, each a fixed half of the row's height (the
+      rating and moods set it): a long note or many tags scroll inside
+      rather than stretching the row. */}
+      <div className="relative lg:min-h-[150px]">
+      <div className="lg:absolute lg:inset-0 grid gap-2 lg:grid-rows-[minmax(0,1fr)_minmax(0,1fr)]">
       {/* Tags: chips, and a dashed one to add another. */}
-      <div className={card}>
+      <div className={card + " grid-rows-[auto_minmax(0,1fr)] max-lg:h-[110px] min-h-0"}>
         <div className={heading}>Tags</div>
-        <div className="flex flex-wrap gap-2">
+        <div className="soft-scroll flex flex-wrap content-start gap-2 min-h-0 overflow-y-auto">
           {tags.map((t) => (
             <button key={t} type="button" onClick={() => setTags((ts) => ts.filter((x) => x !== t))} title="Remove" className="rounded-full border border-[color:color-mix(in_srgb,var(--ink)_18%,transparent)] px-[10px] py-[6px] text-[12px] font-semibold text-ink leading-none cursor-pointer">
               {t}
@@ -171,6 +164,16 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
         </div>
       </div>
 
+      {/* The note: the app's private one, never shown to anyone else. */}
+      <div className="rounded-shell bg-piece p-3 flex items-start gap-2.5 max-lg:h-[132px] min-h-0">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-[3px] shrink-0 text-dim">
+          <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
+        </svg>
+        <div className="min-w-0 flex-1 h-full flex flex-col">
+          <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder={`Note on this ${what}: only you can see it`} className="soft-scroll flex-1 min-h-0 w-full bg-transparent text-[12.5px] leading-[1.6] text-ink placeholder:text-dim resize-none focus:outline-none overflow-y-auto" />
+        </div>
+      </div>
+      </div>
       </div>
       </div>
 
