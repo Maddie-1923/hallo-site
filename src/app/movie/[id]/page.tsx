@@ -6,6 +6,8 @@ import { TitleActivity } from "@/components/TitleActivity";
 import { CastSection, HeaderCard, MoreLikeThisSection, Section, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { FilmTray } from "@/components/FilmTray";
 import { optionalLibrary } from "@/lib/library";
+import { reviewsOfTitle } from "@/lib/profile-previews";
+import { ReviewsSection } from "@/components/TitleReviews";
 import { filmPage, image, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 
@@ -26,7 +28,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
   if (!Number.isInteger(movieID)) notFound();
 
   const region = await visitorRegion();
-  const [page, lib, logo] = await Promise.all([filmPage(movieID, region), optionalLibrary(), titleLogo("movie", movieID)]);
+  const [page, lib, logo, reviews] = await Promise.all([filmPage(movieID, region), optionalLibrary(), titleLogo("movie", movieID), reviewsOfTitle(`m${movieID}`)]);
   if (!page) notFound();
   const { movie } = page;
 
@@ -60,11 +62,12 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
             </HeaderCard>
           </Section>
           <div className="grid gap-4">
-            {page.watch && <WhereToWatchSection watch={page.watch} />}
             {page.trailer && <TrailerSection id={page.trailer} />}
+            {page.watch && <WhereToWatchSection watch={page.watch} />}
           </div>
         </div>
         <div className="mt-8 grid gap-8">
+          <ReviewsSection reviews={reviews} />
           {page.cast.length > 0 && <CastSection cast={page.cast} />}
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="movie" />}
           {lib.signedIn && <TitleActivity target={{ kind: "movie", movie }} archive={lib.archive} signedIn={lib.signedIn} />}

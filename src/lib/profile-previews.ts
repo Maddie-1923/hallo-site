@@ -287,3 +287,19 @@ function withSampleLists(view: PublicProfileView): PublicProfileView {
   ].filter((l) => l.titles.length > 0);
   return { ...view, categories: [...view.categories, ...lists] };
 }
+
+/**
+ * The members' reviews of one title, for its page. Until the public tables
+ * exist these come from the development previews only (/u/preview and
+ * /u/sample); once they do, this reads `public_entries` instead.
+ */
+export async function reviewsOfTitle(key: string): Promise<{ review: ReviewEntry; username: string; avatar: string | null }[]> {
+  if (!DEV) return [];
+  const views = (await Promise.all(["preview", "sample"].map(loadProfile))).filter((v): v is PublicProfileView => !!v);
+  const out: { review: ReviewEntry; username: string; avatar: string | null }[] = [];
+  for (const v of views) {
+    const r = v.reviews.find((x) => x.key === key);
+    if (r) out.push({ review: r, username: v.username, avatar: v.avatar });
+  }
+  return out;
+}

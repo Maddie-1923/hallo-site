@@ -142,11 +142,14 @@ export function ReviewHeading({
   avatar,
   r,
   titleHref,
+  hideTitle = false,
 }: {
   username: string;
   avatar?: string | null;
   r: { title: string; year: string; episodes?: string; episodeTitle?: string; date: string | null; rating: number | null; rewatch?: boolean };
   titleHref?: string;
+  /** On the title's own page the title is already the page's heading. */
+  hideTitle?: boolean;
 }) {
   return (
     <div className="flex items-start justify-between gap-4">
@@ -165,7 +168,7 @@ export function ReviewHeading({
             {r.rewatch ? "rewatched" : "watched"}
           </span>
         </div>
-        <h3 className="!mt-2 !text-[clamp(26px,2.4vw,34px)] !leading-[.95]">
+        <h3 className={hideTitle ? "sr-only" : "!mt-2 !text-[clamp(26px,2.4vw,34px)] !leading-[.95]"}>
           {titleHref ? (
             <Link href={titleHref} className="no-underline text-ink hover:text-accent transition-colors">
               {r.title}

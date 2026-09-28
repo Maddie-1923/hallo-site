@@ -1,13 +1,11 @@
-import Link from "next/link";
-import type { ProfileTitle, PublicProfileView, ReviewEntry } from "@/lib/public-profile";
+import type { ProfileTitle, PublicProfileView } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
-import { ReviewActions } from "./ReviewActions";
-import { ReviewHeading } from "./ReviewSheet";
 import { ProfileCategories } from "./ProfileCategories";
 import { ProfileAbout } from "./ProfileAbout";
 import { ProfileMenu } from "./ProfileMenu";
 import { ActivityFeed, type ActivityItem } from "./ActivityFeed";
+import { ReviewCard } from "./ReviewCard";
 import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
 import { FavouritesCard } from "./FavouritesCard";
@@ -320,48 +318,3 @@ function ActivityList({ v }: { v: PublicProfileView }) {
 // marks, the review in readable paragraphs, and like / comment / share under
 // it. A review of a single episode says which one, which a films-only site
 // has no way to do. Spoilers stay hidden behind a tap.
-// Spaced like the review sheet (components/ReviewSheet.tsx): one 16px inset
-// all round, the heading (who, title, stars) set close as a group, and 16px
-// between every group under it.
-function ReviewCard({ r, username, avatar }: { r: ReviewEntry; username: string; avatar: string | null }) {
-  const paragraphs = r.text.split(/\n\s*\n/);
-  const body = (
-    <div className="mt-4 grid gap-2 text-[12.5px] leading-[1.6] text-bone max-w-[80ch]">
-      {paragraphs.map((p, i) => (
-        <p key={i} className="m-0">
-          {p}
-        </p>
-      ))}
-    </div>
-  );
-  return (
-    <article className="rounded-[20px] bg-card-hi p-4 flex gap-4">
-      <Link href={r.href} className="w-[clamp(64px,7vw,88px)] shrink-0 self-start">
-        {r.poster && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={r.poster} alt={r.title} className="w-full aspect-[2/3] rounded-[8px] object-cover border border-hair" />
-        )}
-      </Link>
-      <div className="min-w-0 flex-1">
-        <ReviewHeading username={username} avatar={avatar} r={{ ...r, episodes: r.episode }} titleHref={r.href} />
-
-        {r.spoilers ? (
-          <details className="mt-4 group/sp">
-            <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[13px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
-              <span className="px-2 py-[2px] rounded-full bg-card border border-hair text-[11px] font-bold uppercase tracking-[.08em]">Spoilers</span>
-              <span className="group-open/sp:hidden">This review gives things away. Show it anyway.</span>
-              <span className="hidden group-open/sp:inline">Hide it again</span>
-            </summary>
-            {body}
-          </details>
-        ) : (
-          body
-        )}
-
-        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={`/u/${username}/review/${r.key}`} className="mt-4" />
-      </div>
-    </article>
-  );
-}
-
-

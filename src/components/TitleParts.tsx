@@ -79,7 +79,8 @@ export function HeaderCard({
       <div className="rounded-[12px] bg-piece p-3">
         <h1 className={titleOnBanner ? "sr-only" : "!text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase"}>{title}</h1>
         {subtitle && <div className={`display text-[22px] leading-none tracking-[.03em] uppercase ${titleOnBanner ? "" : "mt-0.5"}`}>{subtitle}</div>}
-        <div className={`${subtitle || !titleOnBanner ? "mt-2.5" : ""} border-t border-hair`}>
+        {/* A hairline under the title, when there is one to sit under. */}
+        <div className={subtitle || !titleOnBanner ? "mt-2.5 border-t border-hair" : "-mt-[9px]"}>
           {facts.map((f, i) => (
             <div key={f.label} className={`flex items-baseline justify-between gap-4 py-[9px] text-[15px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
               <span className="text-dim shrink-0">{f.label}</span>

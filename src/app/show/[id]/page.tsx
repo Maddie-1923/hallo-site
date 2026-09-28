@@ -8,6 +8,8 @@ import { ShowTray } from "@/components/ShowTray";
 import { SeasonList } from "@/components/SeasonList";
 import { seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
+import { reviewsOfTitle } from "@/lib/profile-previews";
+import { ReviewsSection } from "@/components/TitleReviews";
 import { image, seriesPage, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 
@@ -29,7 +31,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   if (!Number.isInteger(showID)) notFound();
 
   const region = await visitorRegion();
-  const [page, lib, logo] = await Promise.all([seriesPage(showID, region), optionalLibrary(), titleLogo("show", showID)]);
+  const [page, lib, logo, reviews] = await Promise.all([seriesPage(showID, region), optionalLibrary(), titleLogo("show", showID), reviewsOfTitle(`s${showID}`)]);
   if (!page) notFound();
   const { show } = page;
 
@@ -83,8 +85,8 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             </HeaderCard>
           </Section>
           <div className="grid gap-4">
-            {page.watch && <WhereToWatchSection watch={page.watch} />}
             {page.trailer && <TrailerSection id={page.trailer} />}
+            {page.watch && <WhereToWatchSection watch={page.watch} />}
           </div>
         </div>
         <div className="mt-8 grid gap-8">
@@ -95,6 +97,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
               </SectionCard>
             </Section>
           )}
+          <ReviewsSection reviews={reviews} />
           {page.cast.length > 0 && <CastSection cast={page.cast} />}
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" />}
           {lib.signedIn && <TitleActivity target={{ kind: "show", show }} archive={lib.archive} signedIn={lib.signedIn} />}

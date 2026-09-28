@@ -1,0 +1,24 @@
+import type { ReviewEntry } from "@/lib/public-profile";
+import { ReviewCard } from "./ReviewCard";
+import { Section, SectionCard } from "./TitleParts";
+
+// Members' reviews of the title, above the cast: each as the profile's review
+// card without the poster and title (the page is already about them). Until
+// accounts open, only the development previews' reviews are here.
+export function ReviewsSection({ reviews }: { reviews: { review: ReviewEntry; username: string; avatar: string | null }[] }) {
+  return (
+    <Section title={reviews.length ? `Reviews · ${reviews.length}` : "Reviews"}>
+      <SectionCard>
+        {reviews.length ? (
+          <div className="grid gap-[6px]">
+            {reviews.map(({ review, username, avatar }) => (
+              <ReviewCard key={`${username}-${review.key}`} r={review} username={username} avatar={avatar} onTitlePage />
+            ))}
+          </div>
+        ) : (
+          <p className="m-0 px-3 py-4 text-[14px] text-dim">No reviews yet. Members&apos; reviews show here once accounts open.</p>
+        )}
+      </SectionCard>
+    </Section>
+  );
+}
