@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { ProfileTitle } from "@/lib/public-profile";
 import { readTakes, saveTake } from "@/lib/local-takes";
 import { ConfirmKey } from "./ConfirmKey";
+import { WatchedOn } from "./WatchedOn";
 
 // The person's own take on a title, as the app's "Your take". Its cards, as the app draws them (kodigoTakeCard): the
 // rating, ten stars in half steps; how it made them feel, up to three of the
@@ -28,7 +29,7 @@ const MOODS = [
   ["🙃", "Confused"],
 ] as const;
 
-export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"; title: ProfileTitle }) {
+export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "episode"; title: ProfileTitle; /** The day it came out, offered as a quick pick for when they watched. */ out?: string | null }) {
   const [rating, setRating] = useState<number | null>(null);
   const [moods, setMoods] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
@@ -186,10 +187,10 @@ export function YourReview({ kind, title }: { kind: "movie" | "show" | "episode"
             <input type="checkbox" checked={rewatch} onChange={(e) => setRewatch(e.target.checked)} className="accent-[var(--accent-fill)]" />
             I&apos;ve watched this before
           </label>
-          <label className="inline-flex items-center gap-2">
+          <span className="inline-flex items-center gap-2">
             <span className="text-dim">Watched on</span>
-            <input type="date" value={watchedOn} onChange={(e) => setWatchedOn(e.target.value)} className="rounded-[10px] bg-card border border-hair px-2 py-1 text-[13px] text-ink" />
-          </label>
+            <WatchedOn value={watchedOn} onChange={setWatchedOn} out={out ? { label: kind === "movie" ? "Release day" : kind === "episode" ? "Air date" : "First aired", date: out } : null} />
+          </span>
         </div>
       </div>
 
