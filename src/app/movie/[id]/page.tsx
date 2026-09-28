@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { People } from "@/components/People";
 import { TitleActivity } from "@/components/TitleActivity";
 import { CastSection, HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
-import { FilmTray } from "@/components/FilmTray";
+import { TitleActions } from "@/components/TitleActions";
 import { optionalLibrary } from "@/lib/library";
 import { reviewsOfTitle } from "@/lib/profile-previews";
 import { ReviewsSection } from "@/components/TitleReviews";
@@ -64,7 +64,6 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
           {/* Headed like the sections beside and below it. */}
           <Section title="About">
             <HeaderCard title={movie.title} titleOnBanner={!!logo} facts={facts} overview={movie.overview ?? null}>
-              <FilmTray tracked={!!tracked} watched={watched} loved={loved} signedIn={lib.signedIn} />
             </HeaderCard>
           </Section>
           {/* Their own take on it, as the app calls it: rating, moods, tags,
@@ -77,6 +76,8 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
           <ReviewsSection reviews={reviews} />
           </div>
           <div className="grid gap-4">
+            {/* What can be done with it, above the trailer. */}
+            <TitleActions kind="movie" title={movie.title} tracked={!!tracked} watched={watched} loved={loved} />
             {page.trailer && <TrailerSection id={page.trailer} />}
             {page.watch && <WhereToWatchSection watch={page.watch} />}
           </div>

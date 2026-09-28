@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { People } from "@/components/People";
 import { TitleActivity } from "@/components/TitleActivity";
 import { CastSection, HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
-import { ShowTray } from "@/components/ShowTray";
+import { TitleActions } from "@/components/TitleActions";
 import { SeasonList } from "@/components/SeasonList";
 import { seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
@@ -87,7 +87,6 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
                 )
               }
             >
-              <ShowTray tracked={!!tracked} loved={loved} allWatched={!!tracked && left <= 0} stopped={tracked?.status === "Dropped"} />
             </HeaderCard>
           </Section>
           {/* Their own take on it, as the app calls it: rating, moods, tags,
@@ -100,6 +99,8 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           <ReviewsSection reviews={reviews} />
           </div>
           <div className="grid gap-4">
+            {/* What can be done with it, above the trailer. */}
+            <TitleActions kind="show" title={show.name} tracked={!!tracked} loved={loved} stopped={tracked?.status === "Dropped"} />
             {page.trailer && <TrailerSection id={page.trailer} />}
             {page.watch && <WhereToWatchSection watch={page.watch} />}
           </div>

@@ -31,6 +31,8 @@
   --track: #2c3035;
   /* `kodigoQuietFill`: an episode's band in a season list. */
   --quiet: #3c4148;
+  /* `kodigoListFill`: a title set on a list or the watchlist. */
+  --list-fill: #6faecf;
   --dim: #8c9097;
   --hair: #464b53;
   --shows: #ffc300;
@@ -77,6 +79,7 @@
   --mid-tone: color-mix(in srgb, #1a1a19 78%, transparent);
   --track: #cfc8bb;
   --quiet: #cfc8bb;
+  --list-fill: #43a5df;
   --dim: #6b665d;
   --hair: #b4aea2;
   --movies: #a3122b;

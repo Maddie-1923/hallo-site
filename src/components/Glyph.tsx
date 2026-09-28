@@ -1,6 +1,6 @@
 /** The app's key glyphs, drawn to match its SF Symbols (licensed for Apple
     platforms only). */
-export function Glyph({ name, size = 18 }: { name: "ellipsis" | "plus" | "repeat" | "heart" | "heart-fill" | "check-circle" | "check" | "pause" | "bell" | "bookmark"; size?: number }) {
+export function Glyph({ name, size = 18 }: { name: "ellipsis" | "plus" | "repeat" | "heart" | "heart-fill" | "check-circle" | "check" | "pause" | "bell" | "bookmark" | "list" | "share"; size?: number }) {
   const s = { width: size, height: size, viewBox: "0 0 24 24", "aria-hidden": true } as const;
   switch (name) {
     case "ellipsis":
@@ -55,6 +55,21 @@ export function Glyph({ name, size = 18 }: { name: "ellipsis" | "plus" | "repeat
         <svg {...s} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round">
           <path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z" />
           <path d="M10 20.5a2 2 0 0 0 4 0" strokeLinecap="round" />
+        </svg>
+      );
+    case "list":
+      return (
+        <svg {...s} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <path d="M9 6.5h11M9 12h11M9 17.5h11" />
+          <circle cx="4.5" cy="6.5" r="1.2" fill="currentColor" stroke="none" />
+          <circle cx="4.5" cy="12" r="1.2" fill="currentColor" stroke="none" />
+          <circle cx="4.5" cy="17.5" r="1.2" fill="currentColor" stroke="none" />
+        </svg>
+      );
+    case "share":
+      return (
+        <svg {...s} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-6.5M16 7l-4-4-4 4M12 3v12" />
         </svg>
       );
     case "bookmark":
