@@ -73,8 +73,14 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   const badge = seriesBadge(show.status, page.type);
   const seasons = page.seasons.map((s) => ({ number: s.season_number, name: s.name, count: s.episode_count }));
   // Open on the season they are up to, as the app does, else the first.
-  const upTo = watched.length ? Math.max(...watched.map((k) => Number(k.split("-")[1]))) : null;
-  const openSeason = upTo ?? seasons[0]?.number ?? 1;
+  // The small episode page opens on the episode they watched last (by the
+  // day it was checked off, else the furthest along), or S01E01 before
+  // they've started; the list opens on that episode's season.
+  const when = (k: string) => lib.archive?.watchedDates?.[k] ?? lib.archive?.watchedStamps?.[k] ?? "";
+  const order = (k: string) => k.split("-").slice(1).map(Number);
+  const last = [...watched].sort((a, b) => when(b).localeCompare(when(a)) || order(b)[0] - order(a)[0] || order(b)[1] - order(a)[1])[0];
+  const start = last ? { season: order(last)[0], episode: order(last)[1] } : { season: seasons.find((x) => x.number > 0)?.number ?? 1, episode: 1 };
+  const openSeason = start.season;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -118,7 +124,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             at the About card's width. */}
         {seasons.length > 0 && (
           <div className="mt-8">
-            <SeasonBrowser showID={showID} seasons={seasons} watched={watched} open={openSeason} />
+            <SeasonBrowser showID={showID} seasons={seasons} watched={watched} open={openSeason} start={start} />
           </div>
         )}
         {/* Under it, at the About card's width: the reviews. */}

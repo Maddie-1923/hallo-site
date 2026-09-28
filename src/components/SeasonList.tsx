@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { loadSeason, type SeasonEpisode } from "@/lib/title-actions";
 import { Glyph } from "./Glyph";
 
@@ -22,12 +22,15 @@ type Episode = SeasonEpisode;
 // page) rather than going to the episode's own page; the one shown is marked,
 // and when a season opens with nothing shown yet, its first episode not yet
 // watched is.
-export function SeasonList({ showID, seasons, watched, open: initial, picked, onPick }: { showID: number; seasons: Season[]; watched: string[]; open: number; picked?: string | null; onPick?: (e: Episode) => void }) {
+// `start` is the episode to show first; `scroll` lays the list over the
+// space its card has, so it scrolls inside rather than setting the height.
+export function SeasonList({ showID, seasons, watched, open: initial, picked, onPick, start: first, scroll = false }: { showID: number; seasons: Season[]; watched: string[]; open: number; picked?: string | null; onPick?: (e: Episode) => void; start?: { season: number; episode: number }; scroll?: boolean }) {
   const [open, setOpen] = useState<number | null>(initial);
   const [episodes, setEpisodes] = useState<Record<number, Episode[]>>({});
   const [pending, start] = useTransition();
   const [note, setNote] = useState(false);
   const seen = new Set(watched);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open == null || episodes[open]) return;
@@ -42,11 +45,18 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
     if (!onPick || picked || open == null) return;
     const eps = episodes[open];
     if (!eps?.length) return;
-    onPick(eps.find((e) => !seen.has(`${showID}-${e.season}-${e.episode}`) && !!e.airDate && e.airDate <= today) ?? eps[0]);
+    const e = (first && eps.find((x) => x.season === first.season && x.episode === first.episode)) ?? eps[0];
+    onPick(e);
+    // Bring that episode into view in the list (the list alone, not the page).
+    requestAnimationFrame(() => {
+      const box = listRef.current;
+      const row = box?.querySelector<HTMLElement>(`[data-ep="${showID}-${e.season}-${e.episode}"]`);
+      if (box && row && scroll) box.scrollTop += row.getBoundingClientRect().top - box.getBoundingClientRect().top - 40;
+    });
   }, [episodes, open, picked, onPick]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="grid gap-2">
+    <div ref={listRef} className={`grid gap-2 content-start ${scroll ? "soft-scroll absolute inset-2 overflow-y-auto overscroll-contain pr-1" : ""}`}>
       {note && <p className="m-0 px-1 text-[12px] text-dim">Checking off episodes on the website opens with accounts. Until then, check them off in the app.</p>}
       {seasons.map((s) => {
         const done = Array.from({ length: s.count }, (_, i) => `${showID}-${s.number}-${i + 1}`).filter((k) => seen.has(k)).length;
@@ -80,7 +90,7 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
                   const aired = !!e.airDate && e.airDate <= today;
                   const days = e.airDate ? Math.ceil((Date.parse(e.airDate) - Date.parse(today)) / 86400000) : null;
                   return (
-                    <div key={key} className={`rounded-[10px] bg-[color:var(--quiet)] px-2.5 py-2.5 flex items-center gap-3 ${aired ? "" : "opacity-70"} ${picked === key ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
+                    <div key={key} data-ep={key} className={`rounded-[10px] bg-[color:var(--quiet)] px-2.5 py-2.5 flex items-center gap-3 ${aired ? "" : "opacity-70"} ${picked === key ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
                       {/* The episode's own page, as a tap on the row opens it in the app. */}
                       {onPick ? (
                         <button type="button" onClick={() => onPick(e)} aria-pressed={picked === key} className="min-w-0 flex-1 grid gap-[3px] text-left text-ink group cursor-pointer">

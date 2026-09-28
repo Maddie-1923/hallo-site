@@ -10,19 +10,22 @@ import { HeadingPill, SectionCard } from "./TitleParts";
 // All episodes on a show's page, with a small episode page beside the list:
 // pressing an episode shows its still, its name and code, when it aired, how
 // long it runs, its rating, who directed it and what happens, and the way on
-// to its own page. It stays at the top beside the list, where it starts. On
-// a phone it comes under the list.
-export function SeasonBrowser({ showID, seasons, watched, open }: { showID: number; seasons: { number: number; name: string; count: number }[]; watched: string[]; open: number }) {
+// to its own page. It opens on the episode they watched last, or the
+// first. It stays at the top beside the list, where it starts. On a phone
+// it comes under the list.
+export function SeasonBrowser({ showID, seasons, watched, open, start }: { showID: number; seasons: { number: number; name: string; count: number }[]; watched: string[]; open: number; start: { season: number; episode: number } }) {
   const [ep, setEp] = useState<SeasonEpisode | null>(null);
   const key = ep ? `${showID}-${ep.season}-${ep.episode}` : null;
   return (
-    <div className="grid gap-8 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start">
-      <section className="grid grid-cols-[minmax(0,1fr)] gap-2 content-start min-w-0">
+    <div className="grid gap-8 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      {/* The list as tall as the episode beside it (on a phone, a fixed
+          height), its seasons scrolling inside. */}
+      <section className="flex flex-col gap-2 min-w-0">
         <div>
           <HeadingPill small>All episodes</HeadingPill>
         </div>
-        <SectionCard>
-          <SeasonList showID={showID} seasons={seasons} watched={watched} open={open} picked={key} onPick={setEp} />
+        <SectionCard className="relative flex-1 max-lg:h-[520px] lg:min-h-[320px]">
+          <SeasonList showID={showID} seasons={seasons} watched={watched} open={open} picked={key} onPick={setEp} start={start} scroll />
         </SectionCard>
       </section>
       {/* The notch's 8px from the list, as the keys are from About above. */}
