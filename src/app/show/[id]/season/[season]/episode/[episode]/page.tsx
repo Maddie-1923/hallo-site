@@ -51,7 +51,8 @@ export default async function EpisodePage({ params }: Params) {
 
   const badge = seriesBadge(show.show.status, show.type);
   const facts = [
-    { label: "Episode", value: `${code(ep.season, ep.episode)} · ${ep.name}` },
+    { label: "", value: ep.name },
+    { label: "Episode", value: code(ep.season, ep.episode) },
     ep.airDate && { label: "Aired", value: longDate(ep.airDate) },
     ep.runtime && { label: "Runtime", value: `${ep.runtime}m` },
     ep.vote && { label: "TMDB", value: ep.vote.toFixed(1) },

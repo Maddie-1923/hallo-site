@@ -108,9 +108,17 @@ export function HeaderCard({
         {/* A hairline under the title, when there is one to sit under. */}
         <div className={heading || subtitle || !titleOnBanner ? "mt-2.5 border-t border-hair" : "-mt-[8px]"}>
           {facts.map((f, i) => (
-            <div key={f.label} className={`flex items-baseline justify-between gap-4 py-[8px] text-[12.5px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
-              <span className="text-dim shrink-0">{f.label}</span>
-              <span className={`text-right min-w-0 ${f.accent ? "text-accent" : "text-ink"}`}>{f.value}</span>
+            // A fact with no label is a line of its own across the panel (an
+            // episode's name, as the app sets it under the heading).
+            <div key={f.label || i} className={`flex items-baseline justify-between gap-4 py-[8px] text-[12.5px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
+              {f.label ? (
+                <>
+                  <span className="text-dim shrink-0">{f.label}</span>
+                  <span className={`text-right min-w-0 ${f.accent ? "text-accent" : "text-ink"}`}>{f.value}</span>
+                </>
+              ) : (
+                <span className="min-w-0 font-semibold text-ink">{f.value}</span>
+              )}
             </div>
           ))}
         </div>
@@ -191,14 +199,15 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
   );
 }
 
-/** The trailers, one or two side by side: each its YouTube picture with a
+/** The trailers, one or two side by side, each half the width even when
+    there is only one (the other half stays empty): each its YouTube picture with a
     play mark, playing over the page, and its name under it. The pictures' corners
     are the shell's own curve, 20px. */
 export function TrailerSection({ videos, flat = false }: { videos: Video[]; flat?: boolean }) {
   return (
     <Section title={videos.length > 1 ? "Trailers" : "Trailer"} small={flat}>
       <SectionCard flat={flat}>
-        <div className={`grid gap-2 ${videos.length > 1 ? "sm:grid-cols-2" : ""} ${flat ? "rounded-shell bg-piece p-2" : ""}`}>
+        <div className={`grid gap-2 sm:grid-cols-2 ${flat ? "rounded-shell bg-piece p-2" : ""}`}>
           {videos.map((v) => (
             <TrailerCard key={v.key} video={v} />
           ))}
