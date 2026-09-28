@@ -385,9 +385,10 @@ export interface WhereToWatch {
   subscription: Provider[];
   free: Provider[];
   link: string | null;
-  /** The services carrying it in other countries and not here, by name,
-      each with the countries (ISO codes) that have it: the app's "Also
-      streaming in" list. */
+  /** Every service carrying it anywhere, this country included, by name,
+      each with the countries (ISO codes) that have it. The app's "Also
+      streaming in" list leaves out what's carried here; the web shows it
+      all, since someone on a VPN can watch from any of them. */
   elsewhere: { provider: Provider; countries: string[] }[];
 }
 
@@ -421,15 +422,12 @@ function whereToWatch(r: RawProviders, region: string): WhereToWatch | null {
   // The app's Free row is the ad-supported services.
   const free = (c?.ads ?? []).map(one).filter((p, i, a) => a.findIndex((x) => x.id === p.id) === i);
 
-  // Everywhere else, the services not already carrying it here, by name.
-  const here = new Set([...subscription, ...free].map((p) => serviceKey(p.name)));
+  // Everywhere, this country too, service by service.
   const countries = new Map<string, Set<string>>();
   const services = new Map<string, Provider>();
   for (const [code, rc] of Object.entries(all)) {
-    if (code === region) continue;
     for (const raw of [...(rc.flatrate ?? []), ...(rc.ads ?? [])]) {
       const k = serviceKey(raw.provider_name);
-      if (here.has(k)) continue;
       countries.set(k, (countries.get(k) ?? new Set()).add(code));
       const held = services.get(k);
       if (!held || raw.provider_name.length < held.name.length) services.set(k, one(raw));
