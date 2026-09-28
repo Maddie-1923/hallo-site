@@ -138,13 +138,13 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
           {watch.subscription.length > 0 && row(watch.subscription, true)}
           {watch.free.length > 0 && (
             <>
-              <div className="text-[11px] font-bold uppercase text-dim">Free</div>
+              <div className="text-[12.5px] text-dim">Free</div>
               {row(watch.free, watch.subscription.length === 0)}
             </>
           )}
           {!home && (
             <>
-              <div className="text-[13px] text-dim">Not streaming here. Elsewhere:</div>
+              <div className="text-[12.5px] text-dim">Not streaming here. Elsewhere:</div>
               <div className="flex items-center gap-2.5">
                 <div className="flex gap-2.5 min-w-0">
                   {abroad.map((p) => (
@@ -155,13 +155,13 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
                       )}
                     </span>
                   ))}
-                  {watch.elsewhere.length > 5 && <span className="self-center text-[13px] text-dim">+{watch.elsewhere.length - 5}</span>}
+                  {watch.elsewhere.length > 5 && <span className="self-center text-[12.5px] text-dim">+{watch.elsewhere.length - 5}</span>}
                 </div>
                 <span className="ml-auto"><ElsewhereSheet entries={watch.elsewhere} /></span>
               </div>
             </>
           )}
-          <div className="text-[11px] text-dim">Streaming data by JustWatch</div>
+          <div className="text-[12.5px] text-dim">Streaming data by JustWatch</div>
         </div>
       </SectionCard>
     </Section>
@@ -186,8 +186,8 @@ export function TrailerSection({ id, flat = false }: { id: string; flat?: boolea
             </span>
           </span>
           <span className="block mt-2 px-1 pb-0.5">
-            <span className="text-[17px] font-semibold">Watch trailer</span>
-            <span className="text-[12px] text-dim"> · YouTube</span>
+            <span className="text-[12.5px] font-semibold">Watch trailer</span>
+            <span className="text-[12.5px] text-dim"> · YouTube</span>
           </span>
         </a>
       </SectionCard>
@@ -262,8 +262,8 @@ function CastTile({ p }: { p: CastMember }) {
       <div className="p-2.5">
         {/* One line each, cut short with an ellipsis, as the app's grids and
             rails do: a two-line name would leave a gap under the short ones. */}
-        <div className="text-[12px] leading-[15px] font-semibold text-ink truncate">{p.name}</div>
-        <div className="text-[12px] leading-[15px] text-dim truncate">{p.character}</div>
+        <div className="text-[12.5px] leading-[16px] font-semibold text-ink truncate">{p.name}</div>
+        <div className="text-[12.5px] leading-[16px] text-dim truncate">{p.character}</div>
       </div>
     </div>
   );

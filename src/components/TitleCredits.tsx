@@ -87,14 +87,14 @@ function Rows({ children }: { children: React.ReactNode }) {
 export function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid gap-2 @[520px]:grid-cols-[170px_minmax(0,1fr)] @[520px]:gap-4 py-3 first:pt-0 last:pb-0">
-      <div className="pt-[5px] text-[11px] font-bold uppercase tracking-[.1em] text-dim">{label}</div>
+      <div className="pt-[4px] text-[12.5px] text-dim">{label}</div>
       <div className="flex flex-wrap gap-1.5 min-w-0">{children}</div>
     </div>
   );
 }
 
 export function Chip({ href, children }: { href?: string; children: React.ReactNode }) {
-  const cls = "inline-flex items-center rounded-[8px] bg-piece px-2.5 py-[5px] text-[12.5px] leading-[1.2] text-ink no-underline";
+  const cls = "inline-flex items-center rounded-[8px] bg-piece px-2 py-[4px] text-[12.5px] leading-[1.2] text-ink no-underline";
   return href ? (
     <Link href={href} className={`${cls} hover:text-accent transition-colors`}>
       {children}
@@ -142,11 +142,11 @@ function Details({ d }: { d: TitleDetails }) {
       )}
       <Row label="More at">
         {d.imdb && (
-          <a href={d.imdb} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[8px] border border-hair px-2.5 py-[5px] text-[12px] font-bold tracking-[.04em] text-ink no-underline hover:text-accent">
+          <a href={d.imdb} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[8px] border border-hair px-2 py-[4px] text-[12.5px] font-semibold text-ink no-underline hover:text-accent">
             IMDb
           </a>
         )}
-        <a href={d.tmdb} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[8px] border border-hair px-2.5 py-[5px] text-[12px] font-bold tracking-[.04em] text-ink no-underline hover:text-accent">
+        <a href={d.tmdb} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[8px] border border-hair px-2 py-[4px] text-[12.5px] font-semibold text-ink no-underline hover:text-accent">
           TMDB
         </a>
       </Row>
@@ -183,7 +183,7 @@ function Releases({ groups }: { groups: ReleaseGroup[] }) {
         for (const r of g.releases) days.set(r.date, [...(days.get(r.date) ?? []), r]);
         return (
           <div key={g.label}>
-            <div className="pb-2 text-[11px] font-bold uppercase tracking-[.1em] text-dim border-b border-hair">{g.label}</div>
+            <div className="pb-2 text-[12.5px] font-semibold text-ink border-b border-hair">{g.label}</div>
             <div className="divide-y divide-hair">
               {[...days.entries()].map(([date, rs]) => (
                 <div key={date} className="grid grid-cols-[100px_minmax(0,1fr)] gap-3 py-2.5 text-[12.5px]">
@@ -193,7 +193,7 @@ function Releases({ groups }: { groups: ReleaseGroup[] }) {
                       <span key={`${r.country}${i}`} className="inline-flex items-center gap-1.5">
                         <span aria-hidden>{flag(r.country)}</span>
                         <b className="font-semibold text-ink">{country(r.country)}</b>
-                        {r.certification && <span className="rounded-[4px] border border-hair px-1 text-[10.5px] font-bold text-ink leading-[1.5]">{r.certification}</span>}
+                        {r.certification && <span className="rounded-[4px] border border-hair px-1 text-[12.5px] font-semibold text-ink leading-[1.3]">{r.certification}</span>}
                         {r.note && <span className="text-dim">{r.note}</span>}
                       </span>
                     ))}
@@ -229,7 +229,7 @@ function AirDates({ airing }: { airing: { networks: { name: string; logo: string
       {airing.ratings.length > 0 && (
         <Row label="Rated">
           {airing.ratings.map((r) => (
-            <span key={r.country} className="inline-flex items-center gap-1.5 rounded-[8px] bg-piece px-2.5 py-[5px] text-[12.5px] leading-[1.2] text-ink" title={country(r.country)}>
+            <span key={r.country} className="inline-flex items-center gap-1.5 rounded-[8px] bg-piece px-2 py-[4px] text-[12.5px] leading-[1.2] text-ink" title={country(r.country)}>
               <span aria-hidden>{flag(r.country)}</span>
               {r.rating}
             </span>
