@@ -93,13 +93,14 @@ export function TitleActions({ kind, title, tracked, watched = false, loved, sto
               on={on}
               onFill={k.fill}
               onInk={k.ink}
+              // An outline comes up under the pointer (and on keyboard focus).
               // Switching on confirms in the key's colour; off, or an act
               // that isn't a switch, happens at once.
               confirm={k.fill && !on ? k.fill : undefined}
               off={k.off}
               radius={12}
               run={() => (k.id === "share" ? share() : k.id === "list" ? say("Lists open with accounts.") : k.id === "rewatch" ? say("Rewatch recorded on this page.") : flip(k.id))}
-              className={`h-[58px] pb-[2px] flex flex-col items-center justify-center gap-1 ${on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
+              className={`h-[58px] pb-[2px] flex flex-col items-center justify-center gap-1 ring-inset ring-[color:var(--dim)] enabled:hover:ring-[1.5px] focus-visible:ring-[1.5px] focus-visible:outline-none ${on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
             >
               {/* 2px more below than above: the label's line keeps room under
                   its letters, so this centres what is drawn. */}
