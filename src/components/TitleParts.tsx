@@ -22,7 +22,9 @@ export function HeadingPill({ children }: { children: React.ReactNode }) {
 }
 
 /** A card: the app's section card, with its lit edge and soft shadow. */
-export function SectionCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+export function SectionCard({ children, className = "", flat = false }: { children: React.ReactNode; className?: string; flat?: boolean }) {
+  // Flat: the content alone, when it already sits inside a larger card.
+  if (flat) return <div className={className}>{children}</div>;
   return (
     <div className={`rounded-[20px] bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] ${className}`}>
       {children}
@@ -54,6 +56,7 @@ export function HeaderCard({
   facts,
   overview,
   factsFooter,
+  flat = false,
   children,
 }: {
   /** The wide artwork at the card's head, as the app has it; left out when
@@ -68,10 +71,12 @@ export function HeaderCard({
   overview: string | null;
   /** A closing line under the facts (a show's "Last aired" and its pill). */
   factsFooter?: React.ReactNode;
+  /** Its panels without the card around them, inside a larger card. */
+  flat?: boolean;
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[20px] bg-card p-2 grid gap-2">
+    <div className={flat ? "grid gap-2" : "rounded-[20px] bg-card p-2 grid gap-2"}>
       {art !== undefined && (
         <div className="aspect-video rounded-[14px] overflow-hidden bg-piece border-[0.5px] border-[color:color-mix(in_srgb,var(--dim)_35%,transparent)]">
           {art && (
@@ -107,7 +112,7 @@ export function HeaderCard({
 /** Where to watch in the visitor's country: subscription services, then the
     free ones under a small label; each logo goes on to TMDB's page for the
     country, which lists them through JustWatch. */
-export function WhereToWatchSection({ watch }: { watch: WhereToWatch }) {
+export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWatch; flat?: boolean }) {
   const logo = (p: WhereToWatch["subscription"][number]) => (
     <a key={p.id} href={watch.link ?? undefined} target="_blank" rel="noreferrer" title={p.name} className="shrink-0 w-10 h-10 rounded-[8px] overflow-hidden border border-hair bg-card">
       {p.logo && (
@@ -128,7 +133,7 @@ export function WhereToWatchSection({ watch }: { watch: WhereToWatch }) {
   const abroad = watch.elsewhere.slice(0, 5).map((e) => e.provider);
   return (
     <Section title="Where to watch" tight>
-      <SectionCard>
+      <SectionCard flat={flat}>
         <div className="rounded-[14px] bg-piece p-3 grid gap-2">
           {watch.subscription.length > 0 && row(watch.subscription, true)}
           {watch.free.length > 0 && (
@@ -165,10 +170,10 @@ export function WhereToWatchSection({ watch }: { watch: WhereToWatch }) {
 
 /** The trailer: its YouTube picture with a play mark, going to YouTube. The
     picture's corners are the card's own curve, 20px. */
-export function TrailerSection({ id }: { id: string }) {
+export function TrailerSection({ id, flat = false }: { id: string; flat?: boolean }) {
   return (
     <Section title="Trailer">
-      <SectionCard>
+      <SectionCard flat={flat}>
         <a href={`https://www.youtube.com/watch?v=${id}`} target="_blank" rel="noreferrer" className="group block no-underline text-ink">
           <span className="relative block aspect-video rounded-[20px] overflow-hidden border border-white/15 shadow-[0_10px_18px_rgba(0,0,0,.34)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -325,5 +330,31 @@ export function EpisodesSection({ showID, episodes, current, title }: { showID: 
         ))}
       </Rail>
     </Section>
+  );
+}
+
+/**
+ * The top of a title's page as one L-shaped bento: a card that holds About
+ * down its left and, on the right, whatever sits under the keys (the trailer,
+ * where to watch), with the keys' own card set into the notch above them.
+ * Drawn as two blocks of the card colour that meet, a curve filling the
+ * inside corner, and one shadow cast by the whole shape. On a narrower
+ * screen it stacks: keys, About, then the rest, each in its own card.
+ */
+export function TitleBento({ about, actions, side }: { about: React.ReactNode; actions: React.ReactNode; side: React.ReactNode }) {
+  const R = 20;
+  return (
+    <div className="grid gap-4 lg:gap-0 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:[filter:drop-shadow(0_4px_9px_rgba(0,0,0,.35))]">
+      {/* The notch: the keys, apart from the bento, with a gap under them. */}
+      <div className="lg:col-start-2 lg:row-start-1 lg:pl-4 lg:pb-4">{actions}</div>
+      {/* The long leg: About. */}
+      <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 min-w-0 bg-card p-2 pt-3 rounded-[20px] lg:rounded-br-none">{about}</div>
+      {/* The short leg, joined to the long one along its left side. */}
+      <div className="relative lg:col-start-2 lg:row-start-2 min-w-0 bg-card p-2 pt-3 grid gap-4 content-start rounded-[20px] lg:rounded-l-none">
+        {/* The inside corner, where the short leg's top meets the long leg. */}
+        <span aria-hidden className="hidden lg:block absolute left-0 bottom-full" style={{ width: R, height: R, background: `radial-gradient(circle at 100% 0, transparent ${R - 0.5}px, var(--card) ${R}px)` }} />
+        {side}
+      </div>
+    </div>
   );
 }

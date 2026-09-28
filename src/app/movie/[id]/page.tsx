@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { People } from "@/components/People";
 import { TitleCredits } from "@/components/TitleCredits";
 import { TitleActivity } from "@/components/TitleActivity";
-import { HeaderCard, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { HeaderCard, TitleBento, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { TitleActions } from "@/components/TitleActions";
 import { optionalLibrary } from "@/lib/library";
 import { reviewsOfTitle } from "@/lib/profile-previews";
@@ -67,15 +67,29 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
           width, then two columns on the same widths as the profile's. */}
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={image.banner(movie.backdrop_path) ?? image.poster(movie.poster_path, "w780")} logo={logo} title={movie.title} />
-        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
-          {/* The left column: About, then the members' reviews under it at
-              the same width. */}
-          <div className="grid gap-8 min-w-0">
-          {/* Headed like the sections beside and below it. */}
-          <Section title="About">
-            <HeaderCard title={movie.title} titleOnBanner={!!logo} facts={facts} overview={movie.overview ?? null}>
+        {/* The top as one L-shaped bento: About down the left, the trailer
+            and where to watch on the right, and the keys set into the notch
+            above them. */}
+        <div className="mt-5">
+          <TitleBento
+            about={
+              <Section title="About">
+            <HeaderCard flat title={movie.title} titleOnBanner={!!logo} facts={facts} overview={movie.overview ?? null}>
             </HeaderCard>
           </Section>
+            }
+            actions={<TitleActions kind="movie" title={movie.title} tracked={!!tracked} watched={watched} loved={loved} />}
+            side={
+              <>
+            {page.trailer && <TrailerSection flat id={page.trailer} />}
+            {page.watch && <WhereToWatchSection flat watch={page.watch} />}
+              </>
+            }
+          />
+        </div>
+        {/* Under it, at the About card's width: Your take and the reviews. */}
+        <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="grid gap-8 min-w-0">
           {/* Their own take on it, as the app calls it: rating, moods, tags,
               the review and the private note. */}
           <Section title="Your take">
@@ -84,16 +98,6 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
             </SectionCard>
           </Section>
           <ReviewsSection reviews={reviews} />
-          </div>
-          <div className="grid gap-4">
-            {/* What can be done with it, above the trailer, its top level with
-                the About card's rather than its heading (the heading pill,
-                44px, and the 12px under it). */}
-            <div className="lg:mt-14">
-              <TitleActions kind="movie" title={movie.title} tracked={!!tracked} watched={watched} loved={loved} />
-            </div>
-            {page.trailer && <TrailerSection id={page.trailer} />}
-            {page.watch && <WhereToWatchSection watch={page.watch} />}
           </div>
         </div>
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">

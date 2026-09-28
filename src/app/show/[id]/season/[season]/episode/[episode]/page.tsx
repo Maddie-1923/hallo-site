@@ -8,7 +8,7 @@ import { TitleCredits } from "@/components/TitleCredits";
 import { TitleActions } from "@/components/TitleActions";
 import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
-import { EpisodesSection, HeaderCard, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
+import { EpisodesSection, HeaderCard, TitleBento, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchSection } from "@/components/TitleParts";
 import { optionalLibrary } from "@/lib/library";
 import { episodePage, image, seriesPage, titleLogo, type EpisodeLink } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
@@ -63,33 +63,43 @@ export default async function EpisodePage({ params }: Params) {
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
         <TitleBanner art={ep.still ?? image.banner(show.show.backdrop_path)} logo={logo} title={show.show.name} />
-        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
-          <div className="grid gap-8 min-w-0">
-            <Section title="About">
-              <HeaderCard title={ep.name} subtitle={code(ep.season, ep.episode)} facts={facts} overview={ep.overview} />
+        {/* The top as one L-shaped bento: About down the left, the trailer
+            and where to watch on the right, and the keys set into the notch
+            above them. */}
+        <div className="mt-5">
+          <TitleBento
+            about={
+              <Section title="About">
+              <HeaderCard flat title={ep.name} subtitle={code(ep.season, ep.episode)} facts={facts} overview={ep.overview} />
             </Section>
-            <Section title="Your take">
-              <SectionCard>
-                <YourReview kind="episode" title={{ key: `e${key}`, kind: "show", title: `${show.show.name} ${code(ep.season, ep.episode)}`, href: `/show/${showID}/season/${ep.season}/episode/${ep.episode}`, poster: image.poster(show.show.poster_path, "w342"), backdrop: ep.still, year: (ep.airDate ?? "").slice(0, 4) }} />
-              </SectionCard>
-            </Section>
-            <ReviewsSection reviews={[]} />
-          </div>
-          <div className="grid gap-4">
-            <div className="lg:mt-14">
-              <TitleActions kind="episode" title={`${show.show.name} ${code(ep.season, ep.episode)}`} tracked={!!lib.archive?.shows.some((s) => s.show.id === showID)} watched={watched} loved={loved} />
-            </div>
+            }
+            actions={<TitleActions kind="episode" title={`${show.show.name} ${code(ep.season, ep.episode)}`} tracked={!!lib.archive?.shows.some((s) => s.show.id === showID)} watched={watched} loved={loved} />}
+            side={
+              <>
             {/* Back and on an episode, as the app pages through a season. */}
             {(ep.previous || ep.next) && (
-              <SectionCard>
+              <SectionCard flat>
                 <div className="grid grid-cols-2 gap-2">
                   <Step showID={showID} to={ep.previous} dir={-1} />
                   <Step showID={showID} to={ep.next} dir={1} />
                 </div>
               </SectionCard>
             )}
-            {ep.trailer && <TrailerSection id={ep.trailer} />}
-            {show.watch && <WhereToWatchSection watch={show.watch} />}
+            {ep.trailer && <TrailerSection flat id={ep.trailer} />}
+            {show.watch && <WhereToWatchSection flat watch={show.watch} />}
+              </>
+            }
+          />
+        </div>
+        {/* Under it, at the About card's width: Your take and the reviews. */}
+        <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="grid gap-8 min-w-0">
+            <Section title="Your take">
+              <SectionCard>
+                <YourReview kind="episode" title={{ key: `e${key}`, kind: "show", title: `${show.show.name} ${code(ep.season, ep.episode)}`, href: `/show/${showID}/season/${ep.season}/episode/${ep.episode}`, poster: image.poster(show.show.poster_path, "w342"), backdrop: ep.still, year: (ep.airDate ?? "").slice(0, 4) }} />
+              </SectionCard>
+            </Section>
+            <ReviewsSection reviews={[]} />
           </div>
         </div>
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
