@@ -52,7 +52,9 @@ const CREAM = "#F4ECDC";
 // `corner` is drawn in the frame's top-left corner, over the picture; Explore
 // puts its Shows/Movies switch there so the billboard and the first row still
 // fit one screen.
-export function CinemaHero({ slides, corner }: { slides: CinemaSlide[]; corner?: React.ReactNode }) {
+// `banner`: the size of a title page's banner rather than the full billboard
+// (the tracker's), in the page's own gutter and with the shells' curve.
+export function CinemaHero({ slides, corner, banner = false }: { slides: CinemaSlide[]; corner?: React.ReactNode; banner?: boolean }) {
   const [at, setAt] = useState(0);
   const [hover, setHover] = useState(false);
   const [calm, setCalm] = useState(false);
@@ -101,13 +103,13 @@ export function CinemaHero({ slides, corner }: { slides: CinemaSlide[]; corner?:
       {/* Netflix's proportions: the card runs nearly the full width of the
           window with a slim gutter each side, and on a desktop its height is
           whatever leaves room for the first row below it (.billboard-fit). */}
-      <div className="relative w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,40px)] pb-[clamp(28px,3.5vw,56px)] lg:pb-5">
+      <div className={`relative w-full px-[clamp(16px,3.2vw,64px)] ${banner ? "pt-[clamp(12px,2.2vw,32px)]" : "pt-[clamp(12px,2.2vw,40px)] pb-[clamp(28px,3.5vw,56px)] lg:pb-5"}`}>
         {/* The glow, the way Netflix lifts its billboard off the page: the
             picture itself, blurred into a soft light that spills a little way
             out from behind the frame on every side, so the card looks lit by
             what it is showing. It changes with the slide, fading rather than
             sliding, since light doesn't travel sideways. */}
-        <div aria-hidden className="absolute inset-x-[clamp(16px,3.2vw,64px)] top-[clamp(12px,2.2vw,40px)] bottom-[clamp(28px,3.5vw,56px)] lg:bottom-5 pointer-events-none">
+        <div aria-hidden className={`absolute inset-x-[clamp(16px,3.2vw,64px)] pointer-events-none ${banner ? "top-[clamp(12px,2.2vw,32px)] bottom-0" : "top-[clamp(12px,2.2vw,40px)] bottom-[clamp(28px,3.5vw,56px)] lg:bottom-5"}`}>
           {slides.map((x, i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -123,12 +125,12 @@ export function CinemaHero({ slides, corner }: { slides: CinemaSlide[]; corner?:
         {/* A hairline round the picture rather than a thick bezel, and a soft
             shadow falling below it, so the card sits in front of its glow. */}
         <div
-          className="relative rounded-[clamp(22px,3vw,43px)] border border-hair shadow-[0_28px_70px_-18px_rgba(0,0,0,.75)]"
+          className={`relative ${banner ? "rounded-shell" : "rounded-[clamp(22px,3vw,43px)]"} border border-hair shadow-[0_28px_70px_-18px_rgba(0,0,0,.75)]`}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
         >
           <div
-            className="relative overflow-hidden rounded-[calc(clamp(22px,3vw,43px)-1px)] bg-[#141312] min-h-[640px] sm:min-h-[520px] lg:min-h-0 billboard-fit flex flex-col"
+            className={`relative overflow-hidden bg-[#141312] flex flex-col ${banner ? "rounded-[calc(var(--shell-radius)-1px)] min-h-[520px] sm:min-h-[420px] lg:min-h-0 lg:h-[clamp(300px,40vw,540px)]" : "rounded-[calc(clamp(22px,3vw,43px)-1px)] min-h-[640px] sm:min-h-[520px] lg:min-h-0 billboard-fit"}`}
             // The frame is always a darkened photograph, so the words inside
             // it draw in Night's colours whatever the page is.
             style={nightTokens}
@@ -157,6 +159,10 @@ export function CinemaHero({ slides, corner }: { slides: CinemaSlide[]; corner?:
                 the title. The top of the picture is left alone. */}
             <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.8) 0%, rgba(12,10,9,.35) 26%, transparent 50%)" }} />
             <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(12,10,9,.82) 0%, rgba(12,10,9,.5) 28%, rgba(12,10,9,.15) 42%, transparent 55%)" }} />
+            {/* And deeper in the bottom-left corner, where every word sits, so a
+                bright picture (a blue sky, a white kitchen) can't wash them
+                out; it fades before the middle, leaving the faces alone. */}
+            <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 85% at 0% 100%, rgba(12,10,9,.72) 0%, rgba(12,10,9,.45) 38%, rgba(12,10,9,.12) 62%, transparent 78%)" }} />
 
             {/* The words ride with their picture: each slide's words are a
                 layer that slides in and out with the same timing as the image,
@@ -245,7 +251,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
   return (
     <div className="px-[clamp(20px,5vw,80px)] sm:pl-[clamp(84px,7vw,108px)] pt-24 lg:pt-8 pb-[clamp(24px,3vw,44px)]">
       <div className="max-w-[min(460px,100%)]">
-        <div className="text-[11px] tracking-[.08em] uppercase text-white/70 mb-2">{s.eyebrow}</div>
+        <div className="text-[11px] tracking-[.08em] uppercase text-white/85 mb-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.9)]">{s.eyebrow}</div>
         {/* The title as Netflix sets it: the show's own logo artwork, kept
             compact so it labels the picture rather than covering it. The
             typed title stands in when TMDB has no logo. */}
@@ -270,7 +276,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             {s.tagline}
           </p>
         )}
-        <p className="m-0 mt-1.5 text-[12px] text-white/85 flex flex-wrap items-center gap-x-2">
+        <p className="m-0 mt-1.5 text-[12px] text-white/95 flex flex-wrap items-center gap-x-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.9)]">
           {[
             s.year,
             s.certification ? (
@@ -284,7 +290,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             .filter(Boolean)
             .flatMap((x, i) => (i ? [<span key={`d${i}`} className="text-white/45">|</span>, <span key={i}>{x}</span>] : [<span key={i}>{x}</span>]))}
         </p>
-        {s.overview && <p className="m-0 mt-2 text-[12.5px] leading-[1.45] text-white/85 line-clamp-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.overview}</p>}
+        {s.overview && <p className="m-0 mt-2 text-[12.5px] leading-[1.45] text-white/95 line-clamp-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.9)]">{s.overview}</p>}
 
         <div className="flex flex-wrap items-center gap-2 mt-3.5">
           {s.trailer && (
