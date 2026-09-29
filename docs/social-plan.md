@@ -233,7 +233,13 @@ Everything the app does, on a computer.
    - a moderation page for the owner;
    - a contact address.
 2. **Policies:**
-   - update the privacy policy for public profiles, ads and crash data;
+   - update the privacy policy for public profiles, ads and crash data:
+     rewritten 29 Sep on `social` (web accounts, what's public, Stripe,
+     browser storage, the services involved, rights under the Philippine
+     Data Privacy Act). Its Ads and Crash reports sections are written and
+     switched off (`ADS`, `CRASH_REPORTS` in `app/privacy/page.tsx`); turn
+     each on in the deploy that ships it, with the date. `main` keeps the
+     app-only policy until the site opens;
    - terms of use with rules for user content: `/terms`, built 29 Sep and
      linked from the footer, the Pro page and Stripe checkout. Philippine law,
      accounts from 13, web Pro has no refunds for part-used periods. Still to
