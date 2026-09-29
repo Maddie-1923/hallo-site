@@ -130,7 +130,7 @@ export function CinemaHero({ slides, corner, banner = false }: { slides: CinemaS
           onMouseLeave={() => setHover(false)}
         >
           <div
-            className={`relative overflow-hidden bg-[#141312] flex flex-col ${banner ? "rounded-[calc(var(--shell-radius)-1px)] min-h-[520px] sm:min-h-[420px] lg:min-h-0 lg:h-[clamp(300px,40vw,540px)]" : "rounded-[calc(clamp(22px,3vw,43px)-1px)] min-h-[640px] sm:min-h-[520px] lg:min-h-0 billboard-fit"}`}
+            className={`relative overflow-hidden bg-[#141312] flex flex-col ${banner ? "rounded-[calc(var(--shell-radius)-1px)] min-h-[520px] sm:min-h-[420px] lg:min-h-0 lg:h-[clamp(300px,40vw,540px)]" : "rounded-[calc(clamp(22px,3vw,43px)-1px)] min-h-[640px] sm:min-h-[520px] lg:min-h-[360px] billboard-fit"}`}
             // The frame is always a darkened photograph, so the words inside
             // it draw in Night's colours whatever the page is.
             style={nightTokens}

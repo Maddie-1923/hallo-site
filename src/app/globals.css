@@ -302,6 +302,9 @@ details.faq p { margin: 14px 0 0; color: var(--dim); font-size: 15px; max-width:
     --g: clamp(16px, 3.2vw, 64px);
     --pt: clamp(12px, 2.2vw, 40px);
     --row: calc((100vw - 2 * var(--g) - 36px) / 4.25 * 9 / 16);
+    /* In vh first, for a browser that drops the svh line as unknown, so
+       the frame can never be left with no height at all. */
+    height: max(360px, min(calc(100vh - var(--pt) - var(--row) - 155px), calc((100vw - 2 * var(--g)) / 1.9)));
     height: max(360px, min(calc(100svh - var(--pt) - var(--row) - 155px), calc((100vw - 2 * var(--g)) / 1.9)));
   }
 }
