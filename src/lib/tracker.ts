@@ -2,7 +2,7 @@ import "server-only";
 import type { LibraryArchive, Movie, Show } from "./archive";
 import { moviePiles, showPiles } from "./piles";
 import { fillAired, movieTitle, showTitle, type ProfileTitle, type TrackerShow } from "./public-profile";
-import { showDetail } from "./tmdb";
+import { seasonEpisodes, showDetail } from "./tmdb";
 
 // The full tracker, as the app's Shows and Movies tabs lay it out: a watch
 // list of piles (Up next, Ready to start, On hold, Entering the void) and
@@ -13,10 +13,14 @@ export type ComingShow = { t: ProfileTitle; episode: string; name: string; date:
 export type ComingFilm = { t: ProfileTitle; date: string; inDays: number };
 /** A poster for the banner: a tracked show with an episode just out (its
     show's poster, never the episode's still), or a tracked film now out. */
+/** A day's entry on the tracker's calendar: an episode of a show being
+    watched, or a watch-list film's release. */
+export type CalendarEvent = { date: string; t: ProfileTitle; label: string };
 export type Fresh = { t: ProfileTitle; label: string; date: string; show?: Show; movie?: Movie };
 
 export interface TrackerPage {
   fresh: Fresh[];
+  calendar: CalendarEvent[];
   shows: { upNext: TrackerShow[]; readyToStart: TrackerShow[]; onHold: TrackerShow[]; theVoid: TrackerShow[]; coming: ComingShow[] };
   films: { toWatch: ProfileTitle[]; onHold: ProfileTitle[]; theVoid: ProfileTitle[]; coming: ComingFilm[] };
 }
@@ -83,6 +87,25 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
   }
   fresh.sort((x, y) => y.date.localeCompare(x.date));
 
+  // The calendar: every episode of the season just aired and the season
+  // airing next, for each show being watched, and watch-list films' dates.
+  const calendar: CalendarEvent[] = [];
+  await Promise.all(
+    details.map(async (d, i) => {
+      if (!d) return;
+      const seasons = [...new Set([d.lastEpisode?.season_number, d.nextEpisode?.season_number].filter((n): n is number => !!n))];
+      for (const n of seasons) {
+        for (const e of await seasonEpisodes(watching[i].show.id, n)) {
+          if (e.air_date) calendar.push({ date: e.air_date, t: showTitle(watching[i].show), label: `${code(e.season_number, e.episode_number)}${e.name ? ` · ${e.name}` : ""}` });
+        }
+      }
+    }),
+  );
+  for (const t of a.movies) {
+    if (t.status === "To Watch" && t.movie.release_date) calendar.push({ date: t.movie.release_date, t: movieTitle(t.movie), label: "Release" });
+  }
+  calendar.sort((x, y) => x.date.localeCompare(y.date) || x.t.title.localeCompare(y.t.title));
+
   const mp = moviePiles(a, now);
   const newest = (x: { added?: string }, y: { added?: string }) => (y.added ?? "").localeCompare(x.added ?? "");
   const filmsComing: ComingFilm[] = a.movies
@@ -94,6 +117,7 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
 
   return {
     fresh,
+    calendar,
     shows: { upNext, readyToStart, onHold, theVoid, coming },
     films: {
       toWatch: [...mp.readyToStart].filter(out).sort(newest).map((t) => movieTitle(t.movie)),

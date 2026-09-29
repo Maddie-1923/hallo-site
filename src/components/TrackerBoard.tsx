@@ -6,6 +6,7 @@ import type { ComingFilm, ComingShow, TrackerPage } from "@/lib/tracker";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 import { CheckGlyph, code, HOLD, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph } from "./TrackerRow";
 import { HeadingPill } from "./TitleParts";
+import { TrackerCalendar } from "./TrackerCalendar";
 
 // The full tracker, as the app's Shows and Movies tabs: Shows or Movies, then
 // the watch list or what's coming, each pile under its heading in rows of
@@ -109,6 +110,9 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
+      {/* The calendar first, under the carousel on the left; the switches
+          and the piles below it. */}
+      <TrackerCalendar events={data.calendar} />
       <div className="flex flex-wrap items-center gap-2">
         <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
         <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
