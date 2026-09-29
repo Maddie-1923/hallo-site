@@ -230,7 +230,7 @@ Everything the app does, on a computer.
    - terms of use with rules for user content;
    - an account-deletion page (Google Play needs it too): `/delete-account`,
      built 29 Sep, linked from the footer. It promises deletion within 7 days
-     by email for someone who can't sign in; confirm that before opening.
+     by email for someone who can't sign in (confirmed 29 Sep).
 
 ### 7. Paying and ads
 
