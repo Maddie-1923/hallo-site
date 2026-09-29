@@ -10,10 +10,8 @@ import { image } from "@/lib/tmdb";
 // usernames come back as nothing, which the page turns into a 404.
 //
 // The owner sees their whole profile, drawn from their own library. Anyone
-// else sees the card (name, photo, banner, place, quote) and, until the
-// public tables exist (docs/social-plan.md, step 1.2), nothing under it;
-// those tables are what a visitor's reviews, lists and Watchlog will be read
-// from, so a visitor's page never touches anyone's private library.
+// else sees it drawn from the member's public copy (public_libraries, step
+// 1.2), so a visitor's page never touches anyone's private library.
 const EMPTY: LibraryArchive = { version: 12, exported: "", device: "", shows: [], movies: [], watched: [] };
 
 export async function realProfile(username: string): Promise<PublicProfileView | null> {
@@ -41,5 +39,11 @@ export async function realProfile(username: string): Promise<PublicProfileView |
     const view = profileFromArchive(archive, meta, true);
     return { ...(await withAiredEpisodes(await withUpToDate(view, archive))), isPrivate: p.is_private };
   }
-  return { ...profileFromArchive(EMPTY, meta, false), isPrivate: p.is_private, previewNote: p.is_private ? undefined : "Their reviews, lists and Watchlog show here soon." };
+  // Everyone else: their public copy, drawn by the same code as the owner's
+  // view. None for a private profile (the page shows the private notice), or
+  // across a block.
+  const { data: pub } = await supabase.from("public_libraries").select("archive").eq("user_id", p.user_id).maybeSingle();
+  const archive = pub && isArchive(pub.archive) ? pub.archive : EMPTY;
+  const view = profileFromArchive(archive, meta, false);
+  return { ...(archive === EMPTY ? view : await withAiredEpisodes(await withUpToDate(view, archive))), isPrivate: p.is_private };
 }

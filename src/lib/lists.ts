@@ -2,6 +2,9 @@ import "server-only";
 import { MEMBERS } from "./members";
 import { loadProfile, previewArchive } from "./profile-previews";
 import type { ProfileTitle } from "./public-profile";
+import { publicList, publicLists } from "./public-reads";
+import { accountsOpen } from "./accounts";
+import { optionalLibrary } from "./library";
 
 // Lists: each person's own lists (the app's custom categories), gathered for
 // the Lists hub and given a page each at /u/<name>/list/<id>. Until accounts,
@@ -30,7 +33,14 @@ const REMARKS = [
 let cached: { at: number; lists: ListView[] } | null = null;
 
 export async function allLists(): Promise<ListView[]> {
-  if (process.env.NODE_ENV !== "development") return [];
+  // Real members' lists first (the public tables), then in development the
+  // previews'.
+  const real = await publicLists();
+  if (process.env.NODE_ENV !== "development") return real;
+  return [...real, ...(await previewLists())];
+}
+
+async function previewLists(): Promise<ListView[]> {
   if (cached && Date.now() - cached.at < 60_000) return cached.lists;
   const names = ["preview", "sample", ...MEMBERS.map((m) => m.username)];
   const views = await Promise.all(names.map((n) => loadProfile(n)));
@@ -61,14 +71,14 @@ export async function allLists(): Promise<ListView[]> {
 }
 
 export async function listFor(owner: string, id: string) {
-  return (await allLists()).find((l) => l.owner === owner && l.id === id) ?? null;
+  return (await publicList(owner, id)) ?? (process.env.NODE_ENV === "development" ? ((await previewLists()).find((l) => l.owner === owner && l.id === id) ?? null) : null);
 }
 
 /** The titles the viewer has watched, by key, for "you've watched 7 of 20":
     films marked watched, and series finished. The preview's library until
-    accounts. */
+    signed-in viewer's own library, else the preview's in development. */
 export async function watchedKeys(): Promise<string[]> {
-  const a = await previewArchive();
+  const a = (accountsOpen ? (await optionalLibrary()).archive : null) ?? (await previewArchive());
   if (!a) return [];
   const films = new Set([...(a.watchedMovies ?? []), ...Object.keys(a.movieWatchedDates ?? {}).map(Number), ...a.movies.filter((t) => t.status === "Watched").map((t) => t.movie.id)]);
   return [...[...films].map((id) => `m${id}`), ...a.shows.filter((t) => t.status === "Finished").map((t) => `s${t.show.id}`)];

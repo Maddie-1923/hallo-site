@@ -98,7 +98,7 @@ export default function Privacy() {
           reviews and ratings, your lists, the comments and likes you leave, and who you follow. Your
           recent activity, your Watchlog (what you watched and when), your stats and your Year in Review
           show too, unless you turn them off in <strong>Settings → Privacy</strong>. Each category on your profile,
-          such as Watching or Watchlist, has its own switch; On Hold and Stopped Watching start private.
+          such as Watching or Watchlist, has its own switch. What you put On Hold or Stopped Watching is never shown to anyone but you.
         </p>
         <p>
           With a <strong>private profile</strong>, only people you&apos;ve let follow you see those things. Your

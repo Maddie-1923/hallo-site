@@ -6,6 +6,7 @@ import { image, movieRails, showRails } from "@/lib/tmdb";
 import { member, type Member } from "@/lib/members";
 import { accountsOpen } from "@/lib/accounts";
 import { realProfile } from "@/lib/real-profile";
+import { publicReviewsOfTitle } from "@/lib/public-reads";
 
 // The two development-only profiles, /u/preview and /u/sample (see
 // app/u/[username]/page.tsx), and the made-up reviews and watches they carry
@@ -344,7 +345,14 @@ function withSampleLists(view: PublicProfileView): PublicProfileView {
  * /u/sample); once they do, this reads `public_entries` instead.
  */
 export async function reviewsOfTitle(key: string): Promise<{ review: ReviewEntry; username: string; avatar: string | null }[]> {
-  if (!DEV) return [];
+  // Real members' reviews (the public tables), then in development the
+  // previews' and the made-up reviewers'.
+  const real = await publicReviewsOfTitle(key.startsWith("s") ? "show" : "movie", Number(key.slice(1)));
+  if (!DEV) return real;
+  return [...real, ...(await previewReviewsOfTitle(key))];
+}
+
+async function previewReviewsOfTitle(key: string): Promise<{ review: ReviewEntry; username: string; avatar: string | null }[]> {
   const views = (await Promise.all(["preview", "sample"].map(loadProfile))).filter((v): v is PublicProfileView => !!v);
   const out: { review: ReviewEntry; username: string; avatar: string | null }[] = [];
   for (const v of views) {

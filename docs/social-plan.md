@@ -171,6 +171,28 @@ tables; entitlements and safety go there when accounts open.
    and `SITE_ACCOUNTS=on` in `.env.local`.
 2. **The projection.** Add `public_entries` and `public_lists`, the trigger,
    and a one-off backfill for people who opted in.
+   Built 30 Sep on kodigo-dev (`20260930040000_public_projection.sql`):
+   - `public_libraries`: one cleaned copy of each public member's library,
+     built from an allow-list (notes, moods, tags, pictures, stamps, device
+     and anything the app adds later stay private). Visitors' profiles are
+     drawn from it by `profileFromArchive`, the owner's own code path;
+   - `public_entries`: every rated, reacted or reviewed title and episode,
+     for members' reviews on title pages (`lib/public-reads.ts`) and the
+     feed; `updated_at` only moves when the entry itself changes;
+   - `public_lists`: lists with their titles (name, poster, year) for the
+     Lists hub and list pages;
+   - one refresh (`private.refresh_projection`) runs on every library or
+     profile change; it never fails the write (checked with a broken
+     library), and takes ~150 ms for a 400-series, 12,000-episode library;
+   - nothing is copied without a username, when private or suspended, and
+     going private or suspended deletes the copies; On Hold and Stopped
+     Watching titles, and every rating, review, watch and list entry of
+     theirs, are never copied; reads are refused across a block; nobody
+     can write the copies;
+   - the backfill runs at the end of the migration.
+   Title pages, the Lists hub, list pages and visitors' profiles read them
+   once accounts are open, with the development samples after. Favourites
+   stay in the browser with their card, which is parked.
    Also store each person's chosen favourites (top 5 films, top 5 series, in
    order) on `profiles`. The profile page's editor already works and saves
    to the browser until this exists.
