@@ -19,7 +19,7 @@ export async function billboard(
   // The tracker's own words on its slides, by the slide's key ("s123",
   // "m456"): over the title ("New episode · S01 | E07") and under it
   // ("Aired 28 September 2026").
-  extra: Record<string, { eyebrow?: string; note?: string }> = {},
+  extra: Record<string, { eyebrow?: string; note?: string; noteDate?: string }> = {},
 ): Promise<CinemaSlide[]> {
   type Pick = ({ kind: "show"; show: Show } | { kind: "movie"; movie: Movie }) & { coming?: string };
   // Films and series taking turns, only titles with artwork behind them.
@@ -61,7 +61,8 @@ export async function billboard(
     const id = t.id;
     return {
       key: `${isShow ? "s" : "m"}${id}`,
-      eyebrow: extra[`${isShow ? "s" : "m"}${id}`]?.eyebrow ?? (p.coming ? `${isShow ? "Series" : "Film"} coming ${comingDate(p.coming)}` : isShow ? "Trending series" : "Trending film"),
+      eyebrow: extra[`${isShow ? "s" : "m"}${id}`]?.eyebrow ?? (p.coming ? `${isShow ? "Series" : "Film"} coming${p.coming ? "" : " soon"}` : isShow ? "Trending series" : "Trending film"),
+      eyebrowDate: extra[`${isShow ? "s" : "m"}${id}`]?.eyebrow ? undefined : p.coming || undefined,
       title: isShow ? p.show.name : p.movie.title,
       href: isShow ? `/show/${id}` : `/movie/${id}`,
       backdrop: image.banner(t.backdrop_path)!,
@@ -75,19 +76,13 @@ export async function billboard(
       trailer: d?.trailer ?? null,
       logo: logos[i],
       note: extra[`${isShow ? "s" : "m"}${id}`]?.note,
+      noteDate: extra[`${isShow ? "s" : "m"}${id}`]?.noteDate,
       target: p,
       tracked: isShow ? tracked.show.has(id) : tracked.movie.has(id),
     };
   });
 }
 
-/** "12 December" this year, "12 December 2027" beyond it. */
-function comingDate(d: string) {
-  if (!d) return "soon";
-  const [y, m, day] = d.split("-").map(Number);
-  const sameYear = y === new Date().getFullYear();
-  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", ...(sameYear ? {} : { year: "numeric" }), timeZone: "UTC" });
-}
 
 // A title on its way into a row, before it is turned into a card.
 export interface PosterItem {

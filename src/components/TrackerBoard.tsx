@@ -10,6 +10,7 @@ import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 import { CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, type Key } from "./TrackerRow";
 import { HeadingPill } from "./TitleParts";
 import { TrackerCalendar } from "./TrackerCalendar";
+import { useDateFormat } from "./Day";
 import { MASKED_NAME, SpoilerCover, useSpoilers } from "./Spoiler";
 
 // The full tracker, as the app's Shows and Movies tabs: Shows or Movies, then
@@ -32,6 +33,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
   // Spoiler protection: every episode these lists name is one not yet
   // watched, so with the setting on its name reads "Hidden".
   const spoilers = useSpoilers();
+  const fmt = useDateFormat();
   const epName = (n: string) => (spoilers.names && n ? MASKED_NAME : n);
   // Whether a dated episode on the calendar has been watched.
   const watchedEp = (e: CalendarEvent) => !!e.episode && [...(known.get(e.t.key)?.seen ?? []), ...(seen[e.t.key] ?? [])].includes(e.episode);
@@ -177,8 +179,8 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
             .filter((c) => c.inDays >= b.from && c.inDays <= b.to)
             .map((c): Item =>
               "episode" in c
-                ? { key: `${c.t.key}${c.episode}`, t: c.t, episode: c.episode, date: c.date, lines: [when(c), `${code(c.episode)}${c.name ? ` · ${epName(c.name)}` : ""}`], bar: null, keys: null }
-                : { key: c.t.key, t: c.t, date: c.date, lines: [when(c), "Release"], bar: null, keys: null },
+                ? { key: `${c.t.key}${c.episode}`, t: c.t, episode: c.episode, date: c.date, lines: [when(c, fmt), `${code(c.episode)}${c.name ? ` · ${epName(c.name)}` : ""}`], bar: null, keys: null }
+                : { key: c.t.key, t: c.t, date: c.date, lines: [when(c, fmt), "Release"], bar: null, keys: null },
             ),
         }));
   // Every pile has its tab, empty or not, so the tabs never move; the one
@@ -281,17 +283,18 @@ function EpisodePanel({ item, keysFor }: { item: Item; keysFor: (e: CalendarEven
     .map((k, i, a) => (i === a.length - 1 ? { ...k, wide: true } : k));
   const isFilm = item.t.kind === "movie";
   const spoilers = useSpoilers();
+  const fmt = useDateFormat();
   // The panel's episode is one they haven't watched (the next, a skipped or
   // a coming one) unless the calendar's keys have just ticked it.
   const seenHere = keysFor({ date: "0000-00-00", t: item.t, label: "", episode: item.episode })?.some((k) => k.label.includes("watched") && k.on) ?? false;
   const href = item.episode ? `/show/${id}/season/${sn}/episode/${en}` : item.t.href;
   const facts = [
     !isFilm && ["Show", <Link key="s" href={item.t.href} className="text-accent no-underline hover:underline">{item.t.title}</Link>],
-    ep?.airDate && ["Aired", longDate(ep.airDate)],
+    ep?.airDate && ["Aired", fmt(ep.airDate)],
     ep?.runtime && ["Runtime", `${ep.runtime}m`],
     ep?.vote && ["TMDB", ep.vote.toFixed(1)],
     isFilm && item.t.year && ["Year", item.t.year],
-    isFilm && item.date && ["Release", longDate(item.date)],
+    isFilm && item.date && ["Release", fmt(item.date)],
   ].filter(Boolean) as [string, React.ReactNode][];
 
   return (
@@ -341,10 +344,6 @@ function EpisodePanel({ item, keysFor }: { item: Item; keysFor: (e: CalendarEven
   );
 }
 
-function longDate(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-}
 
 /** A switch lettered as the tab bars: two choices on a pill. */
 function Switch<T extends string>({ value, onChange, options, label }: { value: T; onChange: (v: T) => void; options: [T, string][]; label: string }) {
@@ -366,9 +365,8 @@ function Switch<T extends string>({ value, onChange, options, label }: { value: 
   );
 }
 
-function when(c: { date: string; inDays: number }) {
+function when(c: { date: string; inDays: number }, fmt: ReturnType<typeof useDateFormat>) {
   if (c.inDays === 0) return "Today";
   if (c.inDays === 1) return "Tomorrow";
-  const [y, m, d] = c.date.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", ...(c.inDays > 300 ? { year: "numeric" } : {}), timeZone: "UTC" });
+  return fmt(c.date, c.inDays > 300 ? "short" : "weekday");
 }

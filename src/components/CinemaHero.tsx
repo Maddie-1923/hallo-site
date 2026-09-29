@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { TrailerModal } from "./TrailerPlayer";
+import { Day } from "./Day";
 import type { Movie, Show } from "@/lib/archive";
 import { trackMovie, trackShow } from "@/lib/library-actions";
 import { nightTokens } from "@/lib/theme";
@@ -26,8 +27,12 @@ export interface CinemaSlide {
   trailer: string | null;
   /** The title's logo artwork, drawn in place of the typed title when there. */
   logo: string | null;
-  /** A line under the title (the tracker's "Aired 28 September 2026"). */
+  /** A line under the title (the tracker's "Aired 28 September 2026"),
+      its date apart so it follows the date setting. */
   note?: string;
+  noteDate?: string;
+  /** A date ending the eyebrow ("Film coming 18 December"). */
+  eyebrowDate?: string;
   target: { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
   tracked: boolean;
 }
@@ -251,7 +256,9 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
   return (
     <div className="px-[clamp(20px,5vw,80px)] sm:pl-[clamp(84px,7vw,108px)] pt-24 lg:pt-8 pb-[clamp(24px,3vw,44px)]">
       <div className="max-w-[min(460px,100%)]">
-        <div className="text-[11px] tracking-[.08em] uppercase text-white/85 mb-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.9)]">{s.eyebrow}</div>
+        <div className="text-[11px] tracking-[.08em] uppercase text-white/85 mb-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.9)]">{s.eyebrow}
+          {s.eyebrowDate && <> <Day iso={s.eyebrowDate} style={s.eyebrowDate.slice(0, 4) === String(new Date().getFullYear()) ? "dayMonth" : "long"} /></>}
+        </div>
         {/* The title as Netflix sets it: the show's own logo artwork, kept
             compact so it labels the picture rather than covering it. The
             typed title stands in when TMDB has no logo. */}
@@ -269,7 +276,9 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             )}
           </Link>
         </h1>
-        {s.note && <p className="m-0 mt-2 text-[12.5px] font-semibold text-white drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.note}</p>}
+        {s.note && <p className="m-0 mt-2 text-[12.5px] font-semibold text-white drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.note}
+            {s.noteDate && <> <Day iso={s.noteDate} /></>}
+          </p>}
 
         {s.tagline && (
           <p className="m-0 mt-3 text-white uppercase tracking-[.04em] leading-[1.2] text-[11px] [font-family:var(--font-wide)] font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,.7)]">

@@ -14,6 +14,7 @@ import { EpisodesSection, HeaderCard, TitleBento, Section, SectionCard, TitleBan
 import { optionalLibrary } from "@/lib/library";
 import { episodePage, image, seriesPage, titleLogo, type EpisodeLink } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
+import { Day } from "@/components/Day";
 
 // An episode's page, laid out as its show's (the picture across the top, the
 // About card and the keys beside it, Your take and reviews under it) with the
@@ -54,7 +55,7 @@ export default async function EpisodePage({ params }: Params) {
   const facts = [
     { label: "", value: <SpoilerName name={ep.name} watched={watched} /> },
     { label: "Episode", value: code(ep.season, ep.episode) },
-    ep.airDate && { label: "Aired", value: longDate(ep.airDate) },
+    ep.airDate && { label: "Aired", value: <Day iso={ep.airDate} /> },
     ep.runtime && { label: "Runtime", value: `${ep.runtime}m` },
     ep.vote && { label: "TMDB", value: ep.vote.toFixed(1) },
     ep.directors.length > 0 && { label: ep.directors.length > 1 ? "Directors" : "Director", value: <People people={ep.directors} /> },
@@ -99,7 +100,7 @@ export default async function EpisodePage({ params }: Params) {
                   // The show's status, as the show page closes its facts.
                   (show.lastAired || badge) && (
                     <div className="flex items-center justify-between gap-3 text-[12.5px] text-dim">
-                      <span>{show.lastAired ? `Last aired ${longDate(show.lastAired)}` : ""}</span>
+                      <span>{show.lastAired ? <>Last aired <Day iso={show.lastAired} /></> : ""}</span>
                       {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING" || badge.label === "PILOT"} />}
                     </div>
                   )
@@ -161,9 +162,5 @@ function Step({ showID, to, dir }: { showID: number; to: EpisodeLink | null; dir
   );
 }
 
-function longDate(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-}
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;

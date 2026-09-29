@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { RatingMarks } from "./RatingMarks";
 import { ReviewActions } from "./ReviewActions";
+import { Day } from "./Day";
 
 /** One review as the sheet draws it, wherever it came from. */
 export interface SheetReview {
@@ -127,11 +128,6 @@ export function ReviewSheet({ r, username, avatar, onClose }: { r: SheetReview; 
   );
 }
 
-/** "23 Sept 2026" for "2026-09-23". */
-function shortDate(date: string) {
-  const [y, m, d] = date.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-}
 
 // The top of a review, in the sheet and on the Reviews tab alike. On the
 // left, who wrote it (their photo, then their name), the title, for a
@@ -195,7 +191,7 @@ export function ReviewHeading({
       </div>
       <div className="shrink-0 flex flex-col items-end">
         {/* As tall as the byline's photo, so the date sits level with the name. */}
-        <span className="h-7 flex items-center text-dim text-[12.5px] leading-none">{r.date ? shortDate(r.date) : ""}</span>
+        <span className="h-7 flex items-center text-dim text-[12.5px] leading-none">{r.date ? <Day iso={r.date} style="short" /> : ""}</span>
       </div>
     </div>
   );

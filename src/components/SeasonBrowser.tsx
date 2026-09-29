@@ -7,6 +7,7 @@ import { ExpandableText } from "./ExpandableText";
 import { SpoilerCover, SpoilerName } from "./Spoiler";
 import { SeasonList } from "./SeasonList";
 import { HeadingPill, SectionCard } from "./TitleParts";
+import { Day } from "./Day";
 
 // All episodes on a show's page, with a small episode page beside the list:
 // pressing an episode shows its still, its name and code, when it aired, how
@@ -51,7 +52,7 @@ export function SeasonBrowser({ showID, seasons, watched, open, start }: { showI
                 </div>
                 <div className="mt-2.5 border-t border-hair">
                   {[
-                    ep.airDate && ["Aired", longDate(ep.airDate)],
+                    ep.airDate && ["Aired", <Day key="d" iso={ep.airDate} />],
                     ep.runtime && ["Runtime", `${ep.runtime}m`],
                     ep.vote && ["TMDB", ep.vote.toFixed(1)],
                   ]
@@ -101,9 +102,4 @@ export function SeasonBrowser({ showID, seasons, watched, open, start }: { showI
 function code(s: number, e: number) {
   const ep = String(e).padStart(2, "0");
   return s === 0 ? `SP | ${ep}` : `S${String(s).padStart(2, "0")} | E${ep}`;
-}
-
-function longDate(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }

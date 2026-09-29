@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useDateFormat } from "./Day";
 
 // When they watched it: a button reading the day chosen ("Today", or the
 // date), opening a small calendar under it. Quick picks first, today and the
@@ -12,6 +13,8 @@ const WEEK = ["S", "M", "T", "W", "T", "F", "S"];
 
 export function WatchedOn({ value, onChange, out }: { value: string; onChange: (v: string) => void; out?: { label: string; date: string } | null }) {
   const today = iso(new Date());
+  const fmt = useDateFormat();
+  const long = (v: string) => fmt(v, "short");
   const chosen = value || today;
   const [open, setOpen] = useState(false);
   const [month, setMonth] = useState(() => {
@@ -117,9 +120,4 @@ function Arrow({ label, onClick, d, off = false }: { label: string; onClick: () 
       </svg>
     </button>
   );
-}
-
-function long(v: string) {
-  const [y, m, d] = v.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }

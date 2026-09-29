@@ -3,6 +3,7 @@ import type { CastMember, CrewGroup, ReleaseGroup, TitleDetails } from "@/lib/tm
 import { ProfileSections } from "./ProfileNav";
 import { CastGrid } from "./TitleParts";
 import { Themes } from "./Themes";
+import { Day } from "./Day";
 
 // The credits and facts under a title, as Letterboxd keeps them, in the
 // profile's tabs: Cast (the app's portrait tiles, in a grid), Crew, Details, Genres, and
@@ -168,10 +169,6 @@ const country = (code: string) => {
   }
 };
 
-function shortDate(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" });
-}
 
 /** Where each country could see it, and when: grouped by kind of release,
     each day a line with the countries that had it then. */
@@ -187,7 +184,7 @@ function Releases({ groups }: { groups: ReleaseGroup[] }) {
             <div className="divide-y divide-hair">
               {[...days.entries()].map(([date, rs]) => (
                 <div key={date} className="grid grid-cols-[100px_minmax(0,1fr)] gap-3 py-2.5 text-[12.5px]">
-                  <span className="text-dim tabular-nums pt-[1px]">{shortDate(date)}</span>
+                  <span className="text-dim tabular-nums pt-[1px]"><Day iso={date} style="short" /></span>
                   <span className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
                     {rs.map((r, i) => (
                       <span key={`${r.country}${i}`} className="inline-flex items-center gap-1.5">
@@ -218,7 +215,7 @@ function AirDates({ airing }: { airing: { networks: { name: string; logo: string
           <div className="w-full divide-y divide-hair">
             {airing.seasons.map((s) => (
               <div key={s.name} className="grid grid-cols-[100px_minmax(0,1fr)_auto] gap-3 py-2 first:pt-[3px] text-[12.5px]">
-                <span className="text-dim tabular-nums">{s.date ? shortDate(s.date) : "To come"}</span>
+                <span className="text-dim tabular-nums">{s.date ? <Day iso={s.date} style="short" /> : "To come"}</span>
                 <b className="font-semibold text-ink">{s.name}</b>
                 <span className="text-dim">{s.episodes} episodes</span>
               </div>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ProfileTitle } from "@/lib/public-profile";
 import { useLiveWatches } from "@/lib/live-watches";
+import { Day } from "./Day";
 
 export type ActivityItem = { key: string; date: string; t: ProfileTitle; verb: string; detail?: string; rating?: number | null; loved?: boolean };
 
@@ -33,16 +34,11 @@ export function ActivityFeed({ items }: { items: ActivityItem[] }) {
                 <span className="whitespace-nowrap text-accent font-semibold text-[12.5px]">♥ {Number.isInteger(it.rating) ? it.rating : it.rating.toFixed(1)}</span>
               )}
               {it.loved && <span className="text-loved">♥</span>}
-              <span className="text-dim w-[92px] text-right">{prettyDate(it.date)}</span>
+              <span className="text-dim w-[92px] text-right"><Day iso={it.date} style="short" /></span>
             </span>
           </Link>
         </li>
       ))}
     </ul>
   );
-}
-
-function prettyDate(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }

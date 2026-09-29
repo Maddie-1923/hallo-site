@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ExpandableText } from "@/components/ExpandableText";
 import { Section, SectionCard } from "@/components/TitleParts";
 import { personPage, type PersonCredit } from "@/lib/tmdb";
+import { Day } from "@/components/Day";
 
 // A person's page, reached from a title's cast, crew, director or creator:
 // who they are, then their filmography: what they have directed or created
@@ -27,9 +28,9 @@ export default async function PersonPage({ params }: PageProps<"/person/[id]">) 
 
   const facts = [
     p.knownFor && { label: "Known for", value: p.knownFor },
-    p.born && { label: "Born", value: longDate(p.born) },
+    p.born && { label: "Born", value: <Day iso={p.born} /> },
     p.place && { label: "From", value: p.place },
-  ].filter(Boolean) as { label: string; value: string }[];
+  ].filter(Boolean) as { label: string; value: React.ReactNode }[];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -110,7 +111,3 @@ function Credits({ title, items, showRole }: { title: string; items: PersonCredi
   );
 }
 
-function longDate(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-}

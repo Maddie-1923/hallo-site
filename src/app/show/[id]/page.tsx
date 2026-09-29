@@ -15,6 +15,7 @@ import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
 import { image, seriesPage, showTrailers, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
+import { Day } from "@/components/Day";
 
 // A series' page, laid out like the film page and the profile (the picture
 // as a banner across the top, then two columns), with the pieces of the
@@ -63,7 +64,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
       label: "First aired",
       value: (
         <a href="#air-dates" className="text-accent no-underline hover:underline">
-          {longDate(show.first_air_date)} →
+          <Day iso={show.first_air_date} /> →
         </a>
       ),
     },
@@ -103,7 +104,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
               factsFooter={
                 (page.lastAired || badge) && (
                   <div className="flex items-center justify-between gap-3 text-[12.5px] text-dim">
-                    <span>{page.lastAired ? `Last aired ${longDate(page.lastAired)}` : ""}</span>
+                    <span>{page.lastAired ? <>Last aired <Day iso={page.lastAired} /></> : ""}</span>
                     {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING" || badge.label === "PILOT"} />}
                   </div>
                 )
@@ -152,8 +153,3 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
 }
 
 
-/** "23 September 2022". */
-function longDate(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-}

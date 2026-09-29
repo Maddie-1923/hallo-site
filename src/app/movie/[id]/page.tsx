@@ -13,6 +13,7 @@ import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
 import { filmPage, image, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
+import { Day } from "@/components/Day";
 
 // A film's page, laid out after the app's film screen (MovieDetailView): the
 // header card (the wide artwork, the facts panel with the title and its rows,
@@ -54,7 +55,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
       label: "Released",
       value: (
         <a href="#releases" className="text-accent no-underline hover:underline">
-          {longDate(page.released)} →
+          <Day iso={page.released} /> →
         </a>
       ),
     },
@@ -111,8 +112,3 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
   );
 }
 
-/** "23 September 2022". */
-function longDate(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-}

@@ -4,6 +4,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { HeadingPill } from "@/components/TitleParts";
 import { updates, type Update } from "@/lib/updates";
+import { Day } from "@/components/Day";
 
 export const metadata: Metadata = {
   title: "What's new — Kodigo",
@@ -48,7 +49,7 @@ function Entry({ u }: { u: Update }) {
   return (
     <section className="grid gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        <HeadingPill small>{longDate(u.date)}</HeadingPill>
+        <HeadingPill small><Day iso={u.date} /></HeadingPill>
         <Chip>{u.where}</Chip>
         <Chip tone={u.status}>{u.status === "live" ? "Live" : u.status === "in review" ? "In review" : "Coming soon"}</Chip>
       </div>
@@ -76,7 +77,3 @@ function Chip({ children, tone }: { children: React.ReactNode; tone?: Update["st
   return <span className={`inline-flex items-center h-[26px] px-3 rounded-full text-[10.5px] font-bold uppercase tracking-[.12em] ${fill}`}>{children}</span>;
 }
 
-function longDate(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-}
