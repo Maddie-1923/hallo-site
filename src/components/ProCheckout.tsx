@@ -117,7 +117,11 @@ export function ProCheckout({ ready, signedIn, subscription }: { ready: boolean;
           </p>
         )}
         <p className="m-0 text-[12.5px] leading-[1.6] text-dim">
-          In US dollars, charged today and renewing until you cancel. Payment is handled by Stripe; Kodigo never sees your card.
+          In US dollars, charged today and renewing until you cancel. Payment is handled by Stripe; Kodigo never sees your card. Subscribing means you agree to the{" "}
+          <Link href="/terms" className="text-accent no-underline hover:underline">
+            Terms of use
+          </Link>
+          .
         </p>
       </div>
 

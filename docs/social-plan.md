@@ -234,7 +234,11 @@ Everything the app does, on a computer.
    - a contact address.
 2. **Policies:**
    - update the privacy policy for public profiles, ads and crash data;
-   - terms of use with rules for user content;
+   - terms of use with rules for user content: `/terms`, built 29 Sep and
+     linked from the footer, the Pro page and Stripe checkout. Philippine law,
+     accounts from 13, web Pro has no refunds for part-used periods. Still to
+     do before real payments: the legal name in "Who we are", and a lawyer's
+     read;
    - an account-deletion page (Google Play needs it too): `/delete-account`,
      built 29 Sep, linked from the footer. It promises deletion within 7 days
      by email for someone who can't sign in (confirmed 29 Sep).
@@ -253,7 +257,7 @@ Everything the app does, on a computer.
    checkout. `/api/checkout` → Stripe Checkout → `/pro/welcome`; Settings →
    Account → Subscription shows the plan and renewal and a Manage button
    (`/api/billing-portal`). Everything is off until `STRIPE_*` keys are set
-   and accounts open. Before real charges: `/terms`, and turning on the
+   and accounts open. Before real charges: the legal name on `/terms`, and turning on the
    Customer Portal in Stripe's dashboard.
 2. **Entitlements:** the Stripe webhook (`/api/stripe/webhook`) writes Pro to
    the `entitlements` table (migration `20260929000000_entitlements.sql`, not

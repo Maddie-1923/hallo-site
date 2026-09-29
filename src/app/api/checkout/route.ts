@@ -27,6 +27,7 @@ export async function POST(req: Request) {
     customer_email: user.email ?? undefined,
     subscription_data: { metadata: { user_id: user.id } },
     allow_promotion_codes: true,
+    custom_text: { submit: { message: `Renews until you cancel. By subscribing you agree to Kodigo's Terms of use: ${site}/terms` } },
     success_url: `${site}/pro/welcome?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${site}/pro`,
   });
