@@ -96,7 +96,7 @@ export default function Privacy() {
           Kodigo is partly a social site, so some of what you add is public. With a <strong>public profile</strong>{" "}
           (the setting new accounts start with), anyone can see your username and profile details, your
           reviews and ratings, your lists, the comments and likes you leave, and who you follow. Your
-          recent activity, your Watchlog (what you watched and when), your stats and your Year in Review
+          recent activity, your Watchlog (what you watched and when), your watchlist, your stats and your Year in Review
           show too, unless you turn them off in <strong>Settings → Privacy</strong>. Each category on your profile,
           such as Watching or Watchlist, has its own switch. What you put On Hold or Stopped Watching is never shown to anyone but you.
         </p>

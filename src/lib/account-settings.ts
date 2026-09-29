@@ -34,7 +34,7 @@ export async function loadAccountSettings(): Promise<AccountSettings | null> {
   const me = await signedIn();
   if (!me) return null;
   const [{ data: p }, { data: u }] = await Promise.all([
-    me.supabase.from("profiles").select("display_name, is_private, show_activity, show_watchlog, allow_follows, location, quote, category_privacy").eq("user_id", me.user.id).maybeSingle(),
+    me.supabase.from("profiles").select("display_name, is_private, show_activity, show_watchlog, show_watchlist, allow_follows, location, quote, category_privacy").eq("user_id", me.user.id).maybeSingle(),
     me.supabase.from("user_settings").select("settings").eq("user_id", me.user.id).maybeSingle(),
   ]);
   const own = (u?.settings ?? {}) as Record<string, unknown>;
@@ -44,6 +44,7 @@ export async function loadAccountSettings(): Promise<AccountSettings | null> {
     settings.publicProfile = !p.is_private;
     settings.showActivity = p.show_activity;
     settings.showWatchlog = p.show_watchlog;
+    settings.showWatchlist = p.show_watchlist;
     settings.allowFollows = p.allow_follows;
   }
   return {

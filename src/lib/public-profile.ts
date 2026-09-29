@@ -144,6 +144,9 @@ export interface PublicProfileView {
   /** The mini tracker: series they are in the middle of, most recently
       watched first, and films on their watchlist, newest first. */
   tracker: { shows: TrackerShow[]; films: ProfileTitle[] };
+  /** What they mean to watch: series tracked with nothing watched yet and
+      films To Watch, newest added first. */
+  watchlist?: ProfileTitle[];
   /** Present only when the person viewing is the profile's owner: what the
       Favourites editor offers first, their own library, best first. */
   owner?: { films: ProfileTitle[]; shows: ProfileTitle[] };
@@ -321,10 +324,21 @@ export function profileFromArchive(
       .map((t) => movieTitle(t.movie)),
   };
 
+  // The watchlist: the app's Ready to start (a series you're tracking with
+  // nothing watched) and films still To Watch, newest added first.
+  const started = new Set(a.watched.filter((k) => !/-0-\d+$/.test(k)).map((k) => Number(k.split("-")[0])));
+  const watchlist = [
+    ...a.shows.filter((t) => t.status === "Watching" && !started.has(t.show.id)).map((t) => ({ t: showTitle(t.show), added: t.added ?? "" })),
+    ...a.movies.filter((t) => t.status === "To Watch").map((t) => ({ t: movieTitle(t.movie), added: t.added ?? "" })),
+  ]
+    .sort((x, y) => y.added.localeCompare(x.added))
+    .map((x) => x.t);
+
   return {
     ...meta,
     owner,
     tracker,
+    watchlist,
     followers: 0,
     following: 0,
     stats: {

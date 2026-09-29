@@ -92,6 +92,12 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                 content: v.diary.length > 0 ? <ProfileDiary entries={v.diary} owner={!!v.owner} username={v.username} avatar={v.avatar} /> : <Empty>Nothing logged yet.</Empty>,
               },
               {
+                id: "watchlist",
+                label: "Watchlist",
+                count: v.watchlist?.length ?? 0,
+                content: v.watchlist?.length ? <PosterGrid titles={v.watchlist} /> : <Empty>Nothing on the watchlist.</Empty>,
+              },
+              {
                 // The app's profile grid: its eight built-in categories, then the
                 // person's own lists.
                 id: "categories",
@@ -367,3 +373,28 @@ function ActivityList({ v }: { v: PublicProfileView }) {
 // marks, the review in readable paragraphs, and like / comment / share under
 // it. A review of a single episode says which one, which a films-only site
 // has no way to do. Spoilers stay hidden behind a tap.
+
+// A run of posters, each to its title: the Watchlist tab.
+function PosterGrid({ titles }: { titles: ProfileTitle[] }) {
+  return (
+    <ol className="m-0 p-0 list-none grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6">
+      {titles.map((t) => (
+        <li key={t.key} className="min-w-0">
+          <Link href={t.href} className="group block no-underline text-ink">
+            <span className="block aspect-[2/3] rounded-[10px] overflow-hidden bg-card border border-hair group-hover:border-accent transition-colors">
+              {t.poster && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={t.poster} alt="" className="w-full h-full object-cover" loading="lazy" />
+              )}
+            </span>
+            <span className="block mt-1.5 text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{t.title}</span>
+            <span className="block text-[12.5px] leading-[16px] text-dim">
+              {t.year}
+              {t.kind === "show" && " · Series"}
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ol>
+  );
+}

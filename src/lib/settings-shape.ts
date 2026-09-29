@@ -7,6 +7,7 @@ export interface Settings {
   publicProfile: boolean;
   showActivity: boolean;
   showWatchlog: boolean;
+  showWatchlist: boolean;
   allowFollows: boolean;
   // Notifications, by email.
   notifyFollows: boolean;
@@ -28,17 +29,19 @@ export interface Settings {
   showSort: LibrarySort;
   movieSort: LibrarySort;
   hideWatched: boolean;
+  watchlistSort: LibrarySort;
 }
 
 /** The app's four orders (LibrarySortOrder) and the hand-made one. */
-export type LibrarySort = "standard" | "az" | "added" | "year" | "mine";
-export const LIBRARY_SORTS: LibrarySort[] = ["standard", "az", "added", "year", "mine"];
+export type LibrarySort = "standard" | "az" | "added" | "oldest" | "year" | "mine";
+export const LIBRARY_SORTS: LibrarySort[] = ["standard", "az", "added", "oldest", "year", "mine"];
 
 export const DEFAULTS: Settings = {
   displayName: "",
   publicProfile: true,
   showActivity: true,
   showWatchlog: true,
+  showWatchlist: true,
   allowFollows: true,
   notifyFollows: true,
   notifyLikes: true,
@@ -55,6 +58,7 @@ export const DEFAULTS: Settings = {
   showSort: "standard",
   movieSort: "standard",
   hideWatched: false,
+  watchlistSort: "added",
 };
 
 /** The settings that live on the profile, because they decide what visitors
@@ -65,6 +69,7 @@ export const PROFILE_SETTINGS = {
   publicProfile: "is_private",
   showActivity: "show_activity",
   showWatchlog: "show_watchlog",
+  showWatchlist: "show_watchlist",
   allowFollows: "allow_follows",
 } as const satisfies Partial<Record<keyof Settings, string>>;
 
@@ -82,7 +87,7 @@ export function cleanSettings(patch: Record<string, unknown>): Partial<Settings>
       if (v === "day-month" || v === "month-day" || v === "numeric") out[k] = v;
     } else if (k === "libraryLayout") {
       if (v === "grid" || v === "list") out[k] = v;
-    } else if (k === "showSort" || k === "movieSort") {
+    } else if (k === "showSort" || k === "movieSort" || k === "watchlistSort") {
       if (LIBRARY_SORTS.includes(v as LibrarySort)) out[k] = v;
     } else if (typeof d === "boolean") {
       if (typeof v === "boolean") out[k] = v;

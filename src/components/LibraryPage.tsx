@@ -39,6 +39,12 @@ const TABS: Record<"show" | "movie", [string, string, string[]][]> = {
   ],
 };
 const STATUS_WORD: Record<string, string> = { Watching: "Watching", Finished: "Finished", Stopped: "On Hold", Dropped: "Stopped", "To Watch": "To Watch", Watched: "Watched", "On Hold": "On Hold" };
+const WATCHLIST_SORTS: [LibrarySort, string, string][] = [
+  ["added", "Recently added", "Newest first."],
+  ["oldest", "Oldest first", "The longest waiting first."],
+  ["az", "A–Z", "By title, A to Z."],
+  ["year", "Release year", "Newest release first, undated last."],
+];
 const SORTS: [LibrarySort, string, string][] = [
   ["standard", "Default", "Recently watched first."],
   ["az", "A–Z", "By title, A to Z."],
@@ -47,17 +53,23 @@ const SORTS: [LibrarySort, string, string][] = [
   ["mine", "My order", "Yours, dragged into place."],
 ];
 
-export function LibraryPage({ items, order: savedOrder, live, region, initialKind }: { items: LibraryItem[]; order: { show: number[]; movie: number[] }; live: boolean; region: string; initialKind: "show" | "movie" }) {
+// `mode="watchlist"`: the Watchlist page (/watchlist), the same tools over
+// what's added and not started, as All, Series or Films, with its own sorts
+// and Pick one for me in place of the status tabs, Hide watched and My order.
+export function LibraryPage({ items, order: savedOrder, live, region, initialKind, mode = "library" }: { items: LibraryItem[]; order: { show: number[]; movie: number[] }; live: boolean; region: string; initialKind: "show" | "movie" | "all"; mode?: "library" | "watchlist" }) {
+  const watchlist = mode === "watchlist";
   const router = useRouter();
   const [s, set] = useSettings();
-  const [kind, setKind] = useState<"show" | "movie">(initialKind);
+  const [kind, setKind] = useState<"show" | "movie" | "all">(watchlist ? initialKind : initialKind === "all" ? "show" : initialKind);
+  const [picked, setPicked] = useState<LibraryItem | null>(null);
   const [tab, setTab] = useState("all");
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState<string | null>(null);
   const [order, setOrder] = useState(savedOrder);
   const [problem, setProblem] = useState<string | null>(null);
-  const sort = kind === "show" ? s.showSort : s.movieSort;
-  const setSort = (v: LibrarySort) => set(kind === "show" ? { showSort: v } : { movieSort: v });
+  const sort = watchlist ? s.watchlistSort : kind === "show" ? s.showSort : s.movieSort;
+  const setSort = (v: LibrarySort) => set(watchlist ? { watchlistSort: v } : kind === "show" ? { showSort: v } : { movieSort: v });
+  const sorts = watchlist ? WATCHLIST_SORTS : SORTS;
 
   // Where each title streams, fetched when Only my services is first used.
   const [streams, setStreams] = useState<Record<string, number[]> | null>(null);
@@ -78,8 +90,8 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
     };
   }, [s.onlyMyServices, mine.size, region2, items]);
 
-  const ofKind = items.filter((i) => i.kind === kind);
-  const tabs = TABS[kind];
+  const ofKind = items.filter((i) => kind === "all" || i.kind === kind);
+  const tabs = TABS[kind === "all" ? "show" : kind];
   const current = tabs.find((t) => t[0] === tab) ?? tabs[0];
   const done = (i: LibraryItem) => i.status === "Finished" || i.status === "Watched";
   const genres = useMemo(() => [...new Set(ofKind.flatMap((i) => i.genres))].sort(), [ofKind]);
@@ -88,9 +100,9 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
     const q = query.trim().toLowerCase();
     let list = ofKind.filter(
       (i) =>
-        (current[2].length === 0 || current[2].includes(i.status)) &&
+        (watchlist || current[2].length === 0 || current[2].includes(i.status)) &&
         // Hide watched keeps finished things out of All (their own tab still shows them).
-        !(s.hideWatched && current[0] === "all" && done(i)) &&
+        !(!watchlist && s.hideWatched && current[0] === "all" && done(i)) &&
         (!q || i.title.toLowerCase().includes(q)) &&
         (!genre || i.genres.includes(genre)) &&
         (!s.onlyMyServices || mine.size === 0 || !streams || (streams[i.key] ?? []).some((p) => mine.has(p))),
@@ -99,20 +111,21 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
       standard: (a: LibraryItem, b: LibraryItem) => (b.lastWatched ?? "").localeCompare(a.lastWatched ?? "") || (b.added ?? "").localeCompare(a.added ?? ""),
       az: (a: LibraryItem, b: LibraryItem) => a.title.localeCompare(b.title),
       added: (a: LibraryItem, b: LibraryItem) => (b.added ?? "").localeCompare(a.added ?? ""),
+      oldest: (a: LibraryItem, b: LibraryItem) => (a.added || "9").localeCompare(b.added || "9"),
       year: (a: LibraryItem, b: LibraryItem) => (b.year || "0").localeCompare(a.year || "0"),
       mine: null,
-    }[sort];
+    }[sort] ?? null;
     if (by) list = [...list].sort(by);
     else {
       // My order: the saved order first, then everything not in it yet, newest first.
-      const rank = new Map(order[kind].map((id, n) => [id, n]));
+      const rank = new Map((kind === "all" ? [] : order[kind]).map((id, n) => [id, n]));
       list = [...list].sort((a, b) => (rank.get(a.id) ?? 1e9) - (rank.get(b.id) ?? 1e9) || (b.added ?? "").localeCompare(a.added ?? ""));
     }
     return list;
-  }, [ofKind, current, s.hideWatched, query, genre, s.onlyMyServices, mine, streams, sort, order, kind]);
+  }, [ofKind, current, s.hideWatched, query, genre, s.onlyMyServices, mine, streams, sort, order, kind, watchlist]);
 
   // Dragging, in My order.
-  const canDrag = sort === "mine" && !query && !genre && current[0] === "all" && !s.hideWatched && !s.onlyMyServices;
+  const canDrag = !watchlist && kind !== "all" && sort === "mine" && !query && !genre && current[0] === "all" && !s.hideWatched && !s.onlyMyServices;
   const [dragging, setDragging] = useState<number | null>(null);
   const [draft, setDraft] = useState<number[] | null>(null);
   const gridRef = useRef<HTMLOListElement>(null);
@@ -164,10 +177,12 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
 
   function commit(ids: number[]) {
     const before = order;
-    const next = { ...order, [kind]: ids };
+    if (kind === "all") return;
+    const k = kind;
+    const next = { ...order, [k]: ids };
     setOrder(next);
     if (!live) return;
-    void saveOrder(kind, ids)
+    void saveOrder(k, ids)
       .then((r) => {
         if (r.error) {
           setOrder(before);
@@ -204,13 +219,46 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                 setKind(k);
                 setTab("all");
                 setGenre(null);
+                setPicked(null);
               }}
-              options={[
-                ["show", "Shows"],
-                ["movie", "Movies"],
-              ]}
-              label="Shows or movies"
+              options={
+                watchlist
+                  ? [
+                      ["all", "All"],
+                      ["show", "Series"],
+                      ["movie", "Films"],
+                    ]
+                  : [
+                      ["show", "Shows"],
+                      ["movie", "Movies"],
+                    ]
+              }
+              label={watchlist ? "Series or films" : "Shows or movies"}
             />
+            {watchlist ? (
+              <>
+                <span className="text-[12.5px] text-dim">
+                  {shown.length} {shown.length === 1 ? "title" : "titles"} waiting
+                </span>
+                <button
+                  type="button"
+                  disabled={shown.length === 0}
+                  onClick={() => {
+                    const pool = shown.length > 1 && picked ? shown.filter((i) => i.key !== picked.key) : shown;
+                    setPicked(pool[Math.floor(Math.random() * pool.length)] ?? null);
+                  }}
+                  className="ml-auto inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <rect x="3.5" y="3.5" width="17" height="17" rx="4" />
+                    <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" />
+                    <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" />
+                    <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+                  </svg>
+                  {picked ? "Pick another" : "Pick one for me"}
+                </button>
+              </>
+            ) : (
             <div role="tablist" aria-label="Status" className="flex flex-wrap gap-1 p-1 rounded-[18px] bg-piece max-w-full">
               {tabs.map((t) => (
                 <button
@@ -226,7 +274,30 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                 </button>
               ))}
             </div>
+            )}
           </div>
+
+          {/* The pick, over the list. */}
+          {watchlist && picked && (
+            <div className="rounded-shell bg-piece p-3 flex items-center gap-3" aria-live="polite">
+              <Link href={picked.href} className="w-16 shrink-0 aspect-[2/3] rounded-[8px] overflow-hidden bg-card border border-hair">
+                {picked.poster && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={picked.poster} alt="" className="w-full h-full object-cover" />
+                )}
+              </Link>
+              <div className="min-w-0 flex-1">
+                <div className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">Tonight, why not</div>
+                <Link href={picked.href} className="block text-[clamp(18px,2vw,22px)] font-semibold text-ink no-underline hover:text-accent truncate">
+                  {picked.title}
+                </Link>
+                <div className="text-[12.5px] text-dim">{[picked.year, picked.kind === "show" ? "Series" : "Film", picked.genres.slice(0, 2).join(", ")].filter(Boolean).join(" · ")}</div>
+              </div>
+              <button type="button" onClick={() => setPicked(null)} aria-label="Close the pick" className="w-8 h-8 rounded-full text-dim hover:text-ink hover:bg-card cursor-pointer">
+                ✕
+              </button>
+            </div>
+          )}
 
           {/* The tools. */}
           <div className="flex flex-wrap items-center gap-2">
@@ -235,7 +306,7 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                 <circle cx="11" cy="11" r="7" />
                 <path d="M20 20l-3.5-3.5" />
               </svg>
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={`Search your ${kind === "show" ? "shows" : "movies"}`} aria-label="Search your library" className="flex-1 min-w-0 bg-transparent text-[12.5px] text-ink placeholder:text-dim focus:outline-none" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={watchlist ? "Search your watchlist" : `Search your ${kind === "show" ? "shows" : "movies"}`} aria-label="Search your library" className="flex-1 min-w-0 bg-transparent text-[12.5px] text-ink placeholder:text-dim focus:outline-none" />
             </label>
 
             <Menu
@@ -264,13 +335,13 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
               align="left"
               button={
                 <span className={chip(false)}>
-                  {SORTS.find((x) => x[0] === sort)?.[1]}
+                  {sorts.find((x) => x[0] === sort)?.[1] ?? sorts[0][1]}
                   <Caret />
                 </span>
               }
             >
               <div className="py-1.5">
-                {SORTS.map(([v, label, detail]) => (
+                {sorts.map(([v, label, detail]) => (
                   <button key={v} type="button" data-menu-close onClick={() => setSort(v)} aria-pressed={sort === v} className="w-full text-left px-4 py-2 cursor-pointer hover:bg-card-hi">
                     <span className={`block text-[12.5px] ${sort === v ? "text-accent font-semibold" : "text-ink"}`}>{label}</span>
                     <span className="block text-[12px] text-dim">{detail}</span>
@@ -279,9 +350,11 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
               </div>
             </Menu>
 
-            <button type="button" aria-pressed={s.hideWatched} onClick={() => set({ hideWatched: !s.hideWatched })} className={chip(s.hideWatched)}>
-              Hide watched
-            </button>
+            {!watchlist && (
+              <button type="button" aria-pressed={s.hideWatched} onClick={() => set({ hideWatched: !s.hideWatched })} className={chip(s.hideWatched)}>
+                Hide watched
+              </button>
+            )}
             <button type="button" aria-pressed={s.onlyMyServices} onClick={() => set({ onlyMyServices: !s.onlyMyServices })} className={chip(s.onlyMyServices)}>
               Only my services
             </button>
@@ -317,7 +390,7 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
               )}
             </p>
           )}
-          {sort === "mine" && (
+          {!watchlist && sort === "mine" && (
             <p className="m-0 px-1 text-[12.5px] text-dim">
               {canDrag ? "Drag a title to where it goes. The app gets the same order." : "Drag to reorder in All, with no search, genre or filter on."}
             </p>
@@ -326,7 +399,7 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
           {/* The titles. */}
           <div className="rounded-shell bg-piece p-2 min-h-[240px]">
             {visible.length === 0 ? (
-              <p className="m-0 p-3 text-[12.5px] text-dim">{ofKind.length === 0 ? `No ${kind === "show" ? "series" : "films"} in your library yet.` : "Nothing matches."}</p>
+              <p className="m-0 p-3 text-[12.5px] text-dim">{ofKind.length === 0 ? (watchlist ? "Nothing waiting. Add a series or a film from its page and it shows here until you start it." : `No ${kind === "show" ? "series" : "films"} in your library yet.`) : "Nothing matches."}</p>
             ) : s.libraryLayout === "grid" ? (
               <ol ref={gridRef} className="m-0 p-0 list-none grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
                 {visible.map((i) => (
@@ -341,7 +414,7 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                       e.preventDefault();
                       nudge(i.id, step);
                     }}
-                    className={`min-w-0 ${canDrag ? "cursor-grab touch-none select-none" : ""} ${dragging === i.id ? "opacity-60 scale-[.97]" : ""} transition-transform`}
+                    className={`min-w-0 ${canDrag ? "cursor-grab touch-none select-none" : ""} ${dragging === i.id ? "opacity-60 scale-[.97]" : ""} ${picked?.key === i.key ? "rounded-[12px] ring-2 ring-accent-fill ring-offset-2 ring-offset-[color:var(--piece)]" : ""} transition-transform`}
                   >
                     <Link href={i.href} draggable={false} onClick={(e) => dragging != null && e.preventDefault()} className="group block no-underline text-ink">
                       <span className="relative block aspect-[2/3] rounded-[10px] overflow-hidden bg-card border border-hair group-hover:border-accent transition-colors">
@@ -351,7 +424,7 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                         )}
                       </span>
                       <span className="block mt-1.5 text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{i.title}</span>
-                      <span className="block text-[12.5px] leading-[16px] text-dim truncate">{subline(i)}</span>
+                      <span className="block text-[12.5px] leading-[16px] text-dim truncate">{watchlist ? [i.year, i.kind === "show" ? "Series" : "Film"].filter(Boolean).join(" · ") : subline(i)}</span>
                     </Link>
                   </li>
                 ))}

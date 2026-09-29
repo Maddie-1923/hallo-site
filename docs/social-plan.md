@@ -268,6 +268,16 @@ Everything the app does, on a computer.
    yet: a Watchlist of its own (To Watch is its tab here) and the lists
    (they're on the profile's Categories).
 4. **Watchlist**, and a **Watching now** tab on profiles with episode progress.
+   Watchlist built 30 Sep (user chose both): the watchlist is what's added
+   and not started, series tracked with nothing watched bar specials (the
+   app's Ready to start) and films To Watch, newest added first. `/watchlist`
+   (Pro) is the Library's tools in `mode="watchlist"`: All, Series or Films;
+   Recently added, Oldest first, A–Z, Release year; search, genre, Only my
+   services, grid or list; Pick one for me (a random pick, "Pick another"
+   skips the last). Profiles have a public Watchlist tab (`watchlist` on the
+   view, drawn from the public copy for visitors), hidden with Settings →
+   Privacy → Show your watchlist (`show_watchlist`,
+   `20260930060000_show_watchlist.sql`). Still to do: Watching now.
 5. **Stats page** with the full numbers behind the profile's panels.
    Built 30 Sep: `/stats` (Pro, gated like the Calendar; the preview in
    development), the app's stat pages on one screen: totals (episodes,

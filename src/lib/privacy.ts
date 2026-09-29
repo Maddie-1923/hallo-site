@@ -33,5 +33,5 @@ export function usePrivacy(owner: boolean) {
   const [s] = useSettings();
   const others = useViewAsOthers();
   if (!owner) return null;
-  return { others, publicProfile: s.publicProfile, showActivity: s.showActivity, showWatchlog: s.showWatchlog, allowFollows: s.allowFollows };
+  return { others, publicProfile: s.publicProfile, showActivity: s.showActivity, showWatchlog: s.showWatchlog, showWatchlist: s.showWatchlist, allowFollows: s.allowFollows };
 }

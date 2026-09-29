@@ -48,6 +48,7 @@ const product: [string, string][] = [
 const menuLinks = [
   ["/calendar", "Calendar"],
   ["/library", "Library"],
+  ["/watchlist", "Watchlist"],
   ["/stats", "Stats"],
   ["/app/profile", "Profile"],
   ["/app/history", "History"],
@@ -302,6 +303,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
           {[
             ["/calendar", "Calendar"],
             ["/library", "Library"],
+            ["/watchlist", "Watchlist"],
             ["/u/preview", "Profile"],
             ["/u/preview#reviews", "Reviews"],
             ["/u/preview#watchlog", "Watchlog"],

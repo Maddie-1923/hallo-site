@@ -104,6 +104,7 @@ async function sampleProfile(who?: Member): Promise<PublicProfileView> {
       shows: series.slice(0, 5).map((x, i) => ({ ...x, seen: Array.from({ length: [6, 14, 3, 20, 9][i] }, (_, e) => `1-${e + 1}`), aired: [[8, 10], [16], [10], [22, 8], [12]][i] })),
       films: films.slice(4, 9),
     },
+    watchlist: [...series.slice(6, 9), ...films.slice(4, 12)],
     topFilms: classics.slice(0, 5),
     topShows: series.slice(1, 6),
     diary: diary.map((e, i) => (e.reviewed ? { ...e, review: { text: blurbs[i % blurbs.length], spoilers: false } } : e)),
