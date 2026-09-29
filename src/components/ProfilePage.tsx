@@ -147,10 +147,17 @@ function Dashboard({ v }: { v: PublicProfileView }) {
     {/* The year so far, as its own page made for sharing (the owner's own
         library, until accounts). */}
     {v.owner && (
-      <Link href={`/u/${v.username}/year/${year}`} className="rounded-shell bg-accent-fill text-on-accent p-3 flex items-center justify-between no-underline hover:brightness-110">
-        <span className="text-[12.5px] font-semibold">Your {year} in review</span>
-        <span aria-hidden>→</span>
-      </Link>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Link href={`/u/${v.username}/year/${year}`} className="rounded-shell bg-accent-fill text-on-accent p-3 flex items-center justify-between no-underline hover:brightness-110">
+          <span className="text-[12.5px] font-semibold">Your {year} in review</span>
+          <span aria-hidden>→</span>
+        </Link>
+        {/* Every number, on the Stats page (Pro). */}
+        <Link href="/stats" className="rounded-shell bg-card-hi text-ink p-3 flex items-center justify-between no-underline hover:text-accent">
+          <span className="text-[12.5px] font-semibold">See all your stats</span>
+          <span aria-hidden>→</span>
+        </Link>
+      </div>
     )}
     <div className="grid gap-2 sm:grid-cols-3">
       <Panel title="Ratings">

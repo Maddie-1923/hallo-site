@@ -1030,3 +1030,16 @@ export async function streamingOn(kind: "show" | "movie", id: number, region: st
   const c = r?.results?.[region];
   return [...new Set([...(c?.flatrate ?? []), ...(c?.ads ?? []), ...(c?.free ?? [])].map((p) => p.provider_id))];
 }
+
+/** A series' usual episode length in minutes, for watch time: TMDB's own
+    figure, else its latest episode's, else the app's 42. Kept a week. */
+export async function episodeLength(id: number): Promise<number> {
+  const r = await tmdb<{ episode_run_time?: number[]; last_episode_to_air?: { runtime?: number | null } | null }>(`/tv/${id}`, {}, 604800);
+  return r?.episode_run_time?.[0] || r?.last_episode_to_air?.runtime || 42;
+}
+
+/** A film's length in minutes, or null when TMDB doesn't know. Kept a week. */
+export async function filmLength(id: number): Promise<number | null> {
+  const r = await tmdb<{ runtime?: number | null }>(`/movie/${id}`, {}, 604800);
+  return r?.runtime || null;
+}

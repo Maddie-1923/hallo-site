@@ -48,6 +48,7 @@ const product: [string, string][] = [
 const menuLinks = [
   ["/calendar", "Calendar"],
   ["/library", "Library"],
+  ["/stats", "Stats"],
   ["/app/profile", "Profile"],
   ["/app/history", "History"],
   ["/settings", "Settings"],
@@ -305,7 +306,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
             ["/u/preview#reviews", "Reviews"],
             ["/u/preview#watchlog", "Watchlog"],
             ["/u/preview#categories", "Categories"],
-            ["/u/preview#stats", "Stats"],
+            ["/stats", "Stats"],
             [`/u/preview/year/${new Date().getFullYear()}`, "Year in review"],
             ["/settings", "Settings"],
             ["/moderation", "Moderation"],

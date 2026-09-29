@@ -269,6 +269,20 @@ Everything the app does, on a computer.
    (they're on the profile's Categories).
 4. **Watchlist**, and a **Watching now** tab on profiles with episode progress.
 5. **Stats page** with the full numbers behind the profile's panels.
+   Built 30 Sep: `/stats` (Pro, gated like the Calendar; the preview in
+   development), the app's stat pages on one screen: totals (episodes,
+   series, films, watch time, days in a row, longest run); Episodes, Shows
+   and Movies each with This week against last, This month, Your night /
+   Film night (a weekday only once it's a habit, more than two), a chart of
+   the week, and facts (biggest night, most watched, finished, watching
+   since, the undated note); every month for a year; Taste (the app's
+   Cinedata): top genre, average rating, genres, ratings spread, highest
+   rated, moods, reactions; most watched series. Days are counted in the
+   browser's own time zone and weeks start where its locale starts them
+   (`StatsPage`); watch time is each series' usual episode length from TMDB
+   times the episodes ticked, plus films' lengths, streamed in after the
+   rest (`watchMinutes`), since the archive has no episode runtimes. Linked
+   from the account menu and the profile's Stats tab.
 6. **Where to watch** on every title page, by the visitor's country. This one
    is free for everyone.
 
