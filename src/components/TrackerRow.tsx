@@ -28,20 +28,23 @@ export const HOLD = "#D9BC52";
 // under the panel, the owner's keys in a strip, sharing the width. Visitors
 // get the panel alone. The app's night colours: the card `kodigoWell`, the
 // panel and keys `kodigoRowPiece`, a lit top edge and a soft shadow.
-export function Row({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null }) {
+// With `onPick`, the picture and the name pick the row (the calendar page's
+// list shows the picked one beside it) instead of going to the title's page;
+// `picked` outlines it.
+export function Row({ t, lines, bar, keys, onPick, picked = false }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null; onPick?: () => void; picked?: boolean }) {
   return (
-    <li className="rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
+    <li className={`rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "ring-[1.5px] ring-accent-fill" : ""}`}>
       <div className="h-[56px] rounded-[10px] bg-piece flex gap-2.5 overflow-hidden">
-        <Link href={t.href} className="w-[100px] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
+        <To href={t.href} onPick={onPick} picked={picked} className="w-[100px] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
           {(t.backdrop ?? t.poster) && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={(t.backdrop ?? t.poster)!} alt="" className="w-full h-full object-cover" />
           )}
-        </Link>
+        </To>
         <div className="min-w-0 flex-1 flex flex-col py-1.5 pr-2.5">
-          <Link href={t.href} className="block text-[12.5px] leading-[16px] font-semibold text-ink truncate no-underline hover:text-accent">
+          <To href={t.href} onPick={onPick} picked={picked} className="block w-full text-[12.5px] leading-[16px] font-semibold text-ink truncate no-underline hover:text-accent">
             {t.title}
-          </Link>
+          </To>
           {/* The code and the name share a line at this size. */}
           <div className="text-[12.5px] leading-[15px] truncate">
             <span className="text-mid-tone">{lines[0]}</span>
@@ -67,6 +70,20 @@ export function Row({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, 
         </div>
       )}
     </li>
+  );
+}
+
+/** The row's picture and name: a link to the title, or, on a page that
+    shows the picked row beside the list, a button picking it. */
+function To({ href, onPick, picked, className, children }: { href: string; onPick?: () => void; picked?: boolean; className: string; children: React.ReactNode }) {
+  return onPick ? (
+    <button type="button" onClick={onPick} aria-pressed={picked} className={`${className} text-left cursor-pointer`}>
+      {children}
+    </button>
+  ) : (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
   );
 }
 
@@ -144,54 +161,4 @@ export function progress(s: TrackerShow, seen: string[]) {
   const pick = unseen.find(([, i]) => i > lastIdx) ?? unseen[0];
   const next = pick ? { key: `${pick[0][0]}-${pick[0][1]}`, label: `S${pick[0][0]} E${pick[0][1]}` } : null;
   return { done, total: all.length, next };
-}
-
-// The calendar page's card, one of a rail (see Rail): the title's wide
-// picture on top, under it the name, the next episode and the progress bar,
-// then the keys, Watched twice as wide as the others since it's the one
-// pressed most. The card is the rail's (the well, a lit edge, a soft
-// shadow); the words and the keys sit on its piece.
-export function WideCard({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null }) {
-  return (
-    <div
-      className="shrink-0 snap-start rounded-shell bg-well p-1.5 grid gap-1.5 content-start border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]"
-      style={{ width: "var(--rail-card, 248px)" }}
-      data-base={248}
-    >
-      <Link href={t.href} className="group block no-underline text-ink">
-        <span className="block aspect-video rounded-[10px] overflow-hidden border border-hair bg-card">
-          {(t.backdrop ?? t.poster) && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={(t.backdrop ?? t.poster)!} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-          )}
-        </span>
-      </Link>
-      <div className="rounded-[10px] bg-piece px-2.5 py-2 grid gap-1 min-w-0">
-        <Link href={t.href} className="block text-[12.5px] leading-[16px] font-semibold text-ink truncate no-underline hover:text-accent">
-          {t.title}
-        </Link>
-        <div className="text-[12.5px] leading-[16px] truncate">
-          <span className="text-mid-tone">{lines[0]}</span>
-          {lines[1] && <span className="text-dim"> · {lines[1]}</span>}
-        </div>
-        {bar && (
-          <div className="mt-0.5 flex items-center gap-2">
-            <span className="flex-1 h-[2px] rounded-full bg-track overflow-hidden">
-              <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
-            </span>
-            <span className="text-[11px] leading-none text-dim whitespace-nowrap tabular-nums">
-              {bar.done}/{bar.total}
-            </span>
-          </div>
-        )}
-      </div>
-      {keys && (
-        <div className="flex gap-1.5">
-          {keys.map((k) => (
-            <KeyButton key={k.label} k={k} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
 }

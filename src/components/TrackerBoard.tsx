@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { loadSeason, type SeasonEpisode } from "@/lib/title-actions";
+import { ExpandableText } from "./ExpandableText";
 import { addWatch, today } from "@/lib/live-watches";
 import type { CalendarEvent, ComingFilm, ComingShow, TrackerPage } from "@/lib/tracker";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
-import { CheckGlyph, code, HOLD, MoreGlyph, progress, RecapGlyph, SkipGlyph, WideCard, type Key } from "./TrackerRow";
-import { Rail } from "./Rail";
+import { CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, type Key } from "./TrackerRow";
 import { HeadingPill } from "./TitleParts";
 import { TrackerCalendar } from "./TrackerCalendar";
 
 // The full tracker, as the app's Shows and Movies tabs: Shows or Movies, then
-// the watch list or what's coming, each pile under its heading in rows of
-// the app's list view, two or three across on a wide screen and one on a
-// phone. Checking off works on the page as it does on the profile's mini
+// the watch list or what's coming, each pile under its heading in the app's
+// list-view rows on the left, and beside them the picked title's next
+// episode. Checking off works on the page as it does on the profile's mini
 // tracker: it moves the row on and lands in Recent activity for the visit,
 // and saving it comes with accounts.
 export function TrackerBoard({ data }: { data: TrackerPage }) {
@@ -21,6 +23,8 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
   const [seen, setSeen] = useState<Record<string, string[]>>({});
   const [skipped, setSkipped] = useState<string[]>([]);
   const [watchedFilms, setWatchedFilms] = useState<string[]>([]);
+  // The entry shown beside the list; the first one until another is picked.
+  const [pickKey, setPickKey] = useState<string | null>(null);
 
   const seenOf = (s: TrackerShow) => [...s.seen, ...(seen[s.key] ?? [])];
 
@@ -80,146 +84,222 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
     ];
   };
 
-  const showRow = (s: TrackerShow) => {
+  // The keys a series carries for its next episode, and a film on the list.
+  const showKeys = (s: TrackerShow): Key[] => {
     const p = progress(s, seenOf(s));
     const skippedHere = p.next ? skipped.includes(`${s.key}:${p.next.key}`) : false;
-    return (
-      <WideCard
-        key={s.key}
-        t={s}
-        lines={p.next ? [code(p.next.key), s.episodeNames?.[p.next.key] ?? ""] : [p.total ? "All caught up" : "Not started", ""]}
-        bar={p.total ? { done: p.done, total: p.total } : null}
-        keys={[
-          { icon: <MoreGlyph />, label: `More for ${s.title}` },
-          {
-            icon: <SkipGlyph />,
-            label: p.next ? `Watch ${code(p.next.key)} later` : "Skip",
-            on: skippedHere,
-            off: !p.next,
-            confirm: skippedHere ? undefined : HOLD,
-            run: p.next ? () => setSkipped((k) => (skippedHere ? k.filter((x) => x !== `${s.key}:${p.next!.key}`) : [...k, `${s.key}:${p.next!.key}`])) : undefined,
-          },
-          {
-            icon: <CheckGlyph />,
-            label: p.next ? `Mark ${code(p.next.key)} of ${s.title} watched` : "Watched",
-            wide: true,
-            off: !p.next,
-            confirm: "var(--accent-fill)",
-            run: p.next
-              ? () => {
-                  const n = p.next!;
-                  setSeen((m) => ({ ...m, [s.key]: [...(m[s.key] ?? []), n.key] }));
-                  const [se, ep] = n.key.split("-");
-                  addWatch({ key: `${s.key}-${n.key}-${Date.now()}`, date: today(), t: s, detail: `S${se} E${ep}` });
-                }
-              : undefined,
-          },
-        ]}
-      />
-    );
+    return [
+      { icon: <MoreGlyph />, label: `More for ${s.title}` },
+      { icon: <RecapGlyph />, label: "Recap", off: true },
+      {
+        icon: <SkipGlyph />,
+        label: p.next ? `Watch ${code(p.next.key)} later` : "Skip",
+        on: skippedHere,
+        off: !p.next,
+        confirm: skippedHere ? undefined : HOLD,
+        run: p.next ? () => setSkipped((k) => (skippedHere ? k.filter((x) => x !== `${s.key}:${p.next!.key}`) : [...k, `${s.key}:${p.next!.key}`])) : undefined,
+      },
+      {
+        icon: <CheckGlyph />,
+        label: p.next ? `Mark ${code(p.next.key)} of ${s.title} watched` : "Watched",
+        off: !p.next,
+        confirm: "var(--accent-fill)",
+        run: p.next
+          ? () => {
+              const n = p.next!;
+              setSeen((m) => ({ ...m, [s.key]: [...(m[s.key] ?? []), n.key] }));
+              const [se, ep] = n.key.split("-");
+              addWatch({ key: `${s.key}-${n.key}-${Date.now()}`, date: today(), t: s, detail: `S${se} E${ep}` });
+            }
+          : undefined,
+      },
+    ];
   };
-
-  const filmRow = (f: ProfileTitle) => (
-    <WideCard
-      key={f.key}
-      t={f}
-      lines={[f.year, "On the watch list"]}
-      bar={null}
-      keys={[
-        { icon: <MoreGlyph />, label: `More for ${f.title}` },
-        {
-          icon: <CheckGlyph />,
-          label: `Mark ${f.title} watched`,
-          wide: true,
-          confirm: "var(--accent-fill)",
-          run: () => {
-            setWatchedFilms((w) => [...w, f.key]);
-            addWatch({ key: `${f.key}-${Date.now()}`, date: today(), t: f });
-          },
-        },
-      ]}
-    />
-  );
+  const filmKeys = (f: ProfileTitle): Key[] => [
+    { icon: <MoreGlyph />, label: `More for ${f.title}` },
+    {
+      icon: <CheckGlyph />,
+      label: `Mark ${f.title} watched`,
+      confirm: "var(--accent-fill)",
+      run: () => {
+        setWatchedFilms((w) => [...w, f.key]);
+        addWatch({ key: `${f.key}-${Date.now()}`, date: today(), t: f });
+      },
+    },
+  ];
   const films = (list: ProfileTitle[]) => list.filter((f) => !watchedFilms.includes(f.key));
 
-  const piles =
-    kind === "show"
-      ? [
-          { id: "up-next", title: "Up next", rows: data.shows.upNext.map(showRow) },
-          { id: "ready", title: "Ready to start", rows: data.shows.readyToStart.map(showRow) },
-          { id: "on-hold", title: "On hold", rows: data.shows.onHold.map(showRow) },
-          { id: "void", title: "Entering the void", rows: data.shows.theVoid.map(showRow) },
-        ]
+  // Every entry the list can show, one type for all: a series (its next
+  // episode), a film, or, under Coming soon, a dated episode or release.
+  const showItem = (s: TrackerShow): Item => {
+    const p = progress(s, seenOf(s));
+    return { key: s.key, t: s, show: s, episode: p.next?.key, lines: p.next ? [code(p.next.key), s.episodeNames?.[p.next.key] ?? ""] : [p.total ? "All caught up" : "Not started", ""], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
+  };
+  const filmItem = (f: ProfileTitle): Item => ({ key: f.key, t: f, lines: [f.year, "On the watch list"], bar: null, keys: filmKeys(f) });
+
+  const groups: { id: string; title: string; items: Item[] }[] =
+    view === "list"
+      ? kind === "show"
+        ? [
+            { id: "up-next", title: "Up next", items: data.shows.upNext.map(showItem) },
+            { id: "ready", title: "Ready to start", items: data.shows.readyToStart.map(showItem) },
+            { id: "on-hold", title: "On hold", items: data.shows.onHold.map(showItem) },
+            { id: "void", title: "Entering the void", items: data.shows.theVoid.map(showItem) },
+          ]
+        : [
+            { id: "to-watch", title: "To watch", items: films(data.films.toWatch).map(filmItem) },
+            { id: "on-hold", title: "On hold", items: films(data.films.onHold).map(filmItem) },
+            { id: "void", title: "Entering the void", items: films(data.films.theVoid).map(filmItem) },
+          ]
       : [
-          { id: "to-watch", title: "To watch", rows: films(data.films.toWatch).map(filmRow) },
-          { id: "on-hold", title: "On hold", rows: films(data.films.onHold).map(filmRow) },
-          { id: "void", title: "Entering the void", rows: films(data.films.theVoid).map(filmRow) },
-        ];
-
-  const coming: (ComingShow | ComingFilm)[] = kind === "show" ? data.shows.coming : data.films.coming;
-  const buckets = [
-    { id: "today", title: "Today", from: 0, to: 0 },
-    { id: "tomorrow", title: "Tomorrow", from: 1, to: 1 },
-    { id: "week", title: "This week", from: 2, to: 7 },
-    { id: "later", title: "Later", from: 8, to: Infinity },
-  ].map((b) => ({ ...b, items: coming.filter((c) => c.inDays >= b.from && c.inDays <= b.to) }));
-
-  const shown = view === "list" ? piles.filter((p) => p.rows.length > 0) : buckets.filter((b) => b.items.length > 0);
+          { id: "today", title: "Today", from: 0, to: 0 },
+          { id: "tomorrow", title: "Tomorrow", from: 1, to: 1 },
+          { id: "week", title: "This week", from: 2, to: 7 },
+          { id: "later", title: "Later", from: 8, to: Infinity },
+        ].map((b) => ({
+          id: b.id,
+          title: b.title,
+          items: ((kind === "show" ? data.shows.coming : data.films.coming) as (ComingShow | ComingFilm)[])
+            .filter((c) => c.inDays >= b.from && c.inDays <= b.to)
+            .map((c): Item =>
+              "episode" in c
+                ? { key: `${c.t.key}${c.episode}`, t: c.t, episode: c.episode, date: c.date, lines: [when(c), `${code(c.episode)}${c.name ? ` · ${c.name}` : ""}`], bar: null, keys: null }
+                : { key: c.t.key, t: c.t, date: c.date, lines: [when(c), "Release"], bar: null, keys: null },
+            ),
+        }));
+  const shown = groups.filter((g) => g.items.length > 0);
+  const all = shown.flatMap((g) => g.items);
+  const picked = all.find((i) => i.key === pickKey) ?? all[0] ?? null;
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
-      {/* The calendar first, under the carousel on the left; the switches
-          and the piles below it. */}
+      {/* The calendar first, under the carousel on the left. */}
       <TrackerCalendar events={data.calendar} keysFor={keysFor} />
-      {/* The switches and every pile in one bento, each pile under its
-          heading, 8px apart as everything inside a shell is. */}
+      {/* One bento: the switches, then the list on the left and, beside it,
+          the picked title's next episode, as a show page lays out its
+          seasons and the small episode page. */}
       <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid grid-cols-[minmax(0,1fr)] gap-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
-        <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
-      </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
+          <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
+        </div>
 
-      {shown.length === 0 && (
-        <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">
-          {view === "list" ? (kind === "show" ? "No shows on the go. Add one from any show's page." : "No films waiting. Add one from any film's page.") : kind === "show" ? "Nothing announced yet from your shows." : "No film you're waiting on has a date yet."}
-        </p>
-      )}
-
-      {view === "list"
-        ? (shown as typeof piles).map((p) => (
-            <Pile key={p.id} title={p.title} count={p.rows.length}>
-              {p.rows}
-            </Pile>
-          ))
-        : (shown as typeof buckets).map((b) => (
-            <Pile key={b.id} title={b.title} count={b.items.length}>
-              {b.items.map((c) =>
-                "episode" in c ? (
-                  <WideCard key={`${c.t.key}${c.episode}`} t={c.t} lines={[when(c), `${code(c.episode)}${c.name ? ` · ${c.name}` : ""}`]} bar={null} keys={null} />
-                ) : (
-                  <WideCard key={c.t.key} t={c.t} lines={[when(c), "Release"]} bar={null} keys={null} />
-                ),
-              )}
-            </Pile>
-          ))}
+        {shown.length === 0 ? (
+          <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">
+            {view === "list" ? (kind === "show" ? "No shows on the go. Add one from any show's page." : "No films waiting. Add one from any film's page.") : kind === "show" ? "Nothing announced yet from your shows." : "No film you're waiting on has a date yet."}
+          </p>
+        ) : (
+          <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            {/* The list, as tall as the panel beside it, scrolling inside. */}
+            <div className="relative max-lg:h-[520px] lg:min-h-[420px]">
+              <div className="absolute inset-0 soft-scroll overflow-y-auto overscroll-contain pr-1 grid gap-2 content-start">
+                {shown.map((g) => (
+                  <section key={g.id} className="grid gap-2">
+                    <div>
+                      <HeadingPill small>{`${g.title} · ${g.items.length}`}</HeadingPill>
+                    </div>
+                    <ul className="m-0 p-0 list-none grid gap-2">
+                      {g.items.map((i) => (
+                        <Row key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={i.keys} onPick={() => setPickKey(i.key)} picked={picked?.key === i.key} />
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+            </div>
+            {picked && <EpisodePanel item={picked} keysFor={keysFor} />}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function Pile({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
+type Item = { key: string; t: ProfileTitle; show?: TrackerShow; episode?: string; date?: string; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null };
+
+// The picked title beside the list: for a series, its next episode (or the
+// dated one under Coming soon) as the show page's small episode page has it,
+// the still, the name, when it aired, how long it runs, its rating and what
+// happens, with the Skip and Watched keys; for a film, its picture and year.
+// The episode's details are fetched when first picked, a season at a time.
+function EpisodePanel({ item, keysFor }: { item: Item; keysFor: (e: CalendarEvent) => Key[] | null }) {
+  const [seasons, setSeasons] = useState<Record<string, SeasonEpisode[]>>({});
+  const id = Number(item.t.key.slice(1));
+  const [sn, en] = (item.episode ?? "").split("-").map(Number);
+  const seasonKey = item.episode ? `${id}-${sn}` : null;
+  useEffect(() => {
+    if (!seasonKey || seasons[seasonKey]) return;
+    let live = true;
+    loadSeason(id, sn).then((eps) => live && setSeasons((m) => ({ ...m, [seasonKey]: eps })));
+    return () => {
+      live = false;
+    };
+  }, [seasonKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const ep = seasonKey ? seasons[seasonKey]?.find((e) => e.episode === en) ?? null : null;
+
+  // The keys for this very episode (or film), without More and Recap, and
+  // Watched the wide one.
+  const keys = (keysFor({ date: ep?.airDate ?? item.date ?? "0000-00-00", t: item.t, label: "", episode: item.episode }) ?? [])
+    .filter((k) => !k.label.startsWith("More") && k.label !== "Recap")
+    .map((k, i, a) => (i === a.length - 1 ? { ...k, wide: true } : k));
+  const isFilm = item.t.kind === "movie";
+  const href = item.episode ? `/show/${id}/season/${sn}/episode/${en}` : item.t.href;
+  const facts = [
+    !isFilm && ["Show", <Link key="s" href={item.t.href} className="text-accent no-underline hover:underline">{item.t.title}</Link>],
+    ep?.airDate && ["Aired", longDate(ep.airDate)],
+    ep?.runtime && ["Runtime", `${ep.runtime}m`],
+    ep?.vote && ["TMDB", ep.vote.toFixed(1)],
+    isFilm && item.t.year && ["Year", item.t.year],
+    isFilm && item.date && ["Release", longDate(item.date)],
+  ].filter(Boolean) as [string, React.ReactNode][];
+
   return (
-    // A rail of wide cards, as the home page's rows: whole cards and a peek
-    // of the next, chevrons at mid-height, the right one going back to the
-    // start from the end, and the position lines under it (room is left
-    // for them before the next pile's heading).
-    <section className="grid grid-cols-[minmax(0,1fr)] gap-2 pb-5 last:pb-4">
+    <section className="lg:pl-2 grid grid-cols-[minmax(0,1fr)] gap-2 content-start min-w-0">
       <div>
-        <HeadingPill small>{`${title} · ${count}`}</HeadingPill>
+        <HeadingPill small>{item.episode ? code(item.episode) : isFilm ? "Film" : item.t.title}</HeadingPill>
       </div>
-      <Rail>{children}</Rail>
+      <div className="grid gap-2">
+        {(ep?.still ?? item.t.backdrop) && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={(ep?.still ?? item.t.backdrop)!} alt="" className="w-full aspect-video object-cover rounded-[8px] bg-piece" />
+        )}
+        <div className="rounded-shell bg-piece p-3">
+          <div className="display text-[22px] leading-none tracking-[.03em] uppercase">{ep?.name ?? item.t.title}</div>
+          {facts.length > 0 && (
+            <div className="mt-2.5 border-t border-hair">
+              {facts.map(([label, value], i) => (
+                <div key={label} className={`flex items-baseline justify-between gap-4 py-[8px] text-[12.5px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
+                  <span className="text-dim">{label}</span>
+                  <span className="text-right text-ink min-w-0 truncate">{value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {ep?.overview && (
+            <div className="mt-[1px] pt-[9px] border-t border-hair">
+              <ExpandableText text={ep.overview} />
+            </div>
+          )}
+        </div>
+        {keys.length > 0 && (
+          <div className="flex gap-1.5">
+            {keys.map((k) => (
+              <KeyButton key={k.label} k={k} />
+            ))}
+          </div>
+        )}
+        <Link href={href} className="rounded-shell bg-piece p-3 flex items-center justify-between text-[12.5px] font-semibold text-ink no-underline hover:text-accent transition-colors">
+          {item.episode ? "Open the episode's page" : isFilm ? "Open the film's page" : "Open the show's page"}
+          <span aria-hidden className="text-accent">→</span>
+        </Link>
+      </div>
     </section>
   );
+}
+
+function longDate(d: string) {
+  const [y, m, day] = d.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
 
 /** A switch lettered as the tab bars: two choices on a pill. */
