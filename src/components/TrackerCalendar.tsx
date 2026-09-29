@@ -7,7 +7,7 @@ import type { CalendarEvent } from "@/lib/tracker";
 // The tracker's calendar: on the left, the day picked (today to begin with)
 // large on the accent and its weekday; on the right, Today, the month by name with arrows either side and the year, and the month's days, a dot
 // under each day with something on it, today filled in the accent. Only the
-// month's own days are drawn. Pressing a day lists under the calendar what
+// month's own days are drawn. Pressing a day lists beside the calendar what
 // airs or opens that day; pressing it again puts the list away. The site's type (Bebas for the day's number,
 // Open Runde for the rest), its shell and piece curves and its 8px and 12px
 // spacing.
@@ -53,7 +53,10 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
   const lead = new Date(year, month, 1).getDay();
 
   return (
-    <div className="w-full max-w-[440px] rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid gap-2 sm:grid-cols-[120px_minmax(0,1fr)]">
+    // The calendar, and beside it (under it on a phone) what's on the day
+    // pressed, in a shell of its own exactly as tall, its list scrolling.
+    <div className="flex flex-col sm:flex-row gap-2 items-stretch">
+    <div className="w-full sm:w-[440px] shrink-0 rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid gap-2 sm:grid-cols-[120px_minmax(0,1fr)] content-start">
       {/* The day. */}
       <div className="rounded-shell bg-accent-fill text-on-accent p-3 flex flex-col min-w-0">
         <div className="display text-[56px] leading-[.8] pt-1.5">{String(pd).padStart(2, "0")}</div>
@@ -181,10 +184,12 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
           })}
         </div>
       </div>
+    </div>
 
-      {/* What's on the day pressed, across both panels. */}
+      {/* What's on the day pressed. */}
       {open && (
-        <div className="sm:col-span-2 rounded-shell bg-piece p-3">
+        <div className="relative w-full sm:w-[340px] min-h-[160px] rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+          <div className="sm:absolute sm:inset-2 rounded-shell bg-piece p-3 flex flex-col min-h-0">
           <div className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">
             {new Date(py, pm - 1, pd).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long" })}
             {onDay.length ? ` · ${picked < today ? "Aired" : "Airing"}` : ""}
@@ -192,7 +197,7 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
           {onDay.length === 0 ? (
             <p className="m-0 mt-2 text-[12.5px] text-dim">Nothing from what you track on this day.</p>
           ) : (
-            <ul className="m-0 mt-2 p-0 list-none grid gap-2">
+            <ul className="soft-scroll m-0 mt-2 p-0 list-none grid gap-2 content-start min-h-0 overflow-y-auto">
               {onDay.map((e) => (
                 <li key={`${e.t.key}${e.label}`}>
                   <Link href={e.t.href} className="group flex items-center gap-2.5 no-underline text-ink">
@@ -211,6 +216,7 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
               ))}
             </ul>
           )}
+          </div>
         </div>
       )}
     </div>
