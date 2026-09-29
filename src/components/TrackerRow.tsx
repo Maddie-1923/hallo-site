@@ -34,8 +34,8 @@ export const HOLD = "#D9BC52";
 export function Row({ t, lines, bar, keys, onPick, picked = false }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null; onPick?: () => void; picked?: boolean }) {
   return (
     <li className={`rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
-      <div className="h-[56px] rounded-[10px] bg-piece flex gap-2.5 overflow-hidden">
-        <To href={t.href} onPick={onPick} picked={picked} className="w-[100px] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
+      <div className="h-[80px] rounded-[10px] bg-piece flex gap-2.5 overflow-hidden">
+        <To href={t.href} onPick={onPick} picked={picked} className="w-[142px] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
           {(t.backdrop ?? t.poster) && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={(t.backdrop ?? t.poster)!} alt="" className="w-full h-full object-cover" />
@@ -45,11 +45,10 @@ export function Row({ t, lines, bar, keys, onPick, picked = false }: { t: Profil
           <To href={t.href} onPick={onPick} picked={picked} className="block w-full text-[12.5px] leading-[16px] font-semibold text-ink truncate no-underline hover:text-accent">
             {t.title}
           </To>
-          {/* The code and the name share a line at this size. */}
-          <div className="text-[12.5px] leading-[15px] truncate">
-            <span className="text-mid-tone">{lines[0]}</span>
-            {lines[1] && <span className="text-dim"> · {lines[1]}</span>}
-          </div>
+          {/* As the app's row: the code on its own line in the mid tone,
+              the episode's name under it, quieter. */}
+          <div className="mt-0.5 text-[12.5px] leading-[16px] text-mid-tone truncate">{lines[0]}</div>
+          {lines[1] && <div className="text-[12.5px] leading-[16px] text-dim truncate">{lines[1]}</div>}
           {bar && (
             <div className="mt-auto flex items-center gap-2">
               <span className="flex-1 h-[2px] rounded-full bg-track overflow-hidden">
