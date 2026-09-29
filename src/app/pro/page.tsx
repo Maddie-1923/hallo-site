@@ -49,10 +49,10 @@ export default function ProPage() {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
-        <div className="max-w-[1040px] mx-auto grid gap-8">
+        <div className="max-w-[1040px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
           {/* The offer: what it is, the two plans side by side, and the way to get it. */}
           <div className={SHELL}>
-            <div className="grid gap-2 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+            <div className="grid gap-2 grid-cols-[minmax(0,1fr)] md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
               <div className="rounded-shell bg-piece p-3 flex flex-col">
                 <h1 className="!text-[clamp(44px,6vw,72px)] !leading-[.9] tracking-[.02em] uppercase">Kodigo Pro</h1>
                 <p className="m-0 mt-3 text-[12.5px] leading-[1.6] text-mid-tone max-w-[46ch]">
@@ -60,11 +60,11 @@ export default function ProPage() {
                 </p>
                 <p className="m-0 mt-3 text-[12.5px] leading-[1.6] font-semibold text-ink">Your first week is free, with no card needed.</p>
                 <div className="mt-auto pt-4 flex flex-wrap gap-2">
-                  <span aria-disabled className="inline-flex items-center gap-2 h-10 px-4 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold opacity-60">
+                  <span aria-disabled className="inline-flex items-center gap-2 min-h-10 py-2 px-4 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold opacity-60">
                     <AppleMark />
                     Coming soon to the App Store
                   </span>
-                  <span aria-disabled className="inline-flex items-center h-10 px-4 rounded-full bg-[color:var(--quiet)] text-dim text-[12.5px] font-semibold">
+                  <span aria-disabled className="inline-flex items-center min-h-10 py-2 px-4 rounded-full bg-[color:var(--quiet)] text-dim text-[12.5px] font-semibold">
                     Subscribing on the web opens with accounts
                   </span>
                 </div>
@@ -77,7 +77,7 @@ export default function ProPage() {
             </div>
           </div>
 
-          <section className="grid gap-2">
+          <section className="grid grid-cols-[minmax(0,1fr)] gap-2">
             <div>
               <HeadingPill small>What Pro adds</HeadingPill>
             </div>
@@ -93,7 +93,7 @@ export default function ProPage() {
             </div>
           </section>
 
-          <section className="grid gap-2">
+          <section className="grid grid-cols-[minmax(0,1fr)] gap-2">
             <div>
               <HeadingPill small>Free and Pro</HeadingPill>
             </div>
@@ -127,7 +127,7 @@ export default function ProPage() {
             </div>
           </section>
 
-          <section className="grid gap-2">
+          <section className="grid grid-cols-[minmax(0,1fr)] gap-2">
             <div>
               <HeadingPill small>Questions</HeadingPill>
             </div>
