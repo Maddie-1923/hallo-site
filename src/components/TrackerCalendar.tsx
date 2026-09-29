@@ -56,10 +56,11 @@ export function TrackerCalendar({ events, keysFor }: { events: CalendarEvent[]; 
   const lead = new Date(year, month, 1).getDay();
 
   return (
-    // The calendar, and beside it (under it on a phone) what's on the day
-    // pressed, in a shell of its own exactly as tall, its list scrolling.
-    <div className="flex flex-col sm:flex-row gap-2 items-stretch">
-    <div className="w-full sm:w-[440px] shrink-0 rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid gap-2 sm:grid-cols-[120px_minmax(0,1fr)] content-start">
+    // The calendar, and beside it what's on the day pressed, in a shell of
+    // its own exactly as tall, its list scrolling. Without room for both
+    // (under 1024px), the day's list goes under the calendar, as wide.
+    <div className="flex flex-col lg:flex-row gap-2 items-start lg:items-stretch">
+    <div className="w-full max-w-[440px] lg:w-[440px] shrink-0 rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid gap-2 sm:grid-cols-[120px_minmax(0,1fr)] content-start">
       {/* The day. */}
       <div className="rounded-shell bg-accent-fill text-on-accent p-3 flex flex-col min-w-0">
         <div className="display text-[56px] leading-[.8] pt-1.5">{String(pd).padStart(2, "0")}</div>
@@ -192,8 +193,8 @@ export function TrackerCalendar({ events, keysFor }: { events: CalendarEvent[]; 
 
       {/* What's on the day pressed. */}
       {open && (
-        <div className="relative w-full sm:w-[340px] min-h-[160px] rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
-          <div className="sm:absolute sm:inset-2 rounded-shell bg-piece p-3 flex flex-col min-h-0">
+        <div className="relative w-full max-w-[440px] lg:w-[340px] lg:min-h-[160px] rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+          <div className="lg:absolute lg:inset-2 rounded-shell bg-piece p-3 flex flex-col min-h-0 max-lg:max-h-[360px]">
           <div className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">
             {new Date(py, pm - 1, pd).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long" })}
             {onDay.length ? ` · ${picked < today ? "Aired" : "Airing"}` : ""}
