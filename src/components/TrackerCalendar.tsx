@@ -5,10 +5,10 @@ import { useMemo, useState } from "react";
 import type { CalendarEvent } from "@/lib/tracker";
 
 // The tracker's calendar: on the left, the day picked (today to begin with)
-// large on the accent, its weekday, and what airs or opens that day; on the
-// right, the year with arrows, the twelve months, and the month's days, a dot
+// large on the accent and its weekday; on the right, the year with arrows, the twelve months, and the month's days, a dot
 // under each day with something on it, today filled in the accent. Only the
-// month's own days are drawn. The site's type (Bebas for the day's number,
+// month's own days are drawn. Pressing a day lists under the calendar what
+// airs or opens that day; pressing it again puts the list away. The site's type (Bebas for the day's number,
 // Open Runde for the rest), its shell and piece curves and its 8px and 12px
 // spacing.
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -19,6 +19,7 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
   const now = new Date();
   const today = iso(now.getFullYear(), now.getMonth(), now.getDate());
   const [picked, setPicked] = useState(today);
+  const [open, setOpen] = useState(false);
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
 
@@ -35,28 +36,13 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
   const lead = new Date(year, month, 1).getDay();
 
   return (
-    <div className="w-full max-w-[600px] rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid gap-2 sm:grid-cols-[200px_minmax(0,1fr)]">
+    <div className="w-full max-w-[480px] rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid gap-2 sm:grid-cols-[132px_minmax(0,1fr)]">
       {/* The day. */}
       <div className="rounded-shell bg-accent-fill text-on-accent p-3 flex flex-col min-w-0">
-        <div className="display text-[72px] leading-[.8] pt-2">{String(pd).padStart(2, "0")}</div>
-        <div className="mt-2 text-[10.5px] font-bold uppercase tracking-[.12em]">
-          {weekday}
-          {picked === today && " · Today"}
-        </div>
-        <div className="mt-3 pt-2.5 border-t border-[color:color-mix(in_srgb,currentColor_25%,transparent)] min-h-0 flex-1">
-          <div className="text-[10.5px] font-bold uppercase tracking-[.12em] opacity-75">{onDay.length ? (picked < today ? "Aired" : "Airing") : "Nothing on"}</div>
-          <ul className="m-0 mt-1.5 p-0 list-none grid gap-1.5">
-            {onDay.slice(0, 3).map((e) => (
-              <li key={`${e.t.key}${e.label}`} className="text-[12.5px] leading-[16px] min-w-0">
-                <Link href={e.t.href} className="block font-semibold truncate no-underline text-inherit hover:underline">
-                  {e.t.title}
-                </Link>
-                <span className="block truncate opacity-80">{e.label}</span>
-              </li>
-            ))}
-          </ul>
-          {onDay.length > 3 && <div className="mt-1.5 text-[12.5px] opacity-80">+{onDay.length - 3} more</div>}
-        </div>
+        <div className="display text-[56px] leading-[.8] pt-1.5">{String(pd).padStart(2, "0")}</div>
+        <div className="mt-2 text-[10.5px] font-bold uppercase tracking-[.12em]">{weekday}</div>
+        {picked === today && <div className="mt-1 text-[10.5px] font-bold uppercase tracking-[.12em] opacity-75">Today</div>}
+        <div className="mt-auto pt-3 text-[12.5px] leading-[16px] opacity-85">{onDay.length ? `${onDay.length} on this day` : "Nothing on"}</div>
       </div>
 
       {/* The month. */}
@@ -83,7 +69,8 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
         </div>
         <div className="mt-1.5 grid grid-cols-7 text-center">
           {WEEK.map((w) => (
-            <span key={w} className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim py-1.5">
+            // Three letters fit the narrower month at this size.
+            <span key={w} className="text-[10.5px] font-bold uppercase tracking-[.08em] text-dim py-1">
               {w}
             </span>
           ))}
@@ -99,13 +86,16 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
               <button
                 key={d}
                 type="button"
-                onClick={() => setPicked(d)}
+                onClick={() => {
+                  setOpen(!(open && isPicked));
+                  setPicked(d);
+                }}
                 aria-pressed={isPicked}
                 aria-label={`${d}${has ? `, ${byDay.get(d)!.length} on` : ""}`}
-                className="relative h-8 flex items-center justify-center cursor-pointer group"
+                className="relative h-7 flex items-center justify-center cursor-pointer group"
               >
                 <span
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-[12.5px] tabular-nums transition-colors ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[12.5px] tabular-nums transition-colors ${
                     isToday ? "bg-accent-fill text-on-accent font-bold" : isPicked ? "ring-[1.5px] ring-accent-fill text-ink font-semibold" : "text-ink group-hover:bg-card"
                   }`}
                 >
@@ -117,6 +107,38 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
           })}
         </div>
       </div>
+
+      {/* What's on the day pressed, across both panels. */}
+      {open && (
+        <div className="sm:col-span-2 rounded-shell bg-piece p-3">
+          <div className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">
+            {new Date(py, pm - 1, pd).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long" })}
+            {onDay.length ? ` · ${picked < today ? "Aired" : "Airing"}` : ""}
+          </div>
+          {onDay.length === 0 ? (
+            <p className="m-0 mt-2 text-[12.5px] text-dim">Nothing from what you track on this day.</p>
+          ) : (
+            <ul className="m-0 mt-2 p-0 list-none grid gap-2">
+              {onDay.map((e) => (
+                <li key={`${e.t.key}${e.label}`}>
+                  <Link href={e.t.href} className="group flex items-center gap-2.5 no-underline text-ink">
+                    <span className="w-[72px] aspect-video shrink-0 rounded-[8px] overflow-hidden bg-card border border-hair">
+                      {(e.t.backdrop ?? e.t.poster) && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={(e.t.backdrop ?? e.t.poster)!} alt="" className="w-full h-full object-cover" />
+                      )}
+                    </span>
+                    <span className="min-w-0 text-[12.5px] leading-[16px]">
+                      <span className="block font-semibold truncate group-hover:text-accent transition-colors">{e.t.title}</span>
+                      <span className="block text-dim truncate">{e.label}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }
