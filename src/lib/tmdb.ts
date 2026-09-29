@@ -930,3 +930,31 @@ export async function episodePage(showID: number, season: number, episode: numbe
     next,
   };
 }
+
+// ---- Settings: countries and their streaming services ----
+
+export type Service = { id: number; name: string; logo: string | null };
+
+/** The countries TMDB has streaming data for, by name. Cached a day. */
+export async function watchRegions(): Promise<{ code: string; name: string }[]> {
+  const r = await tmdb<{ results: { iso_3166_1: string; english_name: string }[] }>("/watch/providers/regions", {}, 86400);
+  return (r?.results ?? []).map((x) => ({ code: x.iso_3166_1, name: x.english_name })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** The streaming services in a country, films' and series' together, the
+    biggest first (TMDB's own order there). Cached a day. */
+export async function regionServices(region: string, limit = 48): Promise<Service[]> {
+  type Raw = { results: { provider_id: number; provider_name: string; logo_path?: string | null; display_priorities?: Record<string, number>; display_priority?: number }[] };
+  const [tv, film] = await Promise.all([
+    tmdb<Raw>("/watch/providers/tv", { watch_region: region }, 86400),
+    tmdb<Raw>("/watch/providers/movie", { watch_region: region }, 86400),
+  ]);
+  const seen = new Map<number, { s: Service; rank: number }>();
+  for (const x of [...(tv?.results ?? []), ...(film?.results ?? [])]) {
+    const rank = x.display_priorities?.[region] ?? x.display_priority ?? 999;
+    const had = seen.get(x.provider_id);
+    if (!had || rank < had.rank) seen.set(x.provider_id, { s: { id: x.provider_id, name: x.provider_name, logo: x.logo_path ? `${IMG}/w154${x.logo_path}` : null }, rank });
+  }
+  return [...seen.values()].sort((a, b) => a.rank - b.rank).slice(0, limit).map((x) => x.s);
+}
+

@@ -43,6 +43,7 @@ const menuLinks = [
   ["/calendar", "Calendar"],
   ["/app/profile", "Profile"],
   ["/app/history", "History"],
+  ["/settings", "Settings"],
   ["/app/account", "Account"],
   ["/app/import", "Import a backup"],
   ["/about#themes", "Themes"],
@@ -285,6 +286,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
             ["/u/preview#watchlog", "Watchlog"],
             ["/u/preview#categories", "Categories"],
             ["/u/preview#stats", "Stats"],
+            ["/settings", "Settings"],
           ].map(([href, label]) => (
             <Link key={href} href={href} className={item}>
               {label}

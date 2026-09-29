@@ -138,7 +138,8 @@ the live project only once a step is finished, and ask first.
    Also store each person's chosen favourites (top 5 films, top 5 series, in
    order) on `profiles`. The profile page's editor already works and saves
    to the browser until this exists.
-3. **Settings page:**
+3. **Settings page** (`/settings` built 29 Sep on `social`, kept in the browser
+   until this step; import, export, sign out and delete wait for accounts):
    - profile: name, location, quote, photo, banner, pinned favourites (the
      profile card already lets the owner set location and quote, kept in
      the browser until this exists);
