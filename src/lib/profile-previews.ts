@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { isArchive } from "@/lib/archive";
 import { profileFromArchive, withAiredEpisodes, withUpToDate, type CategoryEntry, type DiaryEntry, type ProfileTitle, type PublicProfileView, type ReviewEntry } from "@/lib/public-profile";
 import { image, movieRails, showRails } from "@/lib/tmdb";
+import { member, type Member } from "@/lib/members";
 
 // The two development-only profiles, /u/preview and /u/sample (see
 // app/u/[username]/page.tsx), and the made-up reviews and watches they carry
@@ -15,6 +16,8 @@ const DEV = process.env.NODE_ENV === "development";
 export async function loadProfile(username: string): Promise<PublicProfileView | null> {
   if (DEV && username === "preview") return previewFromFile();
   if (DEV && username === "sample") return sampleProfile();
+  const m = DEV ? member(username) : null;
+  if (m) return sampleProfile(m);
   return null;
 }
 
@@ -55,7 +58,9 @@ async function previewFromFile(): Promise<PublicProfileView | null> {
 // Made-up, and says so on the page. Real titles from this week's TMDB lists so
 // the pictures are real; the person, the dates, the ratings and the review
 // text are invented for the layout.
-async function sampleProfile(): Promise<PublicProfileView> {
+// With `who`, one of the made-up members (lib/members): their name, place,
+// numbers, and titles shifted by their seed so no two look alike.
+async function sampleProfile(who?: Member): Promise<PublicProfileView> {
   const [shows, movies, top] = await Promise.all([showRails.trending(), movieRails.trending(), movieRails.topRated()]);
   const t = (x: { id: number; poster_path?: string | null; backdrop_path?: string | null }, kind: "show" | "movie", title: string, date: string | null | undefined) => ({
     key: `${kind[0]}${x.id}`,
@@ -66,9 +71,10 @@ async function sampleProfile(): Promise<PublicProfileView> {
     backdrop: image.backdrop(x.backdrop_path),
     year: (date ?? "").slice(0, 4),
   });
-  const films = movies.map((m) => t(m, "movie", m.title, m.release_date));
-  const series = shows.map((s) => t(s, "show", s.name, s.first_air_date));
-  const classics = top.map((m) => t(m, "movie", m.title, m.release_date));
+  const turn = <T,>(xs: T[]) => (who ? [...xs.slice(who.seed % Math.max(1, xs.length)), ...xs.slice(0, who.seed % Math.max(1, xs.length))] : xs);
+  const films = turn(movies.map((m) => t(m, "movie", m.title, m.release_date)));
+  const series = turn(shows.map((s) => t(s, "show", s.name, s.first_air_date)));
+  const classics = turn(top.map((m) => t(m, "movie", m.title, m.release_date)));
 
   const day = (n: number) => new Date(Date.UTC(2026, 8, 25 - n)).toISOString().slice(0, 10);
   const diary = [...films.slice(0, 8), ...series.slice(0, 8)]
@@ -81,15 +87,15 @@ async function sampleProfile(): Promise<PublicProfileView> {
     "Sample review text. A slow start that pays off; the finale made the whole season click.",
   ];
   return {
-    username: "sample",
-    displayName: "Sample Viewer",
+    username: who?.username ?? "sample",
+    displayName: who?.displayName ?? "Sample Viewer",
     avatar: null,
     banner: films[0]?.backdrop?.replace("/w1280/", "/original/") ?? null,
-    bio: "Films on weekends, a series a week, and far too many lists.",
-    location: "Portland, OR",
-    followers: 128,
-    following: 64,
-    stats: { films: 214, shows: 37, episodes: 1893, hours: 1702, ratings: 188, average: 7.4 },
+    bio: who?.bio ?? "Films on weekends, a series a week, and far too many lists.",
+    location: who?.location ?? "Portland, OR",
+    followers: who?.followers ?? 128,
+    following: who?.following ?? 64,
+    stats: who ? { films: who.films, shows: who.shows, episodes: who.shows * 31, hours: Math.round(who.films * 1.9 + who.shows * 14), ratings: who.reviews + 120, average: 7.2 } : { films: 214, shows: 37, episodes: 1893, hours: 1702, ratings: 188, average: 7.4 },
     favorites: classics.slice(0, 8),
     tracker: {
       shows: series.slice(0, 5).map((x, i) => ({ ...x, seen: Array.from({ length: [6, 14, 3, 20, 9][i] }, (_, e) => `1-${e + 1}`), aired: [[8, 10], [16], [10], [22, 8], [12]][i] })),
@@ -120,7 +126,7 @@ async function sampleProfile(): Promise<PublicProfileView> {
       { id: "list:l2", name: "Best of 2026 so far", custom: true, titles: films.slice(0, 9) },
       { id: "list:l3", name: "Series worth the hype", detail: "Every one of these earned its finale.", custom: true, titles: series.slice(0, 7) },
     ],
-    previewNote: "Sample profile — a made-up person with invented dates, ratings and review text, for judging the layout. Development only.",
+    previewNote: `Sample profile${who ? ` (@${who.username})` : ""} — a made-up person with invented dates, ratings and review text, for judging the layout. Development only.`,
   };
 }
 

@@ -199,6 +199,8 @@ Everything the app does, on a computer.
 4. **Notifications:** someone followed you, liked or replied to your review
    or list.
 5. **Members page:** popular reviewers, most followed, new members.
+   `/members` built 29 Sep with made-up members (`lib/members.ts`), each with
+   a sample profile; linked from the profile menu.
 
 ### 5. Discovery
 
@@ -273,6 +275,8 @@ privacy labels to mention crash data before it ships.
   `lib/profile-previews.ts`).
 - The two sample lists in the preview's Categories (`withSampleLists` in
   `lib/profile-previews.ts`).
+- The eight made-up members (`lib/members.ts`) and their sample profiles,
+  and the sample notifications (`lib/notifications.ts`).
 - The `/u/preview` and `/u/sample` pages themselves, and their links in the
   profile menu. They only exist in development, but should go once real
   profiles work.
