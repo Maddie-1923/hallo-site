@@ -343,8 +343,9 @@ Everything the app does, on a computer.
    - real follower counts, follower / following lists, Follow state on
      profiles; blocks from the ⋯ also go to the account;
    - likes on reviews and lists (one per person, only on what you can see),
-     counts and hearts on review cards and list pages, a Likes tab on
-     profiles;
+     counts and hearts on review cards and list pages, and a Liked section
+     under the profile's Activity tab (a tab of its own until the user asked
+     to keep the tabs to seven);
    - comments on reviews (their own page) and lists (`CommentThread`):
      written only by the server after the word filter and a visibility
      check, 30 an hour; the author or the owner deletes; ⋯ to report;

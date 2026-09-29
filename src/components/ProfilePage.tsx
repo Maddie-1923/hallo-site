@@ -90,7 +90,24 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                 count: v.watching?.length ?? 0,
                 content: v.watching?.length ? <WatchingNow shows={v.watching} /> : <Empty>Not in the middle of any series.</Empty>,
               },
-              { id: "activity", label: "Activity", content: <ActivityList v={v} /> },
+              {
+                // What they watched and reviewed lately, then the reviews and
+                // lists they've liked (its own tab until 30 Sep, folded in to
+                // keep the tabs to seven).
+                id: "activity",
+                label: "Activity",
+                content: (
+                  <div className="grid gap-4">
+                    <ActivityList v={v} />
+                    {v.liked && v.liked.length > 0 && (
+                      <div className="grid gap-2">
+                        <div className="px-1 text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">Liked</div>
+                        <LikedGrid items={v.liked} />
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
               {
                 // Called the Watchlog rather than a diary, which is Letterboxd's word.
                 id: "watchlog",
@@ -103,12 +120,6 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                 label: "Watchlist",
                 count: v.watchlist?.length ?? 0,
                 content: v.watchlist?.length ? <PosterGrid titles={v.watchlist} /> : <Empty>Nothing on the watchlist.</Empty>,
-              },
-              {
-                id: "likes",
-                label: "Likes",
-                count: v.liked?.length ?? 0,
-                content: v.liked?.length ? <LikedGrid items={v.liked} /> : <Empty>No liked reviews or lists yet.</Empty>,
               },
               {
                 // The app's profile grid: its eight built-in categories, then the
@@ -412,7 +423,7 @@ function PosterGrid({ titles }: { titles: ProfileTitle[] }) {
   );
 }
 
-// The Likes tab: reviews and lists they've liked, each to its page.
+// Under Activity: reviews and lists they've liked, each to its page.
 function LikedGrid({ items }: { items: LikedItem[] }) {
   return (
     <ol className="m-0 p-0 list-none grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6">
