@@ -17,7 +17,7 @@ export function code(key: string) {
     unavailable, and, for a key that records something, the colour its
     confirmation fills with; that key does its work when the confirmation
     ends, as the app's do. */
-export type Key = { icon: React.ReactNode; label: string; run?: () => void; on?: boolean; off?: boolean; confirm?: string; /** The colour it stays when on (the hold amber unless said). */ onFill?: string; onInk?: string };
+export type Key = { icon: React.ReactNode; label: string; run?: () => void; on?: boolean; off?: boolean; confirm?: string; /** The colour it stays when on (the hold amber unless said). */ onFill?: string; onInk?: string; /** Twice the others' width (the wide card's Watched). */ wide?: boolean };
 
 // The app's hold amber (`kodigoHoldFill`), for a key that sets something aside.
 export const HOLD = "#D9BC52";
@@ -82,7 +82,7 @@ export function KeyButton({ k }: { k: Key }) {
       off={k.off}
       radius={8}
       run={k.run}
-      className={`flex-1 h-7 flex items-center justify-center ${k.on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
+      className={`${k.wide ? "flex-[2]" : "flex-1"} h-7 flex items-center justify-center ${k.on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
     >
       {k.icon}
     </ConfirmKey>
@@ -144,4 +144,54 @@ export function progress(s: TrackerShow, seen: string[]) {
   const pick = unseen.find(([, i]) => i > lastIdx) ?? unseen[0];
   const next = pick ? { key: `${pick[0][0]}-${pick[0][1]}`, label: `S${pick[0][0]} E${pick[0][1]}` } : null;
   return { done, total: all.length, next };
+}
+
+// The calendar page's card, one of a rail (see Rail): the title's wide
+// picture on top, under it the name, the next episode and the progress bar,
+// then the keys, Watched twice as wide as the others since it's the one
+// pressed most. The card is the rail's (the well, a lit edge, a soft
+// shadow); the words and the keys sit on its piece.
+export function WideCard({ t, lines, bar, keys }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null }) {
+  return (
+    <div
+      className="shrink-0 snap-start rounded-shell bg-well p-1.5 grid gap-1.5 content-start border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]"
+      style={{ width: "var(--rail-card, 248px)" }}
+      data-base={248}
+    >
+      <Link href={t.href} className="group block no-underline text-ink">
+        <span className="block aspect-video rounded-[10px] overflow-hidden border border-hair bg-card">
+          {(t.backdrop ?? t.poster) && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={(t.backdrop ?? t.poster)!} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+          )}
+        </span>
+      </Link>
+      <div className="rounded-[10px] bg-piece px-2.5 py-2 grid gap-1 min-w-0">
+        <Link href={t.href} className="block text-[12.5px] leading-[16px] font-semibold text-ink truncate no-underline hover:text-accent">
+          {t.title}
+        </Link>
+        <div className="text-[12.5px] leading-[16px] truncate">
+          <span className="text-mid-tone">{lines[0]}</span>
+          {lines[1] && <span className="text-dim"> · {lines[1]}</span>}
+        </div>
+        {bar && (
+          <div className="mt-0.5 flex items-center gap-2">
+            <span className="flex-1 h-[2px] rounded-full bg-track overflow-hidden">
+              <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
+            </span>
+            <span className="text-[11px] leading-none text-dim whitespace-nowrap tabular-nums">
+              {bar.done}/{bar.total}
+            </span>
+          </div>
+        )}
+      </div>
+      {keys && (
+        <div className="flex gap-1.5">
+          {keys.map((k) => (
+            <KeyButton key={k.label} k={k} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }

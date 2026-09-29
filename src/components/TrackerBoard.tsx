@@ -4,7 +4,8 @@ import { useState } from "react";
 import { addWatch, today } from "@/lib/live-watches";
 import type { CalendarEvent, ComingFilm, ComingShow, TrackerPage } from "@/lib/tracker";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
-import { CheckGlyph, code, HOLD, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, type Key } from "./TrackerRow";
+import { CheckGlyph, code, HOLD, MoreGlyph, progress, RecapGlyph, SkipGlyph, WideCard, type Key } from "./TrackerRow";
+import { Rail } from "./Rail";
 import { HeadingPill } from "./TitleParts";
 import { TrackerCalendar } from "./TrackerCalendar";
 
@@ -83,14 +84,13 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
     const p = progress(s, seenOf(s));
     const skippedHere = p.next ? skipped.includes(`${s.key}:${p.next.key}`) : false;
     return (
-      <Row
+      <WideCard
         key={s.key}
         t={s}
         lines={p.next ? [code(p.next.key), s.episodeNames?.[p.next.key] ?? ""] : [p.total ? "All caught up" : "Not started", ""]}
         bar={p.total ? { done: p.done, total: p.total } : null}
         keys={[
           { icon: <MoreGlyph />, label: `More for ${s.title}` },
-          { icon: <RecapGlyph />, label: "Recap", off: true },
           {
             icon: <SkipGlyph />,
             label: p.next ? `Watch ${code(p.next.key)} later` : "Skip",
@@ -102,6 +102,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
           {
             icon: <CheckGlyph />,
             label: p.next ? `Mark ${code(p.next.key)} of ${s.title} watched` : "Watched",
+            wide: true,
             off: !p.next,
             confirm: "var(--accent-fill)",
             run: p.next
@@ -119,7 +120,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
   };
 
   const filmRow = (f: ProfileTitle) => (
-    <Row
+    <WideCard
       key={f.key}
       t={f}
       lines={[f.year, "On the watch list"]}
@@ -129,6 +130,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
         {
           icon: <CheckGlyph />,
           label: `Mark ${f.title} watched`,
+          wide: true,
           confirm: "var(--accent-fill)",
           run: () => {
             setWatchedFilms((w) => [...w, f.key]);
@@ -193,9 +195,9 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
             <Pile key={b.id} title={b.title} count={b.items.length}>
               {b.items.map((c) =>
                 "episode" in c ? (
-                  <Row key={`${c.t.key}${c.episode}`} t={c.t} lines={[when(c), `${code(c.episode)}${c.name ? ` · ${c.name}` : ""}`]} bar={null} keys={null} />
+                  <WideCard key={`${c.t.key}${c.episode}`} t={c.t} lines={[when(c), `${code(c.episode)}${c.name ? ` · ${c.name}` : ""}`]} bar={null} keys={null} />
                 ) : (
-                  <Row key={c.t.key} t={c.t} lines={[when(c), "Release"]} bar={null} keys={null} />
+                  <WideCard key={c.t.key} t={c.t} lines={[when(c), "Release"]} bar={null} keys={null} />
                 ),
               )}
             </Pile>
@@ -207,11 +209,15 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
 
 function Pile({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
   return (
-    <section className="grid gap-2">
+    // A rail of wide cards, as the home page's rows: whole cards and a peek
+    // of the next, chevrons at mid-height, the right one going back to the
+    // start from the end, and the position lines under it (room is left
+    // for them before the next pile's heading).
+    <section className="grid grid-cols-[minmax(0,1fr)] gap-2 pb-5 last:pb-4">
       <div>
         <HeadingPill small>{`${title} · ${count}`}</HeadingPill>
       </div>
-      <ul className="m-0 p-0 list-none grid gap-2 md:grid-cols-2 2xl:grid-cols-3">{children}</ul>
+      <Rail>{children}</Rail>
     </section>
   );
 }
