@@ -331,8 +331,10 @@ the nav menu, the footer and the Pro page.
 
 ## Later
 
-- **Year in Review:** a personal yearly recap made for sharing, once people
-  have a year of data on Kodigo.
+- **Year in Review** (`/u/<name>/year/<year>` built 29 Sep from the
+  preview library: numbers, top series and films, month by month, genres,
+  first and last, moods; linked from Stats and the profile menu). Still to
+  do: a link-preview picture for sharing, like a review's.
 - Clone someone's list into your own.
 - Tags on logs and lists.
 

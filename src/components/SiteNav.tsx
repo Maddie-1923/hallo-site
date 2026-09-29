@@ -295,6 +295,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
             ["/u/preview#watchlog", "Watchlog"],
             ["/u/preview#categories", "Categories"],
             ["/u/preview#stats", "Stats"],
+            [`/u/preview/year/${new Date().getFullYear()}`, "Year in review"],
             ["/settings", "Settings"],
           ].map(([href, label]) => (
             <Link key={href} href={href} className={item}>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ProfileTitle, PublicProfileView } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
@@ -133,7 +134,17 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
 // The Stats tab: how they rate, what they watch most, and a month of
 // watching, three in a row.
 function Dashboard({ v }: { v: PublicProfileView }) {
+  const year = new Date().getFullYear();
   return (
+    <div className="grid gap-2">
+    {/* The year so far, as its own page made for sharing (the owner's own
+        library, until accounts). */}
+    {v.owner && (
+      <Link href={`/u/${v.username}/year/${year}`} className="rounded-shell bg-accent-fill text-on-accent p-3 flex items-center justify-between no-underline hover:brightness-110">
+        <span className="text-[12.5px] font-semibold">Your {year} in review</span>
+        <span aria-hidden>→</span>
+      </Link>
+    )}
     <div className="grid gap-2 sm:grid-cols-3">
       <Panel title="Ratings">
         <RatingsSpread values={v.ratingValues} />
@@ -144,6 +155,7 @@ function Dashboard({ v }: { v: PublicProfileView }) {
       <Panel title="Watch calendar">
         <MonthCalendar activity={v.activity} />
       </Panel>
+    </div>
     </div>
   );
 }
