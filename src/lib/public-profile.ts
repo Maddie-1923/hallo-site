@@ -148,7 +148,7 @@ export interface PublicProfileView {
   previewNote?: string;
 }
 
-function showTitle(s: Show): ProfileTitle {
+export function showTitle(s: Show): ProfileTitle {
   return {
     key: `s${s.id}`,
     kind: "show",
@@ -160,7 +160,7 @@ function showTitle(s: Show): ProfileTitle {
   };
 }
 
-function movieTitle(m: Movie): ProfileTitle {
+export function movieTitle(m: Movie): ProfileTitle {
   return {
     key: `m${m.id}`,
     kind: "movie",
@@ -343,8 +343,13 @@ export function profileFromArchive(
  * along they are.
  */
 export async function withAiredEpisodes(view: PublicProfileView): Promise<PublicProfileView> {
-  const shows = await Promise.all(
-    view.tracker.shows.map(async (t) => {
+  return { ...view, tracker: { ...view.tracker, shows: await fillAired(view.tracker.shows) } };
+}
+
+/** The same, for any list of series (the full tracker page's piles). */
+export async function fillAired(list: TrackerShow[]): Promise<TrackerShow[]> {
+  return Promise.all(
+    list.map(async (t) => {
       const d = await showDetail(Number(t.key.slice(1)));
       const last = d?.lastEpisode;
       if (!d || !last) return t;
@@ -365,7 +370,6 @@ export async function withAiredEpisodes(view: PublicProfileView): Promise<Public
       return { ...t, aired, episodeNames };
     }),
   );
-  return { ...view, tracker: { ...view.tracker, shows } };
 }
 
 /** A person's review of one title, for its own page and link preview: from

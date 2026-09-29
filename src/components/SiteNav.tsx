@@ -38,6 +38,7 @@ const product: [string, string][] = [
 ];
 
 const menuLinks = [
+  ["/tracker", "Tracker"],
   ["/app/profile", "Profile"],
   ["/app/history", "History"],
   ["/app/account", "Account"],
@@ -276,6 +277,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
             <span className="text-sm font-semibold">@preview</span>
           </Link>
           {[
+            ["/tracker", "Tracker"],
             ["/u/preview", "Profile"],
             ["/u/preview#reviews", "Reviews"],
             ["/u/preview#watchlog", "Watchlog"],

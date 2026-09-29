@@ -18,6 +18,18 @@ export async function loadProfile(username: string): Promise<PublicProfileView |
   return null;
 }
 
+/** The preview's library itself, for pages drawn from it (the tracker). */
+export async function previewArchive() {
+  const path = process.env.PROFILE_PREVIEW_FILE;
+  if (!DEV || !path) return null;
+  try {
+    const raw = JSON.parse(await readFile(path, "utf8"));
+    return isArchive(raw) ? raw : null;
+  } catch {
+    return null;
+  }
+}
+
 async function previewFromFile(): Promise<PublicProfileView | null> {
   const path = process.env.PROFILE_PREVIEW_FILE;
   if (!path) return null;
