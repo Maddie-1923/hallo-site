@@ -20,6 +20,9 @@ export interface YearTitle {
 
 export interface YearReview {
   year: number;
+  /** Watches left out because they arrived all at once (an import or a
+      bulk add), not as they were watched. */
+  skipped: number;
   /** Other years with watches, newest first, for the year picker. */
   years: number[];
   hours: number;
@@ -55,13 +58,16 @@ export function yearReview(a: LibraryArchive, year: number): YearReview | null {
   };
 
   // Every dated watch: an episode ("showID-s-e") or a film (its id).
-  type Watch = { date: string; show?: number; film?: number; ep?: string };
-  const all: Watch[] = [
-    ...Object.entries(a.watchedDates ?? {}).map(([k, d]) => ({ date: d.slice(0, 10), show: Number(k.split("-")[0]), ep: k.split("-").slice(1).join("-") })),
-    ...Object.entries(a.movieWatchedDates ?? {}).map(([k, d]) => ({ date: d.slice(0, 10), film: Number(k) })),
+  type Watch = { date: string; at: string; show?: number; film?: number; ep?: string };
+  const dated: Watch[] = [
+    ...Object.entries(a.watchedDates ?? {}).map(([k, d]) => ({ date: d.slice(0, 10), at: d, show: Number(k.split("-")[0]), ep: k.split("-").slice(1).join("-") })),
+    ...Object.entries(a.movieWatchedDates ?? {}).map(([k, d]) => ({ date: d.slice(0, 10), at: d, film: Number(k) })),
   ].filter((w) => /^\d{4}-\d{2}-\d{2}$/.test(w.date));
+  const bulk = imported(dated);
+  const all = dated.filter((w) => !bulk.has(w));
   const years = [...new Set(all.map((w) => Number(w.date.slice(0, 4))))].sort((x, y) => y - x);
-  const ws = all.filter((w) => w.date.startsWith(`${year}-`)).sort((x, y) => x.date.localeCompare(y.date));
+  const skipped = dated.filter((w) => bulk.has(w) && w.date.startsWith(`${year}-`)).length;
+  const ws = all.filter((w) => w.date.startsWith(`${year}-`)).sort((x, y) => x.at.localeCompare(y.at));
   if (!ws.length) return null;
 
   const eps = ws.filter((w) => w.show != null);
@@ -134,6 +140,7 @@ export function yearReview(a: LibraryArchive, year: number): YearReview | null {
 
   return {
     year,
+    skipped,
     years,
     hours: Math.round(minutes / 60),
     episodes: eps.length,
@@ -152,3 +159,26 @@ export function yearReview(a: LibraryArchive, year: number): YearReview | null {
     last: entry(ws[ws.length - 1]),
   };
 }
+
+/**
+ * Watches that arrived all at once rather than as they were watched: an
+ * import, or a bulk add. Six or more stamped within five minutes of each
+ * other (nobody finishes six episodes in five minutes), or, for a watch with
+ * a day but no time, twenty-five or more on one day. A binge checked off as
+ * it happens spreads over hours and is kept.
+ */
+function imported<T extends { date: string; at: string }>(ws: T[]): Set<T> {
+  const out = new Set<T>();
+  const timed = ws.filter((w) => w.at.length > 10).sort((x, y) => x.at.localeCompare(y.at));
+  const t = timed.map((w) => Date.parse(w.at));
+  const WINDOW = 5 * 60_000;
+  for (let i = 0, j = 0; i < timed.length; i++) {
+    while (t[i] - t[j] > WINDOW) j++;
+    if (i - j + 1 >= 6) for (let k = j; k <= i; k++) out.add(timed[k]);
+  }
+  const byDay = new Map<string, T[]>();
+  for (const w of ws.filter((w) => w.at.length <= 10)) byDay.set(w.date, [...(byDay.get(w.date) ?? []), w]);
+  for (const list of byDay.values()) if (list.length >= 25) list.forEach((w) => out.add(w));
+  return out;
+}
+

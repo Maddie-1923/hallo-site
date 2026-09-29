@@ -63,6 +63,11 @@ export default async function YearInReview({ params }: Params) {
             </div>
           </div>
 
+          {r.skipped > 0 && (
+            <p className="m-0 rounded-shell bg-card p-3 text-[12.5px] leading-[1.6] text-dim">
+              {r.skipped} {r.skipped === 1 ? "watch" : "watches"} that arrived all at once, from an import or a bulk add, {r.skipped === 1 ? "is" : "are"} left out, so the year shows what you watched as you watched it.
+            </p>
+          )}
           <Group title="The year in numbers">
             <div className="grid gap-2 grid-cols-2 lg:grid-cols-4">
               {[
