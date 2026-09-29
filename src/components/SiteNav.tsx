@@ -29,6 +29,7 @@ const marketing: [string, string][] = [
   ["/movies", "Movies"],
   ["/shows", "Shows"],
   ["/calendar", "Calendar"],
+  ["/members", "Members"],
 ];
 
 // The phone's four, in the phone's order: somewhere to find things, the two
@@ -38,6 +39,7 @@ const product: [string, string][] = [
   ["/app/shows", "Shows"],
   ["/app/movies", "Movies"],
   ["/calendar", "Calendar"],
+  ["/members", "Members"],
   ["/app/profile", "Profile"],
 ];
 
@@ -49,7 +51,6 @@ const menuLinks = [
   ["/app/account", "Account"],
   ["/app/import", "Import a backup"],
   ["/about#themes", "Themes"],
-  ["/members", "Members"],
   ["/about", "The app"],
   ["/pro", "Subscription"],
   ["/whats-new", "What's new"],
@@ -319,9 +320,6 @@ function GuestProfile({ framed }: { framed: boolean }) {
       {/* The app, the subscription and the news live here, as Letterboxd
           keeps them in its account menu, rather than on the bar. */}
       <div className="border-t border-hair py-1">
-        <Link href="/members" className={item}>
-          Members
-        </Link>
         <Link href="/about" className={item}>
           The app
         </Link>
