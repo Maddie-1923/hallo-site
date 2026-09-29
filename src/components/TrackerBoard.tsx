@@ -5,7 +5,9 @@ import { addWatch, today } from "@/lib/live-watches";
 import type { ComingFilm, ComingShow, TrackerPage } from "@/lib/tracker";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 import { CheckGlyph, code, HOLD, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph } from "./TrackerRow";
+import Link from "next/link";
 import { HeadingPill } from "./TitleParts";
+import { Rail } from "./Rail";
 
 // The full tracker, as the app's Shows and Movies tabs: Shows or Movies, then
 // the watch list or what's coming, each pile under its heading in rows of
@@ -108,7 +110,33 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
   const shown = view === "list" ? piles.filter((p) => p.rows.length > 0) : buckets.filter((b) => b.items.length > 0);
 
   return (
-    <div className="grid gap-8">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
+      {/* The banner: what's just out from what they track, shows by their
+          show's poster, newest first, a row that moves. */}
+      {data.fresh.length > 0 && (
+        <section className="grid grid-cols-[minmax(0,1fr)] gap-2">
+          <div>
+            <HeadingPill small>New episodes and now showing</HeadingPill>
+          </div>
+          {/* Straight on the page, as More like this is: the rail's position
+              lines sit in the gap under it. */}
+          <div>
+            <Rail>
+              {data.fresh.map((f) => (
+                <Link key={f.t.key} href={f.t.href} data-base={132} style={{ width: "var(--rail-card, 132px)" }} className="group shrink-0 snap-start no-underline text-ink">
+                  <span className="block aspect-[2/3] rounded-[8px] overflow-hidden bg-piece border border-hair">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={f.t.poster!} alt={f.t.title} loading="lazy" className="w-full h-full object-cover" />
+                  </span>
+                  <span className="block mt-1.5 px-0.5 text-[12.5px] leading-[16px] font-semibold truncate group-hover:text-accent transition-colors">{f.t.title}</span>
+                  <span className="block px-0.5 text-[12.5px] leading-[16px] text-dim truncate">{f.label}</span>
+                </Link>
+              ))}
+            </Rail>
+          </div>
+        </section>
+      )}
+
       <div className="flex flex-wrap items-center gap-2">
         <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
         <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />

@@ -11,8 +11,12 @@ import { showDetail } from "./tmdb";
 
 export type ComingShow = { t: ProfileTitle; episode: string; name: string; date: string; inDays: number };
 export type ComingFilm = { t: ProfileTitle; date: string; inDays: number };
+/** A poster for the banner: a tracked show with an episode just out (its
+    show's poster, never the episode's still), or a tracked film now out. */
+export type Fresh = { t: ProfileTitle; label: string; date: string };
 
 export interface TrackerPage {
+  fresh: Fresh[];
   shows: { upNext: TrackerShow[]; readyToStart: TrackerShow[]; onHold: TrackerShow[]; theVoid: TrackerShow[]; coming: ComingShow[] };
   films: { toWatch: ProfileTitle[]; onHold: ProfileTitle[]; theVoid: ProfileTitle[]; coming: ComingFilm[] };
 }
@@ -61,6 +65,24 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
   });
   coming.sort((x, y) => x.inDays - y.inDays || x.t.title.localeCompare(y.t.title));
 
+  // The banner: shows whose latest episode aired in the past week, and films
+  // on the watch list that came out in the past two months.
+  const fresh: Fresh[] = [];
+  details.forEach((d, i) => {
+    const ep = d?.lastEpisode;
+    if (!ep?.air_date) return;
+    const n = days(ep.air_date);
+    if (n > 0 || n < -7) return;
+    fresh.push({ t: showTitle(watching[i].show), label: `New · ${code(ep.season_number, ep.episode_number)}`, date: ep.air_date });
+  });
+  for (const t of a.movies) {
+    const r = t.movie.release_date;
+    if (t.status !== "To Watch" || !r) continue;
+    const n = days(r);
+    if (n <= 0 && n >= -60) fresh.push({ t: movieTitle(t.movie), label: "Now showing", date: r });
+  }
+  fresh.sort((x, y) => y.date.localeCompare(x.date));
+
   const mp = moviePiles(a, now);
   const newest = (x: { added?: string }, y: { added?: string }) => (y.added ?? "").localeCompare(x.added ?? "");
   const filmsComing: ComingFilm[] = a.movies
@@ -71,6 +93,7 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
   const out = (t: { movie: { release_date?: string | null } }) => !t.movie.release_date || days(t.movie.release_date) < 0;
 
   return {
+    fresh: fresh.filter((f) => f.t.poster),
     shows: { upNext, readyToStart, onHold, theVoid, coming },
     films: {
       toWatch: [...mp.readyToStart].filter(out).sort(newest).map((t) => movieTitle(t.movie)),
@@ -79,4 +102,8 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
       coming: filmsComing,
     },
   };
+}
+
+function code(s: number, e: number) {
+  return `S${String(s).padStart(2, "0")} | E${String(e).padStart(2, "0")}`;
 }
