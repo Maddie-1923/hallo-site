@@ -13,6 +13,8 @@ import { image } from "@/lib/tmdb";
 import { createClient } from "@/lib/supabase/server";
 import { NavLinks } from "./NavLinks";
 import { accountsOpen } from "@/lib/accounts";
+import { NotificationsBell } from "./Notifications";
+import { sampleNotifications } from "@/lib/notifications";
 
 // Two navs in one. Signed out, the bar sells the app: the landing page's
 // sections and a Sign in button. Signed in, it becomes the product: the
@@ -64,6 +66,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
   // page for an answer the page cannot use.
   const user = accountsOpen ? await signedInUser() : null;
   const logoHeight = framed ? 70 : 54;
+  const notes = user ? [] : await sampleNotifications();
 
   return (
     <nav
@@ -116,6 +119,8 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
             <SearchBoundary />
             <DayNightToggle onPicture={framed} />
             <ThemeMenu onPicture={framed} />
+            {/* The preview's notifications (development only until accounts). */}
+            {notes.length > 0 && <NotificationsBell items={notes} framed={framed} />}
             <GuestProfile framed={framed} />
           </div>
         )}
