@@ -10,7 +10,7 @@ import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 // The profile's mini tracker: what they're watching now, at a glance. Series
 // in progress with what's up next and how far along they are, or films on the
 // watchlist. It is a dashboard, not the tracker itself: the full tracker has
-// its own page, and "Open tracker" goes there.
+// its own page, Calendar, and "Open calendar" goes there.
 //
 // The owner gets a check on each row: mark the next episode watched, or mark
 // a film watched. Until accounts and the database exist this changes only the
@@ -141,8 +141,8 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
 
       {owner && (
         <div className="mt-2 pt-1.5 border-t border-hair text-right">
-          <Link href="/tracker" className="text-[12.5px] font-semibold text-accent no-underline hover:underline">
-            Open tracker →
+          <Link href="/calendar" className="text-[12.5px] font-semibold text-accent no-underline hover:underline">
+            Open calendar →
           </Link>
         </div>
       )}

@@ -303,6 +303,13 @@ Review. Android picks the same up when it resumes.
   private. The choice is stored in the library and the server leaves private
   categories out of anyone else's view.
 
+## Calendar (the tracker page)
+
+`/calendar` (built 29 Sep; `/tracker` forwards): the carousel of new episodes
+and films now showing, the calendar with the day's rows beside it, then
+Shows or Movies, the watch list's piles or Coming soon. Drawn from the preview
+library until accounts. In the top bar after Shows, and in the profile menu.
+
 ## What's new
 
 `/whats-new` (built 29 Sep): dated notes on features and fixes in the app and

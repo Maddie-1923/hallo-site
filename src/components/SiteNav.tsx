@@ -26,6 +26,7 @@ import { accountsOpen } from "@/lib/accounts";
 const marketing: [string, string][] = [
   ["/movies", "Movies"],
   ["/shows", "Shows"],
+  ["/calendar", "Calendar"],
 ];
 
 // The phone's four, in the phone's order: somewhere to find things, the two
@@ -34,11 +35,12 @@ const product: [string, string][] = [
   ["/shows", "Explore"],
   ["/app/shows", "Shows"],
   ["/app/movies", "Movies"],
+  ["/calendar", "Calendar"],
   ["/app/profile", "Profile"],
 ];
 
 const menuLinks = [
-  ["/tracker", "Tracker"],
+  ["/calendar", "Calendar"],
   ["/app/profile", "Profile"],
   ["/app/history", "History"],
   ["/app/account", "Account"],
@@ -277,7 +279,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
             <span className="text-sm font-semibold">@preview</span>
           </Link>
           {[
-            ["/tracker", "Tracker"],
+            ["/calendar", "Calendar"],
             ["/u/preview", "Profile"],
             ["/u/preview#reviews", "Reviews"],
             ["/u/preview#watchlog", "Watchlog"],
