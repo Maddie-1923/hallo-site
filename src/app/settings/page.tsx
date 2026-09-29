@@ -24,7 +24,7 @@ export default async function Settings() {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <SettingsPage username={profile ? profile.username : "preview"} isPrivate={profile?.is_private ?? null} detected={region} regions={regions} initialServices={services} signedIn={signedIn} subscription={subscription} />
+        <SettingsPage username={profile ? profile.username : "preview"} detected={region} regions={regions} initialServices={services} signedIn={signedIn} subscription={subscription} />
       </main>
       <SiteFooter />
     </div>

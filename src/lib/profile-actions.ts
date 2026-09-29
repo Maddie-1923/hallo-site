@@ -32,13 +32,3 @@ export async function saveProfile(input: { display_name?: string | null; banner_
   return {};
 }
 
-/** Settings → Privacy → Public profile, for the signed-in person. */
-export async function setProfilePrivate(isPrivate: boolean): Promise<boolean> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return false;
-  const { error } = await supabase.from("profiles").update({ is_private: isPrivate }).eq("user_id", user.id);
-  return !error;
-}

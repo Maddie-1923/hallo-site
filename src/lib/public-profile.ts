@@ -151,6 +151,13 @@ export interface PublicProfileView {
   previewNote?: string;
   /** A private profile: visitors who don't follow them see only the card. */
   isPrivate?: boolean;
+  /** For visitors, the tabs the owner has turned off (Settings → Privacy):
+      "activity", "watchlog". */
+  hiddenSections?: string[];
+  /** For visitors: false when the owner doesn't let people follow them. */
+  allowFollows?: boolean;
+  /** For the owner: each category's eye as their account keeps it. */
+  categoryPrivacy?: Record<string, boolean>;
 }
 
 export function showTitle(s: Show): ProfileTitle {

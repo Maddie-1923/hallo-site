@@ -18,7 +18,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   const supabase = await createClient();
   const { data: p } = await supabase
     .from("profiles")
-    .select("user_id, username, display_name, avatar_path, banner_path, location, quote, is_private")
+    .select("user_id, username, display_name, avatar_path, banner_path, location, quote, is_private, show_activity, show_watchlog, allow_follows, category_privacy")
     .eq("username", username.toLowerCase())
     .maybeSingle();
   if (!p?.username) return null;
@@ -37,13 +37,24 @@ export async function realProfile(username: string): Promise<PublicProfileView |
     const { data: row } = await supabase.from("libraries").select("archive").eq("user_id", user.id).maybeSingle();
     const archive = row && isArchive(row.archive) ? row.archive : EMPTY;
     const view = profileFromArchive(archive, meta, true);
-    return { ...(await withAiredEpisodes(await withUpToDate(view, archive))), isPrivate: p.is_private };
+    return { ...(await withAiredEpisodes(await withUpToDate(view, archive))), isPrivate: p.is_private, categoryPrivacy: (p.category_privacy as Record<string, boolean>) ?? {} };
   }
   // Everyone else: their public copy, drawn by the same code as the owner's
   // view. None for a private profile (the page shows the private notice), or
   // across a block.
   const { data: pub } = await supabase.from("public_libraries").select("archive").eq("user_id", p.user_id).maybeSingle();
   const archive = pub && isArchive(pub.archive) ? pub.archive : EMPTY;
-  const view = profileFromArchive(archive, meta, false);
-  return { ...(archive === EMPTY ? view : await withAiredEpisodes(await withUpToDate(view, archive))), isPrivate: p.is_private };
+  const drawn = profileFromArchive(archive, meta, false);
+  const view = archive === EMPTY ? drawn : await withAiredEpisodes(await withUpToDate(drawn, archive));
+  // What the owner has switched off (Settings → Privacy, and each category's
+  // eye) isn't shown. Hidden lists and, with both of these off, watch dates
+  // aren't even in the public copy.
+  const hiddenCategories = (p.category_privacy as Record<string, boolean>) ?? {};
+  return {
+    ...view,
+    categories: view.categories.filter((c) => !hiddenCategories[c.id]),
+    isPrivate: p.is_private,
+    hiddenSections: [!p.show_activity && "activity", !p.show_watchlog && "watchlog"].filter((x): x is string => !!x),
+    allowFollows: p.allow_follows,
+  };
 }

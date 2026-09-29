@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { checkText } from "@/lib/word-filter";
+import { saveAbout } from "@/lib/account-settings";
 import { createPortal } from "react-dom";
 
 // Under the handle on the profile card: where the person is, with a map pin,
@@ -28,6 +29,8 @@ export function ProfileAbout({ location, quote, owner, username }: { location: s
     try {
       localStorage.setItem(key, JSON.stringify(next));
     } catch {}
+    // Signed in, the profile keeps it (nothing happens signed out).
+    void saveAbout(next).catch(() => {});
     setEditing(false);
   }
 

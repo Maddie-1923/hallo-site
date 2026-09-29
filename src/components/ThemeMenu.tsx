@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Menu } from "./Menu";
 import { APPEARANCE_KEY, DEFAULT_THEME, THEMES, THEME_KEY, applyTheme, type Appearance } from "@/lib/theme";
+import { saveAccountTheme } from "@/lib/account-settings";
 
 // The paintbrush beside the day/night pill: a drop-down of the app's accent
 // themes. Same store as the pill and the About page's theme row, so a pick
@@ -28,6 +29,8 @@ export function ThemeMenu({ onPicture = false }: { onPicture?: boolean }) {
       const a = localStorage.getItem(APPEARANCE_KEY);
       if (a === "light" || a === "dark") appearance = a;
       localStorage.setItem(THEME_KEY, id);
+      // Signed in, the account keeps it too (nothing happens signed out).
+      void saveAccountTheme(id).catch(() => {});
     } catch {}
     applyTheme(id, appearance);
     setTheme(id);

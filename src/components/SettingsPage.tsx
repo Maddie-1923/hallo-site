@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
-import { useSettings, type Settings } from "@/lib/settings";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useAccountExtras, useSettings, type Settings } from "@/lib/settings";
 import { loadServices } from "@/lib/settings-actions";
 import { readImport, type ImportSummary } from "@/lib/import-read";
 import { APPEARANCE_KEY, DEFAULT_THEME, THEMES, THEME_KEY, applyTheme, type Appearance } from "@/lib/theme";
@@ -10,7 +10,7 @@ import type { Service } from "@/lib/tmdb";
 import { HeadingPill } from "./TitleParts";
 import { DeleteAccount } from "./DeleteAccount";
 import { ManageSubscription } from "./ProCheckout";
-import { setProfilePrivate } from "@/lib/profile-actions";
+import { saveAbout as saveAboutToAccount, saveAccountTheme } from "@/lib/account-settings";
 import { formatDate } from "@/lib/dates";
 import type { Subscription } from "@/lib/entitlement";
 import { checkName, checkText } from "@/lib/word-filter";
@@ -38,7 +38,7 @@ const SECTIONS = [
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 const ABOUT_KEY = "kodigo.profile-about.preview";
 
-export function SettingsPage({ username, isPrivate = null, detected, regions, initialServices, signedIn = false, subscription = null }: { /** Null: signed in without one yet. */ username: string | null; /** Signed in: whether their profile is private, from the account. */ isPrivate?: boolean | null; detected: string; regions: { code: string; name: string }[]; initialServices: Service[]; signedIn?: boolean; subscription?: Subscription | null }) {
+export function SettingsPage({ username, detected, regions, initialServices, signedIn = false, subscription = null }: { /** Null: signed in without one yet. */ username: string | null; detected: string; regions: { code: string; name: string }[]; initialServices: Service[]; signedIn?: boolean; subscription?: Subscription | null }) {
   const [s, set] = useSettings();
   const [about, setAbout] = useState({ location: "", quote: "" });
   const [theme, setTheme] = useState(DEFAULT_THEME);
@@ -60,16 +60,32 @@ export function SettingsPage({ username, isPrivate = null, detected, regions, in
     if (t && THEMES.some((x) => x.id === t)) setTheme(t);
   }, []);
 
+  // Signed in, location and quote are the account's: shown once they
+  // arrive, and saved to the profile as they're typed (after the word
+  // filter, which the boxes also run).
+  const extras = useAccountExtras();
+  const [aboutFromAccount, setAboutFromAccount] = useState(false);
+  useEffect(() => {
+    if (!extras || aboutFromAccount) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setAbout(extras.about);
+    setAboutFromAccount(true);
+  }, [extras, aboutFromAccount]);
+  const aboutTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveAbout = (next: typeof about) => {
     setAbout(next);
     try {
       localStorage.setItem(ABOUT_KEY, JSON.stringify(next));
     } catch {}
+    if (!signedIn) return;
+    if (aboutTimer.current) clearTimeout(aboutTimer.current);
+    aboutTimer.current = setTimeout(() => void saveAboutToAccount(next).catch(() => {}), 600);
   };
   const chooseTheme = (id: string) => {
     try {
       localStorage.setItem(THEME_KEY, id);
     } catch {}
+    if (signedIn) void saveAccountTheme(id).catch(() => {});
     applyTheme(id, appearance);
     setTheme(id);
   };
@@ -86,21 +102,9 @@ export function SettingsPage({ username, isPrivate = null, detected, regions, in
     startLoading(async () => setServices(await loadServices(code)));
   };
   const toggle = (key: keyof Settings) => <Toggle on={!!s[key]} onChange={(v) => set({ [key]: v } as Partial<Settings>)} />;
-  // Signed in, Public profile is the account's own setting.
-  const [publicProfile, setPublicProfile] = useState(isPrivate == null ? null : !isPrivate);
-  const publicToggle =
-    publicProfile == null ? (
-      toggle("publicProfile")
-    ) : (
-      <Toggle
-        on={publicProfile}
-        onChange={async (v) => {
-          setPublicProfile(v);
-          set({ publicProfile: v });
-          if (!(await setProfilePrivate(!v))) setPublicProfile(!v);
-        }}
-      />
-    );
+  // Public profile, like every setting, saves to the account when signed in
+  // (lib/settings.ts); the page shows the account's answer once it arrives.
+  const publicToggle = toggle("publicProfile");
 
   return (
     <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] items-start">
@@ -119,7 +123,9 @@ export function SettingsPage({ username, isPrivate = null, detected, regions, in
 
       <div className="grid grid-cols-[minmax(0,1fr)] gap-8 max-w-[720px]">
         <p className="m-0 rounded-shell bg-card p-3 text-[12.5px] leading-[1.6] text-mid-tone">
-          Your choices are kept in this browser for now. When Kodigo accounts open on the web, they&apos;ll follow you to every device.
+          {signedIn
+            ? "Your choices are saved to your account and follow you to every device where you're signed in. Day or night stays with each device."
+            : "Your choices are kept in this browser. Sign in and they're saved to your account, on every device."}
         </p>
 
         <Group id="profile" title="Profile">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { APPEARANCE_KEY, DEFAULT_THEME, THEMES, THEME_KEY, applyTheme, type Appearance } from "@/lib/theme";
+import { saveAccountTheme } from "@/lib/account-settings";
 
 // The landing page's theme row. Same store as the moon menu in the nav, so a
 // pick here follows you into the app pages and the next visit.
@@ -24,6 +25,8 @@ export function ThemeRow() {
       const a = localStorage.getItem(APPEARANCE_KEY);
       if (a === "light" || a === "dark") appearance = a;
       localStorage.setItem(THEME_KEY, id);
+      // Signed in, the account keeps it too (nothing happens signed out).
+      void saveAccountTheme(id).catch(() => {});
     } catch {}
     applyTheme(id, appearance);
     setCurrent(id);

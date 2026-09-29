@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { saveCategoryPrivacy } from "@/lib/account-settings";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CategoryEntry, ProfileTitle } from "@/lib/public-profile";
@@ -38,7 +39,9 @@ import { Menu } from "./Menu";
 // mouse. From the keyboard, the arrow keys move the focused tile a step.
 // Until accounts exist all of this is kept in this browser; a reader's
 // choice of order is kept in theirs.
-export function ProfileCategories({ categories: given, owner = false, username = "", library = [] }: { categories: CategoryEntry[]; owner?: boolean; username?: string; library?: ProfileTitle[] }) {
+// `accountPrivacy`: signed in, each category's eye as the account keeps it,
+// which is where changes are saved too.
+export function ProfileCategories({ categories: given, owner = false, username = "", library = [], accountPrivacy }: { categories: CategoryEntry[]; owner?: boolean; username?: string; library?: ProfileTitle[]; accountPrivacy?: Record<string, boolean> }) {
   const [made, setMade] = useState<MadeCategory[]>([]);
   const [creating, setCreating] = useState(false);
   const madeKey = `kodigo.made-categories.${username}`;
@@ -108,9 +111,9 @@ export function ProfileCategories({ categories: given, owner = false, username =
     if (!owner) return;
     try {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setPrivacy(JSON.parse(localStorage.getItem(privacyKey) ?? "{}"));
+      setPrivacy(accountPrivacy ?? JSON.parse(localStorage.getItem(privacyKey) ?? "{}"));
     } catch {}
-  }, [owner, privacyKey]);
+  }, [owner, privacyKey, accountPrivacy]);
   const isPrivate = (c: CategoryEntry) => privacy[c.id] ?? !!c.ownerOnly;
   function togglePrivate(c: CategoryEntry) {
     const next = { ...privacy, [c.id]: !isPrivate(c) };
@@ -118,6 +121,7 @@ export function ProfileCategories({ categories: given, owner = false, username =
     try {
       localStorage.setItem(privacyKey, JSON.stringify(next));
     } catch {}
+    if (accountPrivacy) void saveCategoryPrivacy(next).catch(() => {});
   }
 
   useEffect(() => {

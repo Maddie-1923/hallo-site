@@ -208,6 +208,26 @@ tables; entitlements and safety go there when accounts open.
      files like the app takes, including Letterboxd review text and lists;
    - delete account.
 
+   Settings sync built 30 Sep (`20260930050000_settings_sync.sql`,
+   `lib/account-settings.ts`, `lib/settings.ts`):
+   - on the profile, because they decide what visitors see: display name,
+     public/private, Show recent activity, Show your Watchlog, Let people
+     follow you, location, quote, and each category's eye
+     (`category_privacy`);
+   - in `user_settings`, theirs alone: notifications, country and
+     services, only-my-services, date format, spoilers, theme; day or night
+     stays per device;
+   - the browser keeps a copy so the site works signed out; signed in, the
+     account's copy wins and every change saves back (600 ms after the last
+     change); one shared store per page, so a change reaches every part of
+     it at once;
+   - visitors' profiles hide the tabs, Follow and categories the owner has
+     turned off; the public copy drops watch dates when both Watchlog and
+     Recent activity are off, and never copies a hidden list.
+   Still in the browser: made categories, category pictures and tile order
+   (they belong in the library so the app gets them), and Favourites (card
+   parked).
+
 ### 2. The tracker on the web (Pro)
 
 Everything the app does, on a computer.

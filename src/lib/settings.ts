@@ -1,75 +1,110 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+import { loadAccountSettings, saveAccountSettings, type AccountSettings } from "./account-settings";
+import { APPEARANCE_KEY, THEME_KEY, applyTheme } from "./theme";
 
-// A person's settings. Until accounts exist they are kept in this browser
-// (one key), and read by whatever needs them; with accounts they move to the
-// profile and the library.
-export interface Settings {
-  displayName: string;
-  // Privacy.
-  publicProfile: boolean;
-  showActivity: boolean;
-  showWatchlog: boolean;
-  allowFollows: boolean;
-  // Notifications, by email.
-  notifyFollows: boolean;
-  notifyLikes: boolean;
-  notifyComments: boolean;
-  weeklyDigest: boolean;
-  // Where they watch.
-  region: string | null;
-  services: number[];
-  onlyMyServices: boolean;
-  // How things read.
-  dateFormat: "day-month" | "month-day" | "numeric";
-  // Spoilers, until an episode is watched.
-  hideTitles: boolean;
-  hideDescriptions: boolean;
-  hideImages: boolean;
-}
-
-export const DEFAULTS: Settings = {
-  displayName: "",
-  publicProfile: true,
-  showActivity: true,
-  showWatchlog: true,
-  allowFollows: true,
-  notifyFollows: true,
-  notifyLikes: true,
-  notifyComments: true,
-  weeklyDigest: false,
-  region: null,
-  services: [],
-  onlyMyServices: false,
-  dateFormat: "day-month",
-  hideTitles: false,
-  hideDescriptions: false,
-  hideImages: false,
-};
+// A person's settings, read by whatever needs them: this browser's copy,
+// and the account's once they're signed in.
+import { DEFAULTS, type Settings } from "./settings-shape";
+export { DEFAULTS, type Settings } from "./settings-shape";
 
 const KEY = "kodigo.settings";
 /** The country chosen in Settings, also as a cookie so the server, which
     decides where to watch and the local rows, uses it (see lib/region). */
 export const REGION_COOKIE = "kodigo-region";
 
-export function useSettings(): [Settings, (patch: Partial<Settings>) => void] {
-  const [s, setS] = useState<Settings>(DEFAULTS);
-  useEffect(() => {
+// One copy for the whole page, so a change in Settings reaches everything
+// that reads it at once. It starts from this browser's copy; the first page
+// that asks also asks the account (lib/account-settings.ts), whose copy wins
+// when someone's signed in, and every change is saved back to it a moment
+// later. Signed out, the browser's copy is all there is.
+let state: Settings = DEFAULTS;
+let loaded = false;
+let asked = false;
+const subs = new Set<() => void>();
+const notify = () => subs.forEach((f) => f());
+
+/** What the account holds beyond the settings, for the pages that edit it. */
+let account: Omit<AccountSettings, "settings"> | null = null;
+
+function load() {
+  if (loaded || typeof window === "undefined") return;
+  loaded = true;
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved) state = { ...DEFAULTS, ...JSON.parse(saved) };
+  } catch {}
+}
+
+function keep(next: Settings, regionChanged: boolean) {
+  state = next;
+  try {
+    localStorage.setItem(KEY, JSON.stringify(next));
+    if (regionChanged) document.cookie = next.region ? `${REGION_COOKIE}=${next.region}; path=/; max-age=31536000; samesite=lax` : `${REGION_COOKIE}=; path=/; max-age=0`;
+  } catch {}
+  notify();
+}
+
+async function askAccount() {
+  if (asked) return;
+  asked = true;
+  const got = await loadAccountSettings().catch(() => null);
+  if (!got) return;
+  load();
+  const { settings, ...rest } = got;
+  account = rest;
+  keep({ ...state, ...settings }, "region" in settings && settings.region !== state.region);
+  // Their theme follows them too; day or night stays with the device.
+  if (got.theme) {
     try {
-      const saved = localStorage.getItem(KEY);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (saved) setS({ ...DEFAULTS, ...JSON.parse(saved) });
+      if (localStorage.getItem(THEME_KEY) !== got.theme) {
+        localStorage.setItem(THEME_KEY, got.theme);
+        const ap = localStorage.getItem(APPEARANCE_KEY);
+        applyTheme(got.theme, ap === "light" || ap === "dark" ? ap : "system");
+      }
     } catch {}
+  }
+}
+
+let pending: Partial<Settings> = {};
+let timer: ReturnType<typeof setTimeout> | null = null;
+function saveSoon(patch: Partial<Settings>) {
+  pending = { ...pending, ...patch };
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(() => {
+    const p = pending;
+    pending = {};
+    void saveAccountSettings(p).catch(() => {});
+  }, 600);
+}
+
+export function useSettings(): [Settings, (patch: Partial<Settings>) => void] {
+  const s = useSyncExternalStore(
+    (cb) => {
+      subs.add(cb);
+      return () => subs.delete(cb);
+    },
+    () => {
+      load();
+      return state;
+    },
+    () => DEFAULTS,
+  );
+  useEffect(() => {
+    void askAccount();
   }, []);
-  const update = (patch: Partial<Settings>) =>
-    setS((prev) => {
-      const next = { ...prev, ...patch };
-      try {
-        localStorage.setItem(KEY, JSON.stringify(next));
-        if ("region" in patch) document.cookie = next.region ? `${REGION_COOKIE}=${next.region}; path=/; max-age=31536000; samesite=lax` : `${REGION_COOKIE}=; path=/; max-age=0`;
-      } catch {}
-      return next;
-    });
+  const update = (patch: Partial<Settings>) => {
+    load();
+    keep({ ...state, ...patch }, "region" in patch);
+    saveSoon(patch);
+  };
   return [s, update];
+}
+
+/** The account's location, quote and category eyes, once known; null
+    signed out. Re-renders when they arrive. */
+export function useAccountExtras() {
+  useSettings();
+  return account;
 }

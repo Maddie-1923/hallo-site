@@ -64,6 +64,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
           <ProfileSections
             owner={!!v.owner}
             privateProfile={!!v.isPrivate && !v.owner}
+            hiddenSections={v.owner ? [] : (v.hiddenSections ?? [])}
             className="lg:col-span-2"
             aside={<MiniTracker shows={v.tracker.shows} films={v.tracker.films} owner={!!v.owner} />}
             sections={[
@@ -96,7 +97,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                 id: "categories",
                 label: "Categories",
                 count: v.categories.length,
-                content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} library={v.owner ? [...v.owner.shows, ...v.owner.films] : []} /> : <Empty>Nothing in any category yet.</Empty>,
+                content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} library={v.owner ? [...v.owner.shows, ...v.owner.films] : []} accountPrivacy={v.categoryPrivacy} /> : <Empty>Nothing in any category yet.</Empty>,
               },
               // No Favourites tab: the loved titles are the Favorites category.
               { id: "stats", label: "Stats", content: <Dashboard v={v} /> },
@@ -304,7 +305,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             where the capitals start; FollowPill sizes itself to the handle's
             line). The follower counts are with the numbers beside the card. */}
         <div className="shrink-0 mt-px flex items-start gap-2">
-          <FollowPill owner={!!v.owner} />
+          {(v.owner || v.allowFollows !== false) && <FollowPill owner={!!v.owner} />}
           <ProfileMenu username={v.username} owner={!!v.owner} />
         </div>
         </div>
