@@ -86,6 +86,8 @@ export interface LibraryArchive {
   /** Episode ids as "showID-season-episode". */
   watched: string[];
   skipped?: string[];
+  /** When each skip was made, keyed like `skipped`. */
+  skippedDates?: Record<string, string>;
   watchedDates?: Record<string, string>;
   /** Keys are "show:ID", "movie:ID" or "episode:showID-s-e". */
   reactions?: Record<string, Reaction>;

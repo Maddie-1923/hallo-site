@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { markMovieWatched, setEpisodeSkipped, setEpisodeWatched } from "@/lib/library-actions";
 import { loadSeason, type SeasonEpisode } from "@/lib/title-actions";
 import { ExpandableText } from "./ExpandableText";
 import { addWatch, today } from "@/lib/live-watches";
@@ -19,7 +21,31 @@ import { MASKED_NAME, SpoilerCover, useSpoilers } from "./Spoiler";
 // episode. Checking off works on the page as it does on the profile's mini
 // tracker: it moves the row on and lands in Recent activity for the visit,
 // and saving it comes with accounts.
-export function TrackerBoard({ data }: { data: TrackerPage }) {
+// `live`: the signed-in person's own library, so each key also saves to it
+// (lib/library-actions.ts, the app's own rules); without it, the preview,
+// where the keys only change the page. A save that fails is undone on the
+// page and says why.
+export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?: boolean }) {
+  const router = useRouter();
+  const [problem, setProblem] = useState<string | null>(null);
+  const persist = (save: () => Promise<{ error?: string }>, undo: () => void) => {
+    if (!live) return;
+    void save()
+      .then((r) => {
+        if (r.error) {
+          undo();
+          setProblem(r.error);
+          setTimeout(() => setProblem(null), 4000);
+        } else router.refresh();
+      })
+      .catch(() => {
+        undo();
+        setProblem("That didn't save. Try again.");
+        setTimeout(() => setProblem(null), 4000);
+      });
+  };
+  const idOf = (key: string) => Number(key.slice(1));
+  const epOf = (k: string) => k.split("-").map(Number) as [number, number];
   const [kind, setKind] = useState<"show" | "movie">("show");
   const [view, setView] = useState<"list" | "coming">("list");
   const [seen, setSeen] = useState<Record<string, string[]>>({});
@@ -57,7 +83,11 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
           on: aside,
           off: !out || done,
           confirm: aside ? undefined : HOLD,
-          run: () => setSkipped((x) => (aside ? x.filter((y) => y !== `${e.t.key}:${k}`) : [...x, `${e.t.key}:${k}`])),
+          run: () => {
+            const flip = () => setSkipped((x) => (x.includes(`${e.t.key}:${k}`) ? x.filter((y) => y !== `${e.t.key}:${k}`) : [...x, `${e.t.key}:${k}`]));
+            flip();
+            persist(() => setEpisodeSkipped(idOf(e.t.key), ...epOf(k), !aside), flip);
+          },
         },
         {
           icon: <CheckGlyph />,
@@ -71,6 +101,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
             setSeen((m) => ({ ...m, [e.t.key]: [...(m[e.t.key] ?? []), k] }));
             const [se, ep] = k.split("-");
             addWatch({ key: `${e.t.key}-${k}-${Date.now()}`, date: today(), t: e.t, detail: `S${se} E${ep}` });
+            persist(() => setEpisodeWatched(idOf(e.t.key), ...epOf(k), true), () => setSeen((m) => ({ ...m, [e.t.key]: (m[e.t.key] ?? []).filter((x) => x !== k) })));
           },
         },
       ];
@@ -89,6 +120,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
         run: done ? undefined : () => {
           setWatchedFilms((w) => [...w, e.t.key]);
           addWatch({ key: `${e.t.key}-${Date.now()}`, date: today(), t: e.t });
+          persist(() => markMovieWatched(idOf(e.t.key)), () => setWatchedFilms((w) => w.filter((x) => x !== e.t.key)));
         },
       },
     ];
@@ -107,7 +139,14 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
         on: skippedHere,
         off: !p.next,
         confirm: skippedHere ? undefined : HOLD,
-        run: p.next ? () => setSkipped((k) => (skippedHere ? k.filter((x) => x !== `${s.key}:${p.next!.key}`) : [...k, `${s.key}:${p.next!.key}`])) : undefined,
+        run: p.next
+          ? () => {
+              const tag = `${s.key}:${p.next!.key}`;
+              const flip = () => setSkipped((k) => (k.includes(tag) ? k.filter((x) => x !== tag) : [...k, tag]));
+              flip();
+              persist(() => setEpisodeSkipped(idOf(s.key), ...epOf(p.next!.key), !skippedHere), flip);
+            }
+          : undefined,
       },
       {
         icon: <CheckGlyph />,
@@ -120,6 +159,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
               setSeen((m) => ({ ...m, [s.key]: [...(m[s.key] ?? []), n.key] }));
               const [se, ep] = n.key.split("-");
               addWatch({ key: `${s.key}-${n.key}-${Date.now()}`, date: today(), t: s, detail: `S${se} E${ep}` });
+              persist(() => setEpisodeWatched(idOf(s.key), ...epOf(n.key), true), () => setSeen((m) => ({ ...m, [s.key]: (m[s.key] ?? []).filter((x) => x !== n.key) })));
             }
           : undefined,
       },
@@ -134,6 +174,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
       run: () => {
         setWatchedFilms((w) => [...w, f.key]);
         addWatch({ key: `${f.key}-${Date.now()}`, date: today(), t: f });
+        persist(() => markMovieWatched(idOf(f.key)), () => setWatchedFilms((w) => w.filter((x) => x !== f.key)));
       },
     },
   ];
@@ -192,6 +233,11 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
+      {problem && (
+        <div role="alert" className="fixed z-50 bottom-6 left-1/2 -translate-x-1/2 max-w-[90vw] rounded-full bg-card-hi border border-hair px-4 py-2 text-[12.5px] text-ink shadow-lg">
+          {problem}
+        </div>
+      )}
       {/* The calendar first, under the carousel on the left. */}
       <TrackerCalendar events={data.calendar} keysFor={keysFor} watched={watchedEp} />
       {/* One bento: the switches, then the list on the left and, beside it,

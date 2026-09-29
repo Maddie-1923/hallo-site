@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { hasPro } from "@/lib/pro";
+import { applyEpisodeSkipped, applyEpisodeWatched, applyMovieWatched } from "@/lib/library-rules";
 import { CURRENT_VERSION, isArchive, type LibraryArchive, type Movie, type MovieStatus, type Show, type WatchStatus } from "./archive";
 
 // Every change the website makes to a library goes through here, and each one
@@ -36,12 +38,15 @@ function emptyArchive(): LibraryArchive {
   };
 }
 
-async function withArchive(mutate: (a: LibraryArchive, stamp: string) => void): Promise<{ error?: string }> {
+// `pro`: a change only Kodigo Pro can make on the web (episode tracking and
+// skips, the tracker's keys). Logging films, rating and reviewing are free.
+async function withArchive(mutate: (a: LibraryArchive, stamp: string) => void, opts: { pro?: boolean } = {}): Promise<{ error?: string }> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Sign in to track titles." };
+  if (opts.pro && !(await hasPro())) return { error: "Episode tracking on the web comes with Kodigo Pro." };
 
   const { data } = await supabase.from("libraries").select("archive").eq("user_id", user.id).maybeSingle();
   const archive: LibraryArchive = data && isArchive(data.archive) ? (data.archive as LibraryArchive) : emptyArchive();
@@ -64,6 +69,7 @@ async function withArchive(mutate: (a: LibraryArchive, stamp: string) => void): 
   });
   if (error) return { error: error.message };
   revalidatePath("/app", "layout");
+  revalidatePath("/calendar");
   return {};
 }
 
@@ -96,32 +102,22 @@ export async function untrackShow(id: number) {
 }
 
 export async function setEpisodeWatched(showID: number, season: number, episode: number, watched: boolean) {
-  const key = `${showID}-${season}-${episode}`;
-  return withArchive((a, stamp) => {
-    const set = new Set(a.watched);
-    a.watchedDates ??= {};
-    a.watchedStamps ??= {};
-    if (watched) {
-      set.add(key);
-      // First viewing date is never rewritten — the app's rule, kept here.
-      a.watchedDates[key] ??= stamp;
-    } else {
-      set.delete(key);
-      delete a.watchedDates[key];
-    }
-    // The stamp moves either way. Present in stamps and absent from watched is
-    // how an uncheck survives a merge.
-    a.watchedStamps[key] = stamp;
-    a.watched = [...set];
-    const tracked = a.shows.find((s) => s.show.id === showID);
-    if (tracked) tracked.modified = stamp;
-  });
+  return withArchive((a, stamp) => applyEpisodeWatched(a, `${showID}-${season}-${episode}`, watched, stamp), { pro: true });
+}
+
+/** Watch an episode later: the app's toggleSkipped (lib/library-rules.ts). */
+export async function setEpisodeSkipped(showID: number, season: number, episode: number, skipped: boolean) {
+  return withArchive((a, stamp) => applyEpisodeSkipped(a, `${showID}-${season}-${episode}`, skipped, stamp), { pro: true });
 }
 
 // ---- Movies ----
 
 export async function trackMovie(movie: Movie, status: MovieStatus = "To Watch") {
   return withArchive((a, stamp) => {
+    // A film already watched stays Watched unless it's being set aside (the
+    // app's rule: watching is about the past, the status about now).
+    const setAside = status === "On Hold" || status === "Dropped";
+    if ((a.watchedMovies ?? []).includes(movie.id) && !setAside) status = "Watched";
     const existing = a.movies.find((m) => m.movie.id === movie.id);
     if (existing) {
       existing.status = status;
@@ -137,6 +133,11 @@ export async function trackMovie(movie: Movie, status: MovieStatus = "To Watch")
       a.movieWatchedDates[String(movie.id)] ??= stamp;
     }
   });
+}
+
+/** The app's setMovieWatched(true), for a film already in the library. */
+export async function markMovieWatched(id: number) {
+  return withArchive((a, stamp) => applyMovieWatched(a, id, stamp));
 }
 
 export async function untrackMovie(id: number) {

@@ -238,6 +238,19 @@ Everything the app does, on a computer.
    through the library actions (watched date and stamp), which is what puts a
    watch in Recent activity on the site and Recents in the apps. Until then
    the page shows it in Recent activity for the visit only.
+   Wired 30 Sep: `/calendar` is the signed-in person's own library when they
+   have Pro (`lib/pro.ts`: their entitlement, or `DEV_PRO=on` in
+   development), and every key saves (`TrackerBoard live`): tick an
+   episode, watch it later (skip) or take the skip back, mark a film
+   watched; a failed save flips back and says why. Signed out, without Pro
+   or with an empty library, the page says what's needed. The rules are the
+   app's, in `lib/library-rules.ts` (toggleWatched, toggleSkipped,
+   setMovieWatched) and tested: watching clears a skip, skipping a watched
+   episode unticks it with a stamp, the first watch date is never
+   rewritten, an unskip doesn't travel (as in the app). The actions check
+   Pro on the server too. `trackMovie` keeps a watched film Watched unless
+   it's set aside, as the app does. Not yet: rewatch runs on the web, and
+   Recap and More (disabled keys).
 2. **Calendar** of upcoming episodes and releases for what you follow,
    beyond the bell list in the nav.
 3. **Library tools** on your own shows, films, watchlist and lists: sort,
