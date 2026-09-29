@@ -14,7 +14,9 @@ import type { WhereToWatch } from "@/lib/tmdb";
 // The app pushes a page; the web opens a sheet over this one.
 // `cover`: the opener is the whole of the box it sits in (the Where to watch
 // tile), drawn by the box itself, rather than the arrow.
-export function ElsewhereSheet({ entries, cover = false }: { entries: WhereToWatch["elsewhere"]; cover?: boolean }) {
+export function ElsewhereSheet({ entries: given, cover = false, mine = [] }: { entries: WhereToWatch["elsewhere"]; cover?: boolean; mine?: number[] }) {
+  // Their own services first, marked.
+  const entries = [...given.filter((e) => mine.includes(e.provider.id)), ...given.filter((e) => !mine.includes(e.provider.id))];
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!open) return;
@@ -71,7 +73,10 @@ export function ElsewhereSheet({ entries, cover = false }: { entries: WhereToWat
                       )}
                     </span>
                     <div className="min-w-0 grid gap-1.5">
-                      <div className="text-[15px] font-semibold text-ink">{e.provider.name}</div>
+                      <div className="text-[15px] font-semibold text-ink">
+                        {e.provider.name}
+                        {mine.includes(e.provider.id) && <span className="ml-2 align-middle inline-flex items-center h-[20px] px-2 rounded-full bg-accent-fill text-on-accent text-[10.5px] font-bold uppercase tracking-[.12em]">Yours</span>}
+                      </div>
                       <div className="flex flex-wrap gap-1.5">
                         {e.countries.map((c) => (
                           <span key={c} title={names?.of(c) ?? c} className="rounded-[6px] border border-hair px-2 py-[3px] text-[12px] leading-none text-ink">

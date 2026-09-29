@@ -49,6 +49,9 @@ export const DEFAULTS: Settings = {
 };
 
 const KEY = "kodigo.settings";
+/** The country chosen in Settings, also as a cookie so the server, which
+    decides where to watch and the local rows, uses it (see lib/region). */
+export const REGION_COOKIE = "kodigo-region";
 
 export function useSettings(): [Settings, (patch: Partial<Settings>) => void] {
   const [s, setS] = useState<Settings>(DEFAULTS);
@@ -64,6 +67,7 @@ export function useSettings(): [Settings, (patch: Partial<Settings>) => void] {
       const next = { ...prev, ...patch };
       try {
         localStorage.setItem(KEY, JSON.stringify(next));
+        if ("region" in patch) document.cookie = next.region ? `${REGION_COOKIE}=${next.region}; path=/; max-age=31536000; samesite=lax` : `${REGION_COOKIE}=; path=/; max-age=0`;
       } catch {}
       return next;
     });

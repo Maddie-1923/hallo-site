@@ -1,5 +1,5 @@
 import "server-only";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 // The visitor's country, for the rows that only mean something locally: what
 // is in cinemas, what opens soon, and which age rating a film carries. A film
@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 // and a row of it is noise to somebody who can't go and see it.
 //
 // Where the country comes from, best first:
+// 0. The country they chose in Settings (Where you watch), kept as a cookie.
 // 1. The host's own lookup of the visitor's IP. Vercel sends it as
 //    `x-vercel-ip-country` (Cloudflare as `cf-ipcountry`). Nothing is stored,
 //    and no request goes anywhere else to find it.
@@ -20,6 +21,8 @@ import { headers } from "next/headers";
 export const FALLBACK_REGION = "US";
 
 export async function visitorRegion(): Promise<string> {
+  const chosen = (await cookies()).get("kodigo-region")?.value;
+  if (chosen && /^[A-Z]{2}$/.test(chosen)) return chosen;
   const h = await headers();
   const fromHost = h.get("x-vercel-ip-country") ?? h.get("cf-ipcountry");
   if (fromHost && /^[A-Z]{2}$/.test(fromHost) && fromHost !== "XX") return fromHost;

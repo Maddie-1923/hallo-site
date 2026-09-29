@@ -143,6 +143,8 @@ export function HeaderCard({
 /** Where to watch in the visitor's country: subscription services, then the
     free ones under a small label; each logo goes on to TMDB's page for the
     country, which lists them through JustWatch. */
+export { WhereToWatchTile } from "./WhereToWatchTile";
+
 export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWatch; flat?: boolean }) {
   const logo = (p: WhereToWatch["subscription"][number]) => (
     <a key={p.id} href={watch.link ?? undefined} target="_blank" rel="noreferrer" title={p.name} className="shrink-0 w-10 h-10 rounded-[8px] overflow-hidden border border-hair bg-card">
@@ -221,48 +223,6 @@ export function TrailerSection({ videos, flat = false }: { videos: Video[]; flat
         </div>
       </SectionCard>
     </Section>
-  );
-}
-
-/** Where to watch beside the keys, a shell of its own drawn like the
-    keys' box and exactly as tall, with the same space on every side of
-    each piece in it (its contents are laid over it, so
-    they never push it taller): its heading on a piece, and under it the
-    services' piece, two here (or, when it streams nowhere here, from
-    elsewhere), the second a "+N" when there are more, and the arrow level
-    with them. Always the same size: the whole square opens the full list,
-    every service anywhere. */
-export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
-  const here = [...watch.subscription, ...watch.free.filter((f) => !watch.subscription.some((s) => s.id === f.id))];
-  const pool = here.length ? here : watch.elsewhere.map((e) => e.provider);
-  const shown = pool.length > 2 ? pool.slice(0, 1) : pool;
-  const more = pool.length - shown.length;
-  // As tall as the piece leaves them, 12px in from every side of it.
-  const tile = "shrink-0 h-full aspect-square rounded-[9px] overflow-hidden border border-hair bg-card";
-  return (
-    <div className="relative shrink-0 w-[188px] max-sm:w-auto max-sm:h-[120px] self-stretch rounded-shell bg-card border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
-      <div className="absolute inset-0 p-2 flex flex-col gap-2">
-        <h2 className="shrink-0 h-[34px] px-1 rounded-[12px] bg-piece flex items-center justify-center text-center ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink">{here.length ? "Where to watch" : "Elsewhere"}</h2>
-        <div className="flex-1 min-h-0 rounded-[12px] bg-piece p-3 flex items-stretch gap-1.5">
-          {shown.map((p) => (
-            <span key={p.id} title={p.name} className={`${tile} ${here.length ? "" : "opacity-60"}`}>
-              {p.logo && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.logo} alt={p.name} className="w-full h-full object-cover" />
-              )}
-            </span>
-          ))}
-          {more > 0 && <span className={`${tile} flex items-center justify-center text-[12.5px] font-semibold text-dim`}>+{more}</span>}
-          {pool.length === 0 && <span className="text-[12.5px] text-dim">Nowhere yet</span>}
-          {watch.elsewhere.length > 0 && (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="ml-auto shrink-0 self-start text-accent">
-              <path d="M4 12h15M13 6l6 6-6 6" />
-            </svg>
-          )}
-        </div>
-      </div>
-      <ElsewhereSheet entries={watch.elsewhere} cover />
-    </div>
   );
 }
 
