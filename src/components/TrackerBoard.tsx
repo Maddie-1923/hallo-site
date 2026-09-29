@@ -169,13 +169,16 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
       {/* The calendar first, under the carousel on the left; the switches
           and the piles below it. */}
       <TrackerCalendar events={data.calendar} keysFor={keysFor} />
+      {/* The switches and every pile in one bento, each pile under its
+          heading, 8px apart as everything inside a shell is. */}
+      <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid grid-cols-[minmax(0,1fr)] gap-2">
       <div className="flex flex-wrap items-center gap-2">
         <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
         <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
       </div>
 
       {shown.length === 0 && (
-        <p className="m-0 rounded-shell bg-card p-3 text-[12.5px] text-dim">
+        <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">
           {view === "list" ? (kind === "show" ? "No shows on the go. Add one from any show's page." : "No films waiting. Add one from any film's page.") : kind === "show" ? "Nothing announced yet from your shows." : "No film you're waiting on has a date yet."}
         </p>
       )}
@@ -197,6 +200,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
               )}
             </Pile>
           ))}
+      </div>
     </div>
   );
 }
@@ -207,9 +211,7 @@ function Pile({ title, count, children }: { title: string; count: number; childr
       <div>
         <HeadingPill small>{`${title} · ${count}`}</HeadingPill>
       </div>
-      <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
-        <ul className="m-0 p-0 list-none grid gap-2 md:grid-cols-2 2xl:grid-cols-3">{children}</ul>
-      </div>
+      <ul className="m-0 p-0 list-none grid gap-2 md:grid-cols-2 2xl:grid-cols-3">{children}</ul>
     </section>
   );
 }
@@ -217,7 +219,7 @@ function Pile({ title, count, children }: { title: string; count: number; childr
 /** A switch lettered as the tab bars: two choices on a pill. */
 function Switch<T extends string>({ value, onChange, options, label }: { value: T; onChange: (v: T) => void; options: [T, string][]; label: string }) {
   return (
-    <div role="tablist" aria-label={label} className="inline-flex items-center gap-1 p-1 rounded-full bg-card border border-hair">
+    <div role="tablist" aria-label={label} className="inline-flex items-center gap-1 p-1 rounded-full bg-piece">
       {options.map(([v, text]) => (
         <button
           key={v}
