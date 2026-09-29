@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { addWatch, today } from "@/lib/live-watches";
-import type { ComingFilm, ComingShow, TrackerPage } from "@/lib/tracker";
+import type { CalendarEvent, ComingFilm, ComingShow, TrackerPage } from "@/lib/tracker";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
-import { CheckGlyph, code, HOLD, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph } from "./TrackerRow";
+import { CheckGlyph, code, HOLD, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, type Key } from "./TrackerRow";
 import { HeadingPill } from "./TitleParts";
 import { TrackerCalendar } from "./TrackerCalendar";
 
@@ -22,6 +22,62 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
   const [watchedFilms, setWatchedFilms] = useState<string[]>([]);
 
   const seenOf = (s: TrackerShow) => [...s.seen, ...(seen[s.key] ?? [])];
+
+  // The calendar's keys: an aired episode can be set aside or checked off,
+  // a film out already checked off, each the same state as the rows below.
+  const known = new Map([...data.shows.upNext, ...data.shows.readyToStart, ...data.shows.onHold, ...data.shows.theVoid].map((s) => [s.key, s]));
+  const todayISO = today();
+  const keysFor = (e: CalendarEvent): Key[] | null => {
+    const out = e.date <= todayISO;
+    if (e.episode) {
+      const k = e.episode;
+      const done = [...(known.get(e.t.key)?.seen ?? []), ...(seen[e.t.key] ?? [])].includes(k);
+      const aside = skipped.includes(`${e.t.key}:${k}`);
+      return [
+        { icon: <MoreGlyph />, label: `More for ${e.t.title}` },
+        { icon: <RecapGlyph />, label: "Recap", off: true },
+        {
+          icon: <SkipGlyph />,
+          label: `Watch ${code(k)} of ${e.t.title} later`,
+          on: aside,
+          off: !out || done,
+          confirm: aside ? undefined : HOLD,
+          run: () => setSkipped((x) => (aside ? x.filter((y) => y !== `${e.t.key}:${k}`) : [...x, `${e.t.key}:${k}`])),
+        },
+        {
+          icon: <CheckGlyph />,
+          label: done ? `${code(k)} of ${e.t.title} watched` : `Mark ${code(k)} of ${e.t.title} watched`,
+          on: done,
+          onFill: "var(--accent-fill)",
+          onInk: "var(--on-accent)",
+          off: !out,
+          confirm: done ? undefined : "var(--accent-fill)",
+          run: done ? undefined : () => {
+            setSeen((m) => ({ ...m, [e.t.key]: [...(m[e.t.key] ?? []), k] }));
+            const [se, ep] = k.split("-");
+            addWatch({ key: `${e.t.key}-${k}-${Date.now()}`, date: today(), t: e.t, detail: `S${se} E${ep}` });
+          },
+        },
+      ];
+    }
+    const done = watchedFilms.includes(e.t.key);
+    return [
+      { icon: <MoreGlyph />, label: `More for ${e.t.title}` },
+      {
+        icon: <CheckGlyph />,
+        label: done ? `${e.t.title} watched` : `Mark ${e.t.title} watched`,
+        on: done,
+        onFill: "var(--accent-fill)",
+        onInk: "var(--on-accent)",
+        off: !out,
+        confirm: done ? undefined : "var(--accent-fill)",
+        run: done ? undefined : () => {
+          setWatchedFilms((w) => [...w, e.t.key]);
+          addWatch({ key: `${e.t.key}-${Date.now()}`, date: today(), t: e.t });
+        },
+      },
+    ];
+  };
 
   const showRow = (s: TrackerShow) => {
     const p = progress(s, seenOf(s));
@@ -112,7 +168,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
     <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
       {/* The calendar first, under the carousel on the left; the switches
           and the piles below it. */}
-      <TrackerCalendar events={data.calendar} />
+      <TrackerCalendar events={data.calendar} keysFor={keysFor} />
       <div className="flex flex-wrap items-center gap-2">
         <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
         <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />

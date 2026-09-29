@@ -15,7 +15,7 @@ export type ComingFilm = { t: ProfileTitle; date: string; inDays: number };
     show's poster, never the episode's still), or a tracked film now out. */
 /** A day's entry on the tracker's calendar: an episode of a show being
     watched, or a watch-list film's release. */
-export type CalendarEvent = { date: string; t: ProfileTitle; label: string };
+export type CalendarEvent = { date: string; t: ProfileTitle; label: string; /** An episode's "season-episode". */ episode?: string };
 export type Fresh = { t: ProfileTitle; label: string; date: string; show?: Show; movie?: Movie };
 
 export interface TrackerPage {
@@ -96,7 +96,7 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
       const seasons = [...new Set([d.lastEpisode?.season_number, d.nextEpisode?.season_number].filter((n): n is number => !!n))];
       for (const n of seasons) {
         for (const e of await seasonEpisodes(watching[i].show.id, n)) {
-          if (e.air_date) calendar.push({ date: e.air_date, t: showTitle(watching[i].show), label: `${code(e.season_number, e.episode_number)}${e.name ? ` · ${e.name}` : ""}` });
+          if (e.air_date) calendar.push({ date: e.air_date, t: showTitle(watching[i].show), label: `${code(e.season_number, e.episode_number)}${e.name ? ` · ${e.name}` : ""}`, episode: `${e.season_number}-${e.episode_number}` });
         }
       }
     }),

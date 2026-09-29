@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CalendarEvent } from "@/lib/tracker";
+import { Row, type Key } from "./TrackerRow";
 
 // The tracker's calendar: on the left, the day picked (today to begin with)
 // large on the accent and its weekday; on the right, Today, the month by name with arrows either side and the year, and the month's days, a dot
@@ -18,7 +18,9 @@ const YEARS = (now: number) => Array.from({ length: now + 5 - 1990 + 1 }, (_, i)
 const WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const iso = (y: number, m: number, d: number) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
-export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
+// `keysFor` gives each entry in the day's list its keys (skip, watched), the
+// same ones the tracker's rows carry, so an episode can be checked off here.
+export function TrackerCalendar({ events, keysFor }: { events: CalendarEvent[]; keysFor?: (e: CalendarEvent) => Key[] | null }) {
   const now = new Date();
   const today = iso(now.getFullYear(), now.getMonth(), now.getDate());
   const [picked, setPicked] = useState(today);
@@ -200,21 +202,9 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
             <p className="m-0 mt-2 text-[12.5px] text-dim">Nothing from what you track on this day.</p>
           ) : (
             <ul className="soft-scroll m-0 mt-2 p-0 list-none grid gap-2 content-start min-h-0 overflow-y-auto">
+              {/* The tracker's own list-view rows, keys and all. */}
               {onDay.map((e) => (
-                <li key={`${e.t.key}${e.label}`}>
-                  <Link href={e.t.href} className="group flex items-center gap-2.5 no-underline text-ink">
-                    <span className="w-[72px] aspect-video shrink-0 rounded-[8px] overflow-hidden bg-card border border-hair">
-                      {(e.t.backdrop ?? e.t.poster) && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={(e.t.backdrop ?? e.t.poster)!} alt="" className="w-full h-full object-cover" />
-                      )}
-                    </span>
-                    <span className="min-w-0 text-[12.5px] leading-[16px]">
-                      <span className="block font-semibold truncate group-hover:text-accent transition-colors">{e.t.title}</span>
-                      <span className="block text-dim truncate">{e.label}</span>
-                    </span>
-                  </Link>
-                </li>
+                <Row key={`${e.t.key}${e.label}`} t={e.t} lines={e.episode ? [e.label.split(" · ")[0], e.label.split(" · ").slice(1).join(" · ")] : [e.t.year, "Release"]} bar={null} keys={keysFor?.(e) ?? null} />
               ))}
             </ul>
           )}

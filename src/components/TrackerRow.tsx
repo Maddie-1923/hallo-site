@@ -17,7 +17,7 @@ export function code(key: string) {
     unavailable, and, for a key that records something, the colour its
     confirmation fills with; that key does its work when the confirmation
     ends, as the app's do. */
-export type Key = { icon: React.ReactNode; label: string; run?: () => void; on?: boolean; off?: boolean; confirm?: string };
+export type Key = { icon: React.ReactNode; label: string; run?: () => void; on?: boolean; off?: boolean; confirm?: string; /** The colour it stays when on (the hold amber unless said). */ onFill?: string; onInk?: string };
 
 // The app's hold amber (`kodigoHoldFill`), for a key that sets something aside.
 export const HOLD = "#D9BC52";
@@ -76,7 +76,8 @@ export function KeyButton({ k }: { k: Key }) {
     <ConfirmKey
       label={k.label}
       on={k.on}
-      onFill={HOLD}
+      onFill={k.onFill ?? HOLD}
+      onInk={k.onInk}
       confirm={k.confirm}
       off={k.off}
       radius={8}
