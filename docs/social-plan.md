@@ -313,6 +313,22 @@ reads new issues, finds the cause and prepares a fix for approval. The user
 needs to create a free Sentry account. Update the privacy policy and App Store
 privacy labels to mention crash data before it ships.
 
+Website built 30 Sep on `social` (`@sentry/nextjs`, `lib/sentry-options.ts`,
+`instrumentation.ts`, `instrumentation-client.ts`, `next.config.ts`):
+- off until `NEXT_PUBLIC_SENTRY_DSN` is set, and never in `next dev`;
+- errors only: no tracing, no session replay, no IP, no user; `scrub` drops
+  cookies, headers (bar the browser's name), query strings and console text;
+- reports go through the site at `/monitoring`, so browsers never contact
+  Sentry and ad blockers don't drop them;
+- source maps upload only with `SENTRY_AUTH_TOKEN`;
+- friendly crash pages (`app/error.tsx`, `app/global-error.tsx`);
+- the privacy policy's Crash reports section switches on with the same key;
+- Moderation has "Send a test crash" (browser and `/api/crash-test`).
+
+Still to do: the user's Sentry account and keys; the iOS app (next app
+update, with its privacy labels); Android; the daily Claude check, which
+needs a Sentry auth token with read access.
+
 ### Before opening: remove the test scaffolding
 
 - The four sample reports on `/moderation` (`SAMPLES` in

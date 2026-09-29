@@ -15,10 +15,12 @@ export const metadata: Metadata = {
 // bottom, in the same deploy that ships it:
 // - ADS: Google AdSense for visitors and free accounts (plan §7). Needs the
 //   cookie consent banner in the same deploy.
-// - CRASH_REPORTS: Sentry on the site and apps (plan §8). Update the App
-//   Store privacy labels at the same time.
+// - CRASH_REPORTS: on by itself when the website's Sentry key is set
+//   (lib/sentry-options.ts), so the page and the site can't disagree. When
+//   the app gets Sentry too, add it to that section and update the App Store
+//   privacy labels.
 const ADS = false;
-const CRASH_REPORTS = false;
+const CRASH_REPORTS = !!process.env.NEXT_PUBLIC_SENTRY_DSN;
 
 export default function Privacy() {
   return (
@@ -172,11 +174,12 @@ export default function Privacy() {
           <>
             <h2>Crash reports</h2>
             <p>
-              When the app or the website crashes or hits an error, a report goes to <strong>Sentry</strong> so we
-              can fix it. It holds the error, what part of Kodigo was open, your device or browser type and
-              version, and your account&apos;s internal ID if you&apos;re signed in, so we can look into a problem
-              you&apos;ve told us about. It doesn&apos;t include your email, your library or what you wrote. Reports
-              are deleted after 90 days.
+              When a page on the website crashes or hits an error, a report goes to <strong>Sentry</strong> so we can
+              fix it. It holds the error, the address of the page that was open (without anything after a
+              &ldquo;?&rdquo; in it), and your browser and system type and version. It doesn&apos;t include your IP
+              address, cookies, your email, your account, your library or anything you typed. Reports go through
+              kodigo.pro on their way, so your browser never contacts Sentry directly, and they&apos;re deleted
+              within 90 days. The app doesn&apos;t send crash reports.
             </p>
           </>
         )}

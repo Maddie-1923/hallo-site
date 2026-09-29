@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { HeadingPill } from "./TitleParts";
 import { REPORT_REASONS, seedReports, setReportStatus, useSafety, type Report } from "@/lib/safety";
 import { resolveReports } from "@/lib/safety-actions";
+import * as Sentry from "@sentry/nextjs";
+import { sentryDsn } from "@/lib/sentry-options";
 
 // Moderation: every report, gathered by what was reported, the most-reported
 // first. Each can be dismissed (nothing wrong), removed (the review, comment
@@ -29,6 +31,18 @@ export function ModerationPage({ live, initial }: { live: boolean; initial: Repo
   const local = useSafety().reports;
   const [remote, setRemote] = useState(initial);
   const [tab, setTab] = useState<"open" | "resolved">("open");
+  const [tested, setTested] = useState<string | null>(null);
+  // Checks crash reports reach Sentry: one error from this browser, one from
+  // the server.
+  async function testCrash() {
+    if (!sentryDsn || process.env.NODE_ENV !== "production") {
+      setTested("Crash reports are off here. They run on the live site once NEXT_PUBLIC_SENTRY_DSN is set.");
+      return;
+    }
+    Sentry.captureException(new Error("Kodigo test crash from the browser (sent on purpose from Moderation)"));
+    await fetch("/api/crash-test", { method: "POST" }).catch(() => {});
+    setTested("Sent two test crashes, one from this browser and one from the server. They should show in Sentry within a minute.");
+  }
   useEffect(() => {
     if (!live) seedReports(SAMPLES);
   }, [live]);
@@ -60,6 +74,12 @@ export function ModerationPage({ live, initial }: { live: boolean; initial: Repo
             Reports from members, the most-reported first. Check each against the <Link href="/terms#community-rules" className="text-accent no-underline hover:underline">community rules</Link>. Urgent ones, such as threats or anything involving children, go to the authorities too.
           </p>
           {!live && <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-dim">Preview: the reports made in this browser and four samples. Decisions are kept here too.</p>}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={testCrash} className="h-8 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink cursor-pointer hover:text-accent">
+              Send a test crash
+            </button>
+            {tested && <span className="text-[12.5px] text-dim">{tested}</span>}
+          </div>
         </div>
       </div>
 
