@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { usePrivacy } from "@/lib/privacy";
 
 export interface ProfileSection {
   id: string;
@@ -26,7 +27,14 @@ export interface ProfileSection {
 // `flat`: inside a card already (a title's credits in its bento), so the
 // tab bar sits on the card's panel colour, and the sections share one inner
 // shell under it that fills what height is left and scrolls inside.
-export function ProfileSections({ sections, className = "mt-10", aside, label = "Profile sections", flat = false }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode; label?: string; flat?: boolean }) {
+// `owner`: on their own profile, their privacy choices (Settings, Privacy)
+// apply: a section hidden from others carries a lock for them, and is gone
+// when they look as others do; a private profile shows others only a notice.
+export function ProfileSections({ sections: all, className = "mt-10", aside, label = "Profile sections", flat = false, owner = false }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode; label?: string; flat?: boolean; owner?: boolean }) {
+  const privacy = usePrivacy(owner);
+  const hidden = new Set<string>(privacy ? [!privacy.showActivity && "activity", !privacy.showWatchlog && "watchlog"].filter(Boolean) as string[] : []);
+  const sections = privacy?.others ? all.filter((s) => !hidden.has(s.id)) : all;
+  const closed = !!privacy?.others && !privacy.publicProfile;
   const [current, setCurrent] = useState(sections[0].id);
 
   useEffect(() => {
@@ -65,6 +73,20 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
     return () => ro.disconnect();
   }, []);
 
+  if (closed)
+    return (
+      <section className={`${className} rounded-shell bg-card border border-hair p-2`}>
+        <div className="rounded-shell bg-piece p-6 grid justify-items-center gap-2 text-center">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim">
+            <rect x="5" y="11" width="14" height="9" rx="2" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+          </svg>
+          <div className="text-[12.5px] font-semibold text-ink">This profile is private</div>
+          <div className="text-[12.5px] text-dim max-w-[40ch]">Only people they let follow them can see their reviews, lists and what they watch.</div>
+        </div>
+      </section>
+    );
+
   return (
     <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
       {aside && (
@@ -93,6 +115,12 @@ export function ProfileSections({ sections, className = "mt-10", aside, label = 
               className={`shrink-0 inline-flex items-center gap-1.5 ${flat ? "grow justify-center px-2 tracking-[.07em]" : "px-4 tracking-[.12em]"} py-2 rounded-full text-[10.5px] leading-none font-bold uppercase cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
             >
               {s.label}
+              {hidden.has(s.id) && (
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-label="Only you can see this">
+                  <rect x="5" y="11" width="14" height="9" rx="2" />
+                  <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                </svg>
+              )}
               {s.count != null && !flat && <span className={`font-normal tracking-normal ${on ? "opacity-70" : "opacity-60"}`}>{s.count}</span>}
             </button>
           );

@@ -1,6 +1,7 @@
 import type { ProfileTitle, PublicProfileView } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
+import { ViewingAsOthers } from "./ViewingAsOthers";
 import { ProfileCategories } from "./ProfileCategories";
 import { ProfileAbout } from "./ProfileAbout";
 import { ProfileMenu } from "./ProfileMenu";
@@ -37,6 +38,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
         <div className="mb-3 rounded-full border border-hair bg-card px-4 py-2 text-[12.5px] text-dim text-center">{v.previewNote}</div>
       )}
 
+      <ViewingAsOthers />
       <Banner v={v} art={bannerArt} />
 
       {/* Two columns on one grid, so their edges line up down the page. On
@@ -56,6 +58,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
           <NumberTiles v={v} />
         </div>
           <ProfileSections
+            owner={!!v.owner}
             className="lg:col-span-2"
             aside={<MiniTracker shows={v.tracker.shows} films={v.tracker.films} owner={!!v.owner} />}
             sections={[
@@ -262,7 +265,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             where the capitals start; FollowPill sizes itself to the handle's
             line). The follower counts are with the numbers beside the card. */}
         <div className="shrink-0 mt-px flex items-start gap-2">
-          <FollowPill />
+          <FollowPill owner={!!v.owner} />
           <ProfileMenu username={v.username} owner={!!v.owner} />
         </div>
         </div>

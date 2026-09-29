@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePrivacy } from "@/lib/privacy";
 
 // Follow, in the theme's accent with its lettering: a pill reading
 // "+ Follow" until you follow, then a circle holding a followed-person mark.
@@ -12,8 +13,12 @@ import { useState } from "react";
 // Nothing is saved yet: follows arrive with the public tables and accounts
 // (docs/social-plan.md, step 4). Until then the chip only changes what it
 // shows, which is enough to see both states on the preview pages.
-export function FollowPill({ initial = false }: { initial?: boolean }) {
+// `owner`: on their own profile, seen as others do with follows turned off
+// (Settings, Privacy), there's no Follow to press.
+export function FollowPill({ initial = false, owner = false }: { initial?: boolean; owner?: boolean }) {
   const [following, setFollowing] = useState(initial);
+  const privacy = usePrivacy(owner);
+  if (privacy?.others && !privacy.allowFollows) return null;
   return (
     <button
       type="button"
