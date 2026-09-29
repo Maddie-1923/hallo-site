@@ -53,7 +53,7 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
   const lead = new Date(year, month, 1).getDay();
 
   return (
-    <div className="w-full max-w-[480px] rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid gap-2 sm:grid-cols-[132px_minmax(0,1fr)]">
+    <div className="w-full max-w-[440px] rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid gap-2 sm:grid-cols-[120px_minmax(0,1fr)]">
       {/* The day. */}
       <div className="rounded-shell bg-accent-fill text-on-accent p-3 flex flex-col min-w-0">
         <div className="display text-[56px] leading-[.8] pt-1.5">{String(pd).padStart(2, "0")}</div>
