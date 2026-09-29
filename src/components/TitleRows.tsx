@@ -16,9 +16,10 @@ export async function billboard(
   // The most anticipated titles still to come, mixed in among the trending
   // ones so the billboard shows what's next as well as what's now.
   anticipated: { shows?: Show[]; movies?: Movie[] } = {},
-  // The tracker's own words over its slides ("New episode · S01 | E07"),
-  // by the slide's key ("s123", "m456").
-  eyebrows: Record<string, string> = {},
+  // The tracker's own words on its slides, by the slide's key ("s123",
+  // "m456"): over the title ("New episode · S01 | E07") and under it
+  // ("Aired 28 September 2026").
+  extra: Record<string, { eyebrow?: string; note?: string }> = {},
 ): Promise<CinemaSlide[]> {
   type Pick = ({ kind: "show"; show: Show } | { kind: "movie"; movie: Movie }) & { coming?: string };
   // Films and series taking turns, only titles with artwork behind them.
@@ -60,7 +61,7 @@ export async function billboard(
     const id = t.id;
     return {
       key: `${isShow ? "s" : "m"}${id}`,
-      eyebrow: eyebrows[`${isShow ? "s" : "m"}${id}`] ?? (p.coming ? `${isShow ? "Series" : "Film"} coming ${comingDate(p.coming)}` : isShow ? "Trending series" : "Trending film"),
+      eyebrow: extra[`${isShow ? "s" : "m"}${id}`]?.eyebrow ?? (p.coming ? `${isShow ? "Series" : "Film"} coming ${comingDate(p.coming)}` : isShow ? "Trending series" : "Trending film"),
       title: isShow ? p.show.name : p.movie.title,
       href: isShow ? `/show/${id}` : `/movie/${id}`,
       backdrop: image.banner(t.backdrop_path)!,
@@ -73,6 +74,7 @@ export async function billboard(
       overview: t.overview ?? null,
       trailer: d?.trailer ?? null,
       logo: logos[i],
+      note: extra[`${isShow ? "s" : "m"}${id}`]?.note,
       target: p,
       tracked: isShow ? tracked.show.has(id) : tracked.movie.has(id),
     };

@@ -26,6 +26,8 @@ export interface CinemaSlide {
   trailer: string | null;
   /** The title's logo artwork, drawn in place of the typed title when there. */
   logo: string | null;
+  /** A line under the title (the tracker's "Aired 28 September 2026"). */
+  note?: string;
   target: { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
   tracked: boolean;
 }
@@ -261,6 +263,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             )}
           </Link>
         </h1>
+        {s.note && <p className="m-0 mt-2 text-[12.5px] font-semibold text-white drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.note}</p>}
 
         {s.tagline && (
           <p className="m-0 mt-3 text-white uppercase tracking-[.04em] leading-[1.2] text-[11px] [font-family:var(--font-wide)] font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,.7)]">

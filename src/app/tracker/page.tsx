@@ -28,7 +28,7 @@ export default async function TrackerPage() {
         archive,
         await visitorRegion(),
         {},
-        Object.fromEntries(fresh.map((f) => [f.t.key, f.label])),
+        Object.fromEntries(fresh.map((f) => [f.t.key, { eyebrow: f.label, note: `${f.show ? "Aired" : "Out"} ${longDate(f.date)}` }])),
       )
     : [];
   return (
@@ -57,4 +57,9 @@ export default async function TrackerPage() {
       <SiteFooter />
     </div>
   );
+}
+
+function longDate(d: string) {
+  const [y, m, day] = d.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, day)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
