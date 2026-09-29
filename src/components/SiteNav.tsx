@@ -260,7 +260,9 @@ function GuestProfile({ framed }: { framed: boolean }) {
   return (
     <Menu
       label="Profile"
-      width={260}
+      // As wide as its longest line needs; the message it shows signed out
+      // needs more.
+      width={preview ? 188 : 260}
       button={
         <span className={`w-9 h-9 rounded-full border flex items-center justify-center ${shell}`}>
           <PersonIcon />
