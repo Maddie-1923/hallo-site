@@ -8,6 +8,16 @@ import { usePathname } from "next/navigation";
 // check lives in this small client piece. A title page counts as its
 // catalogue — /show/123 lights Shows — and anything under /app is My Lists,
 // since that's where every signed-in page hangs.
+// Each tab's line takes a colour of the logo's stripes: Movies the yellow,
+// Shows the pink, Calendar the blue. Any other tab keeps the theme's accent.
+const STRIPE: Record<string, string> = {
+  "/movies": "#FFCB14",
+  "/app/movies": "#FFCB14",
+  "/shows": "#FF69C4",
+  "/app/shows": "#FF69C4",
+  "/calendar": "#38B6FF",
+};
+
 export function NavLinks({ links }: { links: [string, string][] }) {
   const path = usePathname();
   const active = (href: string) => {
@@ -16,6 +26,8 @@ export function NavLinks({ links }: { links: [string, string][] }) {
     // is concerned: a show's page lights Shows, a film's lights Movies.
     if (href === "/app/shows") return path.startsWith("/app/shows") || path.startsWith("/show/");
     if (href === "/app/movies") return path.startsWith("/app/movies") || path.startsWith("/movie/");
+    if (href === "/shows") return path === "/shows" || path.startsWith("/show/");
+    if (href === "/movies") return path === "/movies" || path.startsWith("/movie/");
     if (href === "/app/profile") return path.startsWith("/app/profile") || path.startsWith("/app/history");
     return path === href || path.startsWith(`${href}/`);
   };
@@ -33,7 +45,7 @@ export function NavLinks({ links }: { links: [string, string][] }) {
             {label}
             {/* The accent line under the current tab, hung from the link's
                 own padding so it sits on the bar's bottom edge. */}
-            {on && <span aria-hidden className="absolute left-0 right-0 bottom-0 h-[3px] rounded-t-full" style={{ background: "var(--accent-fill)" }} />}
+            {on && <span aria-hidden className="absolute left-0 right-0 bottom-0 h-[3px] rounded-t-full" style={{ background: STRIPE[href] ?? "var(--accent-fill)" }} />}
           </Link>
         );
       })}
