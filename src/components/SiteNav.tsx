@@ -253,6 +253,10 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
 // something when pressed.
 function GuestProfile({ framed }: { framed: boolean }) {
   const shell = framed ? "bg-black/35 border-white/25 backdrop-blur-md text-white" : "bg-card border-hair text-ink";
+  const item = "block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink";
+  // In development the menu is drawn as a signed-in one would be, on the
+  // preview profile, so the site can be worked on as it will look.
+  const preview = process.env.NODE_ENV === "development";
   return (
     <Menu
       label="Profile"
@@ -263,7 +267,25 @@ function GuestProfile({ framed }: { framed: boolean }) {
         </span>
       }
     >
-      {accountsOpen ? (
+      {preview ? (
+        <div className="py-1">
+          <Link href="/u/preview" className="flex items-center gap-2.5 px-4 py-2.5 no-underline text-ink hover:bg-card-hi">
+            <span className="w-7 h-7 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[15px] leading-none pt-[2px]">P</span>
+            <span className="text-sm font-semibold">@preview</span>
+          </Link>
+          {[
+            ["/u/preview", "Profile"],
+            ["/u/preview#reviews", "Reviews"],
+            ["/u/preview#watchlog", "Watchlog"],
+            ["/u/preview#categories", "Categories"],
+            ["/u/preview#stats", "Stats"],
+          ].map(([href, label]) => (
+            <Link key={href} href={href} className={item}>
+              {label}
+            </Link>
+          ))}
+        </div>
+      ) : accountsOpen ? (
         <div className="p-4 grid gap-3">
           <p className="m-0 text-sm text-dim">Sign in to keep your diary, ratings, reviews and lists here and on your phone.</p>
           <Link href="/login" className="btn !py-2 !px-4 text-sm justify-center">
@@ -280,28 +302,22 @@ function GuestProfile({ framed }: { framed: boolean }) {
           </Link>
         </div>
       )}
-      {/* The subscription and the news live here, as Letterboxd keeps them in
-          its account menu, rather than on the bar. */}
+      {/* The app, the subscription and the news live here, as Letterboxd
+          keeps them in its account menu, rather than on the bar. */}
       <div className="border-t border-hair py-1">
-        <Link href="/about" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
+        <Link href="/about" className={item}>
           The app
         </Link>
-        <Link href="/pro" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
+        <Link href="/pro" className={item}>
           Subscription
         </Link>
-        <Link href="/whats-new" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
+        <Link href="/whats-new" className={item}>
           What&apos;s new
         </Link>
       </div>
-      {/* Development only: the way into the profile page before accounts
-          exist. Never drawn in a build that ships. */}
-      {process.env.NODE_ENV === "development" && (
+      {preview && (
         <div className="border-t border-hair py-1">
-          <div className="px-4 pt-2 pb-1 text-[10.5px] font-bold tracking-[.14em] uppercase text-dim">Preview</div>
-          <Link href="/u/preview" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
-            Your profile (from your library)
-          </Link>
-          <Link href="/u/sample" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
+          <Link href="/u/sample" className={item}>
             Sample profile
           </Link>
         </div>
