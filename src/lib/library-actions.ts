@@ -110,6 +110,21 @@ export async function setEpisodeSkipped(showID: number, season: number, episode:
   return withArchive((a, stamp) => applyEpisodeSkipped(a, `${showID}-${season}-${episode}`, skipped, stamp), { pro: true });
 }
 
+/** My order on the Library page: the ids in the order they were dragged
+    into, as the app's showOrder / movieOrder. The whole order is written, and
+    travels whole (the merge takes the newer order rather than folding two). */
+export async function saveOrder(kind: "show" | "movie", ids: number[]) {
+  return withArchive(
+    (a) => {
+      const tracked = new Set((kind === "show" ? a.shows.map((t) => t.show.id) : a.movies.map((t) => t.movie.id)));
+      const order = [...new Set(ids.filter((id) => Number.isInteger(id) && tracked.has(id)))];
+      if (kind === "show") a.showOrder = order;
+      else a.movieOrder = order;
+    },
+    { pro: true },
+  );
+}
+
 // ---- Movies ----
 
 export async function trackMovie(movie: Movie, status: MovieStatus = "To Watch") {

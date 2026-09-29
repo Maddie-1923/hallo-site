@@ -1021,3 +1021,12 @@ export async function discoverTitles(q: {
   };
 }
 
+
+/** The services streaming a title in a country, as provider ids: the
+    subscription services and the free-with-ads ones, which is what "Only
+    what's on my services" matches against. Kept a day. */
+export async function streamingOn(kind: "show" | "movie", id: number, region: string): Promise<number[]> {
+  const r = await tmdb<{ results?: Record<string, { flatrate?: RawProvider[]; ads?: RawProvider[]; free?: RawProvider[] }> }>(`/${kind === "show" ? "tv" : "movie"}/${id}/watch/providers`, {}, 86400);
+  const c = r?.results?.[region];
+  return [...new Set([...(c?.flatrate ?? []), ...(c?.ads ?? []), ...(c?.free ?? [])].map((p) => p.provider_id))];
+}

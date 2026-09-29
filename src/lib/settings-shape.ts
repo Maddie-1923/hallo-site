@@ -23,7 +23,16 @@ export interface Settings {
   hideTitles: boolean;
   hideDescriptions: boolean;
   hideImages: boolean;
+  // The Library page's tools, remembered.
+  libraryLayout: "grid" | "list";
+  showSort: LibrarySort;
+  movieSort: LibrarySort;
+  hideWatched: boolean;
 }
+
+/** The app's four orders (LibrarySortOrder) and the hand-made one. */
+export type LibrarySort = "standard" | "az" | "added" | "year" | "mine";
+export const LIBRARY_SORTS: LibrarySort[] = ["standard", "az", "added", "year", "mine"];
 
 export const DEFAULTS: Settings = {
   displayName: "",
@@ -42,6 +51,10 @@ export const DEFAULTS: Settings = {
   hideTitles: false,
   hideDescriptions: false,
   hideImages: false,
+  libraryLayout: "grid",
+  showSort: "standard",
+  movieSort: "standard",
+  hideWatched: false,
 };
 
 /** The settings that live on the profile, because they decide what visitors
@@ -67,6 +80,10 @@ export function cleanSettings(patch: Record<string, unknown>): Partial<Settings>
       if (Array.isArray(v) && v.length <= 200 && v.every((x) => Number.isInteger(x))) out[k] = v;
     } else if (k === "dateFormat") {
       if (v === "day-month" || v === "month-day" || v === "numeric") out[k] = v;
+    } else if (k === "libraryLayout") {
+      if (v === "grid" || v === "list") out[k] = v;
+    } else if (k === "showSort" || k === "movieSort") {
+      if (LIBRARY_SORTS.includes(v as LibrarySort)) out[k] = v;
     } else if (typeof d === "boolean") {
       if (typeof v === "boolean") out[k] = v;
     } else if (typeof d === "string") {

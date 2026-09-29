@@ -255,6 +255,18 @@ Everything the app does, on a computer.
    beyond the bell list in the nav.
 3. **Library tools** on your own shows, films, watchlist and lists: sort,
    filter, hide watched, only my services, reorder by hand.
+   Built 30 Sep: `/library` (Pro, gated like the Calendar; the preview in
+   development), replacing `/app/shows` and `/app/movies`, which redirect.
+   Shows or Movies; a tab for each status with its count; search; genre;
+   the app's four sorts (Default, A–Z, Recently added, Release year) and My
+   order, dragged by pointer or finger (arrow keys too) and saved as the
+   app's `showOrder` / `movieOrder` (`saveOrder`, whole, as the merge
+   expects); Hide watched (out of All); Only my services (TMDB providers per
+   title for the chosen country, `servicesFor`); grid or list. Sort, layout
+   and Hide watched are settings, so they follow the account. The signed-in
+   nav is now Movies · Shows · Calendar · Library · Members · Lists. Not
+   yet: a Watchlist of its own (To Watch is its tab here) and the lists
+   (they're on the profile's Categories).
 4. **Watchlist**, and a **Watching now** tab on profiles with episode progress.
 5. **Stats page** with the full numbers behind the profile's panels.
 6. **Where to watch** on every title page, by the visitor's country. This one

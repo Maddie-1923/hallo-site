@@ -33,13 +33,13 @@ const marketing: [string, string][] = [
   ["/lists", "Lists"],
 ];
 
-// The phone's four, in the phone's order: somewhere to find things, the two
-// piles you are working through, and the page that holds everything settled.
+// Signed in: the same finding tabs as everyone gets, then their tracker
+// (Calendar) and everything they track (Library), and the social pages.
 const product: [string, string][] = [
-  ["/shows", "Explore"],
-  ["/app/shows", "Shows"],
-  ["/app/movies", "Movies"],
+  ["/movies", "Movies"],
+  ["/shows", "Shows"],
   ["/calendar", "Calendar"],
+  ["/library", "Library"],
   ["/members", "Members"],
   ["/lists", "Lists"],
   ["/app/profile", "Profile"],
@@ -47,6 +47,7 @@ const product: [string, string][] = [
 
 const menuLinks = [
   ["/calendar", "Calendar"],
+  ["/library", "Library"],
   ["/app/profile", "Profile"],
   ["/app/history", "History"],
   ["/settings", "Settings"],
@@ -119,7 +120,9 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
         ) : (
           // The buttons are centred on the k on the left (the middle of the
           // mark itself, 7px above the row's middle).
-          <div className="ml-auto flex items-center gap-4 shrink-0 -translate-y-[7px]">
+          {/* Closer together on a phone, where five round buttons and the
+              logo at the full gap ran 20px past a 375px screen. */}
+          <div className="ml-auto flex items-center gap-2 sm:gap-4 shrink-0 -translate-y-[7px]">
             <SearchBoundary />
             <DayNightToggle onPicture={framed} />
             <ThemeMenu onPicture={framed} />
@@ -166,7 +169,7 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
   const avatar = image.poster(profile.avatar_path, "w342");
 
   return (
-    <div className="ml-auto flex items-center gap-4 shrink-0">
+    <div className="ml-auto flex items-center gap-2 sm:gap-4 shrink-0">
       <SearchBoundary />
 
       <Menu
@@ -297,6 +300,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
           </Link>
           {[
             ["/calendar", "Calendar"],
+            ["/library", "Library"],
             ["/u/preview", "Profile"],
             ["/u/preview#reviews", "Reviews"],
             ["/u/preview#watchlog", "Watchlog"],
