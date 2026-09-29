@@ -52,9 +52,9 @@ async function framePosters() {
   const out: { key: string; src: string }[] = [];
   for (let i = 0; i < 4; i++) {
     const s = shows[i];
-    if (s?.poster_path) out.push({ key: `ps${s.id}`, src: image.poster(s.poster_path, "w500")! });
+    if (s?.poster_path) out.push({ key: `ps${s.id}`, src: image.poster(s.poster_path, "w780")! });
     const m = movies[i];
-    if (m?.poster_path) out.push({ key: `pm${m.id}`, src: image.poster(m.poster_path, "w500")! });
+    if (m?.poster_path) out.push({ key: `pm${m.id}`, src: image.poster(m.poster_path, "w780")! });
   }
   return out.slice(0, 6);
 }

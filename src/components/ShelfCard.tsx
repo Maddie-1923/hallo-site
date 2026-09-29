@@ -19,7 +19,7 @@ export function ShelfCard({ shelf, href }: { shelf: Shelf; href: string }) {
           <div className="w-[34px] h-[50px] rounded-md border border-dashed border-hair" />
         ) : (
           fan.map((it, i) => {
-            const src = poster(it.path, "w185");
+            const src = poster(it.path, "w500");
             return (
               <div
                 key={it.key}

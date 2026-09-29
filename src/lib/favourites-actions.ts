@@ -19,7 +19,7 @@ export async function searchForFavourites(query: string, kind: "movie" | "show")
       kind: h.kind,
       title: h.kind === "show" ? h.show.name : h.movie.title,
       href: `/${h.kind}/${t.id}`,
-      poster: image.poster(t.poster_path, "w342"),
+      poster: image.poster(t.poster_path, "w780"),
       backdrop: image.backdrop(t.backdrop_path),
       year: ((h.kind === "show" ? h.show.first_air_date : h.movie.release_date) ?? "").slice(0, 4),
     });

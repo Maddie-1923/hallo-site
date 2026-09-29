@@ -20,7 +20,7 @@ export function HistoryDay({ entries }: { entries: DiaryEntry[] }) {
 }
 
 function Entry({ e }: { e: DiaryEntry }) {
-  const src = poster(e.poster, "w342");
+  const src = poster(e.poster, "w780");
   const tile = "rounded-xl bg-card-hi/70 px-3 py-2.5 flex flex-col justify-center gap-1 min-w-0 overflow-hidden";
   const ghost = "rounded-xl border border-dashed border-hair px-3 py-2.5 flex items-center text-xs text-dim";
   const moods = MOODS.filter((m) => e.moods.includes(m.id));

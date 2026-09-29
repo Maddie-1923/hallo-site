@@ -157,7 +157,7 @@ export function showTitle(s: Show): ProfileTitle {
     kind: "show",
     title: s.name,
     href: `/show/${s.id}`,
-    poster: image.poster(s.poster_path, "w342"),
+    poster: image.poster(s.poster_path, "w780"),
     backdrop: image.backdrop(s.backdrop_path),
     year: (s.first_air_date ?? "").slice(0, 4),
   };
@@ -169,7 +169,7 @@ export function movieTitle(m: Movie): ProfileTitle {
     kind: "movie",
     title: m.title,
     href: `/movie/${m.id}`,
-    poster: image.poster(m.poster_path, "w342"),
+    poster: image.poster(m.poster_path, "w780"),
     backdrop: image.backdrop(m.backdrop_path),
     year: (m.release_date ?? "").slice(0, 4),
   };

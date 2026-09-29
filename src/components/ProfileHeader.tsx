@@ -12,7 +12,7 @@ export function ProfileHeader({ profile, archive, email }: { profile: Profile; a
   // reach the right edge. At a 340px-tall band there is nothing to gain from
   // the extra pixels.
   const banner = image.backdrop(profile.banner_path);
-  const avatar = image.poster(profile.avatar_path, "w185");
+  const avatar = image.poster(profile.avatar_path, "w342");
   const name = profile.display_name || email.split("@")[0];
   const initial = (name[0] ?? "?").toUpperCase();
 

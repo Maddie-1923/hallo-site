@@ -153,7 +153,7 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
   const [{ archive }, profile] = await Promise.all([optionalLibrary(), loadProfile()]);
   const upcoming = await upcomingEpisodes(archive);
   const initial = ((profile.display_name || email)[0] ?? "?").toUpperCase();
-  const avatar = image.poster(profile.avatar_path, "w185");
+  const avatar = image.poster(profile.avatar_path, "w342");
 
   return (
     <div className="ml-auto flex items-center gap-4 shrink-0">

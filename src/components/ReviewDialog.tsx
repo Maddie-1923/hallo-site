@@ -48,7 +48,7 @@ export function ReviewDialog({
 
   const title = target.kind === "show" ? target.show.name : target.movie.title;
   const when = target.kind === "show" ? year(target.show.first_air_date) : year(target.movie.release_date);
-  const art = posterURL(target.kind === "show" ? target.show.poster_path : target.movie.poster_path, "w342");
+  const art = posterURL(target.kind === "show" ? target.show.poster_path : target.movie.poster_path, "w780");
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();

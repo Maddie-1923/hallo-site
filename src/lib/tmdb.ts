@@ -264,15 +264,17 @@ export async function movieDetail(id: number): Promise<MovieDetail | null> {
 const IMG = process.env.NEXT_PUBLIC_TMDB_IMAGE_URL ?? "https://image.tmdb.org/t/p";
 
 export const image = {
-  poster: (p: string | null | undefined, size = "w342") => (p ? `${IMG}/${size}${p}` : null),
+  // Posters and faces are drawn on sharp (2x) screens, so each is fetched at
+  // about twice the size it's shown: w780 for a poster, h632 for a face.
+  poster: (p: string | null | undefined, size = "w780") => (p ? `${IMG}/${size}${p}` : null),
   backdrop: (p: string | null | undefined) => (p ? `${IMG}/w1280${p}` : null),
   /** A backdrop shown near full width — the profile banner, the Discover hero,
       the landing frame. w1280 stretched across a 1700px hero is where the
       "why do the posters look soft" comes from; `original` is the only size
       TMDB offers above it. */
   banner: (p: string | null | undefined) => (p ? `${IMG}/original${p}` : null),
-  profile: (p: string | null | undefined) => (p ? `${IMG}/w185${p}` : null),
-  still: (p: string | null | undefined) => (p ? `${IMG}/w300${p}` : null),
+  profile: (p: string | null | undefined) => (p ? `${IMG}/h632${p}` : null),
+  still: (p: string | null | undefined) => (p ? `${IMG}/w780${p}` : null),
 };
 
 // TMDB's genre ids, TV and film together. The list endpoints only carry ids,
@@ -383,13 +385,13 @@ export async function titleLogo(kind: "show" | "movie", id: number): Promise<str
   const r = await tmdb<RawImages>(`/${kind === "show" ? "tv" : "movie"}/${id}/images`, { include_image_language: "en,null" }, 86400);
   const logos = r?.logos ?? [];
   const pick = logos.find((l) => l.iso_639_1 === "en") ?? logos.find((l) => l.iso_639_1 === null);
-  return pick ? `${IMG}/w500${pick.file_path}` : null;
+  return pick ? `${IMG}/original${pick.file_path}` : null;
 }
 
-/** A backdrop at card size: sharp at a quarter of a wide screen without
-    fetching the full-width cut. */
+/** A backdrop at card size: sharp at a quarter of a wide screen on a 2x
+    display without fetching the full-width cut. */
 export function cardBackdrop(p: string | null | undefined) {
-  return p ? `${IMG}/w780${p}` : null;
+  return p ? `${IMG}/w1280${p}` : null;
 }
 
 
@@ -546,7 +548,7 @@ function serviceKey(name: string) {
 
 function whereToWatch(r: RawProviders, region: string): WhereToWatch | null {
   const all = r["watch/providers"]?.results ?? {};
-  const one = (p: RawProvider): Provider => ({ id: p.provider_id, name: p.provider_name, logo: p.logo_path ? `${IMG}/w92${p.logo_path}` : null });
+  const one = (p: RawProvider): Provider => ({ id: p.provider_id, name: p.provider_name, logo: p.logo_path ? `${IMG}/w154${p.logo_path}` : null });
   const c = all[region];
   const subscription = (c?.flatrate ?? []).map(one);
   // The app's Free row is the ad-supported services.
@@ -627,7 +629,7 @@ export async function filmPage(id: number, region = RATING_FALLBACK): Promise<Fi
     moreLikeThis: (r.recommendations?.results ?? [])
       .filter((x) => x.poster_path)
       .slice(0, 15)
-      .map((x) => ({ id: x.id, title: x.title, year: (x.release_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w342") })),
+      .map((x) => ({ id: x.id, title: x.title, year: (x.release_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w780") })),
     watch: whereToWatch(r, region),
     crew: crewGroups(r.credits?.crew ?? []),
     details: details(r, "movie", r.id, r.title),
@@ -734,13 +736,13 @@ export async function seriesPage(id: number, region = RATING_FALLBACK): Promise<
     moreLikeThis: (r.recommendations?.results ?? [])
       .filter((x) => x.poster_path)
       .slice(0, 15)
-      .map((x) => ({ id: x.id, title: x.name, year: (x.first_air_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w342") })),
+      .map((x) => ({ id: x.id, title: x.name, year: (x.first_air_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w780") })),
     watch: whereToWatch(r, region),
     crew: crewGroups(r.credits?.crew ?? [], (r.created_by ?? []).map((c) => ({ id: c.id, name: c.name }))),
     details: { ...details(r, "tv", r.id, r.name), networks: (r.networks ?? []).map((n) => n.name) },
     keywords: keywords(r),
     airing: {
-      networks: (r.networks ?? []).map((n) => ({ name: n.name, logo: n.logo_path ? `${IMG}/w92${n.logo_path}` : null })),
+      networks: (r.networks ?? []).map((n) => ({ name: n.name, logo: n.logo_path ? `${IMG}/w154${n.logo_path}` : null })),
       seasons: (r.seasons ?? []).filter((x) => x.season_number > 0).map((x) => ({ name: x.name, date: (x as { air_date?: string | null }).air_date ?? null, episodes: x.episode_count })),
       ratings: (r.content_ratings?.results ?? []).filter((x) => x.rating).map((x) => ({ country: x.iso_3166_1, rating: x.rating })),
     },
@@ -806,7 +808,7 @@ export async function personPage(id: number): Promise<PersonPage | null> {
     id: c.id,
     title: c.title ?? c.name ?? "",
     date: c.release_date ?? c.first_air_date ?? "",
-    poster: image.poster(c.poster_path, "w342"),
+    poster: image.poster(c.poster_path, "w780"),
     role,
   });
   // Newest first, with what's still to come (no date, or a date ahead) on top.

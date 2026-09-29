@@ -137,7 +137,7 @@ export default async function EpisodePage({ params }: Params) {
           <div className="lg:pl-2 min-w-0">
             <Section title="Your take" small>
               <SectionCard>
-                <YourReview kind="episode" out={ep.airDate ?? null} title={{ key: `e${key}`, kind: "show", title: `${show.show.name} ${code(ep.season, ep.episode)}`, href: `/show/${showID}/season/${ep.season}/episode/${ep.episode}`, poster: image.poster(show.show.poster_path, "w342"), backdrop: ep.still, year: (ep.airDate ?? "").slice(0, 4) }} />
+                <YourReview kind="episode" out={ep.airDate ?? null} title={{ key: `e${key}`, kind: "show", title: `${show.show.name} ${code(ep.season, ep.episode)}`, href: `/show/${showID}/season/${ep.season}/episode/${ep.episode}`, poster: image.poster(show.show.poster_path, "w780"), backdrop: ep.still, year: (ep.airDate ?? "").slice(0, 4) }} />
               </SectionCard>
             </Section>
           </div>

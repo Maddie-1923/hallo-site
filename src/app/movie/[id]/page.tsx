@@ -96,7 +96,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
           <div className="lg:pl-2 min-w-0">
             <Section title="Your take" small>
               <SectionCard>
-                <YourReview kind="movie" out={page.released ?? movie.release_date ?? null} title={{ key: `m${movieID}`, kind: "movie", title: movie.title, href: `/movie/${movieID}`, poster: image.poster(movie.poster_path, "w342"), backdrop: image.backdrop(movie.backdrop_path), year: (movie.release_date ?? "").slice(0, 4) }} />
+                <YourReview kind="movie" out={page.released ?? movie.release_date ?? null} title={{ key: `m${movieID}`, kind: "movie", title: movie.title, href: `/movie/${movieID}`, poster: image.poster(movie.poster_path, "w780"), backdrop: image.backdrop(movie.backdrop_path), year: (movie.release_date ?? "").slice(0, 4) }} />
               </SectionCard>
             </Section>
           </div>

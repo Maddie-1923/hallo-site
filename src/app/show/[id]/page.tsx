@@ -136,7 +136,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           <div className="lg:pl-2 min-w-0">
             <Section title="Your take" small>
               <SectionCard>
-                <YourReview kind="show" out={show.first_air_date ?? null} title={{ key: `s${showID}`, kind: "show", title: show.name, href: `/show/${showID}`, poster: image.poster(show.poster_path, "w342"), backdrop: image.backdrop(show.backdrop_path), year: (show.first_air_date ?? "").slice(0, 4) }} />
+                <YourReview kind="show" out={show.first_air_date ?? null} title={{ key: `s${showID}`, kind: "show", title: show.name, href: `/show/${showID}`, poster: image.poster(show.poster_path, "w780"), backdrop: image.backdrop(show.backdrop_path), year: (show.first_air_date ?? "").slice(0, 4) }} />
               </SectionCard>
             </Section>
           </div>

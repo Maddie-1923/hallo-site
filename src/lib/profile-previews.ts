@@ -62,7 +62,7 @@ async function sampleProfile(): Promise<PublicProfileView> {
     kind,
     title,
     href: `/${kind}/${x.id}`,
-    poster: image.poster(x.poster_path, "w342"),
+    poster: image.poster(x.poster_path, "w780"),
     backdrop: image.backdrop(x.backdrop_path),
     year: (date ?? "").slice(0, 4),
   });
@@ -220,7 +220,7 @@ async function withSampleWatchlog(view: PublicProfileView): Promise<PublicProfil
     kind,
     title,
     href: `/${kind}/${x.id}`,
-    poster: image.poster(x.poster_path, "w342"),
+    poster: image.poster(x.poster_path, "w780"),
     backdrop: image.backdrop(x.backdrop_path),
     year: (date ?? "").slice(0, 4),
   });

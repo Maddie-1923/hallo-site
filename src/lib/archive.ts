@@ -113,7 +113,7 @@ export function isArchive(value: unknown): value is LibraryArchive {
   return typeof v.version === "number" && Array.isArray(v.shows) && Array.isArray(v.movies) && Array.isArray(v.watched);
 }
 
-export function poster(path: string | null | undefined, size: "w185" | "w342" | "w500" = "w342") {
+export function poster(path: string | null | undefined, size: "w185" | "w342" | "w500" | "w780" = "w780") {
   const base = process.env.NEXT_PUBLIC_TMDB_IMAGE_URL ?? "https://image.tmdb.org/t/p";
   return path ? `${base}/${size}${path}` : null;
 }
