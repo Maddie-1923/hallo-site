@@ -211,7 +211,9 @@ Everything the app does, on a computer.
      seasons;
    - filters combine into one address, so any combination can be shared and
      found by search engines (for example `/browse/series/genre/drama/on/netflix/`).
-2. **Lists hub and list pages.** The hub has popular, featured and by-topic
+2. **Lists hub and list pages** (`/lists` and `/u/<name>/list/<id>` built
+   29 Sep with the preview's and made-up members' lists; Lists in the top
+   bar). The hub has popular, featured and by-topic
    lists. Each list page has "you've watched 7 of 20" progress, likes and
    comments.
 3. **Person pages:** an actor's or director's films and series, with "you've

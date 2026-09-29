@@ -256,6 +256,7 @@ export function ProfileCategories({ categories: given, owner = false, username =
       </div>
       {open && (
         <CategorySheet
+          username={username}
           c={open}
           onClose={() => setOpen(null)}
           onDelete={
@@ -436,7 +437,7 @@ function PicturePicker({ c, current, onChoose, onClose }: { c: CategoryEntry; cu
 
 // A category opened: its posters in a grid, each going to its title page.
 // Laid out like the review sheet: one 16px inset, closing the same ways.
-function CategorySheet({ c, onClose, onDelete }: { c: CategoryEntry; onClose: () => void; onDelete?: () => void }) {
+function CategorySheet({ c, onClose, onDelete, username }: { c: CategoryEntry; onClose: () => void; onDelete?: () => void; username?: string }) {
   useEffect(() => {
     const onKey = (k: KeyboardEvent) => k.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -457,6 +458,11 @@ function CategorySheet({ c, onClose, onDelete }: { c: CategoryEntry; onClose: ()
               {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
             </div>
             {c.detail && <p className="m-0 mt-3 text-[12.5px] leading-[1.5] text-bone">{c.detail}</p>}
+            {c.id.startsWith("list:") && username && (
+              <Link href={`/u/${username}/list/${c.id.slice(5)}`} className="inline-block mt-3 text-[12.5px] font-semibold text-accent no-underline hover:underline">
+                Open the list&apos;s page →
+              </Link>
+            )}
             {/* The app's wording: a category is a way of grouping titles, not
                 a place they live, so deleting one loses nothing tracked. */}
             {onDelete && (

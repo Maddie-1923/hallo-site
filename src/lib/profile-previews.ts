@@ -122,13 +122,43 @@ async function sampleProfile(who?: Member): Promise<PublicProfileView> {
       { id: "upToDate", name: "Up to Date", custom: false, titles: series.slice(0, 3) },
       { id: "finished", name: "Finished", custom: false, titles: [...series.slice(3, 6), ...classics.slice(0, 8)] },
       { id: "favorites", name: "Favorites", custom: false, titles: classics.slice(0, 8) },
-      { id: "list:l1", name: "Comfort rewatches", detail: "For the nights nothing new will do.", custom: true, titles: classics.slice(2, 14) },
-      { id: "list:l2", name: "Best of 2026 so far", custom: true, titles: films.slice(0, 9) },
-      { id: "list:l3", name: "Series worth the hype", detail: "Every one of these earned its finale.", custom: true, titles: series.slice(0, 7) },
+      // Three lists each, from a pool, so no two members share them.
+      ...[0, 1, 2].map((i) => {
+        const p = LIST_POOL[(who ? who.seed + i : i) % LIST_POOL.length];
+        const from = p.from === "classics" ? classics : p.from === "series" ? series : films;
+        return { id: `list:l${i + 1}`, name: p.name, detail: p.detail ?? null, custom: true, titles: from.slice(p.start, p.start + p.size) };
+      }),
     ],
     previewNote: `Sample profile${who ? ` (@${who.username})` : ""} — a made-up person with invented dates, ratings and review text, for judging the layout. Development only.`,
   };
 }
+
+const LIST_POOL: { name: string; detail?: string; from: "films" | "series" | "classics"; start: number; size: number }[] = [
+  { name: "Comfort rewatches", detail: "For the nights nothing new will do.", from: "classics", start: 2, size: 12 },
+  { name: "Best of 2026 so far", from: "films", start: 0, size: 9 },
+  { name: "Series worth the hype", detail: "Every one of these earned its finale.", from: "series", start: 0, size: 7 },
+  { name: "Date night, no arguments", detail: "Films two people can actually agree on.", from: "films", start: 3, size: 8 },
+  { name: "One season wonders", detail: "Short, finished, and worth a weekend.", from: "series", start: 2, size: 6 },
+  { name: "Cry in the good way", from: "classics", start: 5, size: 10 },
+  { name: "Watch before the sequel", from: "films", start: 1, size: 7 },
+  { name: "Shows to start this autumn", detail: "Long nights, long series.", from: "series", start: 4, size: 8 },
+  { name: "Perfect on a plane", detail: "Under two hours, easy to follow, hard to stop.", from: "films", start: 6, size: 9 },
+  { name: "The greats, in order", detail: "Where I'd start anyone new to film.", from: "classics", start: 0, size: 14 },
+  { name: "Weekend binges", from: "series", start: 1, size: 9 },
+  { name: "Slow burns that pay off", from: "classics", start: 8, size: 9 },
+  { name: "Mysteries I couldn't solve", from: "series", start: 3, size: 7 },
+  { name: "Feel-good, guaranteed", detail: "For a bad week.", from: "films", start: 2, size: 10 },
+  { name: "Festival favourites", from: "classics", start: 3, size: 11 },
+  { name: "Too scary to watch alone", from: "films", start: 5, size: 7 },
+  { name: "Animated, not just for kids", from: "classics", start: 6, size: 8 },
+  { name: "Finales that stuck the landing", from: "series", start: 5, size: 8 },
+  { name: "Big screen or nothing", detail: "Worth the ticket, every one.", from: "films", start: 4, size: 9 },
+  { name: "Hidden gems", from: "classics", start: 10, size: 10 },
+  { name: "Sunday afternoon", from: "films", start: 7, size: 8 },
+  { name: "Workplace shows", from: "series", start: 6, size: 6 },
+  { name: "Books that became great films", from: "classics", start: 1, size: 9 },
+  { name: "Starter pack for a new friend", detail: "Hand these over and see what sticks.", from: "films", start: 0, size: 12 },
+];
 
 function sampleActivity(): Record<string, number> {
   const out: Record<string, number> = {};

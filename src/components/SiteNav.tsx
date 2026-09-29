@@ -30,6 +30,7 @@ const marketing: [string, string][] = [
   ["/shows", "Shows"],
   ["/calendar", "Calendar"],
   ["/members", "Members"],
+  ["/lists", "Lists"],
 ];
 
 // The phone's four, in the phone's order: somewhere to find things, the two
@@ -40,6 +41,7 @@ const product: [string, string][] = [
   ["/app/movies", "Movies"],
   ["/calendar", "Calendar"],
   ["/members", "Members"],
+  ["/lists", "Lists"],
   ["/app/profile", "Profile"],
 ];
 
