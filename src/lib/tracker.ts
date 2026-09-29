@@ -1,5 +1,5 @@
 import "server-only";
-import type { LibraryArchive } from "./archive";
+import type { LibraryArchive, Movie, Show } from "./archive";
 import { moviePiles, showPiles } from "./piles";
 import { fillAired, movieTitle, showTitle, type ProfileTitle, type TrackerShow } from "./public-profile";
 import { showDetail } from "./tmdb";
@@ -13,7 +13,7 @@ export type ComingShow = { t: ProfileTitle; episode: string; name: string; date:
 export type ComingFilm = { t: ProfileTitle; date: string; inDays: number };
 /** A poster for the banner: a tracked show with an episode just out (its
     show's poster, never the episode's still), or a tracked film now out. */
-export type Fresh = { t: ProfileTitle; label: string; date: string };
+export type Fresh = { t: ProfileTitle; label: string; date: string; show?: Show; movie?: Movie };
 
 export interface TrackerPage {
   fresh: Fresh[];
@@ -73,13 +73,13 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
     if (!ep?.air_date) return;
     const n = days(ep.air_date);
     if (n > 0 || n < -7) return;
-    fresh.push({ t: showTitle(watching[i].show), label: `New · ${code(ep.season_number, ep.episode_number)}`, date: ep.air_date });
+    fresh.push({ t: showTitle(watching[i].show), label: `New episode · ${code(ep.season_number, ep.episode_number)}`, date: ep.air_date, show: watching[i].show });
   });
   for (const t of a.movies) {
     const r = t.movie.release_date;
     if (t.status !== "To Watch" || !r) continue;
     const n = days(r);
-    if (n <= 0 && n >= -60) fresh.push({ t: movieTitle(t.movie), label: "Now showing", date: r });
+    if (n <= 0 && n >= -60) fresh.push({ t: movieTitle(t.movie), label: "Now showing", date: r, movie: t.movie });
   }
   fresh.sort((x, y) => y.date.localeCompare(x.date));
 
@@ -93,7 +93,7 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
   const out = (t: { movie: { release_date?: string | null } }) => !t.movie.release_date || days(t.movie.release_date) < 0;
 
   return {
-    fresh: fresh.filter((f) => f.t.poster),
+    fresh,
     shows: { upNext, readyToStart, onHold, theVoid, coming },
     films: {
       toWatch: [...mp.readyToStart].filter(out).sort(newest).map((t) => movieTitle(t.movie)),

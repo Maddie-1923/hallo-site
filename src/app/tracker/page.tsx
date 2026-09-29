@@ -3,6 +3,9 @@ import Link from "next/link";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { TrackerBoard } from "@/components/TrackerBoard";
+import { CinemaHero } from "@/components/CinemaHero";
+import { billboard } from "@/components/TitleRows";
+import { visitorRegion } from "@/lib/region";
 import { previewArchive } from "@/lib/profile-previews";
 import { trackerFromArchive } from "@/lib/tracker";
 
@@ -14,10 +17,29 @@ export const metadata: Metadata = { title: "Tracker — Kodigo" };
 export default async function TrackerPage() {
   const archive = await previewArchive();
   const data = archive ? await trackerFromArchive(archive) : null;
+  // The billboard, as Home and Explore have: what's just out from what they
+  // track, a new episode by its show's own picture (never the episode's
+  // still), and films now showing.
+  const fresh = data?.fresh ?? [];
+  const slides = fresh.length
+    ? await billboard(
+        fresh.flatMap((f) => (f.show ? [f.show] : [])),
+        fresh.flatMap((f) => (f.movie ? [f.movie] : [])),
+        archive,
+        await visitorRegion(),
+        {},
+        Object.fromEntries(fresh.map((f) => [f.t.key, f.label])),
+      )
+    : [];
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
-      <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
+      {slides.length > 0 && (
+        <header>
+          <CinemaHero slides={slides} />
+        </header>
+      )}
+      <main className={`w-full px-[clamp(16px,3.2vw,64px)] ${slides.length ? "pt-8" : "pt-[clamp(12px,2.2vw,32px)]"} pb-20 flex-1`}>
         {data ? (
           <TrackerBoard data={data} />
         ) : (
