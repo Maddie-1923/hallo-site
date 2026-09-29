@@ -179,37 +179,44 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
           the picked title's next episode, as a show page lays out its
           seasons and the small episode page. */}
       <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid grid-cols-[minmax(0,1fr)] gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
-          <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
-        </div>
-
-        {shown.length === 0 ? (
-          <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">
-            {view === "list" ? (kind === "show" ? "No shows on the go. Add one from any show's page." : "No films waiting. Add one from any film's page.") : kind === "show" ? "Nothing announced yet from your shows." : "No film you're waiting on has a date yet."}
-          </p>
-        ) : (
-          <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            {/* The list, as tall as the panel beside it, scrolling inside. */}
-            <div className="relative max-lg:h-[520px] lg:min-h-[420px]">
-              <div className="absolute inset-0 soft-scroll overflow-y-auto overscroll-contain pr-1 grid gap-2 content-start">
-                {shown.map((g) => (
-                  <section key={g.id} className="grid gap-2">
-                    <div>
-                      <HeadingPill small>{`${g.title} · ${g.items.length}`}</HeadingPill>
-                    </div>
-                    <ul className="m-0 p-0 list-none grid gap-2">
-                      {g.items.map((i) => (
-                        <Row key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={i.keys} onPick={() => setPickKey(i.key)} picked={picked?.key === i.key} />
-                      ))}
-                    </ul>
-                  </section>
-                ))}
+        <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          {/* Left: Shows or Movies over the list, which is as tall as the
+              panel beside it and scrolls inside. */}
+          <div className="flex flex-col gap-2 min-w-0">
+            <div>
+              <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
+            </div>
+            {shown.length === 0 ? (
+              <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">
+                {view === "list" ? (kind === "show" ? "No shows on the go. Add one from any show's page." : "No films waiting. Add one from any film's page.") : kind === "show" ? "Nothing announced yet from your shows." : "No film you're waiting on has a date yet."}
+              </p>
+            ) : (
+              <div className="relative flex-1 max-lg:h-[520px] lg:min-h-[420px]">
+                <div className="absolute inset-0 soft-scroll overflow-y-auto overscroll-contain pr-1 grid gap-2 content-start">
+                  {shown.map((g) => (
+                    <section key={g.id} className="grid gap-2">
+                      <div>
+                        <HeadingPill small>{`${g.title} · ${g.items.length}`}</HeadingPill>
+                      </div>
+                      <ul className="m-0 p-0 list-none grid gap-2">
+                        {g.items.map((i) => (
+                          <Row key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={i.keys} onPick={() => setPickKey(i.key)} picked={picked?.key === i.key} />
+                        ))}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
               </div>
+            )}
+          </div>
+          {/* Right: Watch list or Coming soon over the picked episode. */}
+          <div className="lg:pl-2 grid grid-cols-[minmax(0,1fr)] gap-2 content-start min-w-0">
+            <div>
+              <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
             </div>
             {picked && <EpisodePanel item={picked} keysFor={keysFor} />}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -254,7 +261,7 @@ function EpisodePanel({ item, keysFor }: { item: Item; keysFor: (e: CalendarEven
   ].filter(Boolean) as [string, React.ReactNode][];
 
   return (
-    <section className="lg:pl-2 grid grid-cols-[minmax(0,1fr)] gap-2 content-start min-w-0">
+    <section className="grid grid-cols-[minmax(0,1fr)] gap-2 content-start min-w-0">
       <div>
         <HeadingPill small>{item.episode ? code(item.episode) : isFilm ? "Film" : item.t.title}</HeadingPill>
       </div>
