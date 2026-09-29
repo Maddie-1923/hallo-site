@@ -5,13 +5,14 @@ import { useMemo, useState } from "react";
 import type { CalendarEvent } from "@/lib/tracker";
 
 // The tracker's calendar: on the left, the day picked (today to begin with)
-// large on the accent and its weekday; on the right, the year with arrows, the twelve months, and the month's days, a dot
+// large on the accent and its weekday; on the right, the month by name with arrows either side, and its days, a dot
 // under each day with something on it, today filled in the accent. Only the
 // month's own days are drawn. Pressing a day lists under the calendar what
 // airs or opens that day; pressing it again puts the list away. The site's type (Bebas for the day's number,
 // Open Runde for the rest), its shell and piece curves and its 8px and 12px
 // spacing.
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const iso = (y: number, m: number, d: number) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
@@ -20,8 +21,14 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
   const today = iso(now.getFullYear(), now.getMonth(), now.getDate());
   const [picked, setPicked] = useState(today);
   const [open, setOpen] = useState(false);
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth());
+  // The month shown, as its first day, so stepping crosses years by itself.
+  const [shown, setShown] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1));
+  const year = shown.getFullYear();
+  const month = shown.getMonth();
+  const setYear = (f: (y: number) => number) => setShown((d) => new Date(f(d.getFullYear()), d.getMonth(), 1));
+  const setMonth = (m: number) => setShown((d) => new Date(d.getFullYear(), m, 1));
+  const [menu, setMenu] = useState(false);
+  const step = (n: number) => setShown((d) => new Date(d.getFullYear(), d.getMonth() + n, 1));
 
   const byDay = useMemo(() => {
     const m = new Map<string, CalendarEvent[]>();
@@ -47,25 +54,41 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
 
       {/* The month. */}
       <div className="rounded-shell bg-piece p-3 min-w-0">
-        <div className="flex items-center justify-end gap-2">
-          <span className="flex items-center gap-1">
-            <Arrow label="Year before" d="M15 6l-6 6 6 6" onClick={() => setYear((y) => y - 1)} />
-            <span className="text-[12.5px] font-semibold text-ink tabular-nums w-10 text-center">{year}</span>
-            <Arrow label="Year after" d="M9 6l6 6-6 6" onClick={() => setYear((y) => y + 1)} />
-          </span>
-        </div>
-        <div className="mt-2 grid grid-cols-12 border-b border-hair pb-1.5">
-          {MONTHS.map((m, i) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setMonth(i)}
-              aria-pressed={i === month}
-              className={`text-[10.5px] leading-none py-1 cursor-pointer ${i === month ? "font-bold text-ink" : "text-dim hover:text-ink"}`}
-            >
-              {m}
-            </button>
-          ))}
+        {/* The month by its full name, with the months either side a press
+            away; pressing the name opens all twelve to jump to one. The year
+            shows only when it isn't this one. */}
+        <div className="relative flex items-center justify-between gap-2 border-b border-hair pb-1.5">
+          <Arrow label="Month before" d="M15 6l-6 6 6 6" onClick={() => step(-1)} />
+          <button type="button" onClick={() => setMenu((m) => !m)} aria-expanded={menu} className="text-[12.5px] font-semibold text-ink cursor-pointer hover:text-accent transition-colors">
+            {FULL[month]}
+            {year !== now.getFullYear() && ` ${year}`}
+          </button>
+          <Arrow label="Month after" d="M9 6l6 6-6 6" onClick={() => step(1)} />
+          {menu && (
+            <div role="dialog" aria-label="Choose a month" className="absolute z-20 left-1/2 -translate-x-1/2 top-[calc(100%+6px)] w-[228px] rounded-shell bg-card border border-hair shadow-[0_20px_50px_rgba(0,0,0,.6)] p-2 grid gap-2">
+              <div className="flex items-center justify-between px-1">
+                <Arrow label="Year before" d="M15 6l-6 6 6 6" onClick={() => setYear((y) => y - 1)} />
+                <span className="text-[12.5px] font-semibold text-ink tabular-nums">{year}</span>
+                <Arrow label="Year after" d="M9 6l6 6-6 6" onClick={() => setYear((y) => y + 1)} />
+              </div>
+              <div className="grid grid-cols-3 gap-1">
+                {MONTHS.map((m, i) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => {
+                      setMonth(i);
+                      setMenu(false);
+                    }}
+                    aria-pressed={i === month}
+                    className={`h-8 rounded-[8px] text-[12.5px] cursor-pointer ${i === month ? "bg-accent-fill text-on-accent font-semibold" : "text-ink hover:bg-piece"}`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div className="mt-1.5 grid grid-cols-7 text-center">
           {WEEK.map((w) => (
