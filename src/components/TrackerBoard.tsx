@@ -25,6 +25,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
   const [watchedFilms, setWatchedFilms] = useState<string[]>([]);
   // The entry shown beside the list; the first one until another is picked.
   const [pickKey, setPickKey] = useState<string | null>(null);
+  const [groupId, setGroupId] = useState<string | null>(null);
 
   const seenOf = (s: TrackerShow) => [...s.seen, ...(seen[s.key] ?? [])];
 
@@ -168,7 +169,9 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
             ),
         }));
   const shown = groups.filter((g) => g.items.length > 0);
-  const all = shown.flatMap((g) => g.items);
+  // One pile at a time, chosen from the tabs over the list.
+  const group = shown.find((g) => g.id === groupId) ?? shown[0] ?? null;
+  const all = group?.items ?? [];
   const picked = all.find((i) => i.key === pickKey) ?? all[0] ?? null;
 
   return (
@@ -191,22 +194,34 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
                 {view === "list" ? (kind === "show" ? "No shows on the go. Add one from any show's page." : "No films waiting. Add one from any film's page.") : kind === "show" ? "Nothing announced yet from your shows." : "No film you're waiting on has a date yet."}
               </p>
             ) : (
-              <div className="relative flex-1 max-lg:h-[520px] lg:min-h-[420px]">
-                <div className="absolute inset-0 soft-scroll overflow-y-auto overscroll-contain pr-1 grid gap-2 content-start">
-                  {shown.map((g) => (
-                    <section key={g.id} className="grid gap-2">
-                      <div>
-                        <HeadingPill small>{`${g.title} · ${g.items.length}`}</HeadingPill>
-                      </div>
-                      <ul className="m-0 p-0 list-none grid gap-2">
-                        {g.items.map((i) => (
-                          <Row key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={i.keys} onPick={() => setPickKey(i.key)} picked={picked?.key === i.key} />
-                        ))}
-                      </ul>
-                    </section>
-                  ))}
+              <>
+                {/* The piles side by side as tabs, so none
+                    is a scroll away; the list shows the one chosen. */}
+                <div role="tablist" aria-label="Piles" className="flex flex-wrap gap-1 p-1 rounded-[18px] bg-piece self-start max-w-full">
+                  {shown.map((g) => {
+                    const on = g.id === group?.id;
+                    return (
+                      <button
+                        key={g.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={on}
+                        onClick={() => setGroupId(g.id)}
+                        className={`inline-flex items-center px-3.5 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+                      >
+                        {g.title}
+                      </button>
+                    );
+                  })}
                 </div>
-              </div>
+                <div className="relative flex-1 max-lg:h-[520px] lg:min-h-[420px]">
+                  <ul className="absolute inset-0 soft-scroll overflow-y-auto overscroll-contain pr-1 m-0 p-0 list-none grid gap-2 content-start">
+                    {all.map((i) => (
+                      <Row key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={i.keys} onPick={() => setPickKey(i.key)} picked={picked?.key === i.key} />
+                    ))}
+                  </ul>
+                </div>
+              </>
             )}
           </div>
           {/* Right: Watch list or Coming soon over the picked episode. */}
