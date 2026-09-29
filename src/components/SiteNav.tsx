@@ -24,6 +24,7 @@ import { accountsOpen } from "@/lib/accounts";
 const marketing: [string, string][] = [
   ["/explore", "Explore"],
   ["/about", "The app"],
+  ["/pro", "Pro"],
 ];
 
 // The phone's four, in the phone's order: somewhere to find things, the two
@@ -41,7 +42,8 @@ const menuLinks = [
   ["/app/account", "Account"],
   ["/app/import", "Import a backup"],
   ["/about#themes", "Themes"],
-  ["/about#pricing", "Subscription"],
+  ["/pro", "Kodigo Pro"],
+  ["/whats-new", "What's new"],
   ["/about#faq", "FAQ"],
   ["/support", "Support"],
 ];

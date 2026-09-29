@@ -20,7 +20,8 @@ export function SiteFooter() {
           </div>
           <div className="flex flex-col gap-2">
             <Link href="/about#features" className="hover:text-ink">Features</Link>
-            <Link href="/about#pricing" className="hover:text-ink">Pricing</Link>
+            <Link href="/pro" className="hover:text-ink">Kodigo Pro</Link>
+            <Link href="/whats-new" className="hover:text-ink">What&apos;s new</Link>
             <Link href="/about#faq" className="hover:text-ink">FAQ</Link>
           </div>
         </div>

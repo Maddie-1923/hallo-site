@@ -231,7 +231,10 @@ Everything the app does, on a computer.
 
 ### 7. Paying and ads
 
-1. **`/pro` subscription page** for people who find the site first: the plans,
+1. **`/pro` subscription page** (built 29 Sep, on `social`: the plans, the
+   free week, what Pro adds, Free and Pro side by side, questions; its App
+   Store and web-checkout keys say "coming soon" until the app is approved
+   and Stripe exists) for people who find the site first: the plans,
    the free week, and what Pro adds (the tracker, no ads). It links to the App
    Store (and Google Play later) and offers **web checkout through Stripe**.
    The user needs to create a Stripe account.
@@ -299,6 +302,13 @@ Review. Android picks the same up when it resumes.
   private. All start public except On Hold and Stopped Watching, which start
   private. The choice is stored in the library and the server leaves private
   categories out of anyone else's view.
+
+## What's new
+
+`/whats-new` (built 29 Sep): dated notes on features and fixes in the app and
+on the website, newest first, each marked Live, In review or Coming soon. The
+notes live in `src/lib/updates.ts`; add one with every release. Linked from
+the nav menu, the footer and the Pro page.
 
 ## Later
 

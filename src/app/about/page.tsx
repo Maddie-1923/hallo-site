@@ -234,6 +234,9 @@ export default async function About() {
               </div>
             </div>
             <p className="text-sm text-dim mt-4">Prices shown in USD and converted to your local store currency by Apple.</p>
+            <p className="text-sm mt-2">
+              <Link href="/pro" className="text-accent">Everything Pro adds →</Link>
+            </p>
           </div>
         </section>
 
