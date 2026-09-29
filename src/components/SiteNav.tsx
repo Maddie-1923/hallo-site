@@ -235,8 +235,15 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
           </>
         }
       >
-        <div className="px-4 pt-3 pb-2 text-xs text-dim truncate border-b border-hair">{email}</div>
+        <div className="px-4 pt-3 pb-2 text-xs text-dim truncate border-b border-hair">{profile.username ? `@${profile.username}` : email}</div>
         <ul className="m-0 p-0 py-1 list-none">
+          {/* Their public profile, or, until they have a username, the way
+              to choose one (which is also where they're told it's public). */}
+          <li>
+            <Link href={profile.username ? `/u/${profile.username}` : "/profile/setup"} className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink font-semibold">
+              {profile.username ? "Your public profile" : "Choose your username"}
+            </Link>
+          </li>
           {menuLinks.map(([href, label]) => (
             <li key={href}>
               <Link href={href} className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">

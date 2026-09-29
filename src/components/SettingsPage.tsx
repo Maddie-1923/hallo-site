@@ -10,6 +10,7 @@ import type { Service } from "@/lib/tmdb";
 import { HeadingPill } from "./TitleParts";
 import { DeleteAccount } from "./DeleteAccount";
 import { ManageSubscription } from "./ProCheckout";
+import { setProfilePrivate } from "@/lib/profile-actions";
 import { formatDate } from "@/lib/dates";
 import type { Subscription } from "@/lib/entitlement";
 import { checkName, checkText } from "@/lib/word-filter";
@@ -37,7 +38,7 @@ const SECTIONS = [
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 const ABOUT_KEY = "kodigo.profile-about.preview";
 
-export function SettingsPage({ username, detected, regions, initialServices, signedIn = false, subscription = null }: { username: string; detected: string; regions: { code: string; name: string }[]; initialServices: Service[]; signedIn?: boolean; subscription?: Subscription | null }) {
+export function SettingsPage({ username, isPrivate = null, detected, regions, initialServices, signedIn = false, subscription = null }: { /** Null: signed in without one yet. */ username: string | null; /** Signed in: whether their profile is private, from the account. */ isPrivate?: boolean | null; detected: string; regions: { code: string; name: string }[]; initialServices: Service[]; signedIn?: boolean; subscription?: Subscription | null }) {
   const [s, set] = useSettings();
   const [about, setAbout] = useState({ location: "", quote: "" });
   const [theme, setTheme] = useState(DEFAULT_THEME);
@@ -85,6 +86,21 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
     startLoading(async () => setServices(await loadServices(code)));
   };
   const toggle = (key: keyof Settings) => <Toggle on={!!s[key]} onChange={(v) => set({ [key]: v } as Partial<Settings>)} />;
+  // Signed in, Public profile is the account's own setting.
+  const [publicProfile, setPublicProfile] = useState(isPrivate == null ? null : !isPrivate);
+  const publicToggle =
+    publicProfile == null ? (
+      toggle("publicProfile")
+    ) : (
+      <Toggle
+        on={publicProfile}
+        onChange={async (v) => {
+          setPublicProfile(v);
+          set({ publicProfile: v });
+          if (!(await setProfilePrivate(!v))) setPublicProfile(!v);
+        }}
+      />
+    );
 
   return (
     <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] items-start">
@@ -111,7 +127,14 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
             <Text value={s.displayName} onChange={(v) => set({ displayName: v })} check={checkName} placeholder="Your name" />
           </Field>
           <Field label="Username" hint="Your profile's address, kodigo.pro/u/…">
-            <span className="text-[12.5px] text-ink">@{username}</span>
+            {signedIn ? (
+              <span className="flex items-center gap-2">
+                {username && <span className="text-[12.5px] text-ink">@{username}</span>}
+                <LinkButton href="/profile/setup">{username ? "Change" : "Choose one"}</LinkButton>
+              </span>
+            ) : (
+              <span className="text-[12.5px] text-ink">@{username}</span>
+            )}
           </Field>
           <Field label="Location">
             <Text value={about.location} onChange={(v) => saveAbout({ ...about, location: v })} check={checkText} placeholder="Where you are" />
@@ -120,7 +143,7 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
             <Text value={about.quote} onChange={(v) => saveAbout({ ...about, quote: v })} check={checkText} placeholder="Add a quote" />
           </Field>
           <Field label="Photo and banner" hint="Chosen from pictures of what you track.">
-            <LinkButton href={`/u/${username}`}>Change on your profile</LinkButton>
+            <LinkButton href={username ? `/u/${username}` : "/profile/setup"}>Change on your profile</LinkButton>
           </Field>
         </Group>
 
@@ -138,7 +161,7 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
 
         <Group id="privacy" title="Privacy">
           <Field label="Public profile" hint="Anyone can see your profile, reviews and lists. Turned off, only people you let follow you can.">
-            {toggle("publicProfile")}
+            {publicToggle}
           </Field>
           <Field label="Show recent activity" hint="What you watched and reviewed lately, on your profile.">
             {toggle("showActivity")}
@@ -149,7 +172,7 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
             <BlockedPeople />
           </Field>
           <Field label="Categories" hint="Each category's eye on your profile sets whether others see it.">
-            <LinkButton href={`/u/${username}#categories`}>Open categories</LinkButton>
+            <LinkButton href={username ? `/u/${username}#categories` : "/profile/setup"}>Open categories</LinkButton>
           </Field>
         </Group>
 

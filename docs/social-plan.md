@@ -148,6 +148,27 @@ tables; entitlements and safety go there when accounts open.
    people who already have a library ("your profile is now public, here's the
    switch") before anything of theirs goes public. Nothing from an existing
    account is shown until they have picked a username.
+   Built 30 Sep, on kodigo-dev (`20260930020000_usernames.sql`,
+   `20260930030000_profiles_one_read_policy.sql`):
+   - `profiles` gains `username` (unique, the word filter's shape),
+     `is_private`, `location`, `quote`; anyone can read a profile with a
+     username unless it's suspended or blocked either way;
+   - usernames are written only by the server with the service key
+     (`lib/username-actions.ts`), after the reserved names and word filter;
+     column grants stop a browser writing `username` or `suspended_at`;
+   - `/profile/setup` chooses or changes it, checked as it's typed, and is
+     the one-time notice that profiles are public, with Public/Private beside
+     it; the account menu says "Choose your username" until there is one,
+     then "Your public profile";
+   - `/u/<username>` loads real members (`lib/real-profile.ts`): the owner's
+     whole profile from their own library; visitors get the card, and the
+     private notice on a private profile; everything under the card for
+     visitors comes from step 1.2's public tables;
+   - Settings shows the username with Change, and Public profile saves to
+     the account.
+   Checked with made-up users in rolled-back transactions. Not yet tried
+   with a real sign-in: needs dev's service key and auth URLs (see step 0)
+   and `SITE_ACCOUNTS=on` in `.env.local`.
 2. **The projection.** Add `public_entries` and `public_lists`, the trigger,
    and a one-off backfill for people who opted in.
    Also store each person's chosen favourites (top 5 films, top 5 series, in

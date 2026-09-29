@@ -149,6 +149,8 @@ export interface PublicProfileView {
   owner?: { films: ProfileTitle[]; shows: ProfileTitle[] };
   /** Shown as a ribbon when the page is a preview rather than a real profile. */
   previewNote?: string;
+  /** A private profile: visitors who don't follow them see only the card. */
+  isPrivate?: boolean;
 }
 
 export function showTitle(s: Show): ProfileTitle {

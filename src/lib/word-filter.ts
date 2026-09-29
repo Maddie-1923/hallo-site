@@ -20,7 +20,7 @@ const RESERVED = new Set([
   "admin", "administrator", "kodigo", "kodigopro", "support", "help", "moderator", "mod", "mods", "staff", "official", "team", "security", "safety",
   "system", "root", "null", "undefined", "anonymous", "everyone", "here", "me", "you", "settings", "login", "logout", "signup", "signin", "account", "api",
   "app", "pro", "u", "user", "users", "members", "lists", "list", "calendar", "tracker", "movies", "shows", "browse", "search", "notifications", "privacy",
-  "terms", "about", "whats-new", "moderation", "preview", "tmdb", "tvmaze", "stripe",
+  "terms", "about", "whats-new", "moderation", "preview", "sample", "tmdb", "tvmaze", "stripe", "welcome", "setup", "profile", "profiles",
 ]);
 
 const LEET: Record<string, string> = { "0": "o", "1": "i", "!": "i", "|": "i", "3": "e", "4": "a", "@": "a", "5": "s", $: "s", "7": "t", "8": "b", "9": "g", "+": "t" };

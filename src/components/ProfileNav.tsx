@@ -30,11 +30,13 @@ export interface ProfileSection {
 // `owner`: on their own profile, their privacy choices (Settings, Privacy)
 // apply: a section hidden from others carries a lock for them, and is gone
 // when they look as others do; a private profile shows others only a notice.
-export function ProfileSections({ sections: all, className = "mt-10", aside, label = "Profile sections", flat = false, owner = false }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode; label?: string; flat?: boolean; owner?: boolean }) {
+// `privateProfile`: someone else's private profile, which a visitor sees only
+// the card of (until follows let approved followers in).
+export function ProfileSections({ sections: all, className = "mt-10", aside, label = "Profile sections", flat = false, owner = false, privateProfile = false }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode; label?: string; flat?: boolean; owner?: boolean; privateProfile?: boolean }) {
   const privacy = usePrivacy(owner);
   const hidden = new Set<string>(privacy ? [!privacy.showActivity && "activity", !privacy.showWatchlog && "watchlog"].filter(Boolean) as string[] : []);
   const sections = privacy?.others ? all.filter((s) => !hidden.has(s.id)) : all;
-  const closed = !!privacy?.others && !privacy.publicProfile;
+  const closed = privateProfile || (!!privacy?.others && !privacy.publicProfile);
   const [current, setCurrent] = useState(sections[0].id);
 
   useEffect(() => {

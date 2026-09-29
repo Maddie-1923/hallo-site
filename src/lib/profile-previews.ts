@@ -4,6 +4,8 @@ import { isArchive } from "@/lib/archive";
 import { profileFromArchive, withAiredEpisodes, withUpToDate, type CategoryEntry, type DiaryEntry, type ProfileTitle, type PublicProfileView, type ReviewEntry } from "@/lib/public-profile";
 import { image, movieRails, showRails } from "@/lib/tmdb";
 import { member, type Member } from "@/lib/members";
+import { accountsOpen } from "@/lib/accounts";
+import { realProfile } from "@/lib/real-profile";
 
 // The two development-only profiles, /u/preview and /u/sample (see
 // app/u/[username]/page.tsx), and the made-up reviews and watches they carry
@@ -11,14 +13,14 @@ import { member, type Member } from "@/lib/members";
 // "Before opening").
 const DEV = process.env.NODE_ENV === "development";
 
-/** The profile for a username, or null. Only the two previews exist until
-    the public tables do. */
+/** The profile for a username, or null: in development the previews and
+    sample members first, then real members once accounts are open. */
 export async function loadProfile(username: string): Promise<PublicProfileView | null> {
   if (DEV && username === "preview") return previewFromFile();
   if (DEV && username === "sample") return sampleProfile();
   const m = DEV ? member(username) : null;
   if (m) return sampleProfile(m);
-  return null;
+  return accountsOpen ? realProfile(username) : null;
 }
 
 /** The preview's library itself, for pages drawn from it (the tracker). */

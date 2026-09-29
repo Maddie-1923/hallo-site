@@ -5,6 +5,7 @@ import { SettingsPage } from "@/components/SettingsPage";
 import { visitorRegion } from "@/lib/region";
 import { regionServices, watchRegions } from "@/lib/tmdb";
 import { signedInSubscription } from "@/lib/entitlement";
+import { loadProfile } from "@/lib/profile";
 
 export const metadata: Metadata = { title: "Settings — Kodigo" };
 
@@ -17,11 +18,13 @@ export default async function Settings() {
   // browser's preview.
   // It also brings their Pro, for Account → Subscription.
   const { signedIn, subscription } = await signedInSubscription();
+  // Their username and public/private, when signed in; the preview's otherwise.
+  const profile = signedIn ? await loadProfile() : null;
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <SettingsPage username="preview" detected={region} regions={regions} initialServices={services} signedIn={signedIn} subscription={subscription} />
+        <SettingsPage username={profile ? profile.username : "preview"} isPrivate={profile?.is_private ?? null} detected={region} regions={regions} initialServices={services} signedIn={signedIn} subscription={subscription} />
       </main>
       <SiteFooter />
     </div>

@@ -63,6 +63,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
         </div>
           <ProfileSections
             owner={!!v.owner}
+            privateProfile={!!v.isPrivate && !v.owner}
             className="lg:col-span-2"
             aside={<MiniTracker shows={v.tracker.shows} films={v.tracker.films} owner={!!v.owner} />}
             sections={[
