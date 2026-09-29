@@ -7,8 +7,8 @@ import type { CalendarEvent } from "@/lib/tracker";
 // The tracker's calendar: on the left, the day picked (today to begin with)
 // large on the accent and its weekday; on the right, Today, the month by name with arrows either side and the year, and the month's days, a dot
 // under each day with something on it, today filled in the accent. Only the
-// month's own days are drawn. Pressing a day lists beside the calendar what
-// airs or opens that day; pressing it again puts the list away. The site's type (Bebas for the day's number,
+// month's own days are drawn. Beside the calendar, what airs or opens on the day
+// picked, today to begin with; pressing that day again puts the list away. The site's type (Bebas for the day's number,
 // Open Runde for the rest), its shell and piece curves and its 8px and 12px
 // spacing.
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -22,7 +22,8 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
   const now = new Date();
   const today = iso(now.getFullYear(), now.getMonth(), now.getDate());
   const [picked, setPicked] = useState(today);
-  const [open, setOpen] = useState(false);
+  // Open from the start on today; pressing the day shown puts it away.
+  const [open, setOpen] = useState(true);
   // The month shown, as its first day, so stepping crosses years by itself.
   const [shown, setShown] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1));
   const year = shown.getFullYear();
