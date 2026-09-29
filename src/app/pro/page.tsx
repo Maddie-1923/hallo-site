@@ -2,19 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
-import { AppleMark } from "@/components/StoreIcons";
 import { HeadingPill } from "@/components/TitleParts";
+import { ProCheckout } from "@/components/ProCheckout";
+import { accountsOpen } from "@/lib/accounts";
+import { signedInSubscription } from "@/lib/entitlement";
+import { checkoutReady } from "@/lib/stripe";
 
 export const metadata: Metadata = {
   title: "Kodigo Pro — Kodigo",
-  description: "Kodigo Pro: the tracker on your phone and on the web. A free week, then $1.99 a month or $15.99 a year.",
+  description: "Kodigo Pro: the tracker on your phone and on the web, for $1.99 a month or $15.99 a year.",
 };
 
 // Kodigo Pro, for someone who finds the website before the app: the price,
-// the free week, what Pro adds, what stays free, and the questions people
-// ask. One subscription covers the app and the website (see the plan's
-// "Free and Pro"). Buying goes through the App Store; paying on the website
-// (Stripe) opens with accounts, and until then its key says so.
+// what Pro adds, what stays free, and the questions people ask. One
+// subscription covers the app and the website (see the plan's "Free and
+// Pro"). The web sells it through Stripe in US dollars, charged at checkout;
+// the free week is the app's (ProCheckout). Until Stripe's keys are set and
+// accounts are open, the button says so and nothing can charge.
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 
 const adds: [string, string][] = [
@@ -37,14 +41,16 @@ const table: [string, boolean, boolean, boolean][] = [
 ];
 
 const faq: [string, string][] = [
-  ["How does the free week work?", "It starts the first time you open the app, with everything unlocked and no card needed. When it ends, pick a plan to keep tracking."],
+  ["How does the free week work?", "It's in the app: it starts the first time you open it, with everything unlocked and no card needed. Subscribing on the website starts Pro straight away, with no free week."],
   ["Does one subscription cover the app and the website?", "Yes. Kodigo Pro is one subscription, whichever you start it on."],
   ["Is the website free to use?", "Reading is free for everyone: title pages, profiles, reviews and lists. A free account lets you rate, review and follow. Tracking is Pro."],
-  ["Can I cancel?", "Any time, in your Apple Account's subscriptions. It renews unless you turn it off at least 24 hours before the period ends."],
+  ["Can I cancel?", "Any time. Subscribed on the website, use Manage subscription in Settings; in the app, your Apple Account's subscriptions. Pro lasts to the end of the period you paid for."],
+  ["What currency is it in?", "The website charges in US dollars; your bank converts it if your card is in another currency. The App Store shows its price in your own currency."],
   ["What happens to my library if I stop?", "It stays on your phone. Nothing is deleted, and backup and export keep working whether or not you subscribe."],
 ];
 
-export default function ProPage() {
+export default async function ProPage() {
+  const { signedIn, subscription } = await signedInSubscription();
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
@@ -58,22 +64,8 @@ export default function ProPage() {
                 <p className="m-0 mt-3 text-[12.5px] leading-[1.6] text-mid-tone max-w-[46ch]">
                   The tracker, on your phone and on the web. Everything you&apos;re watching, what&apos;s next, and when it lands, with one subscription for both.
                 </p>
-                <p className="m-0 mt-3 text-[12.5px] leading-[1.6] font-semibold text-ink">Your first week is free, with no card needed.</p>
-                <div className="mt-auto pt-4 flex flex-wrap gap-2">
-                  <span aria-disabled className="inline-flex items-center gap-2 min-h-10 py-2 px-4 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold opacity-60">
-                    <AppleMark />
-                    Coming soon to the App Store
-                  </span>
-                  <span aria-disabled className="inline-flex items-center min-h-10 py-2 px-4 rounded-full bg-[color:var(--quiet)] text-dim text-[12.5px] font-semibold">
-                    Subscribing on the web opens with accounts
-                  </span>
-                </div>
               </div>
-              <div className="grid gap-2 content-start">
-                <Plan price="$1.99" per="per month" />
-                <Plan price="$15.99" per="per year" note="Four months free" best />
-                <p className="m-0 px-1 text-[12.5px] leading-[1.6] text-dim">Prices in US dollars. The App Store shows yours in your own currency.</p>
-              </div>
+              <ProCheckout ready={checkoutReady && accountsOpen} signedIn={signedIn} subscription={subscription} />
             </div>
           </div>
 
@@ -155,18 +147,6 @@ export default function ProPage() {
         </div>
       </main>
       <SiteFooter />
-    </div>
-  );
-}
-
-function Plan({ price, per, note, best = false }: { price: string; per: string; note?: string; best?: boolean }) {
-  return (
-    <div className={`rounded-shell bg-piece p-3 flex items-end justify-between gap-3 ${best ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
-      <div>
-        <div className="display text-[clamp(40px,4.4vw,52px)] leading-none">{price}</div>
-        <div className="mt-1 text-[12.5px] text-dim">{per}</div>
-      </div>
-      {note && <span className="inline-flex items-center h-[26px] px-3 rounded-full bg-accent-fill text-on-accent text-[10.5px] font-bold uppercase tracking-[.12em]">{note}</span>}
     </div>
   );
 }

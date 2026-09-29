@@ -248,8 +248,17 @@ Everything the app does, on a computer.
    the free week, and what Pro adds (the tracker, no ads). It links to the App
    Store (and Google Play later) and offers **web checkout through Stripe**.
    The user needs to create a Stripe account.
-2. **Entitlements:** the Stripe webhook writes Pro to the account, and the site
-   and apps honour it.
+   Checkout built 29 Sep: a plan picker (yearly preselected), US dollars
+   only, **no free week on the web** (the week is the app's), charged at
+   checkout. `/api/checkout` → Stripe Checkout → `/pro/welcome`; Settings →
+   Account → Subscription shows the plan and renewal and a Manage button
+   (`/api/billing-portal`). Everything is off until `STRIPE_*` keys are set
+   and accounts open. Before real charges: `/terms`, and turning on the
+   Customer Portal in Stripe's dashboard.
+2. **Entitlements:** the Stripe webhook (`/api/stripe/webhook`) writes Pro to
+   the `entitlements` table (migration `20260929000000_entitlements.sql`, not
+   yet applied), and the site and apps honour it. The apps' stores write the
+   same row later (`source` app_store / google_play).
 3. **Ads** for everyone who isn't Pro:
    - one ad between poster rows on Home and Explore;
    - one in the side column of title pages;

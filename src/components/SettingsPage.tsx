@@ -9,6 +9,9 @@ import { APPEARANCE_KEY, DEFAULT_THEME, THEMES, THEME_KEY, applyTheme, type Appe
 import type { Service } from "@/lib/tmdb";
 import { HeadingPill } from "./TitleParts";
 import { DeleteAccount } from "./DeleteAccount";
+import { ManageSubscription } from "./ProCheckout";
+import { formatDate } from "@/lib/dates";
+import type { Subscription } from "@/lib/entitlement";
 
 // Settings, after the app's Settings screen and the plan's list: who you are,
 // your account, who sees what, what you're told about, where you watch, how
@@ -32,7 +35,7 @@ const SECTIONS = [
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 const ABOUT_KEY = "kodigo.profile-about.preview";
 
-export function SettingsPage({ username, detected, regions, initialServices, signedIn = false }: { username: string; detected: string; regions: { code: string; name: string }[]; initialServices: Service[]; signedIn?: boolean }) {
+export function SettingsPage({ username, detected, regions, initialServices, signedIn = false, subscription = null }: { username: string; detected: string; regions: { code: string; name: string }[]; initialServices: Service[]; signedIn?: boolean; subscription?: Subscription | null }) {
   const [s, set] = useSettings();
   const [about, setAbout] = useState({ location: "", quote: "" });
   const [theme, setTheme] = useState(DEFAULT_THEME);
@@ -123,8 +126,8 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
           <Field label="Email" hint="Where your sign-in code goes.">
             <span className="text-[12.5px] text-dim">Opens with accounts</span>
           </Field>
-          <Field label="Subscription">
-            <LinkButton href="/pro">Kodigo Pro</LinkButton>
+          <Field label="Subscription" hint={subscriptionHint(subscription, s.dateFormat)}>
+            {subscription?.pro && subscription.source === "stripe" ? <ManageSubscription /> : subscription?.pro ? null : <LinkButton href="/pro">Kodigo Pro</LinkButton>}
           </Field>
           <Field label="Sign out" hint="On this browser only.">
             <Button off>Sign out</Button>
@@ -392,4 +395,14 @@ function LinkButton({ href, children }: { href: string; children: React.ReactNod
       {children}
     </Link>
   );
+}
+
+/** What Account → Subscription says under its name: the plan and when it
+    renews or ends, or, for the app's stores, where it's managed. */
+function subscriptionHint(sub: Subscription | null, format: Settings["dateFormat"]): string | undefined {
+  if (!sub?.pro) return undefined;
+  const plan = sub.plan === "yearly" ? "Pro, yearly" : sub.plan === "monthly" ? "Pro, monthly" : "Pro";
+  if (sub.source !== "stripe") return `${plan}. Managed in your ${sub.source === "google_play" ? "Google Play" : "Apple Account"} subscriptions.`;
+  if (!sub.periodEnd) return plan;
+  return `${plan} · ${sub.cancelAtEnd ? "ends" : "renews"} ${formatDate(sub.periodEnd.slice(0, 10), format, "long")}`;
 }
