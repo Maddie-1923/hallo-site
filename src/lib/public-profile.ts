@@ -108,6 +108,9 @@ export interface TrackerShow extends ProfileTitle {
   /** Episode names by "season-episode", for the season the next episode is
       in and the one after, so the row can name it as the app does. */
   episodeNames?: Record<string, string>;
+  /** The episode the row is about when it isn't the next one (a skipped
+      one, on the tracker's Skipped pile), as "season-episode". */
+  focus?: string;
 }
 
 export interface PublicProfileView {

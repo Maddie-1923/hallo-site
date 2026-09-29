@@ -21,7 +21,7 @@ export type Fresh = { t: ProfileTitle; label: string; date: string; show?: Show;
 export interface TrackerPage {
   fresh: Fresh[];
   calendar: CalendarEvent[];
-  shows: { upNext: TrackerShow[]; readyToStart: TrackerShow[]; onHold: TrackerShow[]; theVoid: TrackerShow[]; coming: ComingShow[] };
+  shows: { upNext: TrackerShow[]; readyToStart: TrackerShow[]; skipped: TrackerShow[]; onHold: TrackerShow[]; theVoid: TrackerShow[]; hidden: TrackerShow[]; coming: ComingShow[] };
   films: { toWatch: ProfileTitle[]; onHold: ProfileTitle[]; theVoid: ProfileTitle[]; coming: ComingFilm[] };
 }
 
@@ -48,11 +48,29 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
   const tracker = (list: { show: Parameters<typeof showTitle>[0] }[]) => list.map((t): TrackerShow => ({ ...showTitle(t.show), seen: seen.get(t.show.id) ?? [], aired: null }));
 
   const onHoldShows = a.shows.filter((t) => t.status === "Stopped");
-  const [upNext, readyToStart, onHold, theVoid] = await Promise.all([
-    fillAired(tracker([...piles.upNext].sort(byLast).slice(0, LIMIT))),
+  // The app's other two piles: shows asked to stay out of Up next (Hidden
+  // from watchlist), and shows with an episode set aside (Skipped), each
+  // row about its first skipped episode.
+  const hiddenIDs = new Set(((a as { hiddenShows?: number[] }).hiddenShows ?? []).map(Number));
+  const skippedBy = new Map<number, string[]>();
+  for (const k of a.skipped ?? []) {
+    const [sid, s, e] = k.split("-").map(Number);
+    if (!s || (seen.get(sid) ?? []).includes(`${s}-${e}`)) continue;
+    skippedBy.set(sid, [...(skippedBy.get(sid) ?? []), `${s}-${e}`]);
+  }
+  const skippedShows = a.shows.filter((t) => t.status === "Watching" && skippedBy.has(t.show.id));
+  const [upNext, readyToStart, skipped, onHold, theVoid, hidden] = await Promise.all([
+    fillAired(tracker([...piles.upNext].filter((t) => !hiddenIDs.has(t.show.id)).sort(byLast).slice(0, LIMIT))),
     fillAired(tracker(piles.readyToStart.slice(0, LIMIT))),
+    fillAired(
+      tracker([...skippedShows].sort(byLast).slice(0, LIMIT)).map((t) => ({
+        ...t,
+        focus: [...skippedBy.get(Number(t.key.slice(1)))!].sort((x, y) => Number(x.split("-")[0]) - Number(y.split("-")[0]) || Number(x.split("-")[1]) - Number(y.split("-")[1]))[0],
+      })),
+    ),
     fillAired(tracker([...onHoldShows].sort(byLast).slice(0, LIMIT))),
     fillAired(tracker([...piles.theVoid].sort(byLast).slice(0, LIMIT))),
+    fillAired(tracker([...piles.upNext].filter((t) => hiddenIDs.has(t.show.id)).sort(byLast).slice(0, LIMIT))),
   ]);
 
   // Coming soon: the next episode of every series being watched or waiting.
@@ -118,7 +136,7 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
   return {
     fresh,
     calendar,
-    shows: { upNext, readyToStart, onHold, theVoid, coming },
+    shows: { upNext, readyToStart, skipped, onHold, theVoid, hidden, coming },
     films: {
       toWatch: [...mp.readyToStart].filter(out).sort(newest).map((t) => movieTitle(t.movie)),
       onHold: a.movies.filter((t) => t.status === "On Hold").sort(newest).map((t) => movieTitle(t.movie)),

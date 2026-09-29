@@ -31,7 +31,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
 
   // The calendar's keys: an aired episode can be set aside or checked off,
   // a film out already checked off, each the same state as the rows below.
-  const known = new Map([...data.shows.upNext, ...data.shows.readyToStart, ...data.shows.onHold, ...data.shows.theVoid].map((s) => [s.key, s]));
+  const known = new Map([...data.shows.upNext, ...data.shows.readyToStart, ...data.shows.skipped, ...data.shows.onHold, ...data.shows.theVoid, ...data.shows.hidden].map((s) => [s.key, s]));
   const todayISO = today();
   const keysFor = (e: CalendarEvent): Key[] | null => {
     const out = e.date <= todayISO;
@@ -134,6 +134,10 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
   // episode), a film, or, under Coming soon, a dated episode or release.
   const showItem = (s: TrackerShow): Item => {
     const p = progress(s, seenOf(s));
+    // A skipped episode's row is about that episode, not the next one.
+    if (s.focus && !seenOf(s).includes(s.focus)) {
+      return { key: `${s.key}:${s.focus}`, t: s, show: s, episode: s.focus, lines: [code(s.focus), s.episodeNames?.[s.focus] ?? "Skipped"], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
+    }
     return { key: s.key, t: s, show: s, episode: p.next?.key, lines: p.next ? [code(p.next.key), s.episodeNames?.[p.next.key] ?? ""] : [p.total ? "All caught up" : "Not started", ""], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
   };
   const filmItem = (f: ProfileTitle): Item => ({ key: f.key, t: f, lines: [f.year, "On the watch list"], bar: null, keys: filmKeys(f) });
@@ -144,8 +148,10 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
         ? [
             { id: "up-next", title: "Up next", items: data.shows.upNext.map(showItem) },
             { id: "ready", title: "Ready to start", items: data.shows.readyToStart.map(showItem) },
+            { id: "skipped", title: "Skipped", items: data.shows.skipped.map(showItem) },
             { id: "on-hold", title: "On hold", items: data.shows.onHold.map(showItem) },
             { id: "void", title: "Entering the void", items: data.shows.theVoid.map(showItem) },
+            { id: "hidden", title: "Hidden", items: data.shows.hidden.map(showItem) },
           ]
         : [
             { id: "to-watch", title: "To watch", items: films(data.films.toWatch).map(filmItem) },
@@ -168,9 +174,10 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
                 : { key: c.t.key, t: c.t, date: c.date, lines: [when(c), "Release"], bar: null, keys: null },
             ),
         }));
-  const shown = groups.filter((g) => g.items.length > 0);
-  // One pile at a time, chosen from the tabs over the list.
-  const group = shown.find((g) => g.id === groupId) ?? shown[0] ?? null;
+  // Every pile has its tab, empty or not, so the tabs never move; the one
+  // shown first is the first with something in it.
+  const shown = groups;
+  const group = shown.find((g) => g.id === groupId) ?? shown.find((g) => g.items.length > 0) ?? shown[0] ?? null;
   const all = group?.items ?? [];
   const picked = all.find((i) => i.key === pickKey) ?? all[0] ?? null;
 
@@ -189,11 +196,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
             <div>
               <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
             </div>
-            {shown.length === 0 ? (
-              <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">
-                {view === "list" ? (kind === "show" ? "No shows on the go. Add one from any show's page." : "No films waiting. Add one from any film's page.") : kind === "show" ? "Nothing announced yet from your shows." : "No film you're waiting on has a date yet."}
-              </p>
-            ) : (
+            {
               <>
                 {/* The piles side by side as tabs, so none
                     is a scroll away; the list shows the one chosen. */}
@@ -216,13 +219,18 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
                 </div>
                 <div className="relative flex-1 max-lg:h-[520px] lg:min-h-[420px]">
                   <ul className="absolute inset-0 soft-scroll overflow-y-auto overscroll-contain pr-1 m-0 p-0 list-none grid gap-2 content-start">
+                    {all.length === 0 && (
+                      <li className="rounded-shell bg-piece p-3 text-[12.5px] text-dim">
+                        {view === "coming" ? "Nothing on these days from what you track." : "Nothing here right now."}
+                      </li>
+                    )}
                     {all.map((i) => (
                       <Row key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={i.keys} onPick={() => setPickKey(i.key)} picked={picked?.key === i.key} />
                     ))}
                   </ul>
                 </div>
               </>
-            )}
+            }
           </div>
           {/* Right: Watch list or Coming soon over the picked episode. */}
           <div className="lg:pl-2 grid grid-cols-[minmax(0,1fr)] gap-2 content-start min-w-0">
