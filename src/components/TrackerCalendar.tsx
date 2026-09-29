@@ -78,6 +78,7 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
             onClick={() => {
               setShown(new Date(now.getFullYear(), now.getMonth(), 1));
               setPicked(today);
+              setOpen(true);
             }}
             className="justify-self-start text-[12.5px] font-semibold text-accent cursor-pointer hover:underline"
           >
