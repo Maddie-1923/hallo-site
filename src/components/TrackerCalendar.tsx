@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CalendarEvent } from "@/lib/tracker";
 
 // The tracker's calendar: on the left, the day picked (today to begin with)
-// large on the accent and its weekday; on the right, the month by name with arrows either side, and its days, a dot
+// large on the accent and its weekday; on the right, Today, the month by name with arrows either side and the year, and the month's days, a dot
 // under each day with something on it, today filled in the accent. Only the
 // month's own days are drawn. Pressing a day lists under the calendar what
 // airs or opens that day; pressing it again puts the list away. The site's type (Bebas for the day's number,
@@ -13,6 +13,8 @@ import type { CalendarEvent } from "@/lib/tracker";
 // spacing.
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+/** The years offered: back to when anyone might have started, and a few ahead. */
+const YEARS = (now: number) => Array.from({ length: now + 5 - 1990 + 1 }, (_, i) => 1990 + i);
 const WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const iso = (y: number, m: number, d: number) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
@@ -27,7 +29,15 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
   const month = shown.getMonth();
   const setYear = (f: (y: number) => number) => setShown((d) => new Date(f(d.getFullYear()), d.getMonth(), 1));
   const setMonth = (m: number) => setShown((d) => new Date(d.getFullYear(), m, 1));
-  const [menu, setMenu] = useState(false);
+  const [menu, setMenu] = useState<"month" | "year" | null>(null);
+  // The year list opens scrolled to the year shown.
+  const yearsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (menu !== "year") return;
+    const box = yearsRef.current;
+    const row = box?.querySelector<HTMLElement>(`[data-year="${year}"]`);
+    if (box && row) box.scrollTop = row.offsetTop - box.clientHeight / 2 + row.offsetHeight / 2;
+  }, [menu]); // eslint-disable-line react-hooks/exhaustive-deps
   const step = (n: number) => setShown((d) => new Date(d.getFullYear(), d.getMonth() + n, 1));
 
   const byDay = useMemo(() => {
@@ -54,36 +64,77 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[] }) {
 
       {/* The month. */}
       <div className="rounded-shell bg-piece p-3 min-w-0">
-        {/* The month by its full name, with the months either side a press
-            away; pressing the name opens all twelve to jump to one. The year
-            shows only when it isn't this one. */}
-        <div className="relative flex items-center justify-between gap-2 border-b border-hair pb-1.5">
-          <Arrow label="Month before" d="M15 6l-6 6 6 6" onClick={() => step(-1)} />
-          <button type="button" onClick={() => setMenu((m) => !m)} aria-expanded={menu} className="text-[12.5px] font-semibold text-ink cursor-pointer hover:text-accent transition-colors">
-            {FULL[month]}
-            {year !== now.getFullYear() && ` ${year}`}
+        {/* Today on the left, back to today's date; the month by its full
+            name in the middle, in a box as wide as the longest (September)
+            so its arrows never move, and pressing it opens the twelve; the
+            year on the right, pressing it opens a list of years. */}
+        <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-hair pb-1.5">
+          <button
+            type="button"
+            onClick={() => {
+              setShown(new Date(now.getFullYear(), now.getMonth(), 1));
+              setPicked(today);
+            }}
+            className="justify-self-start text-[12.5px] font-semibold text-accent cursor-pointer hover:underline"
+          >
+            Today
           </button>
-          <Arrow label="Month after" d="M9 6l6 6-6 6" onClick={() => step(1)} />
-          {menu && (
-            <div role="dialog" aria-label="Choose a month" className="absolute z-20 left-1/2 -translate-x-1/2 top-[calc(100%+6px)] w-[228px] rounded-shell bg-card border border-hair shadow-[0_20px_50px_rgba(0,0,0,.6)] p-2 grid gap-2">
-              <div className="flex items-center justify-between px-1">
-                <Arrow label="Year before" d="M15 6l-6 6 6 6" onClick={() => setYear((y) => y - 1)} />
-                <span className="text-[12.5px] font-semibold text-ink tabular-nums">{year}</span>
-                <Arrow label="Year after" d="M9 6l6 6-6 6" onClick={() => setYear((y) => y + 1)} />
-              </div>
-              <div className="grid grid-cols-3 gap-1">
-                {MONTHS.map((m, i) => (
+          <div className="flex items-center gap-0.5">
+            <Arrow label="Month before" d="M15 6l-6 6 6 6" onClick={() => step(-1)} />
+            <button
+              type="button"
+              onClick={() => {
+                setMenu((m) => (m === "month" ? null : "month"));
+              }}
+              aria-expanded={menu === "month"}
+              className="w-[76px] text-center text-[12.5px] font-semibold text-ink cursor-pointer hover:text-accent transition-colors"
+            >
+              {FULL[month]}
+            </button>
+            <Arrow label="Month after" d="M9 6l6 6-6 6" onClick={() => step(1)} />
+          </div>
+          <button
+            type="button"
+            onClick={() => setMenu((m) => (m === "year" ? null : "year"))}
+            aria-expanded={menu === "year"}
+            className="justify-self-end text-[12.5px] font-semibold text-ink tabular-nums cursor-pointer hover:text-accent transition-colors"
+          >
+            {year}
+          </button>
+          {menu === "month" && (
+            <div role="dialog" aria-label="Choose a month" className="absolute z-20 left-1/2 -translate-x-1/2 top-[calc(100%+6px)] w-[204px] rounded-shell bg-card border border-hair shadow-[0_20px_50px_rgba(0,0,0,.6)] p-2 grid grid-cols-3 gap-1">
+              {MONTHS.map((m, i) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => {
+                    setMonth(i);
+                    setMenu(null);
+                  }}
+                  aria-pressed={i === month}
+                  className={`h-8 rounded-[8px] text-[12.5px] cursor-pointer ${i === month ? "bg-accent-fill text-on-accent font-semibold" : "text-ink hover:bg-piece"}`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          )}
+          {menu === "year" && (
+            <div role="dialog" aria-label="Choose a year" className="absolute z-20 right-0 top-[calc(100%+6px)] w-[96px] rounded-shell bg-card border border-hair shadow-[0_20px_50px_rgba(0,0,0,.6)] p-1">
+              <div ref={yearsRef} className="relative soft-scroll max-h-[208px] overflow-y-auto grid gap-0.5">
+                {YEARS(now.getFullYear()).map((y) => (
                   <button
-                    key={m}
+                    key={y}
                     type="button"
+                    data-year={y}
                     onClick={() => {
-                      setMonth(i);
-                      setMenu(false);
+                      setYear(() => y);
+                      setMenu(null);
                     }}
-                    aria-pressed={i === month}
-                    className={`h-8 rounded-[8px] text-[12.5px] cursor-pointer ${i === month ? "bg-accent-fill text-on-accent font-semibold" : "text-ink hover:bg-piece"}`}
+                    aria-pressed={y === year}
+                    className={`h-8 shrink-0 rounded-[8px] text-[12.5px] tabular-nums cursor-pointer ${y === year ? "bg-accent-fill text-on-accent font-semibold" : "text-ink hover:bg-piece"}`}
                   >
-                    {m}
+                    {y}
                   </button>
                 ))}
               </div>
