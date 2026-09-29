@@ -39,7 +39,9 @@ export default async function TrackerPage() {
           <CinemaHero slides={slides} banner />
         </header>
       )}
-      <main className={`w-full px-[clamp(16px,3.2vw,64px)] ${slides.length ? "pt-8" : "pt-[clamp(12px,2.2vw,32px)]"} pb-20 flex-1`}>
+      {/* Above the carousel's glow, which spills down behind it: the shells
+          stay their own colour rather than washing out in the light. */}
+      <main className={`relative z-[1] w-full px-[clamp(16px,3.2vw,64px)] ${slides.length ? "pt-8" : "pt-[clamp(12px,2.2vw,32px)]"} pb-20 flex-1`}>
         {data ? (
           <TrackerBoard data={data} />
         ) : (
