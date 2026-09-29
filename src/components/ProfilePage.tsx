@@ -48,7 +48,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
       {/* Two columns on one grid, so their edges line up down the page. On
           top, the person's card beside the numbers. Under them, the wider
-          left holds the tabbed sections (Reviews, Recent activity, Watchlog,
+          left holds the tabbed sections (Reviews, Watching, Activity, Watchlog,
           Categories, Stats), and the narrower right the Tracker, level with
           the sections' shell rather than their tabs (ProfileSections lays the
           two out on the same column widths). The Tracker is as tall as the
@@ -86,11 +86,11 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
               },
               {
                 id: "watching",
-                label: "Watching now",
+                label: "Watching",
                 count: v.watching?.length ?? 0,
                 content: v.watching?.length ? <WatchingNow shows={v.watching} /> : <Empty>Not in the middle of any series.</Empty>,
               },
-              { id: "activity", label: "Recent activity", content: <ActivityList v={v} /> },
+              { id: "activity", label: "Activity", content: <ActivityList v={v} /> },
               {
                 // Called the Watchlog rather than a diary, which is Letterboxd's word.
                 id: "watchlog",
