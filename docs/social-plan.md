@@ -126,6 +126,21 @@ project's tables, then build every step below against it. Needs the user to
 switch this session out of auto mode or run the setup SQL themselves. Move to
 the live project only once a step is finished, and ask first.
 
+Done 30 Sep: kodigo-dev has every migration in `supabase/migrations/`
+(libraries, profiles, banner focus, delete account, the live project's
+hardening written down as `20260922120000_match_live_hardening.sql`,
+entitlements, safety, and `20260930010000_safety_private.sql`, which moved
+`is_blocked` out of the API and added indexes). Security advisor: only the
+intended `delete_account` warning. Row-level security checked with two
+made-up users in a rolled-back transaction: each sees only their own
+library, can't write another's, can't grant themselves Pro, can't block for
+someone else, and a block reads both ways. `.env.local` now points at
+kodigo-dev (live commented out beside it). Left for the user: dev's
+service-role key in `.env.local`, and dev's Authentication → URL
+configuration (Site URL `http://localhost:3000`, redirect
+`http://localhost:3000/auth/callback`). Live still has only its original
+tables; entitlements and safety go there when accounts open.
+
 ### 1. Accounts and profiles
 
 1. **Usernames and public profiles.** Add `username` and `is_private` to

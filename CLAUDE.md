@@ -95,7 +95,11 @@ A `SupabaseSync` next to `CloudSync.swift` that mirrors it:
 
 ## Setup
 
-1. Supabase → SQL editor → run `supabase/migrations/20260905000000_libraries.sql`.
+1. Supabase → SQL editor → run every file in `supabase/migrations/` in
+   name order. Two projects exist: `kodigo` (live, the app's) and
+   `kodigo-dev` (fxehhckzghqssupmzdig), which `.env.local` points at and where
+   every new table is built and tested first. Live gets a migration only
+   once its step is finished, and only after asking.
 2. Authentication → Providers: Email on (magic link). Apple needs a Services
    ID and key from the Apple Developer portal; the site works without it.
 3. Authentication → URL configuration: Site URL and a redirect of

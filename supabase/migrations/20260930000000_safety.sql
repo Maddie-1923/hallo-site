@@ -1,7 +1,7 @@
 -- Safety: blocks, reports and suspensions (docs/social-plan.md, step 6).
--- Written 30 Sep 2026, not yet applied; apply with the public tables
--- (step 1), whose read policies use is_blocked() below so a block hides
--- both people from each other.
+-- Applied to kodigo-dev 30 Sep 2026. The public tables' read policies
+-- (step 1) use is_blocked() so a block hides both people from each other;
+-- it moved to private.is_blocked in 20260930010000_safety_private.sql.
 
 -- A block: blocker no longer sees blocked, and blocked no longer sees
 -- blocker. Blocking also removes any follow between them (the follows
@@ -19,7 +19,8 @@ create policy "blocks: add your own"    on public.blocks for insert with check (
 create policy "blocks: remove your own" on public.blocks for delete using ((select auth.uid()) = blocker);
 
 -- Whether either of two people has blocked the other. For the public
--- tables' read policies: `using (not public.is_blocked(auth.uid(), user_id))`.
+-- tables' read policies: `using (not private.is_blocked(auth.uid(), user_id))`
+-- (moved to `private` by the next migration).
 create or replace function public.is_blocked(a uuid, b uuid) returns boolean
 language sql stable security definer set search_path = '' as $$
   select exists (

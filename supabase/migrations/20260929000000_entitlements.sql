@@ -18,4 +18,4 @@ create table if not exists public.entitlements (
 alter table public.entitlements enable row level security;
 
 create policy "Read your own entitlement" on public.entitlements
-  for select using (auth.uid() = user_id);
+  for select using ((select auth.uid()) = user_id);
