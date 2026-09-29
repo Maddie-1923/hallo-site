@@ -24,7 +24,6 @@ import { accountsOpen } from "@/lib/accounts";
 const marketing: [string, string][] = [
   ["/explore", "Explore"],
   ["/about", "The app"],
-  ["/pro", "Pro"],
 ];
 
 // The phone's four, in the phone's order: somewhere to find things, the two
@@ -42,7 +41,7 @@ const menuLinks = [
   ["/app/account", "Account"],
   ["/app/import", "Import a backup"],
   ["/about#themes", "Themes"],
-  ["/pro", "Kodigo Pro"],
+  ["/pro", "Subscription"],
   ["/whats-new", "What's new"],
   ["/about#faq", "FAQ"],
   ["/support", "Support"],
@@ -278,6 +277,16 @@ function GuestProfile({ framed }: { framed: boolean }) {
           </Link>
         </div>
       )}
+      {/* The subscription and the news live here, as Letterboxd keeps them in
+          its account menu, rather than on the bar. */}
+      <div className="border-t border-hair py-1">
+        <Link href="/pro" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
+          Subscription
+        </Link>
+        <Link href="/whats-new" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
+          What&apos;s new
+        </Link>
+      </div>
       {/* Development only: the way into the profile page before accounts
           exist. Never drawn in a build that ships. */}
       {process.env.NODE_ENV === "development" && (
