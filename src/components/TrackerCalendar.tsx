@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CalendarEvent } from "@/lib/tracker";
 import { Row, type Key } from "./TrackerRow";
+import { MASKED_NAME, useSpoilers } from "./Spoiler";
 
 // The tracker's calendar: on the left, the day picked (today to begin with)
 // large on the accent and its weekday; on the right, Today, the month by name with arrows either side and the year, and the month's days, a dot
@@ -20,7 +21,8 @@ const iso = (y: number, m: number, d: number) => `${y}-${String(m + 1).padStart(
 
 // `keysFor` gives each entry in the day's list its keys (skip, watched), the
 // same ones the tracker's rows carry, so an episode can be checked off here.
-export function TrackerCalendar({ events, keysFor }: { events: CalendarEvent[]; keysFor?: (e: CalendarEvent) => Key[] | null }) {
+export function TrackerCalendar({ events, keysFor, watched }: { events: CalendarEvent[]; keysFor?: (e: CalendarEvent) => Key[] | null; /** Whether an episode is watched, for spoiler protection. */ watched?: (e: CalendarEvent) => boolean }) {
+  const hideNames = useSpoilers().names;
   const now = new Date();
   const today = iso(now.getFullYear(), now.getMonth(), now.getDate());
   const [picked, setPicked] = useState(today);
@@ -205,7 +207,7 @@ export function TrackerCalendar({ events, keysFor }: { events: CalendarEvent[]; 
             <ul className="soft-scroll m-0 mt-2 p-0 list-none grid gap-2 content-start min-h-0 overflow-y-auto">
               {/* The tracker's own list-view rows, keys and all. */}
               {onDay.map((e) => (
-                <Row key={`${e.t.key}${e.label}`} t={e.t} lines={e.episode ? [e.label.split(" · ")[0], e.label.split(" · ").slice(1).join(" · ")] : [e.t.year, "Release"]} bar={null} keys={keysFor?.(e) ?? null} />
+                <Row key={`${e.t.key}${e.label}`} t={e.t} lines={e.episode ? [e.label.split(" · ")[0], hideNames && !watched?.(e) ? MASKED_NAME : e.label.split(" · ").slice(1).join(" · ")] : [e.t.year, "Release"]} bar={null} keys={keysFor?.(e) ?? null} />
               ))}
             </ul>
           )}

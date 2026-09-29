@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SeriesPill, seriesBadge } from "@/components/SeriesBadge";
+import { SpoilerName } from "@/components/Spoiler";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
@@ -51,7 +52,7 @@ export default async function EpisodePage({ params }: Params) {
 
   const badge = seriesBadge(show.show.status, show.type);
   const facts = [
-    { label: "", value: ep.name },
+    { label: "", value: <SpoilerName name={ep.name} watched={watched} /> },
     { label: "Episode", value: code(ep.season, ep.episode) },
     ep.airDate && { label: "Aired", value: longDate(ep.airDate) },
     ep.runtime && { label: "Runtime", value: `${ep.runtime}m` },
@@ -64,7 +65,7 @@ export default async function EpisodePage({ params }: Params) {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
-        <TitleBanner art={ep.still ?? image.banner(show.show.backdrop_path)} logo={logo} title={show.show.name} />
+        <TitleBanner art={ep.still ?? image.banner(show.show.backdrop_path)} logo={logo} title={show.show.name} watched={ep.still ? watched : undefined} />
         {/* The top as one L-shaped bento: About down the left with the
             trailers under it, the credits tabs on the right, and the keys
             and where to watch set into the notch above them. */}
@@ -93,6 +94,7 @@ export default async function EpisodePage({ params }: Params) {
                 }
                 facts={facts}
                 overview={ep.overview}
+                overviewWatched={watched}
                 factsFooter={
                   // The show's status, as the show page closes its facts.
                   (show.lastAired || badge) && (
@@ -125,7 +127,7 @@ export default async function EpisodePage({ params }: Params) {
         {/* The season's episodes, straight under the bento, before their take. */}
         {ep.seasonEpisodes.length > 1 && (
           <div className="mt-8 grid grid-cols-[minmax(0,1fr)]">
-            <EpisodesSection showID={showID} episodes={ep.seasonEpisodes} current={ep.episode} title={ep.season === 0 ? "Specials" : `Season ${ep.season}`} />
+            <EpisodesSection showID={showID} episodes={ep.seasonEpisodes} current={ep.episode} title={ep.season === 0 ? "Specials" : `Season ${ep.season}`} watched={lib.archive?.watched.filter((k) => k.startsWith(`${showID}-`)) ?? []} />
           </div>
         )}
         {/* Under it, the reviews at the About card's width, and their own

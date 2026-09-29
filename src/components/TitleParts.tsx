@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CastMember, RailTitle, Video, WhereToWatch } from "@/lib/tmdb";
 import { ExpandableText } from "./ExpandableText";
+import { SpoilerCover, SpoilerName } from "./Spoiler";
 import { Glyph } from "./Glyph";
 import { ElsewhereSheet } from "./ElsewhereSheet";
 import { Rail } from "./Rail";
@@ -66,6 +67,7 @@ export function HeaderCard({
   overview,
   factsFooter,
   heading,
+  overviewWatched,
   flat = false,
   children,
 }: {
@@ -86,6 +88,9 @@ export function HeaderCard({
   /** A heading of the page's own in place of the title (an episode's: its
       show, and the show's seasons and episodes), with the hairline under it. */
   heading?: React.ReactNode;
+  /** For an episode: whether it's watched, so its description can hide
+      behind the spoiler setting until it is. */
+  overviewWatched?: boolean;
   children?: React.ReactNode;
 }) {
   return (
@@ -126,13 +131,13 @@ export function HeaderCard({
         {/* In the bento, the overview shares the facts' shell, under a hairline. */}
         {flat && overview && (
           <div className="mt-[9px] pt-[9px] border-t border-hair">
-            <ExpandableText text={overview} />
+            <ExpandableText text={overview} watched={overviewWatched} />
           </div>
         )}
       </div>
       {!flat && overview && (
         <div className="rounded-shell bg-piece p-3">
-          <ExpandableText text={overview} />
+          <ExpandableText text={overview} watched={overviewWatched} />
         </div>
       )}
       {children}
@@ -338,13 +343,14 @@ export function MoreLikeThisSection({ items, kind }: { items: RailTitle[]; kind:
 /** The title's picture across the top of its page, the way a profile's
     banner is drawn: the whole width, rounded, the full-size picture. The
     crop keeps the upper part, where faces usually are. */
-export function TitleBanner({ art, logo, title }: { art: string | null; logo?: string | null; title?: string }) {
+export function TitleBanner({ art, logo, title, watched }: { art: string | null; logo?: string | null; title?: string; /** An episode's: its still hides behind the spoiler setting until watched. */ watched?: boolean }) {
   return (
     <div className="relative overflow-hidden rounded-shell h-[clamp(300px,40vw,540px)] bg-card">
       {art && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={art} alt="" className="absolute inset-0 w-full h-full object-cover object-[center_25%]" />
       )}
+      {watched === false && <SpoilerCover watched={false} />}
       {/* The title in its own lettering: the studio's logo artwork, low on
           the left, over a shade that keeps a pale logo readable whatever the
           picture is doing there. */}
@@ -361,7 +367,7 @@ export function TitleBanner({ art, logo, title }: { art: string | null; logo?: s
 
 /** The season's episodes as wide cards, the one on the page ringed: its
     still, its code and its name. */
-export function EpisodesSection({ showID, episodes, current, title }: { showID: number; episodes: { season: number; episode: number; name: string; still: string | null; airDate: string | null }[]; current: number; title: string }) {
+export function EpisodesSection({ showID, episodes, current, title, watched = [] }: { showID: number; episodes: { season: number; episode: number; name: string; still: string | null; airDate: string | null }[]; current: number; title: string; /** "showID-season-episode" keys watched, for spoiler protection. */ watched?: string[] }) {
   const code = (s: number, e: number) => `S${String(s).padStart(2, "0")} | E${String(e).padStart(2, "0")}`;
   return (
     <Section title={title} small>
@@ -369,15 +375,18 @@ export function EpisodesSection({ showID, episodes, current, title }: { showID: 
         {episodes.map((e) => (
           <RowCard key={e.episode} width={240}>
             <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className={`block rounded-[12px] bg-piece overflow-hidden no-underline text-ink group ${e.episode === current ? "ring-2 ring-accent-fill" : ""}`}>
-              <div className="aspect-video rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card">
+              <div className="relative aspect-video rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card">
                 {e.still && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={e.still} alt="" loading="lazy" className="w-full h-full object-cover" />
                 )}
+                <SpoilerCover watched={watched.includes(`${showID}-${e.season}-${e.episode}`)} />
               </div>
               <div className="px-2.5 pt-2 pb-2.5">
                 <div className="text-[12.5px] leading-[16px] font-semibold text-mid-tone">{code(e.season, e.episode)}</div>
-                <div className="text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{e.name}</div>
+                <div className="text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">
+                  <SpoilerName name={e.name} watched={watched.includes(`${showID}-${e.season}-${e.episode}`)} />
+                </div>
               </div>
             </Link>
           </RowCard>

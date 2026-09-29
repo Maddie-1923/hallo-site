@@ -4,6 +4,7 @@ import Link from "next/link";
 import { HeadingPill } from "./TitleParts";
 import { useState } from "react";
 import { addWatch, today } from "@/lib/live-watches";
+import { MASKED_NAME, useSpoilers } from "./Spoiler";
 import { CheckGlyph, code, HOLD, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph } from "./TrackerRow";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 
@@ -18,6 +19,8 @@ import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 
 export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; films: ProfileTitle[]; owner: boolean }) {
   const [tab, setTab] = useState<"show" | "movie">("show");
+  // Spoiler protection: the next episode is always unwatched.
+  const hideNames = useSpoilers().names;
   const [seen, setSeen] = useState<Record<string, string[]>>(() => Object.fromEntries(shows.map((s) => [s.key, s.seen])));
   const [watchedFilms, setWatchedFilms] = useState<string[]>([]);
   // Episodes set aside for later with the skip key, as "show:season-episode".
@@ -69,7 +72,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
                   <Row
                     key={s.key}
                     t={s}
-                    lines={p.next ? [code(p.next.key), s.episodeNames?.[p.next.key] ?? ""] : [p.total ? "All caught up" : "In progress", ""]}
+                    lines={p.next ? [code(p.next.key), hideNames ? MASKED_NAME : (s.episodeNames?.[p.next.key] ?? "")] : [p.total ? "All caught up" : "In progress", ""]}
                     bar={p.total ? { done: p.done, total: p.total } : null}
                     keys={
                       owner

@@ -10,6 +10,7 @@ import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 import { CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, type Key } from "./TrackerRow";
 import { HeadingPill } from "./TitleParts";
 import { TrackerCalendar } from "./TrackerCalendar";
+import { MASKED_NAME, SpoilerCover, useSpoilers } from "./Spoiler";
 
 // The full tracker, as the app's Shows and Movies tabs: Shows or Movies, then
 // the watch list or what's coming, each pile under its heading in the app's
@@ -28,6 +29,12 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
   const [groupId, setGroupId] = useState<string | null>(null);
 
   const seenOf = (s: TrackerShow) => [...s.seen, ...(seen[s.key] ?? [])];
+  // Spoiler protection: every episode these lists name is one not yet
+  // watched, so with the setting on its name reads "Hidden".
+  const spoilers = useSpoilers();
+  const epName = (n: string) => (spoilers.names && n ? MASKED_NAME : n);
+  // Whether a dated episode on the calendar has been watched.
+  const watchedEp = (e: CalendarEvent) => !!e.episode && [...(known.get(e.t.key)?.seen ?? []), ...(seen[e.t.key] ?? [])].includes(e.episode);
 
   // The calendar's keys: an aired episode can be set aside or checked off,
   // a film out already checked off, each the same state as the rows below.
@@ -136,9 +143,9 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
     const p = progress(s, seenOf(s));
     // A skipped episode's row is about that episode, not the next one.
     if (s.focus && !seenOf(s).includes(s.focus)) {
-      return { key: `${s.key}:${s.focus}`, t: s, show: s, episode: s.focus, lines: [code(s.focus), s.episodeNames?.[s.focus] ?? "Skipped"], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
+      return { key: `${s.key}:${s.focus}`, t: s, show: s, episode: s.focus, lines: [code(s.focus), epName(s.episodeNames?.[s.focus] ?? "Skipped")], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
     }
-    return { key: s.key, t: s, show: s, episode: p.next?.key, lines: p.next ? [code(p.next.key), s.episodeNames?.[p.next.key] ?? ""] : [p.total ? "All caught up" : "Not started", ""], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
+    return { key: s.key, t: s, show: s, episode: p.next?.key, lines: p.next ? [code(p.next.key), epName(s.episodeNames?.[p.next.key] ?? "")] : [p.total ? "All caught up" : "Not started", ""], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
   };
   const filmItem = (f: ProfileTitle): Item => ({ key: f.key, t: f, lines: [f.year, "On the watch list"], bar: null, keys: filmKeys(f) });
 
@@ -170,7 +177,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
             .filter((c) => c.inDays >= b.from && c.inDays <= b.to)
             .map((c): Item =>
               "episode" in c
-                ? { key: `${c.t.key}${c.episode}`, t: c.t, episode: c.episode, date: c.date, lines: [when(c), `${code(c.episode)}${c.name ? ` · ${c.name}` : ""}`], bar: null, keys: null }
+                ? { key: `${c.t.key}${c.episode}`, t: c.t, episode: c.episode, date: c.date, lines: [when(c), `${code(c.episode)}${c.name ? ` · ${epName(c.name)}` : ""}`], bar: null, keys: null }
                 : { key: c.t.key, t: c.t, date: c.date, lines: [when(c), "Release"], bar: null, keys: null },
             ),
         }));
@@ -184,7 +191,7 @@ export function TrackerBoard({ data }: { data: TrackerPage }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
       {/* The calendar first, under the carousel on the left. */}
-      <TrackerCalendar events={data.calendar} keysFor={keysFor} />
+      <TrackerCalendar events={data.calendar} keysFor={keysFor} watched={watchedEp} />
       {/* One bento: the switches, then the list on the left and, beside it,
           the picked title's next episode, as a show page lays out its
           seasons and the small episode page. */}
@@ -273,6 +280,10 @@ function EpisodePanel({ item, keysFor }: { item: Item; keysFor: (e: CalendarEven
     .filter((k) => !k.label.startsWith("More") && k.label !== "Recap")
     .map((k, i, a) => (i === a.length - 1 ? { ...k, wide: true } : k));
   const isFilm = item.t.kind === "movie";
+  const spoilers = useSpoilers();
+  // The panel's episode is one they haven't watched (the next, a skipped or
+  // a coming one) unless the calendar's keys have just ticked it.
+  const seenHere = keysFor({ date: "0000-00-00", t: item.t, label: "", episode: item.episode })?.some((k) => k.label.includes("watched") && k.on) ?? false;
   const href = item.episode ? `/show/${id}/season/${sn}/episode/${en}` : item.t.href;
   const facts = [
     !isFilm && ["Show", <Link key="s" href={item.t.href} className="text-accent no-underline hover:underline">{item.t.title}</Link>],
@@ -290,11 +301,14 @@ function EpisodePanel({ item, keysFor }: { item: Item; keysFor: (e: CalendarEven
       </div>
       <div className="grid gap-2">
         {(ep?.still ?? item.t.backdrop) && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={(ep?.still ?? item.t.backdrop)!} alt="" className="w-full aspect-video object-cover rounded-[8px] bg-piece" />
+          <div className="relative rounded-[8px] overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={(ep?.still ?? item.t.backdrop)!} alt="" className="block w-full aspect-video object-cover bg-piece" />
+            {ep?.still && <SpoilerCover watched={seenHere} />}
+          </div>
         )}
         <div className="rounded-shell bg-piece p-3">
-          <div className="display text-[22px] leading-none tracking-[.03em] uppercase">{ep?.name ?? item.t.title}</div>
+          <div className="display text-[22px] leading-none tracking-[.03em] uppercase">{ep ? (spoilers.names && !seenHere ? MASKED_NAME : ep.name) : item.t.title}</div>
           {facts.length > 0 && (
             <div className="mt-2.5 border-t border-hair">
               {facts.map(([label, value], i) => (
@@ -307,7 +321,7 @@ function EpisodePanel({ item, keysFor }: { item: Item; keysFor: (e: CalendarEven
           )}
           {ep?.overview && (
             <div className="mt-[1px] pt-[9px] border-t border-hair">
-              <ExpandableText text={ep.overview} />
+              <ExpandableText text={ep.overview} watched={seenHere} />
             </div>
           )}
         </div>

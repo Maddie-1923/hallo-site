@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { loadSeason, type SeasonEpisode } from "@/lib/title-actions";
 import { Glyph } from "./Glyph";
+import { SpoilerName } from "./Spoiler";
 
 type Season = { number: number; name: string; count: number };
 type Episode = SeasonEpisode;
@@ -98,7 +99,9 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
                           <span className="font-semibold text-ink">{code(e.season, e.episode)}</span>
                           {e.airDate && <span className="ml-1.5 text-dim">{shortDate(e.airDate)}</span>}
                         </div>
-                        <div className="text-[12.5px] leading-[16px] text-dim truncate group-hover:text-accent transition-colors">{e.name}</div>
+                        <div className="text-[12.5px] leading-[16px] text-dim truncate group-hover:text-accent transition-colors">
+                          <SpoilerName name={e.name} watched={seen.has(key)} />
+                        </div>
                         </button>
                       ) : (
                         <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className="min-w-0 flex-1 grid gap-[3px] no-underline text-ink group">
@@ -106,7 +109,9 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
                           <span className="font-semibold text-ink">{code(e.season, e.episode)}</span>
                           {e.airDate && <span className="ml-1.5 text-dim">{shortDate(e.airDate)}</span>}
                         </div>
-                        <div className="text-[12.5px] leading-[16px] text-dim truncate group-hover:text-accent transition-colors">{e.name}</div>
+                        <div className="text-[12.5px] leading-[16px] text-dim truncate group-hover:text-accent transition-colors">
+                          <SpoilerName name={e.name} watched={seen.has(key)} />
+                        </div>
                         </Link>
                       )}
                       {aired ? (

@@ -1,10 +1,15 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
+import { MASKED_OVERVIEW, useSpoilers } from "./Spoiler";
 
 // The overview, as the app's ExpandableText: three lines, and a tap opens the
 // rest, but only when there is more to show.
-export function ExpandableText({ text }: { text: string }) {
+// `watched`, given for an episode's description, hides it behind the
+// spoiler setting until the episode is watched.
+export function ExpandableText({ text: given, watched }: { text: string; watched?: boolean }) {
+  const hide = useSpoilers().descriptions && watched === false;
+  const text = hide ? MASKED_OVERVIEW : given;
   const ref = useRef<HTMLParagraphElement>(null);
   const [open, setOpen] = useState(false);
   const [overflows, setOverflows] = useState(false);

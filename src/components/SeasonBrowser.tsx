@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { SeasonEpisode } from "@/lib/title-actions";
 import { ExpandableText } from "./ExpandableText";
+import { SpoilerCover, SpoilerName } from "./Spoiler";
 import { SeasonList } from "./SeasonList";
 import { HeadingPill, SectionCard } from "./TitleParts";
 
@@ -16,6 +17,7 @@ import { HeadingPill, SectionCard } from "./TitleParts";
 export function SeasonBrowser({ showID, seasons, watched, open, start }: { showID: number; seasons: { number: number; name: string; count: number }[]; watched: string[]; open: number; start: { season: number; episode: number } }) {
   const [ep, setEp] = useState<SeasonEpisode | null>(null);
   const key = ep ? `${showID}-${ep.season}-${ep.episode}` : null;
+  const seen = !!key && watched.includes(key);
   return (
     <div className="grid gap-8 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       {/* The list as tall as the episode beside it (on a phone, a fixed
@@ -37,11 +39,16 @@ export function SeasonBrowser({ showID, seasons, watched, open, start }: { showI
           {ep ? (
             <div className="grid gap-2">
               {ep.still && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={ep.still} alt="" className="w-full aspect-video object-cover rounded-[8px] bg-piece" />
+                <div className="relative rounded-[8px] overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={ep.still} alt="" className="block w-full aspect-video object-cover bg-piece" />
+                  <SpoilerCover watched={seen} />
+                </div>
               )}
               <div className="rounded-shell bg-piece p-3">
-                <div className="display text-[22px] leading-none tracking-[.03em] uppercase">{ep.name}</div>
+                <div className="display text-[22px] leading-none tracking-[.03em] uppercase">
+                  <SpoilerName name={ep.name} watched={seen} />
+                </div>
                 <div className="mt-2.5 border-t border-hair">
                   {[
                     ep.airDate && ["Aired", longDate(ep.airDate)],
@@ -73,7 +80,7 @@ export function SeasonBrowser({ showID, seasons, watched, open, start }: { showI
                 </div>
                 {ep.overview && (
                   <div className="mt-[1px] pt-[9px] border-t border-hair">
-                    <ExpandableText text={ep.overview} />
+                    <ExpandableText text={ep.overview} watched={seen} />
                   </div>
                 )}
               </div>
