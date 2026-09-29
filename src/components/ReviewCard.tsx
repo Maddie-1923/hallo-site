@@ -45,7 +45,7 @@ export function ReviewCard({ r, username, avatar, onTitlePage = false }: { r: Re
           body
         )}
 
-        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={`/u/${username}/review/${r.key}`} className="mt-4" />
+        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={`/u/${username}/review/${r.key}`} what={{ kind: "review", target: `${username}/${r.key}`, author: username, href: `/u/${username}/review/${r.key}`, excerpt: r.text.slice(0, 200) }} className="mt-4" />
       </div>
     </article>
   );

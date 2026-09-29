@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { Member } from "@/lib/members";
+import { useSafety } from "@/lib/safety";
 import { FollowPill } from "./FollowPill";
 
 // Members, as the plan has it: the popular reviewers this week, the most
@@ -14,7 +15,10 @@ const H = "inline-flex items-center h-[34px] px-4 rounded-full bg-piece ![font-f
 
 const k = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}K` : String(n));
 
-export function MembersPage({ members }: { members: Member[] }) {
+export function MembersPage({ members: everyone }: { members: Member[] }) {
+  // Nobody you've blocked.
+  const { blocked } = useSafety();
+  const members = everyone.filter((m) => !blocked.includes(m.username));
   const [q, setQ] = useState("");
   const found = q.trim() ? members.filter((m) => `${m.username} ${m.displayName} ${m.location}`.toLowerCase().includes(q.trim().toLowerCase())) : null;
   const popular = [...members].sort((a, b) => b.likesThisWeek - a.likesThisWeek).slice(0, 4);

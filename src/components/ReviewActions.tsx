@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { TightHeart } from "./marks";
+import { MoreButton, type ReportTarget } from "./SafetySheets";
 
 // Under a review: like it, see its comments, share it. The like only changes
 // the page until likes are stored (docs/social-plan.md, step 4.2); comments
 // and sharing arrive with their own steps and are drawn now to judge the row.
-export function ReviewActions({ likes = 0, comments = 0, title, shareHref, className = "mt-3" }: { likes?: number; comments?: number; title: string; shareHref?: string; className?: string }) {
+// The ⋯ at the end reports the review or blocks whoever wrote it.
+export function ReviewActions({ likes = 0, comments = 0, title, shareHref, what, className = "mt-3" }: { likes?: number; comments?: number; title: string; shareHref?: string; what?: ReportTarget; className?: string }) {
   const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState(false);
   // Share hands out the review's own page. Where the device has a share
@@ -55,6 +57,7 @@ export function ReviewActions({ likes = 0, comments = 0, title, shareHref, class
         </svg>
         {copied ? "Link copied" : "Share"}
       </button>
+      {what && <MoreButton what={what} className="ml-auto -my-1" />}
     </div>
   );
 }

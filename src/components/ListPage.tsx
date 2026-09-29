@@ -4,16 +4,36 @@ import Link from "next/link";
 import { useState } from "react";
 import type { ListView } from "@/lib/lists";
 import { HeadingPill } from "./TitleParts";
+import { MoreButton } from "./SafetySheets";
+import { useSafety } from "@/lib/safety";
+import { checkText } from "@/lib/word-filter";
 
 // A list's own page: its name and whose it is, what it's about, how much of
 // it you've watched, like and share; then every title in order, the watched
 // ones marked; then what people said. Likes and comments are saved with
-// accounts; until then the like button only changes the page.
+// accounts; until then the like button only changes the page, and a comment
+// shows for the visit (after the word filter). The ⋯ on the list and on each
+// comment reports it or blocks whoever posted it; blocked people's comments
+// don't show.
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 
 export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
   const [liked, setLiked] = useState(false);
   const [said, setSaid] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
+  const [added, setAdded] = useState<{ who: string; text: string; ago: string }[]>([]);
+  const [refused, setRefused] = useState<string | null>(null);
+  const { blocked } = useSafety();
+  const comments = [...l.comments, ...added].filter((c) => !blocked.includes(c.who));
+  function post() {
+    const text = draft.trim();
+    if (!text) return;
+    const problem = checkText(text);
+    setRefused(problem);
+    if (problem) return;
+    setAdded((a) => [...a, { who: "preview", text, ago: "just now" }]);
+    setDraft("");
+  }
   const seen = l.titles.filter((t) => watched.includes(t.key)).length;
   const pct = l.titles.length ? Math.round((seen / l.titles.length) * 100) : 0;
   async function share() {
@@ -37,6 +57,7 @@ export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
               <span className="w-7 h-7 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[15px] leading-none pt-[2px]">{l.owner[0].toUpperCase()}</span>
               <span className="text-[12.5px] font-semibold group-hover:text-accent transition-colors">@{l.owner}</span>
             </Link>
+            <MoreButton what={{ kind: "list", target: `${l.owner}/${l.id}`, author: l.owner, href: `/u/${l.owner}/list/${l.id}`, excerpt: l.name }} className="float-right -mt-0.5" />
             <h1 className="mt-3 !text-[clamp(32px,4.4vw,52px)] !leading-[.95] tracking-[.02em] uppercase">{l.name}</h1>
             {l.detail && <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">{l.detail}</p>}
             <div className="mt-2 text-[12.5px] text-dim">
@@ -116,11 +137,11 @@ export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
 
       <section className="grid grid-cols-[minmax(0,1fr)] gap-2">
         <div>
-          <HeadingPill small>{l.comments.length ? `Comments · ${l.comments.length}` : "Comments"}</HeadingPill>
+          <HeadingPill small>{comments.length ? `Comments · ${comments.length}` : "Comments"}</HeadingPill>
         </div>
         <div className={SHELL}>
           <div className="rounded-shell bg-piece divide-y divide-hair">
-            {l.comments.map((c, i) => (
+            {comments.map((c, i) => (
               <div key={i} className="flex items-start gap-3 p-3">
                 <span className="shrink-0 w-8 h-8 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[15px] leading-none pt-[2px]">{c.who[0].toUpperCase()}</span>
                 <div className="min-w-0 text-[12.5px] leading-[1.5]">
@@ -130,11 +151,37 @@ export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
                   <span className="text-dim"> · {c.ago}</span>
                   <p className="m-0 mt-0.5 text-mid-tone">{c.text}</p>
                 </div>
+                <MoreButton what={{ kind: "comment", target: `${l.owner}/${l.id}#${i}`, author: c.who, href: `/u/${l.owner}/list/${l.id}`, excerpt: c.text.slice(0, 200) }} className="ml-auto shrink-0 -my-1" />
               </div>
             ))}
-            <div className="p-3 flex items-center gap-2">
-              <input disabled placeholder="Add a comment (opens with accounts)" className="flex-1 min-w-0 rounded-full bg-card border border-hair px-4 py-2 text-[12.5px] text-ink placeholder:text-dim disabled:opacity-70" />
-            </div>
+            <form
+              className="p-3 grid gap-1.5"
+              onSubmit={(e) => {
+                e.preventDefault();
+                post();
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <input
+                  value={draft}
+                  onChange={(e) => {
+                    setDraft(e.target.value.slice(0, 1000));
+                    setRefused(null);
+                  }}
+                  aria-invalid={!!refused}
+                  placeholder="Add a comment"
+                  className={`flex-1 min-w-0 rounded-full bg-card border px-4 py-2 text-[12.5px] text-ink placeholder:text-dim focus:outline-none ${refused ? "border-loved" : "border-hair focus:border-accent"}`}
+                />
+                <button type="submit" disabled={!draft.trim()} className="h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default">
+                  Post
+                </button>
+              </div>
+              {refused && (
+                <p role="alert" className="m-0 px-4 text-[12.5px] text-loved">
+                  {refused}
+                </p>
+              )}
+            </form>
           </div>
         </div>
       </section>

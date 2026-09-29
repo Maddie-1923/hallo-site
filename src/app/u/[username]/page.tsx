@@ -4,6 +4,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProfilePage } from "@/components/ProfilePage";
 import { loadProfile } from "@/lib/profile-previews";
+import { BlockGate } from "@/components/SafetySheets";
 
 // A public profile at /u/<username>.
 //
@@ -28,7 +29,14 @@ export default async function UserProfile({ params }: PageProps<"/u/[username]">
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
-      <ProfilePage view={view} />
+      {/* Someone you've blocked: a notice and Unblock in place of the page. */}
+      {view.owner ? (
+        <ProfilePage view={view} />
+      ) : (
+        <BlockGate username={view.username}>
+          <ProfilePage view={view} />
+        </BlockGate>
+      )}
       <SiteFooter />
     </div>
   );

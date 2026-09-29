@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ListCard } from "@/components/ListCard";
+import { Unblocked } from "@/components/SafetySheets";
 import { allLists } from "@/lib/lists";
 
 export const metadata: Metadata = { title: "Lists — Kodigo" };
@@ -40,7 +41,9 @@ export default async function Lists() {
                 <div className={SHELL}>
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                     {ls.map((l) => (
-                      <ListCard key={`${l.owner}/${l.id}`} l={l} />
+                      <Unblocked key={`${l.owner}/${l.id}`} username={l.owner}>
+                        <ListCard l={l} />
+                      </Unblocked>
                     ))}
                   </div>
                 </div>

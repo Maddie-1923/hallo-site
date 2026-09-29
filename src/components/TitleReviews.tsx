@@ -1,5 +1,6 @@
 import type { ReviewEntry } from "@/lib/public-profile";
 import { ReviewCard } from "./ReviewCard";
+import { Unblocked } from "./SafetySheets";
 import { Section, SectionCard } from "./TitleParts";
 
 // Members' reviews of the title, above the cast: each as the profile's review
@@ -12,7 +13,9 @@ export function ReviewsSection({ reviews }: { reviews: { review: ReviewEntry; us
         {reviews.length ? (
           <div className="grid gap-2">
             {reviews.map(({ review, username, avatar }) => (
-              <ReviewCard key={`${username}-${review.key}`} r={review} username={username} avatar={avatar} onTitlePage />
+              <Unblocked key={`${username}-${review.key}`} username={username}>
+                <ReviewCard r={review} username={username} avatar={avatar} onTitlePage />
+              </Unblocked>
             ))}
           </div>
         ) : (

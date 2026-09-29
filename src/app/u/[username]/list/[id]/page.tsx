@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ListPage } from "@/components/ListPage";
+import { BlockGate } from "@/components/SafetySheets";
 import { listFor, watchedKeys } from "@/lib/lists";
 
 type Params = PageProps<"/u/[username]/list/[id]">;
@@ -22,7 +23,9 @@ export default async function List({ params }: Params) {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <ListPage l={l} watched={watched} />
+        <BlockGate username={l.owner} bare>
+          <ListPage l={l} watched={watched} />
+        </BlockGate>
       </main>
       <SiteFooter />
     </div>

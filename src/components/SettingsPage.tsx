@@ -12,6 +12,8 @@ import { DeleteAccount } from "./DeleteAccount";
 import { ManageSubscription } from "./ProCheckout";
 import { formatDate } from "@/lib/dates";
 import type { Subscription } from "@/lib/entitlement";
+import { checkName, checkText } from "@/lib/word-filter";
+import { BlockedPeople } from "./BlockedPeople";
 
 // Settings, after the app's Settings screen and the plan's list: who you are,
 // your account, who sees what, what you're told about, where you watch, how
@@ -106,16 +108,16 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
 
         <Group id="profile" title="Profile">
           <Field label="Display name" hint="Shown on your profile beside your username.">
-            <Text value={s.displayName} onChange={(v) => set({ displayName: v })} placeholder="Your name" />
+            <Text value={s.displayName} onChange={(v) => set({ displayName: v })} check={checkName} placeholder="Your name" />
           </Field>
           <Field label="Username" hint="Your profile's address, kodigo.pro/u/…">
             <span className="text-[12.5px] text-ink">@{username}</span>
           </Field>
           <Field label="Location">
-            <Text value={about.location} onChange={(v) => saveAbout({ ...about, location: v })} placeholder="Where you are" />
+            <Text value={about.location} onChange={(v) => saveAbout({ ...about, location: v })} check={checkText} placeholder="Where you are" />
           </Field>
           <Field label="Quote" hint="A line in your own words, on your profile.">
-            <Text value={about.quote} onChange={(v) => saveAbout({ ...about, quote: v })} placeholder="Add a quote" />
+            <Text value={about.quote} onChange={(v) => saveAbout({ ...about, quote: v })} check={checkText} placeholder="Add a quote" />
           </Field>
           <Field label="Photo and banner" hint="Chosen from pictures of what you track.">
             <LinkButton href={`/u/${username}`}>Change on your profile</LinkButton>
@@ -143,6 +145,9 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
           </Field>
           <Field label="Show your Watchlog">{toggle("showWatchlog")}</Field>
           <Field label="Let people follow you">{toggle("allowFollows")}</Field>
+          <Field label="Blocked people" hint="They can't see your profile or anything you post, and you don't see theirs.">
+            <BlockedPeople />
+          </Field>
           <Field label="Categories" hint="Each category's eye on your profile sets whether others see it.">
             <LinkButton href={`/u/${username}#categories`}>Open categories</LinkButton>
           </Field>
@@ -344,15 +349,34 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
   );
 }
 
-function Text({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+/** A line of text, saved as it's typed; with `check` (the word filter), a
+    refused version isn't saved and says why under the box. */
+function Text({ value, onChange, placeholder, check }: { value: string; onChange: (v: string) => void; placeholder: string; check?: (v: string) => string | null }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const problem = draft != null && check ? check(draft) : null;
   return (
-    <input
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      maxLength={80}
-      className="w-[220px] max-w-full rounded-[10px] bg-card border border-hair px-2.5 py-1.5 text-[12.5px] text-ink placeholder:text-dim focus:outline-none focus:border-accent"
-    />
+    <div className="grid gap-1 w-[220px] max-w-full">
+      <input
+        value={draft ?? value}
+        onChange={(e) => {
+          const v = e.target.value;
+          if (check?.(v)) setDraft(v);
+          else {
+            setDraft(null);
+            onChange(v);
+          }
+        }}
+        aria-invalid={!!problem}
+        placeholder={placeholder}
+        maxLength={80}
+        className={`w-full rounded-[10px] bg-card border px-2.5 py-1.5 text-[12.5px] text-ink placeholder:text-dim focus:outline-none ${problem ? "border-loved" : "border-hair focus:border-accent"}`}
+      />
+      {problem && (
+        <span role="alert" className="text-[12px] leading-[1.4] text-loved">
+          {problem}
+        </span>
+      )}
+    </div>
   );
 }
 

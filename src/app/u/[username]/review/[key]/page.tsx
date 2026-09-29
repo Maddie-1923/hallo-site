@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ReviewSheetCard } from "@/components/ReviewSheet";
+import { BlockGate } from "@/components/SafetySheets";
 import { loadProfile } from "@/lib/profile-previews";
 import { reviewFor } from "@/lib/public-profile";
 
@@ -39,6 +40,7 @@ export default async function ReviewPage({ params }: PageProps<"/u/[username]/re
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="flex-1 w-full max-w-[600px] mx-auto px-4 py-8">
+        <BlockGate username={view.username} bare>
         <Link href={`/u/${view.username}`} className="flex items-center gap-3 mb-4 no-underline text-ink group">
           <span className="w-11 h-11 rounded-full overflow-hidden bg-card-hi border border-hair shrink-0">
             {view.avatar && (
@@ -54,6 +56,7 @@ export default async function ReviewPage({ params }: PageProps<"/u/[username]/re
         <article className="rounded-shell bg-card border border-hair overflow-hidden">
           <ReviewSheetCard r={review} username={view.username} avatar={view.avatar} />
         </article>
+        </BlockGate>
       </main>
       <SiteFooter />
     </div>

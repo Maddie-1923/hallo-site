@@ -42,6 +42,25 @@ export default function Support() {
             than the phone it came from.
           </p>
 
+          <h2 id="safety">Safety and reporting</h2>
+          <p>
+            If someone&apos;s review, comment, list or profile breaks the{" "}
+            <a href="/terms#community-rules">community rules</a>, press the <strong>⋯</strong> beside it and
+            choose <strong>Report</strong>. Reports are read by a person, and whoever you report isn&apos;t told
+            it was you.
+          </p>
+          <p>
+            To stop someone seeing your things, or you seeing theirs, press <strong>⋯</strong> and{" "}
+            <strong>Block</strong>. They aren&apos;t told, and any follow between you ends. You can unblock them in{" "}
+            <strong>Settings → Privacy → Blocked people</strong>. On your own profile, press your follower count to
+            remove a follower.
+          </p>
+          <p>
+            For anything urgent, such as threats, someone&apos;s private details, or anything that puts a child at
+            risk, email <strong>hello@kodigo.pro</strong> with &ldquo;Safety&rdquo; in the subject and a link to
+            what you saw. If someone is in danger, contact your local emergency services first.
+          </p>
+
           <h2>Sync questions</h2>
           <p>
             Sync is off until you turn it on in Settings. It carries the same file Backup exports —

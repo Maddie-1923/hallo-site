@@ -108,7 +108,7 @@ export default function Terms() {
           You&apos;re responsible for what you post. Only post things you have the right to share.
         </p>
 
-        <h2>Community rules</h2>
+        <h2 id="community-rules">Community rules</h2>
         <p>Don&apos;t use Kodigo to:</p>
         <ul>
           <li>harass, bully, threaten or intimidate anyone;</li>

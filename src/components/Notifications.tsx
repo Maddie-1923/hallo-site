@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import type { Notification, NotificationKind } from "@/lib/notifications";
 import { useSettings, type Settings } from "@/lib/settings";
+import { useSafety } from "@/lib/safety";
 import { useDateFormat } from "./Day";
 import { Menu } from "./Menu";
 
@@ -39,9 +40,11 @@ function useReadAt() {
   );
 }
 
+/** The kinds switched on in Settings, and nothing from anyone blocked. */
 function useShown(all: Notification[]) {
   const [s] = useSettings();
-  return all.filter((n) => s[SETTING[n.kind]]);
+  const { blocked } = useSafety();
+  return all.filter((n) => s[SETTING[n.kind]] && !blocked.includes(n.who));
 }
 
 export function NotificationsBell({ items, framed = false }: { items: Notification[]; framed?: boolean }) {

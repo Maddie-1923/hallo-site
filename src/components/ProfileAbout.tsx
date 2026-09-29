@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { checkText } from "@/lib/word-filter";
 import { createPortal } from "react-dom";
 
 // Under the handle on the profile card: where the person is, with a map pin,
@@ -78,6 +79,7 @@ function EditButton({ onClick }: { onClick: () => void }) {
 function AboutSheet({ location, quote, onSave, onClose }: { location: string; quote: string; onSave: (v: { location: string; quote: string }) => void; onClose: () => void }) {
   const [place, setPlace] = useState(location);
   const [line, setLine] = useState(quote);
+  const [problem, setProblem] = useState<string | null>(null);
   useEffect(() => {
     const onKey = (k: KeyboardEvent) => k.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -91,7 +93,9 @@ function AboutSheet({ location, quote, onSave, onClose }: { location: string; qu
         onClick={(x) => x.stopPropagation()}
         onSubmit={(e) => {
           e.preventDefault();
-          onSave({ location: place.trim(), quote: line.trim() });
+          const p = checkText(`${place}\n${line}`);
+          setProblem(p);
+          if (!p) onSave({ location: place.trim(), quote: line.trim() });
         }}
       >
         <h3 className="!text-[clamp(26px,3vw,34px)] !leading-[.95]">About you</h3>
@@ -103,6 +107,11 @@ function AboutSheet({ location, quote, onSave, onClose }: { location: string; qu
           Quote
           <textarea value={line} onChange={(e) => setLine(e.target.value)} placeholder="A line about you, or one you love" maxLength={140} rows={2} className={`${field} resize-none`} />
         </label>
+        {problem && (
+          <p role="alert" className="m-0 text-[12.5px] text-loved">
+            {problem}
+          </p>
+        )}
         <div className="flex items-center justify-end gap-2 pt-1">
           <button type="button" onClick={onClose} className="h-9 px-4 rounded-full text-[13px] text-dim hover:text-ink cursor-pointer">
             Cancel

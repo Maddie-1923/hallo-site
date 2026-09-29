@@ -232,6 +232,31 @@ Everything the app does, on a computer.
    - a basic word filter on comments and usernames;
    - a moderation page for the owner;
    - a contact address.
+
+   Built 30 Sep on `social`, working in the browser until accounts open:
+   - **Report** from the ⋯ on reviews, list comments, lists and profiles
+     (`SafetySheets.tsx`): nine reasons, an optional note, then thanks and an
+     offer to block. `fileReport` (`lib/safety-actions.ts`) writes the
+     `reports` table, one per person per thing, at most 20 an hour.
+   - **Block** from the same ⋯: hides their profile (`BlockGate`), reviews on
+     title pages, lists, comments, members and notifications; ends follows
+     both ways. Unblock in Settings → Privacy → Blocked people.
+   - **Remove a follower:** press Followers on your own profile.
+   - **Word filter** (`lib/word-filter.ts`): severe slurs, including
+     disguised spellings, refused in comments, profile text and names;
+     stricter for display names and usernames (plus reserved names). Words
+     that appear in film talk ("Dick Van Dyke", Nazis) are left to reports.
+     `saveProfile` checks it on the server too.
+   - **Moderation page** `/moderation`: open and resolved reports gathered by
+     what was reported; Dismiss, Remove, Suspend, Reopen. Only for emails in
+     `MODERATOR_EMAILS`; 404 for everyone else. Dev menu links it.
+   - **Support page** has a Safety and reporting section with the address.
+   - Migration `20260930000000_safety.sql` (blocks, reports, `is_blocked()`
+     for the public tables' read policies, `profiles.suspended_at`), not yet
+     applied. Still to do with the database: block by user id (needs
+     usernames, step 1), and Remove/Suspend acting on the public tables.
+   - The app needs the same report and block (Apple guideline 1.2) when it
+     gets the social side.
 2. **Policies:**
    - update the privacy policy for public profiles, ads and crash data:
      rewritten 29 Sep on `social` (web accounts, what's public, Stripe,
@@ -289,6 +314,10 @@ needs to create a free Sentry account. Update the privacy policy and App Store
 privacy labels to mention crash data before it ships.
 
 ### Before opening: remove the test scaffolding
+
+- The four sample reports on `/moderation` (`SAMPLES` in
+  `components/ModerationPage.tsx`) and the preview's local block/report
+  store fallback (`lib/safety.ts`).
 
 - The three sample reviews on `/u/preview` (`withSampleReviews` in
   `app/u/[username]/page.tsx`), kept for testing at the user's request.

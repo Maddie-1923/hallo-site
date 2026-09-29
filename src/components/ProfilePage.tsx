@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ProfileTitle, PublicProfileView } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
+import { FollowList } from "./FollowList";
+import { MEMBERS } from "@/lib/members";
 import { ViewingAsOthers } from "./ViewingAsOthers";
 import { ProfileCategories } from "./ProfileCategories";
 import { ProfileAbout } from "./ProfileAbout";
@@ -169,6 +171,10 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+// Who's in the Followers and Following lists: the sample members until
+// accounts open, and only in development.
+const people = process.env.NODE_ENV === "development" ? MEMBERS.map((m) => ({ username: m.username, displayName: m.displayName })) : [];
+
 function NumberTiles({ v }: { v: PublicProfileView }) {
   const s = v.stats;
   const tiles: [string, string | number][] = [
@@ -190,12 +196,29 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
         // tiny: a browser with a minimum font size (a common reading setting)
         // enlarges small type but leaves a scale alone, so FOLLOWERS still
         // fits its tile.
-        <div key={label} className="min-w-0 rounded-shell bg-card-hi pt-2 pb-1.5 px-1 text-center flex flex-col items-center justify-center">
-          <div className="display text-[21px] xl:text-[23px] leading-none text-accent">{value}</div>
-          <div className="text-[10px] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.54] xl:scale-[.72]">{label}</div>
-        </div>
+        label === "Followers" || label === "Following" ? (
+          // Pressed, the people (FollowList).
+          <FollowList key={label} kind={label === "Followers" ? "followers" : "following"} owner={!!v.owner} people={people.filter((p) => p.username !== v.username)} className={TILE}>
+            <Tile label={label} value={value} />
+          </FollowList>
+        ) : (
+          <div key={label} className={TILE}>
+            <Tile label={label} value={value} />
+          </div>
+        )
       ))}
     </div>
+  );
+}
+
+const TILE = "min-w-0 rounded-shell bg-card-hi pt-2 pb-1.5 px-1 text-center flex flex-col items-center justify-center";
+
+function Tile({ label, value }: { label: string; value: string | number }) {
+  return (
+    <>
+      <div className="display text-[21px] xl:text-[23px] leading-none text-accent">{value}</div>
+      <div className="text-[10px] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.54] xl:scale-[.72]">{label}</div>
+    </>
   );
 }
 

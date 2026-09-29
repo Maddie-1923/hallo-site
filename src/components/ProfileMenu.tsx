@@ -3,15 +3,18 @@
 import { useState } from "react";
 import { Menu } from "./Menu";
 import { HANDLE, LINE } from "./FollowPill";
+import { BlockIcon, BlockSheet, FlagIcon, ReportSheet } from "./SafetySheets";
 import { setViewAsOthers, useViewAsOthers } from "@/lib/privacy";
+import { unblock, useBlocked } from "@/lib/safety";
 
 // The ⋯ beside Follow on a profile: copy the profile's link, and for someone
-// else's profile, block or report them. Blocking and reporting arrive with
-// accounts and the safety step (docs/social-plan.md, step 6); until then they
-// say so. Letterboxd's QR code is left out until there is one to show.
+// else's profile, block or report them (SafetySheets). Letterboxd's QR code
+// is left out until there is one to show.
 export function ProfileMenu({ username, owner }: { username: string; owner: boolean }) {
   const [said, setSaid] = useState<string | null>(null);
   const others = useViewAsOthers();
+  const blocked = useBlocked(username);
+  const [sheet, setSheet] = useState<"report" | "block" | null>(null);
   function say(text: string) {
     setSaid(text);
     setTimeout(() => setSaid(null), 2400);
@@ -61,23 +64,20 @@ export function ProfileMenu({ username, owner }: { username: string; owner: bool
           {!owner && (
             <>
               <div className="my-1.5 border-t border-hair" />
-              <button type="button" data-menu-close onClick={() => say("Blocking comes with accounts")} className={item}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden className="text-dim">
-                  <circle cx="12" cy="12" r="8.5" />
-                  <path d="M6 18L18 6" />
-                </svg>
-                Block this member
+              <button type="button" data-menu-close onClick={() => (blocked ? (unblock(username), say(`Unblocked @${username}`)) : setSheet("block"))} className={item}>
+                <BlockIcon />
+                {blocked ? "Unblock this member" : "Block this member"}
               </button>
-              <button type="button" data-menu-close onClick={() => say("Reporting comes with accounts")} className={item}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim">
-                  <path d="M5.5 21V4M5.5 4.5h11l-2.5 4 2.5 4h-11" />
-                </svg>
+              <button type="button" data-menu-close onClick={() => setSheet("report")} className={item}>
+                <FlagIcon />
                 Report this member
               </button>
             </>
           )}
         </div>
       </Menu>
+      {sheet === "report" && <ReportSheet what={{ kind: "profile", target: username, author: username, href: `/u/${username}`, excerpt: "" }} onClose={() => setSheet(null)} />}
+      {sheet === "block" && <BlockSheet username={username} onClose={() => setSheet(null)} />}
       {said && (
         <span role="status" className="absolute right-0 top-[calc(100%+8px)] z-50 whitespace-nowrap rounded-full bg-card-hi border border-hair px-3 py-1 text-[12px] text-ink shadow-lg">
           {said}
