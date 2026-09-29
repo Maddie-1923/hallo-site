@@ -333,8 +333,8 @@ the nav menu, the footer and the Pro page.
 
 - **Year in Review** (`/u/<name>/year/<year>` built 29 Sep from the
   preview library: numbers, top series and films, month by month, genres,
-  first and last, moods; linked from Stats and the profile menu). Still to
-  do: a link-preview picture for sharing, like a review's.
+  first and last, moods; linked from Stats and the profile menu). Its link
+  preview picture (the year, the numbers, the top three posters) too.
 - Clone someone's list into your own.
 - Tags on logs and lists.
 

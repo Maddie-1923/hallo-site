@@ -29,7 +29,7 @@ export default async function YearInReview({ params }: Params) {
   const archive = username === "preview" ? await previewArchive() : null;
   const r = archive ? yearReview(archive, Number(year)) : null;
   if (!r) notFound();
-  const hero = r.topShows[0]?.backdrop ?? r.topFilms[0]?.backdrop ?? null;
+  const hero = [...r.topShows, ...r.topFilms].find((t) => t.backdrop)?.backdrop ?? null;
 
   return (
     <div className="min-h-screen flex flex-col">
