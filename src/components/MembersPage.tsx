@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { searchMembers } from "@/lib/member-directory";
 import type { Member } from "@/lib/members";
 import { useSafety } from "@/lib/safety";
 import { FollowPill } from "./FollowPill";
@@ -15,14 +16,29 @@ const H = "inline-flex items-center h-[34px] px-4 rounded-full bg-piece ![font-f
 
 const k = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}K` : String(n));
 
-export function MembersPage({ members: everyone }: { members: Member[] }) {
+// `live`: real members, where search asks the server (it also finds private
+// members by name) and Follow saves.
+export function MembersPage({ members: everyone, live = false }: { members: Member[]; live?: boolean }) {
   // Nobody you've blocked.
   const { blocked } = useSafety();
-  const members = everyone.filter((m) => !blocked.includes(m.username));
+  const members = everyone.filter((m) => !blocked.includes(m.username) && m.follow !== "self");
   const [q, setQ] = useState("");
-  const found = q.trim() ? members.filter((m) => `${m.username} ${m.displayName} ${m.location}`.toLowerCase().includes(q.trim().toLowerCase())) : null;
-  const popular = [...members].sort((a, b) => b.likesThisWeek - a.likesThisWeek).slice(0, 4);
-  const followed = [...members].sort((a, b) => b.followers - a.followers);
+  const [searched, setSearched] = useState<{ q: string; list: Member[] } | null>(null);
+  useEffect(() => {
+    const text = q.trim();
+    if (!live || text.length < 2) return;
+    const t = setTimeout(async () => {
+      const r = await searchMembers(text).catch(() => null);
+      if (r) setSearched({ q: text, list: r });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [q, live]);
+  const local = q.trim() ? members.filter((m) => `${m.username} ${m.displayName} ${m.location}`.toLowerCase().includes(q.trim().toLowerCase())) : null;
+  const found = !q.trim() ? null : live ? (searched?.q === q.trim() ? searched.list.filter((m) => !blocked.includes(m.username)) : (local ?? [])) : local;
+  // Popular this week only counts anyone with a like this week; with few
+  // members the page says so rather than ranking zeroes.
+  const popular = [...members].filter((m) => m.likesThisWeek > 0).sort((a, b) => b.likesThisWeek - a.likesThisWeek).slice(0, 4);
+  const followed = [...members].sort((a, b) => b.followers - a.followers).slice(0, 25);
   const fresh = [...members].sort((a, b) => a.joined - b.joined).slice(0, 4);
 
   return (
@@ -45,12 +61,13 @@ export function MembersPage({ members: everyone }: { members: Member[] }) {
 
       {found ? (
         <Group title={`${found.length} found`}>
-          {found.length ? <Ranked list={found} /> : <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">Nobody by that name.</p>}
+          {found.length ? <Ranked list={found} stats={!live} /> : <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">Nobody by that name.</p>}
         </Group>
       ) : (
         <>
           <Group title="Popular this week">
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {popular.length === 0 && <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">Nobody&apos;s reviews or lists have been liked this week yet.</p>}
+            <div className={`grid gap-2 sm:grid-cols-2 lg:grid-cols-4 ${popular.length ? "" : "hidden"}`}>
               {popular.map((m) => (
                 <div key={m.username} className="rounded-shell bg-piece p-3 grid justify-items-center text-center gap-2">
                   <Avatar m={m} size={64} />
@@ -58,14 +75,12 @@ export function MembersPage({ members: everyone }: { members: Member[] }) {
                     <Link href={`/u/${m.username}`} className="block text-[12.5px] font-semibold text-ink truncate no-underline hover:text-accent">
                       @{m.username}
                     </Link>
-                    <div className="text-[12.5px] text-dim truncate">
-                      {m.displayName} · {m.location}
-                    </div>
+                    <div className="text-[12.5px] text-dim truncate">{[m.displayName, m.location].filter(Boolean).join(" · ")}</div>
                   </div>
                   <div className="text-[12.5px] text-mid-tone">
                     <b className="font-semibold text-ink tabular-nums">{m.likesThisWeek}</b> likes this week
                   </div>
-                  <FollowPill />
+                  <FollowPill username={m.username} state={m.follow} />
                 </div>
               ))}
             </div>
@@ -76,6 +91,7 @@ export function MembersPage({ members: everyone }: { members: Member[] }) {
           </Group>
 
           <Group title="New members">
+            {fresh.length === 0 && <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">No members yet.</p>}
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {fresh.map((m) => (
                 <Link key={m.username} href={`/u/${m.username}`} className="rounded-shell bg-piece p-3 flex items-center gap-3 no-underline text-ink hover:bg-card-hi transition-colors min-w-0">
@@ -107,7 +123,8 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
 }
 
 /** Members as rows: rank, picture, who, what they've logged, Follow. */
-function Ranked({ list, numbered = false }: { list: Member[]; numbered?: boolean }) {
+// `stats`: false for live search results, which don't carry the counts.
+function Ranked({ list, numbered = false, stats = true }: { list: Member[]; numbered?: boolean; stats?: boolean }) {
   return (
     <ul className="m-0 p-0 list-none rounded-shell bg-piece divide-y divide-hair">
       {list.map((m, i) => (
@@ -116,11 +133,9 @@ function Ranked({ list, numbered = false }: { list: Member[]; numbered?: boolean
           <Avatar m={m} size={44} />
           <Link href={`/u/${m.username}`} className="min-w-0 flex-1 no-underline text-ink group">
             <span className="block text-[12.5px] font-semibold truncate group-hover:text-accent transition-colors">@{m.username}</span>
-            <span className="block text-[12.5px] text-dim truncate">
-              {m.displayName} · {m.location}
-            </span>
+            <span className="block text-[12.5px] text-dim truncate">{[m.displayName, m.location, m.isPrivate ? "Private profile" : ""].filter(Boolean).join(" · ")}</span>
           </Link>
-          <span className="hidden sm:flex gap-4 text-[12.5px] text-mid-tone shrink-0">
+          <span className={`${stats && !m.isPrivate ? "sm:flex" : ""} hidden gap-4 text-[12.5px] text-mid-tone shrink-0`}>
             <span>
               <b className="font-semibold text-ink tabular-nums">{k(m.followers)}</b> followers
             </span>
@@ -131,7 +146,7 @@ function Ranked({ list, numbered = false }: { list: Member[]; numbered?: boolean
               <b className="font-semibold text-ink tabular-nums">{k(m.films + m.shows)}</b> titles
             </span>
           </span>
-          <FollowPill />
+          <FollowPill username={m.username} state={m.follow} />
         </li>
       ))}
     </ul>
@@ -140,8 +155,13 @@ function Ranked({ list, numbered = false }: { list: Member[]; numbered?: boolean
 
 function Avatar({ m, size }: { m: Member; size: number }) {
   return (
-    <span className="shrink-0 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display leading-none" style={{ width: size, height: size, fontSize: size * 0.45, paddingTop: size * 0.05 }} aria-hidden>
-      {m.username[0].toUpperCase()}
+    <span className="shrink-0 rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display leading-none" style={{ width: size, height: size, fontSize: size * 0.45, paddingTop: m.avatar ? 0 : size * 0.05 }} aria-hidden>
+      {m.avatar ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={m.avatar} alt="" className="w-full h-full object-cover object-top" />
+      ) : (
+        m.username[0].toUpperCase()
+      )}
     </span>
   );
 }

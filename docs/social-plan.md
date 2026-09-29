@@ -361,6 +361,17 @@ Everything the app does, on a computer.
 5. **Members page:** popular reviewers, most followed, new members.
    `/members` built 29 Sep with made-up members (`lib/members.ts`), each with
    a sample profile; linked from the profile menu.
+   Real members 30 Sep (`20260930090000_members.sql`,
+   `lib/member-directory.ts`): `public.member_directory()` runs as the reader
+   (security invoker) and returns public, unsuspended members not blocked
+   either way, with followers, following, reviews, titles, likes this week
+   and the reader's follow state; `profiles.created_at` (backfilled from
+   sign-up) gives New members. Popular this week only ranks members with a
+   like this week; Most followed shows the top 25. Search asks the server
+   by username or name and also finds private members (their card, marked
+   Private profile). Follow on every card saves. The made-up members stay
+   for development before accounts open. At a few thousand members the
+   directory should become a cached summary rather than counted per visit.
 
 ### 5. Discovery
 

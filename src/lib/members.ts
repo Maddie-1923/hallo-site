@@ -19,6 +19,11 @@ export interface Member {
   likesThisWeek: number;
   /** Which titles their sample profile leads with, so each one differs. */
   seed: number;
+  /** Real members: their photo, whether the reader follows them, and
+      whether the profile is private (found by search only). */
+  avatar?: string | null;
+  follow?: "none" | "pending" | "following" | "self";
+  isPrivate?: boolean;
 }
 
 export const MEMBERS: Member[] = [
