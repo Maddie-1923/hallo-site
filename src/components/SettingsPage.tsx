@@ -174,6 +174,7 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
           </Field>
           <Field label="Show your Watchlog">{toggle("showWatchlog")}</Field>
           <Field label="Show your watchlist" hint="What you mean to watch, as a tab on your profile.">{toggle("showWatchlist")}</Field>
+          <Field label="Show what you're watching" hint="The series you're partway through, and how far.">{toggle("showWatching")}</Field>
           <Field label="Let people follow you">{toggle("allowFollows")}</Field>
           <Field label="Blocked people" hint="They can't see your profile or anything you post, and you don't see theirs.">
             <BlockedPeople />

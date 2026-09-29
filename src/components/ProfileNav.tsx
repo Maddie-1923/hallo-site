@@ -35,7 +35,7 @@ export interface ProfileSection {
 // `hiddenSections`: on someone else's profile, the tabs they've turned off.
 export function ProfileSections({ sections: all, className = "mt-10", aside, label = "Profile sections", flat = false, owner = false, privateProfile = false, hiddenSections = [] }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode; label?: string; flat?: boolean; owner?: boolean; privateProfile?: boolean; hiddenSections?: string[] }) {
   const privacy = usePrivacy(owner);
-  const hidden = new Set<string>(privacy ? [!privacy.showActivity && "activity", !privacy.showWatchlog && "watchlog", !privacy.showWatchlist && "watchlist"].filter(Boolean) as string[] : hiddenSections);
+  const hidden = new Set<string>(privacy ? [!privacy.showActivity && "activity", !privacy.showWatchlog && "watchlog", !privacy.showWatchlist && "watchlist", !privacy.showWatching && "watching"].filter(Boolean) as string[] : hiddenSections);
   const sections = privacy?.others || !owner ? all.filter((s) => !hidden.has(s.id)) : all;
   const closed = privateProfile || (!!privacy?.others && !privacy.publicProfile);
   const [current, setCurrent] = useState(sections[0].id);

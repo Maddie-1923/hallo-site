@@ -277,7 +277,14 @@ Everything the app does, on a computer.
    skips the last). Profiles have a public Watchlist tab (`watchlist` on the
    view, drawn from the public copy for visitors), hidden with Settings →
    Privacy → Show your watchlist (`show_watchlist`,
-   `20260930060000_show_watchlist.sql`). Still to do: Watching now.
+   `20260930060000_show_watchlist.sql`). Watching now built the same day:
+   a profile tab (second, after Reviews) with every series marked Watching
+   that has something watched, last watched first (up to 40), as the
+   tracker's list rows without keys: the next episode (name hidden with
+   spoilers on), when last watched, and progress against what has aired
+   (`watching` on the view, filled by `withAiredEpisodes`). Hidden with
+   Settings → Privacy → Show what you're watching (`show_watching`,
+   `20260930070000_show_watching.sql`). Step 2 is done.
 5. **Stats page** with the full numbers behind the profile's panels.
    Built 30 Sep: `/stats` (Pro, gated like the Calendar; the preview in
    development), the app's stat pages on one screen: totals (episodes,

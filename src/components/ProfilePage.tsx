@@ -3,6 +3,7 @@ import type { ProfileTitle, PublicProfileView } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
 import { FollowList } from "./FollowList";
+import { WatchingNow } from "./WatchingNow";
 import { MEMBERS } from "@/lib/members";
 import { ViewingAsOthers } from "./ViewingAsOthers";
 import { ProfileCategories } from "./ProfileCategories";
@@ -82,6 +83,12 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                   ) : (
                     <Empty>No reviews yet.</Empty>
                   ),
+              },
+              {
+                id: "watching",
+                label: "Watching now",
+                count: v.watching?.length ?? 0,
+                content: v.watching?.length ? <WatchingNow shows={v.watching} /> : <Empty>Not in the middle of any series.</Empty>,
               },
               { id: "activity", label: "Recent activity", content: <ActivityList v={v} /> },
               {

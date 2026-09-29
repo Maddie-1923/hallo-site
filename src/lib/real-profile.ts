@@ -18,7 +18,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   const supabase = await createClient();
   const { data: p } = await supabase
     .from("profiles")
-    .select("user_id, username, display_name, avatar_path, banner_path, location, quote, is_private, show_activity, show_watchlog, show_watchlist, allow_follows, category_privacy")
+    .select("user_id, username, display_name, avatar_path, banner_path, location, quote, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, category_privacy")
     .eq("username", username.toLowerCase())
     .maybeSingle();
   if (!p?.username) return null;
@@ -54,7 +54,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
     ...view,
     categories: view.categories.filter((c) => !hiddenCategories[c.id]),
     isPrivate: p.is_private,
-    hiddenSections: [!p.show_activity && "activity", !p.show_watchlog && "watchlog", !p.show_watchlist && "watchlist"].filter((x): x is string => !!x),
+    hiddenSections: [!p.show_activity && "activity", !p.show_watchlog && "watchlog", !p.show_watchlist && "watchlist", !p.show_watching && "watching"].filter((x): x is string => !!x),
     allowFollows: p.allow_follows,
   };
 }

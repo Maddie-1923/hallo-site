@@ -147,6 +147,9 @@ export interface PublicProfileView {
   /** What they mean to watch: series tracked with nothing watched yet and
       films To Watch, newest added first. */
   watchlist?: ProfileTitle[];
+  /** Watching now: every series marked Watching with something watched,
+      last watched first, with its progress (filled like the tracker's). */
+  watching?: (TrackerShow & { lastWatched: string | null })[];
   /** Present only when the person viewing is the profile's owner: what the
       Favourites editor offers first, their own library, best first. */
   owner?: { films: ProfileTitle[]; shows: ProfileTitle[] };
@@ -334,11 +337,20 @@ export function profileFromArchive(
     .sort((x, y) => y.added.localeCompare(x.added))
     .map((x) => x.t);
 
+  // Watching now: every series in progress, the tracker's rule without its
+  // cap of seven (forty, for the TMDB asks behind the progress bars).
+  const watching = a.shows
+    .filter((t) => t.status === "Watching" && started.has(t.show.id))
+    .sort((x, y) => (lastWatched.get(y.show.id) ?? "").localeCompare(lastWatched.get(x.show.id) ?? ""))
+    .slice(0, 40)
+    .map((t) => ({ ...showTitle(t.show), seen: seenBy.get(t.show.id) ?? [], aired: null, lastWatched: lastWatched.get(t.show.id)?.slice(0, 10) ?? null }));
+
   return {
     ...meta,
     owner,
     tracker,
     watchlist,
+    watching,
     followers: 0,
     following: 0,
     stats: {
@@ -369,7 +381,8 @@ export function profileFromArchive(
  * along they are.
  */
 export async function withAiredEpisodes(view: PublicProfileView): Promise<PublicProfileView> {
-  return { ...view, tracker: { ...view.tracker, shows: await fillAired(view.tracker.shows) } };
+  const [shows, watching] = await Promise.all([fillAired(view.tracker.shows), view.watching ? fillAired(view.watching) : Promise.resolve(undefined)]);
+  return { ...view, tracker: { ...view.tracker, shows }, watching: watching as PublicProfileView["watching"] };
 }
 
 /** The same, for any list of series (the full tracker page's piles). */
