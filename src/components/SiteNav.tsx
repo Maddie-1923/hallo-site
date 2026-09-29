@@ -119,9 +119,9 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
           <SignedIn email={user.email ?? ""} framed={framed} />
         ) : (
           // The buttons are centred on the k on the left (the middle of the
-          // mark itself, 7px above the row's middle).
-          {/* Closer together on a phone, where five round buttons and the
-              logo at the full gap ran 20px past a 375px screen. */}
+          // mark itself, 7px above the row's middle), and closer together on
+          // a phone, where five round buttons and the logo at the full gap
+          // ran 20px past a 375px screen.
           <div className="ml-auto flex items-center gap-2 sm:gap-4 shrink-0 -translate-y-[7px]">
             <SearchBoundary />
             <DayNightToggle onPicture={framed} />
