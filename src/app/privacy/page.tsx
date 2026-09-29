@@ -13,13 +13,14 @@ export const metadata: Metadata = {
 // Two sections wait for things that aren't live, so the page never describes
 // something that isn't happening. Turn each on, and change the date at the
 // bottom, in the same deploy that ships it:
-// - ADS: Google AdSense for visitors and free accounts (plan §7). Needs the
-//   cookie consent banner in the same deploy.
+// - ADS: on by itself when AdSense is set up (NEXT_PUBLIC_ADSENSE_CLIENT,
+//   lib/ads.ts). Its consent message is Google's own, from AdSense →
+//   Privacy & messaging, which must be published before ads go live.
 // - CRASH_REPORTS: on by itself when the website's Sentry key is set
 //   (lib/sentry-options.ts), so the page and the site can't disagree. When
 //   the app gets Sentry too, add it to that section and update the App Store
 //   privacy labels.
-const ADS = false;
+const ADS = !!process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
 const CRASH_REPORTS = !!process.env.NEXT_PUBLIC_SENTRY_DSN;
 
 export default function Privacy() {
@@ -156,7 +157,7 @@ export default function Privacy() {
 
         {ADS && (
           <>
-            <h2>Ads</h2>
+            <h2 id="ads">Ads</h2>
             <p>
               The website shows a few ads to visitors and free accounts, which helps keep Kodigo running.
               Kodigo Pro members never see them, and the app has none. Ads come from <strong>Google AdSense</strong>.

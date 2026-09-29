@@ -16,6 +16,7 @@ import { YourReview } from "@/components/YourReview";
 import { filmPage, image, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 import { Day } from "@/components/Day";
+import { AdSlot } from "@/components/AdSlot";
 
 // A film's page, laid out after the app's film screen (MovieDetailView): the
 // header card (the wide artwork, the facts panel with the title and its rows,
@@ -115,6 +116,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
             </Section>
           </div>
         </div>
+        <AdSlot place="title" className="mt-8" />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="movie" />}
           {lib.signedIn && <TitleActivity target={{ kind: "movie", movie }} archive={lib.archive} signedIn={lib.signedIn} />}

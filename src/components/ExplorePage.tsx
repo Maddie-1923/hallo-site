@@ -8,6 +8,7 @@ import { optionalLibrary } from "@/lib/library";
 import { markLookup } from "@/lib/marks";
 import { accountsOpen } from "@/lib/accounts";
 import { regionName, visitorRegion } from "@/lib/region";
+import { AdSlot } from "@/components/AdSlot";
 
 // Explore, the app's name for the same idea: where you go to find something
 // rather than to work through what you have. The home page's layout, one
@@ -39,6 +40,7 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
       <Layout slides={slides} kind={kind}>
         <Row title="Trending this week" href="/shows" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} />
         <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
+        <AdSlot place="rows" className="mt-8" />
         <Row title="New series coming" href="/shows" items={asShows(upcoming)} marks={marks} />
         <Row title="Popular now" href="/browse/series" items={asShows(popular)} marks={marks} />
         <Row title="Top rated" href="/browse/series/sort/rated" items={asShows(topRated)} marks={marks} />
@@ -60,6 +62,7 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
     <Layout slides={slides} kind={kind}>
       <Row title="Trending this week" href="/movies" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} />
       <Row title={`In cinemas · ${place}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
+      <AdSlot place="rows" className="mt-8" />
       <Row title={`Coming soon · ${place}`} href="/movies" items={asMovies(upcoming)} marks={marks} />
       <Row title="Popular now" href="/browse/films" items={asMovies(popular)} marks={marks} />
       <Row title="Top rated" href="/browse/films/sort/rated" items={asMovies(topRated)} marks={marks} />

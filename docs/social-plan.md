@@ -306,6 +306,24 @@ Everything the app does, on a computer.
    content, so it is applied for after opening. A film and TV ad network can
    come later, once there's traffic.
 
+   Built 30 Sep on `social` (`lib/ads.ts`, `AdSlot`, `AdUnit`):
+   - one wide ad between the second and third rows on Home, Movies and
+     Shows; between Reviews and More like this on film, series and episode
+     pages; under a profile's sections (not in its side column, which has a
+     fixed height the tracker needs);
+   - labelled "Advertisement" with "Go ad-free with Pro →"; 90px (100px on
+     phones) kept free so nothing jumps; never for Pro (`adFree`);
+   - the AdSense script loads only on pages with an ad;
+   - consent is Google's own message (AdSense → Privacy & messaging, for
+     the EEA, UK and Switzerland) instead of a banner of our own; the footer's
+     "Privacy and cookie settings" reopens it;
+   - `/ads.txt` is built from the client id;
+   - the privacy policy's Ads section switches on with the same client id;
+   - in development, dashed boxes show where ads will go.
+   To switch on: the user's AdSense account (after opening, with content
+   live), the publisher id and three ad unit ids in the environment, and the
+   consent message published in AdSense.
+
 ### 8. Crash and bug monitoring
 
 Sentry for the website, iOS and later Android. A daily scheduled Claude check

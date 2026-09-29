@@ -15,6 +15,7 @@ import { optionalLibrary } from "@/lib/library";
 import { episodePage, image, seriesPage, titleLogo, type EpisodeLink } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 import { Day } from "@/components/Day";
+import { AdSlot } from "@/components/AdSlot";
 
 // An episode's page, laid out as its show's (the picture across the top, the
 // About card and the keys beside it, Your take and reviews under it) with the
@@ -145,6 +146,7 @@ export default async function EpisodePage({ params }: Params) {
             </Section>
           </div>
         </div>
+        <AdSlot place="title" className="mt-8" />
       </main>
       <SiteFooter />
     </div>

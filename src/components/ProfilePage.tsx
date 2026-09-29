@@ -15,6 +15,7 @@ import { ProfileDiary } from "./ProfileDiary";
 import { FavouritesCard } from "./FavouritesCard";
 import { MonthCalendar } from "./MonthCalendar";
 import { MiniTracker } from "./MiniTracker";
+import { AdSlot } from "./AdSlot";
 
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner left to its picture, then the person's card
@@ -101,6 +102,8 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             ]}
           />
       </div>
+
+      <AdSlot place="profile" className="mt-8" />
 
       <BackToTop />
     </main>

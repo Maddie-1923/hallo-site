@@ -18,6 +18,7 @@ import { YourReview } from "@/components/YourReview";
 import { image, seriesPage, showTrailers, titleLogo } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 import { Day } from "@/components/Day";
+import { AdSlot } from "@/components/AdSlot";
 
 // A series' page, laid out like the film page and the profile (the picture
 // as a banner across the top, then two columns), with the pieces of the
@@ -155,6 +156,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             </Section>
           </div>
         </div>
+        <AdSlot place="title" className="mt-8" />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" />}
           {lib.signedIn && <TitleActivity target={{ kind: "show", show }} archive={lib.archive} signedIn={lib.signedIn} />}

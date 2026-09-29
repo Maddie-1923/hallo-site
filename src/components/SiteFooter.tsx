@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoMark } from "./Logo";
+import { CookieSettingsLink } from "./CookieSettingsLink";
 
 export function SiteFooter() {
   return (
@@ -16,6 +17,7 @@ export function SiteFooter() {
           <div className="flex flex-col gap-2">
             <Link href="/privacy" className="hover:text-ink">Privacy policy</Link>
             <Link href="/terms" className="hover:text-ink">Terms of use</Link>
+            {process.env.NEXT_PUBLIC_ADSENSE_CLIENT && <CookieSettingsLink />}
             <Link href="/support" className="hover:text-ink">Support</Link>
             <Link href="/delete-account" className="hover:text-ink">Delete your account</Link>
             <a href="mailto:hello@kodigo.pro" className="hover:text-ink">hello@kodigo.pro</a>

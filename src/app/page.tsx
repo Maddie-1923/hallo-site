@@ -9,6 +9,7 @@ import { movieRails, showRails } from "@/lib/tmdb";
 import { optionalLibrary } from "@/lib/library";
 import { markLookup } from "@/lib/marks";
 import { regionName, visitorRegion } from "@/lib/region";
+import { AdSlot } from "@/components/AdSlot";
 
 // The front door, Netflix-shaped: a billboard of what the world is watching
 // this week, then rows of wide cards to wander through. The pitch for the app
@@ -52,6 +53,7 @@ export default async function Home() {
         <div className="w-full px-[clamp(16px,3.2vw,64px)] pb-16">
           <Row title="Trending this week" href="/shows" items={trending} marks={marks} />
           <Row title={`In cinemas · ${regionName(region)}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
+          <AdSlot place="rows" className="mt-8" />
           <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
           <Row title={`Coming soon · ${regionName(region)}`} href="/movies" items={asMovies(comingFilms)} marks={marks} />
           <Row title="Highest rated" href="/movies" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
