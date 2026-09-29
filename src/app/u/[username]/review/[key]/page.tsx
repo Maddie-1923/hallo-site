@@ -5,6 +5,8 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ReviewSheetCard } from "@/components/ReviewSheet";
 import { BlockGate } from "@/components/SafetySheets";
+import { CommentThread } from "@/components/CommentThread";
+import { HeadingPill } from "@/components/TitleParts";
 import { loadProfile } from "@/lib/profile-previews";
 import { reviewFor } from "@/lib/public-profile";
 
@@ -56,6 +58,11 @@ export default async function ReviewPage({ params }: PageProps<"/u/[username]/re
         <article className="rounded-shell bg-card border border-hair overflow-hidden">
           <ReviewSheetCard r={review} username={view.username} avatar={view.avatar} />
         </article>
+        {/* What people said about it. */}
+        <section className="mt-8 grid gap-2">
+          <HeadingPill small>Comments</HeadingPill>
+          <CommentThread kind="review" owner={view.username} target={review.key} href={`/u/${view.username}/review/${review.key}`} />
+        </section>
         </BlockGate>
       </main>
       <SiteFooter />

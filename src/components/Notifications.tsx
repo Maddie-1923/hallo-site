@@ -7,12 +7,13 @@ import { useSettings, type Settings } from "@/lib/settings";
 import { useSafety } from "@/lib/safety";
 import { useDateFormat } from "./Day";
 import { Menu } from "./Menu";
+import { markNotificationsRead } from "@/lib/social-actions";
 
 // Notifications: the bell in the bar, with the count of new ones, opening the
 // latest few; and the page with all of them by day. Only the kinds switched
 // on in Settings (Notifications) show. Opening the bell marks them read.
 const READ_KEY = "kodigo.notifications-read";
-const SETTING: Record<NotificationKind, keyof Settings> = { follow: "notifyFollows", like: "notifyLikes", comment: "notifyComments" };
+const SETTING: Record<NotificationKind, keyof Settings> = { follow: "notifyFollows", follow_request: "notifyFollows", follow_accepted: "notifyFollows", like: "notifyLikes", comment: "notifyComments" };
 
 // When they last looked, shared by the bell and the page.
 const subs = new Set<() => void>();
@@ -27,6 +28,8 @@ function markRead() {
   try {
     localStorage.setItem(READ_KEY, new Date().toISOString());
   } catch {}
+  // Signed in, the account's are marked read too (nothing happens otherwise).
+  void markNotificationsRead().catch(() => {});
   subs.forEach((f) => f());
 }
 function useReadAt() {
@@ -44,13 +47,15 @@ function useReadAt() {
 function useShown(all: Notification[]) {
   const [s] = useSettings();
   const { blocked } = useSafety();
-  return all.filter((n) => s[SETTING[n.kind]] && !blocked.includes(n.who));
+  // A request to follow always shows: it's waiting on an answer.
+  return all.filter((n) => (n.kind === "follow_request" || s[SETTING[n.kind]]) && !blocked.includes(n.who));
 }
 
 export function NotificationsBell({ items, framed = false }: { items: Notification[]; framed?: boolean }) {
   const shown = useShown(items);
   const read = useReadAt();
-  const fresh = shown.filter((n) => n.at > read).length;
+  const isNew = (n: Notification) => (n.read === undefined ? n.at > read : !n.read && n.at > read);
+  const fresh = shown.filter(isNew).length;
   const shell = framed ? "bg-black/35 border-white/25 backdrop-blur-md text-white" : "bg-card border-hair text-ink";
   return (
     <Menu
@@ -75,7 +80,7 @@ export function NotificationsBell({ items, framed = false }: { items: Notificati
         <ul className="m-0 p-0 pb-1 list-none">
           {shown.slice(0, 6).map((n) => (
             <li key={n.id}>
-              <Item n={n} fresh={n.at > read} compact />
+              <Item n={n} fresh={isNew(n)} compact />
             </li>
           ))}
         </ul>
@@ -130,7 +135,7 @@ export function NotificationsPage({ items }: { items: Notification[] }) {
 
       {off.length > 0 && (
         <p className="m-0 rounded-shell bg-card p-3 text-[12.5px] text-dim">
-          {listOf(off.map((k) => ({ follow: "Follows", like: "Likes", comment: "Replies" })[k]))} are switched off in{" "}
+          {listOf(off.map((k) => ({ follow: "Follows", follow_request: "Follows", follow_accepted: "Follows", like: "Likes", comment: "Replies" })[k]))} are switched off in{" "}
           <Link href="/settings#notifications" className="text-accent no-underline hover:underline">
             Settings
           </Link>
@@ -149,7 +154,7 @@ export function NotificationsPage({ items }: { items: Notification[] }) {
             <ul className="m-0 p-0 list-none rounded-shell bg-piece divide-y divide-hair overflow-hidden">
               {ns.map((n) => (
                 <li key={n.id}>
-                  <Item n={n} fresh={n.at > read} />
+                  <Item n={n} fresh={n.read === undefined ? n.at > read : !n.read && n.at > read} />
                 </li>
               ))}
             </ul>
@@ -163,8 +168,18 @@ export function NotificationsPage({ items }: { items: Notification[] }) {
 /** One notification: who, what, when, and the review's poster. */
 function Item({ n, fresh, compact = false }: { n: Notification; fresh: boolean; compact?: boolean }) {
   const fmt = useDateFormat();
-  const href = n.kind === "follow" ? `/u/${n.who}` : n.about?.href ?? "#";
-  const what = n.kind === "follow" ? "started following you" : n.kind === "like" ? "liked your review of" : "replied to your review of";
+  const href = n.href ?? (n.kind === "follow" ? `/u/${n.who}` : n.about?.href ?? "#");
+  const thing = n.target === "list" ? "list" : "review of";
+  const what =
+    n.kind === "follow"
+      ? "started following you"
+      : n.kind === "follow_request"
+        ? "asked to follow you. Answer in your Followers"
+        : n.kind === "follow_accepted"
+          ? "accepted your follow request"
+          : n.kind === "like"
+            ? `liked your ${thing}`
+            : `commented on your ${thing}`;
   return (
     <Link href={href} data-menu-close className={`flex items-start gap-3 ${compact ? "px-4 py-2.5 hover:bg-card-hi" : "p-3 hover:bg-card"} no-underline text-ink transition-colors`}>
       <span className="relative shrink-0 w-9 h-9 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[17px] leading-none pt-[2px]">

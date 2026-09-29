@@ -1,39 +1,45 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ListView } from "@/lib/lists";
 import { HeadingPill } from "./TitleParts";
 import { MoreButton } from "./SafetySheets";
-import { useSafety } from "@/lib/safety";
-import { checkText } from "@/lib/word-filter";
+import { CommentThread } from "./CommentThread";
+import { likeInfo, setLike } from "@/lib/social-actions";
 
 // A list's own page: its name and whose it is, what it's about, how much of
 // it you've watched, like and share; then every title in order, the watched
 // ones marked; then what people said. Likes and comments are saved with
-// accounts; until then the like button only changes the page, and a comment
-// shows for the visit (after the word filter). The ⋯ on the list and on each
-// comment reports it or blocks whoever posted it; blocked people's comments
-// don't show.
+// the account on a real member's list (CommentThread for the comments); on
+// the preview the like only changes the page. The ⋯ on the list reports it
+// or blocks whoever made it.
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 
 export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
   const [liked, setLiked] = useState(false);
   const [said, setSaid] = useState<string | null>(null);
-  const [draft, setDraft] = useState("");
-  const [added, setAdded] = useState<{ who: string; text: string; ago: string }[]>([]);
-  const [refused, setRefused] = useState<string | null>(null);
-  const { blocked } = useSafety();
-  const comments = [...l.comments, ...added].filter((c) => !blocked.includes(c.who));
-  function post() {
-    const text = draft.trim();
-    if (!text) return;
-    const problem = checkText(text);
-    setRefused(problem);
-    if (problem) return;
-    setAdded((a) => [...a, { who: "preview", text, ago: "just now" }]);
-    setDraft("");
+  // A real member's list: its likes from the account, and the heart saves.
+  const [live, setLive] = useState<{ count: number; liked: boolean } | null>(null);
+  useEffect(() => {
+    let stale = false;
+    likeInfo("list", l.owner, l.id)
+      .then((r) => !stale && r && setLive(r))
+      .catch(() => {});
+    return () => {
+      stale = true;
+    };
+  }, [l.owner, l.id]);
+  async function toggleLike() {
+    if (!live) return setLiked(!liked);
+    const before = live;
+    const on = !live.liked;
+    setLive({ liked: on, count: live.count + (on ? 1 : -1) });
+    const r = await setLike("list", l.owner, l.id, on).catch(() => ({ ok: false }));
+    if (!r.ok) setLive(before);
   }
+  const isLiked = live ? live.liked : liked;
+  const likeCount = live ? live.count : l.likes + (liked ? 1 : 0);
   const seen = l.titles.filter((t) => watched.includes(t.key)).length;
   const pct = l.titles.length ? Math.round((seen / l.titles.length) * 100) : 0;
   async function share() {
@@ -79,12 +85,12 @@ export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
             <div className="mt-auto grid grid-cols-2 gap-1.5">
               <button
                 type="button"
-                aria-pressed={liked}
-                onClick={() => setLiked(!liked)}
-                className={`h-[46px] rounded-[12px] flex flex-col items-center justify-center gap-0.5 text-[12.5px] font-semibold cursor-pointer transition-colors ${liked ? "bg-accent-fill text-on-accent" : "bg-card text-dim hover:text-ink"}`}
+                aria-pressed={isLiked}
+                onClick={toggleLike}
+                className={`h-[46px] rounded-[12px] flex flex-col items-center justify-center gap-0.5 text-[12.5px] font-semibold cursor-pointer transition-colors ${isLiked ? "bg-accent-fill text-on-accent" : "bg-card text-dim hover:text-ink"}`}
               >
-                <span aria-hidden>{liked ? "♥" : "♡"}</span>
-                {l.likes + (liked ? 1 : 0)} {l.likes + (liked ? 1 : 0) === 1 ? "like" : "likes"}
+                <span aria-hidden>{isLiked ? "♥" : "♡"}</span>
+                {likeCount} {likeCount === 1 ? "like" : "likes"}
               </button>
               <button type="button" onClick={share} className="h-[46px] rounded-[12px] bg-card text-dim hover:text-ink flex flex-col items-center justify-center gap-0.5 text-[12.5px] font-semibold cursor-pointer">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -137,52 +143,10 @@ export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
 
       <section className="grid grid-cols-[minmax(0,1fr)] gap-2">
         <div>
-          <HeadingPill small>{comments.length ? `Comments · ${comments.length}` : "Comments"}</HeadingPill>
+          <HeadingPill small>Comments</HeadingPill>
         </div>
         <div className={SHELL}>
-          <div className="rounded-shell bg-piece divide-y divide-hair">
-            {comments.map((c, i) => (
-              <div key={i} className="flex items-start gap-3 p-3">
-                <span className="shrink-0 w-8 h-8 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[15px] leading-none pt-[2px]">{c.who[0].toUpperCase()}</span>
-                <div className="min-w-0 text-[12.5px] leading-[1.5]">
-                  <Link href={`/u/${c.who}`} className="font-semibold text-ink no-underline hover:text-accent">
-                    @{c.who}
-                  </Link>
-                  <span className="text-dim"> · {c.ago}</span>
-                  <p className="m-0 mt-0.5 text-mid-tone">{c.text}</p>
-                </div>
-                <MoreButton what={{ kind: "comment", target: `${l.owner}/${l.id}#${i}`, author: c.who, href: `/u/${l.owner}/list/${l.id}`, excerpt: c.text.slice(0, 200) }} className="ml-auto shrink-0 -my-1" />
-              </div>
-            ))}
-            <form
-              className="p-3 grid gap-1.5"
-              onSubmit={(e) => {
-                e.preventDefault();
-                post();
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <input
-                  value={draft}
-                  onChange={(e) => {
-                    setDraft(e.target.value.slice(0, 1000));
-                    setRefused(null);
-                  }}
-                  aria-invalid={!!refused}
-                  placeholder="Add a comment"
-                  className={`flex-1 min-w-0 rounded-full bg-card border px-4 py-2 text-[12.5px] text-ink placeholder:text-dim focus:outline-none ${refused ? "border-loved" : "border-hair focus:border-accent"}`}
-                />
-                <button type="submit" disabled={!draft.trim()} className="h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default">
-                  Post
-                </button>
-              </div>
-              {refused && (
-                <p role="alert" className="m-0 px-4 text-[12.5px] text-loved">
-                  {refused}
-                </p>
-              )}
-            </form>
-          </div>
+          <CommentThread kind="list" owner={l.owner} target={l.id} href={`/u/${l.owner}/list/${l.id}`} sample={l.comments} />
         </div>
       </section>
     </div>

@@ -2,18 +2,16 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { LogoBleed } from "./Logo";
 import { Menu } from "./Menu";
-import { Poster } from "./Poster";
 import { NavSearch } from "./NavSearch";
 import { DayNightToggle } from "./DayNightToggle";
 import { ThemeMenu } from "./ThemeMenu";
-import { optionalLibrary } from "@/lib/library";
-import { upcomingEpisodes, whenLabel } from "@/lib/upcoming";
 import { loadProfile } from "@/lib/profile";
 import { image } from "@/lib/tmdb";
 import { createClient } from "@/lib/supabase/server";
 import { NavLinks } from "./NavLinks";
 import { accountsOpen } from "@/lib/accounts";
 import { NotificationsBell } from "./Notifications";
+import { myNotifications } from "@/lib/my-notifications";
 import { sampleNotifications } from "@/lib/notifications";
 
 // Two navs in one. Signed out, the bar sells the app: the landing page's
@@ -46,6 +44,7 @@ const product: [string, string][] = [
 ];
 
 const menuLinks = [
+  ["/feed", "Feed"],
   ["/calendar", "Calendar"],
   ["/library", "Library"],
   ["/watchlist", "Watchlist"],
@@ -165,8 +164,7 @@ async function signedInUser() {
 }
 
 async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
-  const [{ archive }, profile] = await Promise.all([optionalLibrary(), loadProfile()]);
-  const upcoming = await upcomingEpisodes(archive);
+  const [profile, notes] = await Promise.all([loadProfile(), myNotifications().then((n) => n ?? [])]);
   const initial = ((profile.display_name || email)[0] ?? "?").toUpperCase();
   const avatar = image.poster(profile.avatar_path, "w342");
 
@@ -174,50 +172,9 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
     <div className="ml-auto flex items-center gap-2 sm:gap-4 shrink-0">
       <SearchBoundary />
 
-      <Menu
-        label="Upcoming episodes"
-        width={340}
-        button={
-          <span className="relative block">
-            <BellIcon />
-            {upcoming.length > 0 && (
-              <span className="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-movies text-graphite text-[11px] font-bold leading-[18px] text-center">
-                {upcoming.length}
-              </span>
-            )}
-          </span>
-        }
-      >
-        <div className="px-4 pt-3 pb-2 text-[11px] font-bold tracking-[.14em] uppercase text-dim">This week</div>
-        {upcoming.length === 0 ? (
-          <p className="px-4 pb-4 text-sm text-dim m-0">
-            {archive
-              ? "Nothing airing in the next seven days from what you're watching."
-              : "Add shows to your library and their next episodes show up here."}
-          </p>
-        ) : (
-          <ul className="m-0 p-0 list-none max-h-[420px] overflow-y-auto">
-            {upcoming.map((u) => (
-              <li key={u.show.id}>
-                <Link href={`/show/${u.show.id}`} className="flex gap-3 px-4 py-2.5 hover:bg-card-hi no-underline text-ink">
-                  <div className="w-9 shrink-0">
-                    <Poster path={u.show.poster_path} alt="" className="!rounded-md" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-sm font-semibold leading-tight truncate">{u.show.name}</div>
-                    <div className="text-xs text-dim mt-0.5 truncate">
-                      S{u.episode.season_number} E{u.episode.episode_number} · {u.episode.name}
-                    </div>
-                    <div className="text-xs mt-0.5" style={{ color: u.inDays === 0 ? "var(--accent)" : "var(--dim)" }}>
-                      {whenLabel(u.inDays)}
-                    </div>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Menu>
+      {/* Their notifications: follows, requests, likes and comments. What's
+          airing next is the Calendar's job now. */}
+      <NotificationsBell items={notes} framed={framed} />
 
       <DayNightToggle onPicture={framed} />
       <ThemeMenu onPicture={framed} />
@@ -301,6 +258,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
             <span className="text-sm font-semibold">@preview</span>
           </Link>
           {[
+            ["/feed", "Feed"],
             ["/calendar", "Calendar"],
             ["/library", "Library"],
             ["/watchlist", "Watchlist"],
@@ -368,11 +326,3 @@ function PersonIcon() {
   );
 }
 
-function BellIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16z" />
-      <path d="M10 20a2 2 0 0 0 4 0" />
-    </svg>
-  );
-}

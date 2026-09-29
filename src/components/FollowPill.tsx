@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePrivacy } from "@/lib/privacy";
+import { setFollow } from "@/lib/social-actions";
 
 // Follow, in the theme's accent with its lettering: a pill reading
 // "+ Follow" until you follow, then a circle holding a followed-person mark.
@@ -10,26 +11,50 @@ import { usePrivacy } from "@/lib/privacy";
 // right of the person's card, centred on their three lines, so it can be a
 // comfortable size to press.
 //
-// Nothing is saved yet: follows arrive with the public tables and accounts
-// (docs/social-plan.md, step 4). Until then the chip only changes what it
-// shows, which is enough to see both states on the preview pages.
+// On a real member's profile (`username` and `state` from the server) it
+// follows or asks to (a private profile), shows "Requested" until they
+// answer, and takes either back; a failure flips back and says why. On the
+// preview it only changes what it shows.
 // `owner`: on their own profile, seen as others do with follows turned off
 // (Settings, Privacy), there's no Follow to press.
-export function FollowPill({ initial = false, owner = false }: { initial?: boolean; owner?: boolean }) {
-  const [following, setFollowing] = useState(initial);
+export function FollowPill({ initial = false, owner = false, username, state }: { initial?: boolean; owner?: boolean; username?: string; state?: "none" | "pending" | "following" | "self" }) {
+  const [now, setNow] = useState<"none" | "pending" | "following">(state && state !== "self" ? state : initial ? "following" : "none");
+  const [said, setSaid] = useState<string | null>(null);
   const privacy = usePrivacy(owner);
+  const following = now === "following";
   if (privacy?.others && !privacy.allowFollows) return null;
+  if (state === "self") return null;
+  const press = async () => {
+    const before = now;
+    const on = now === "none";
+    setNow(on ? "following" : "none");
+    if (!username || state === undefined) return;
+    const r = await setFollow(username, on).catch(() => ({ ok: false, error: "That didn't work. Try again." }) as { ok: boolean; error?: string; state?: undefined });
+    if (!r.ok) {
+      setNow(before);
+      if (r.error) {
+        setSaid(r.error);
+        setTimeout(() => setSaid(null), 3000);
+      }
+    } else if (r.state && r.state !== "self") setNow(r.state);
+  };
+  if (now === "pending")
+    return (
+      <button type="button" onClick={press} title="Waiting for them to accept. Press to withdraw." className="inline-flex items-center justify-center rounded-full px-3 bg-card border border-hair text-dim text-[13px] font-semibold cursor-pointer" style={{ height: LINE, marginTop: `calc(${HANDLE} * -0.1)` }}>
+        Requested
+      </button>
+    );
   return (
     <button
       type="button"
       aria-pressed={following}
       aria-label={following ? "Following" : "Follow"}
       title={following ? "Following" : undefined}
-      onClick={() => setFollowing((f) => !f)}
+      onClick={press}
       // A filled pill while it offers "+ Follow"; once followed, no chip at
       // all, only the mark itself in the accent. Inside a filled circle the
       // mark's own disc read as a second, slightly off-centre ring.
-      className={`inline-flex items-center justify-center rounded-full cursor-pointer transition-[filter] hover:brightness-110 ${
+      className={`relative inline-flex items-center justify-center rounded-full cursor-pointer transition-[filter] hover:brightness-110 ${
         following ? "text-accent-fill" : "px-3 bg-accent-fill text-on-accent text-[13px] font-semibold"
       }`}
       // Both states stand as tall as the handle's line and are centred on its
@@ -38,6 +63,11 @@ export function FollowPill({ initial = false, owner = false }: { initial?: boole
       style={{ height: LINE, marginTop: `calc(${HANDLE} * -0.1)` }}
     >
       {following ? <FollowingGlyph /> : "+ Follow"}
+      {said && (
+        <span role="alert" className="absolute right-0 top-[calc(100%+8px)] z-50 whitespace-nowrap rounded-full bg-card-hi border border-hair px-3 py-1 text-[12px] text-ink shadow-lg">
+          {said}
+        </span>
+      )}
     </button>
   );
 }

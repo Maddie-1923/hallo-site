@@ -52,7 +52,9 @@ async function previewFromFile(): Promise<PublicProfileView | null> {
       bio: null,
       location: null,
     }, true);
-    return withSampleLists(await withSampleWatchlog(await withAiredEpisodes(await withUpToDate(withSampleReviews(view), raw))));
+    const drawn = await withSampleLists(await withSampleWatchlog(await withAiredEpisodes(await withUpToDate(withSampleReviews(view), raw))));
+    // A few made-up likes of the sample members' reviews, for the Likes tab.
+    return { ...drawn, liked: drawn.diary.slice(0, 5).map((e, i) => ({ key: `liked-${e.key}-${i}`, kind: "review" as const, title: e.title, poster: e.poster, href: e.href, owner: ["moviemarta", "joelwatches", "night.owl.nadia", "cinemasam", "reeltalk.rosa"][i] })) };
   } catch {
     return null;
   }
@@ -105,6 +107,7 @@ async function sampleProfile(who?: Member): Promise<PublicProfileView> {
       films: films.slice(4, 9),
     },
     watchlist: [...series.slice(6, 9), ...films.slice(4, 12)],
+    liked: [...films.slice(0, 4), ...series.slice(0, 2)].map((t, i) => ({ key: `liked-${t.key}`, kind: i === 5 ? ("list" as const) : ("review" as const), title: i === 5 ? "Comfort rewatches" : t.title, poster: t.poster, href: t.href, owner: ["moviemarta", "joelwatches", "night.owl.nadia", "cinemasam", "reeltalk.rosa", "kdramakai"][i] })),
     watching: series.slice(0, 6).map((x, i) => ({ ...x, seen: Array.from({ length: [6, 14, 3, 20, 9, 2][i] }, (_, e) => `1-${e + 1}`), aired: [[8, 10], [16], [10], [22, 8], [12], [6]][i], lastWatched: day(i * 2 + 1) })),
     topFilms: classics.slice(0, 5),
     topShows: series.slice(1, 6),

@@ -332,6 +332,31 @@ Everything the app does, on a computer.
 3. **Comments** on reviews and lists.
 4. **Notifications:** someone followed you, liked or replied to your review
    or list.
+
+   Steps 4.1–4.4 built 30 Sep (`20260930080000_social_graph.sql`,
+   `lib/social-actions.ts`), on kodigo-dev:
+   - follows: instant for a public profile, a request for a private one
+     ("Requested" on the button, Accept / Decline in the owner's Followers);
+     refused when follows are off or across a block; a block ends follows
+     both ways. Private profiles are now readable by approved followers
+     (`private.can_see`), so the public copy is kept for private accounts;
+   - real follower counts, follower / following lists, Follow state on
+     profiles; blocks from the ⋯ also go to the account;
+   - likes on reviews and lists (one per person, only on what you can see),
+     counts and hearts on review cards and list pages, a Likes tab on
+     profiles;
+   - comments on reviews (their own page) and lists (`CommentThread`):
+     written only by the server after the word filter and a visibility
+     check, 30 an hour; the author or the owner deletes; ⋯ to report;
+   - notifications made by the database (follow, request, accepted, like,
+     comment; a like only once), in the bell (which replaces the old
+     upcoming-episodes bell) and on /notifications, read state on the
+     account;
+   - /feed: what the people you follow reviewed, rated, loved and listed,
+     linked from the account menu.
+   Tested with made-up members in rolled-back transactions. Not yet: email
+   notifications, real Members page data (4.5), batching the per-review
+   like lookups on long title pages.
 5. **Members page:** popular reviewers, most followed, new members.
    `/members` built 29 Sep with made-up members (`lib/members.ts`), each with
    a sample profile; linked from the profile menu.

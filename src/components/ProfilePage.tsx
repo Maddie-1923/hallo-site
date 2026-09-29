@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ProfileTitle, PublicProfileView } from "@/lib/public-profile";
+import type { LikedItem, ProfileTitle, PublicProfileView } from "@/lib/public-profile";
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
 import { FollowList } from "./FollowList";
@@ -103,6 +103,12 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                 label: "Watchlist",
                 count: v.watchlist?.length ?? 0,
                 content: v.watchlist?.length ? <PosterGrid titles={v.watchlist} /> : <Empty>Nothing on the watchlist.</Empty>,
+              },
+              {
+                id: "likes",
+                label: "Likes",
+                count: v.liked?.length ?? 0,
+                content: v.liked?.length ? <LikedGrid items={v.liked} /> : <Empty>No liked reviews or lists yet.</Empty>,
               },
               {
                 // The app's profile grid: its eight built-in categories, then the
@@ -223,7 +229,7 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
         // fits its tile.
         label === "Followers" || label === "Following" ? (
           // Pressed, the people (FollowList).
-          <FollowList key={label} kind={label === "Followers" ? "followers" : "following"} owner={!!v.owner} people={people.filter((p) => p.username !== v.username)} className={TILE}>
+          <FollowList key={label} kind={label === "Followers" ? "followers" : "following"} owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} people={people.filter((p) => p.username !== v.username)} className={TILE}>
             <Tile label={label} value={value} />
           </FollowList>
         ) : (
@@ -325,7 +331,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             where the capitals start; FollowPill sizes itself to the handle's
             line). The follower counts are with the numbers beside the card. */}
         <div className="shrink-0 mt-px flex items-start gap-2">
-          {(v.owner || v.allowFollows !== false) && <FollowPill owner={!!v.owner} />}
+          {(v.owner || v.allowFollows !== false) && <FollowPill owner={!!v.owner} username={v.username} state={v.viewerFollow} />}
           <ProfileMenu username={v.username} owner={!!v.owner} />
         </div>
         </div>
@@ -398,6 +404,30 @@ function PosterGrid({ titles }: { titles: ProfileTitle[] }) {
             <span className="block text-[12.5px] leading-[16px] text-dim">
               {t.year}
               {t.kind === "show" && " · Series"}
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+// The Likes tab: reviews and lists they've liked, each to its page.
+function LikedGrid({ items }: { items: LikedItem[] }) {
+  return (
+    <ol className="m-0 p-0 list-none grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6">
+      {items.map((t) => (
+        <li key={t.key} className="min-w-0">
+          <Link href={t.href} className="group block no-underline text-ink">
+            <span className="block aspect-[2/3] rounded-[10px] overflow-hidden bg-card border border-hair group-hover:border-accent transition-colors">
+              {t.poster && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={t.poster} alt="" className="w-full h-full object-cover" loading="lazy" />
+              )}
+            </span>
+            <span className="block mt-1.5 text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{t.title}</span>
+            <span className="block text-[12.5px] leading-[16px] text-dim truncate">
+              {t.kind === "review" ? "Review" : "List"} by @{t.owner}
             </span>
           </Link>
         </li>

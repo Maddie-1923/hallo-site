@@ -90,7 +90,7 @@ export function ReviewSheetCard({ r, username, avatar, onClose }: { r: SheetRevi
         ) : (
           body
         )}
-        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={reviewPath(username, r.key)} what={{ kind: "review", target: `${username}/${r.key}`, author: username, href: reviewPath(username, r.key), excerpt: r.text.slice(0, 200) }} className="mt-4" />
+        <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={reviewPath(username, r.key)} what={{ kind: "review", target: `${username}/${r.key}`, author: username, href: reviewPath(username, r.key), excerpt: r.text.slice(0, 200) }} owner={username} reviewKey={r.key} className="mt-4" />
         <div className="mt-4 pt-4 border-t border-hair flex justify-end">
           <Link href={r.href} className="inline-block text-[12.5px] leading-none font-semibold text-accent no-underline hover:underline">
             Go to {r.title} →

@@ -98,6 +98,18 @@ export interface CategoryEntry {
   ownerOnly?: boolean;
 }
 
+/** Something a member liked, for their profile's Likes tab. */
+export interface LikedItem {
+  key: string;
+  kind: "review" | "list";
+  /** The film's or series' title, or the list's name. */
+  title: string;
+  poster: string | null;
+  href: string;
+  /** Whose review or list it is. */
+  owner: string;
+}
+
 /** A series in progress, for the profile's mini tracker. */
 export interface TrackerShow extends ProfileTitle {
   /** Every episode they have watched, as "season-episode". */
@@ -164,6 +176,10 @@ export interface PublicProfileView {
   allowFollows?: boolean;
   /** For the owner: each category's eye as their account keeps it. */
   categoryPrivacy?: Record<string, boolean>;
+  /** Whether the person viewing follows them (real profiles, signed in). */
+  viewerFollow?: "none" | "pending" | "following" | "self";
+  /** Reviews and lists they've liked, newest first. */
+  liked?: LikedItem[];
 }
 
 export function showTitle(s: Show): ProfileTitle {

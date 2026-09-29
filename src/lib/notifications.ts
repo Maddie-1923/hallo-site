@@ -6,7 +6,7 @@ import { loadProfile } from "./profile-previews";
 // (docs/social-plan.md, step 4); until then the development preview is given
 // a made-up handful about its own reviews, so the bell and the page can be
 // built and tried. Which kinds show follows Settings, Notifications.
-export type NotificationKind = "follow" | "like" | "comment";
+export type NotificationKind = "follow" | "follow_request" | "follow_accepted" | "like" | "comment";
 
 export interface Notification {
   id: string;
@@ -18,6 +18,11 @@ export interface Notification {
   about?: { title: string; poster: string | null; href: string };
   /** A reply's opening words. */
   text?: string;
+  /** Real ones: where it goes, whether it's about a review or a list, and
+      whether it's been read (the preview's use the browser's last look). */
+  href?: string;
+  target?: "review" | "list";
+  read?: boolean;
 }
 
 const PEOPLE = ["moviemarta", "joelwatches", "night.owl.nadia", "cinemasam", "reeltalk.rosa"];

@@ -10,6 +10,7 @@ import { useSyncExternalStore } from "react";
 // (supabase/migrations/20260930000000_safety.sql) and this store mirrors them.
 
 import type { Report } from "./safety-types";
+import { setBlockedOnAccount } from "./social-actions";
 export { REPORT_REASONS, type Report, type ReportKind, type ReportReason } from "./safety-types";
 
 interface Safety {
@@ -74,6 +75,8 @@ export function useBlocked(username: string | null | undefined): boolean {
 
 export function block(username: string) {
   load();
+  // Signed in, the account keeps it too (nothing happens before accounts).
+  void setBlockedOnAccount(username, true).catch(() => {});
   if (state.blocked.includes(username)) return;
   // Blocking also ends any follow between you, both ways.
   save({ ...state, blocked: [...state.blocked, username], removedFollowers: [...new Set([...state.removedFollowers, username])] });
@@ -81,6 +84,7 @@ export function block(username: string) {
 
 export function unblock(username: string) {
   load();
+  void setBlockedOnAccount(username, false).catch(() => {});
   save({ ...state, blocked: state.blocked.filter((u) => u !== username) });
 }
 
