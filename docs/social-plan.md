@@ -228,7 +228,9 @@ Everything the app does, on a computer.
 2. **Policies:**
    - update the privacy policy for public profiles, ads and crash data;
    - terms of use with rules for user content;
-   - an account-deletion page (Google Play needs it too).
+   - an account-deletion page (Google Play needs it too): `/delete-account`,
+     built 29 Sep, linked from the footer. It promises deletion within 7 days
+     by email for someone who can't sign in; confirm that before opening.
 
 ### 7. Paying and ads
 

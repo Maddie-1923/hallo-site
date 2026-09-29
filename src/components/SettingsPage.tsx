@@ -8,6 +8,7 @@ import { readImport, type ImportSummary } from "@/lib/import-read";
 import { APPEARANCE_KEY, DEFAULT_THEME, THEMES, THEME_KEY, applyTheme, type Appearance } from "@/lib/theme";
 import type { Service } from "@/lib/tmdb";
 import { HeadingPill } from "./TitleParts";
+import { DeleteAccount } from "./DeleteAccount";
 
 // Settings, after the app's Settings screen and the plan's list: who you are,
 // your account, who sees what, what you're told about, where you watch, how
@@ -31,7 +32,7 @@ const SECTIONS = [
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 const ABOUT_KEY = "kodigo.profile-about.preview";
 
-export function SettingsPage({ username, detected, regions, initialServices }: { username: string; detected: string; regions: { code: string; name: string }[]; initialServices: Service[] }) {
+export function SettingsPage({ username, detected, regions, initialServices, signedIn = false }: { username: string; detected: string; regions: { code: string; name: string }[]; initialServices: Service[]; signedIn?: boolean }) {
   const [s, set] = useSettings();
   const [about, setAbout] = useState({ location: "", quote: "" });
   const [theme, setTheme] = useState(DEFAULT_THEME);
@@ -285,10 +286,8 @@ export function SettingsPage({ username, detected, regions, initialServices }: {
         </Group>
 
         <Group id="delete" title="Delete account" note="Your sign-in, the copy of your library on Kodigo's server and your profile go, straight away. A backup you've saved is yours and stays where you put it.">
-          <Field label="Delete your account">
-            <Button off danger>
-              Delete
-            </Button>
+          <Field label="Delete your account" hint="In the app: Settings, Backup & Sync, Kodigo sync.">
+            <DeleteAccount signedIn={signedIn} />
           </Field>
         </Group>
       </div>
