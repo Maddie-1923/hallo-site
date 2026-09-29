@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
+import { genreHref } from "@/lib/browse";
 import { SiteFooter } from "@/components/SiteFooter";
 import { People } from "@/components/People";
 import { TitleCredits } from "@/components/TitleCredits";
@@ -44,7 +46,18 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
 
   // The facts, in the app's order with the year added, each only when there is something to say.
   const facts = [
-    page.genres.length > 0 && { label: "Genres", value: page.genres.join(" · ") },
+    page.genres.length > 0 && {
+      label: "Genres",
+      // Each genre goes to Browse, filtered to it.
+      value: page.genres.map((g, i) => (
+        <span key={g}>
+          {i > 0 && " · "}
+          <Link href={genreHref("movie", g)} className="text-ink no-underline hover:text-accent">
+            {g}
+          </Link>
+        </span>
+      )),
+    },
     page.directors.length > 0 && { label: page.directors.length > 1 ? "Directors" : "Director", value: <People people={page.directors} /> },
     movie.release_date && { label: "Year", value: movie.release_date.slice(0, 4) },
     runtime && { label: "Runtime", value: runtime },
@@ -85,7 +98,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
             }
             actions={<TitleActions kind="movie" title={movie.title} tracked={!!tracked} watched={watched} loved={loved} />}
             beside={page.watch && <WhereToWatchTile watch={page.watch} />}
-            side={<TitleCredits flat cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} releases={page.releases} />}
+            side={<TitleCredits flat kind="movie" cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} releases={page.releases} />}
           />
         </div>
         {/* Under it, the reviews at the About card's width, and their own

@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
+import { genreHref } from "@/lib/browse";
 import { SiteFooter } from "@/components/SiteFooter";
 import { People } from "@/components/People";
 import { TitleCredits } from "@/components/TitleCredits";
@@ -50,7 +52,18 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   // a tracked show adds how far along it is, in the accent.
   const left = page.episodeCount - watched.length;
   const facts = [
-    page.genres.length > 0 && { label: "Genres", value: page.genres.join(" · ") },
+    page.genres.length > 0 && {
+      label: "Genres",
+      // Each genre goes to Browse, filtered to it.
+      value: page.genres.map((g, i) => (
+        <span key={g}>
+          {i > 0 && " · "}
+          <Link href={genreHref("show", g)} className="text-ink no-underline hover:text-accent">
+            {g}
+          </Link>
+        </span>
+      )),
+    },
     page.creators.length > 0 && { label: "Created by", value: <People people={page.creators} /> },
     page.seasonCount && { label: "Seasons", value: String(page.seasonCount) },
     page.episodeCount && { label: "Episodes", value: String(page.episodeCount) },
@@ -118,7 +131,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             }
             actions={<TitleActions kind="show" title={show.name} tracked={!!tracked} loved={loved} stopped={tracked?.status === "Dropped"} />}
             beside={page.watch && <WhereToWatchTile watch={page.watch} />}
-            side={<TitleCredits flat cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} airing={page.airing} />}
+            side={<TitleCredits flat kind="show" cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} airing={page.airing} />}
           />
         </div>
         {/* The season list, straight under the bento and before their take,

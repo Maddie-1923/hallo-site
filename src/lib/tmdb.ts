@@ -958,3 +958,66 @@ export async function regionServices(region: string, limit = 48): Promise<Servic
   return [...seen.values()].sort((a, b) => a.rank - b.rank).slice(0, limit).map((x) => x.s);
 }
 
+// ---- Browse: TMDB's discover, filtered ----
+
+export interface BrowseTitle {
+  id: number;
+  kind: "movie" | "show";
+  title: string;
+  year: string;
+  poster: string | null;
+  vote: number | null;
+}
+
+/** One page of films or series matching Browse's filters. Region decides
+    where to watch. `genre`, `network` and `providers` are TMDB ids. */
+export async function discoverTitles(q: {
+  kind: "films" | "series";
+  genre?: number;
+  decade?: string;
+  providers?: number[];
+  network?: number;
+  status?: "airing" | "ended" | "cancelled";
+  sort: "popular" | "rated" | "new" | "alltime";
+  region: string;
+  page?: number;
+}): Promise<{ results: BrowseTitle[]; pages: number; total: number }> {
+  const tv = q.kind === "series";
+  const dateKey = tv ? "first_air_date" : "primary_release_date";
+  const today = new Date().toISOString().slice(0, 10);
+  const params: Record<string, string | number | undefined> = {
+    page: q.page ?? 1,
+    with_genres: q.genre,
+    sort_by: q.sort === "rated" ? "vote_average.desc" : q.sort === "new" ? `${dateKey}.desc` : q.sort === "alltime" ? "vote_count.desc" : "popularity.desc",
+    "vote_count.gte": q.sort === "rated" ? 300 : q.sort === "new" ? 5 : undefined,
+    [`${dateKey}.lte`]: q.sort === "new" ? today : undefined,
+    with_networks: tv ? q.network : undefined,
+    with_status: tv && q.status ? { airing: "0", ended: "3", cancelled: "4" }[q.status] : undefined,
+    region: tv ? undefined : q.region,
+  };
+  if (q.decade) {
+    const y = Number(q.decade.slice(0, 4));
+    params[`${dateKey}.gte`] = `${y}-01-01`;
+    params[`${dateKey}.lte`] = [`${y + 9}-12-31`, params[`${dateKey}.lte`] as string | undefined].filter(Boolean).sort()[0];
+  }
+  if (q.providers?.length) {
+    params.with_watch_providers = q.providers.join("|");
+    params.watch_region = q.region;
+    params.with_watch_monetization_types = "flatrate|free|ads";
+  }
+  type Raw = { page: number; total_pages: number; total_results: number; results: { id: number; title?: string; name?: string; release_date?: string; first_air_date?: string; poster_path?: string | null; vote_average?: number }[] };
+  const r = await tmdb<Raw>(`/discover/${tv ? "tv" : "movie"}`, params);
+  return {
+    results: (r?.results ?? []).map((x) => ({
+      id: x.id,
+      kind: tv ? ("show" as const) : ("movie" as const),
+      title: x.title ?? x.name ?? "",
+      year: (x.release_date ?? x.first_air_date ?? "").slice(0, 4),
+      poster: image.poster(x.poster_path),
+      vote: x.vote_average || null,
+    })),
+    pages: Math.min(r?.total_pages ?? 0, 500),
+    total: r?.total_results ?? 0,
+  };
+}
+

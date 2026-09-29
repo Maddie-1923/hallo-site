@@ -40,8 +40,8 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
         <Row title="Trending this week" href="/shows" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} />
         <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
         <Row title="New series coming" href="/shows" items={asShows(upcoming)} marks={marks} />
-        <Row title="Popular now" href="/shows" items={asShows(popular)} marks={marks} />
-        <Row title="Top rated" href="/shows" items={asShows(topRated)} marks={marks} />
+        <Row title="Popular now" href="/browse/series" items={asShows(popular)} marks={marks} />
+        <Row title="Top rated" href="/browse/series/sort/rated" items={asShows(topRated)} marks={marks} />
       </Layout>
     );
   }
@@ -61,8 +61,8 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
       <Row title="Trending this week" href="/movies" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} />
       <Row title={`In cinemas · ${place}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
       <Row title={`Coming soon · ${place}`} href="/movies" items={asMovies(upcoming)} marks={marks} />
-      <Row title="Popular now" href="/movies" items={asMovies(popular)} marks={marks} />
-      <Row title="Top rated" href="/movies" items={asMovies(topRated)} marks={marks} />
+      <Row title="Popular now" href="/browse/films" items={asMovies(popular)} marks={marks} />
+      <Row title="Top rated" href="/browse/films/sort/rated" items={asMovies(topRated)} marks={marks} />
     </Layout>
   );
 }
@@ -102,6 +102,10 @@ function KindSwitch({ kind }: { kind: "show" | "movie" }) {
           {label}
         </Link>
       ))}
+      {/* Every film or series, with filters. */}
+      <Link href={kind === "show" ? "/browse/series" : "/browse/films"} className="px-4 py-1.5 rounded-full text-[13px] font-bold no-underline text-white/75 hover:text-white">
+        Browse all →
+      </Link>
     </div>
   );
 }

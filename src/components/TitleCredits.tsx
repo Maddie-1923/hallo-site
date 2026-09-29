@@ -3,6 +3,7 @@ import type { CastMember, CrewGroup, ReleaseGroup, TitleDetails } from "@/lib/tm
 import { ProfileSections } from "./ProfileNav";
 import { CastGrid } from "./TitleParts";
 import { Themes } from "./Themes";
+import { genreHref } from "@/lib/browse";
 import { Day } from "./Day";
 
 // The credits and facts under a title, as Letterboxd keeps them, in the
@@ -18,6 +19,7 @@ export function TitleCredits({
   releases,
   airing,
   flat = false,
+  kind,
 }: {
   cast: CastMember[];
   crew: CrewGroup[];
@@ -28,6 +30,8 @@ export function TitleCredits({
   airing?: { networks: { name: string; logo: string | null }[]; seasons: { name: string; date: string | null; episodes: number }[]; ratings: { country: string; rating: string }[] };
   /** In the title's bento rather than on the page. */
   flat?: boolean;
+  /** For the genres' links into Browse. */
+  kind?: "movie" | "show";
 }) {
   const sections = [
     cast.length > 0 && { id: "cast", label: "Cast", count: cast.length, bare: true, content: <CastGrid cast={cast} /> },
@@ -57,7 +61,9 @@ export function TitleCredits({
           {genres.length > 0 && (
             <Row label={genres.length === 1 ? "Genre" : "Genres"}>
               {genres.map((g) => (
-                <Chip key={g}>{g}</Chip>
+                <Chip key={g} href={kind ? genreHref(kind, g) : undefined}>
+                  {g}
+                </Chip>
               ))}
             </Row>
           )}

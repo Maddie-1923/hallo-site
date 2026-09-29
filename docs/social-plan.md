@@ -204,7 +204,10 @@ Everything the app does, on a computer.
 
 ### 5. Discovery
 
-1. **Browse with stackable filters**, for films and series alike:
+1. **Browse with stackable filters** (`/browse/...` built 29 Sep: genre,
+   decade, where to watch with My services, sort, and for series network and
+   status; number of seasons isn't a TMDB filter, so left out), for films and
+   series alike:
    - genre, decade and year, where to watch, highest rated, popular this
      week, month or all time;
    - for series, network, status (airing, ended, returning) and number of
