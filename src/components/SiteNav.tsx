@@ -21,15 +21,17 @@ import { accountsOpen } from "@/lib/accounts";
 // themes, the marketing pages, sign out — out of the way.
 
 // No Home: the logo and wordmark are the way home.
+// Movies and Shows go straight to Explore's two halves; the app's own page
+// is in the profile menu with the subscription.
 const marketing: [string, string][] = [
-  ["/explore", "Explore"],
-  ["/about", "The app"],
+  ["/movies", "Movies"],
+  ["/shows", "Shows"],
 ];
 
 // The phone's four, in the phone's order: somewhere to find things, the two
 // piles you are working through, and the page that holds everything settled.
 const product: [string, string][] = [
-  ["/explore", "Explore"],
+  ["/shows", "Explore"],
   ["/app/shows", "Shows"],
   ["/app/movies", "Movies"],
   ["/app/profile", "Profile"],
@@ -41,6 +43,7 @@ const menuLinks = [
   ["/app/account", "Account"],
   ["/app/import", "Import a backup"],
   ["/about#themes", "Themes"],
+  ["/about", "The app"],
   ["/pro", "Subscription"],
   ["/whats-new", "What's new"],
   ["/about#faq", "FAQ"],
@@ -280,6 +283,9 @@ function GuestProfile({ framed }: { framed: boolean }) {
       {/* The subscription and the news live here, as Letterboxd keeps them in
           its account menu, rather than on the bar. */}
       <div className="border-t border-hair py-1">
+        <Link href="/about" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
+          The app
+        </Link>
         <Link href="/pro" className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
           Subscription
         </Link>

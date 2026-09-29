@@ -50,11 +50,11 @@ export default async function Home() {
         {/* The same gutters as the billboard, so the rows' edges line up with
             the card's. Not .wrap: its padding is unlayered and would win. */}
         <div className="w-full px-[clamp(16px,3.2vw,64px)] pb-16">
-          <Row title="Trending this week" href="/explore" items={trending} marks={marks} />
-          <Row title={`In cinemas · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(inCinemas)} marks={marks} />
-          <Row title="New episodes this week" href="/explore" items={asShows(airing)} marks={marks} />
-          <Row title={`Coming soon · ${regionName(region)}`} href="/explore?kind=movie" items={asMovies(comingFilms)} marks={marks} />
-          <Row title="Highest rated" href="/explore?kind=movie" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
+          <Row title="Trending this week" href="/shows" items={trending} marks={marks} />
+          <Row title={`In cinemas · ${regionName(region)}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
+          <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
+          <Row title={`Coming soon · ${regionName(region)}`} href="/movies" items={asMovies(comingFilms)} marks={marks} />
+          <Row title="Highest rated" href="/movies" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
         </div>
 
         {/* The app's pitch, last: the page opens on the posters, and whoever

@@ -1,8 +1,9 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { ExplorePage } from "@/components/ExplorePage";
 
-// Explore took over browsing when the site's words were lined up with the
-// app's. These paths were public and may be linked from outside, so they
-// forward rather than 404.
-export default function Moved() {
-  redirect("/explore");
+export const metadata: Metadata = { title: "Shows — Kodigo" };
+
+// Explore's series, at their own address so the bar can go straight to them.
+export default function Shows() {
+  return <ExplorePage kind="show" />;
 }

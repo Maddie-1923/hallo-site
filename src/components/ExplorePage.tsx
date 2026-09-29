@@ -37,11 +37,11 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
     const shown = new Set(slides.map((s) => s.key));
     return (
       <Layout slides={slides} kind={kind}>
-        <Row title="Trending this week" href="/explore" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} />
-        <Row title="New episodes this week" href="/explore" items={asShows(airing)} marks={marks} />
-        <Row title="New series coming" href="/explore" items={asShows(upcoming)} marks={marks} />
-        <Row title="Popular now" href="/explore" items={asShows(popular)} marks={marks} />
-        <Row title="Top rated" href="/explore" items={asShows(topRated)} marks={marks} />
+        <Row title="Trending this week" href="/shows" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} />
+        <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
+        <Row title="New series coming" href="/shows" items={asShows(upcoming)} marks={marks} />
+        <Row title="Popular now" href="/shows" items={asShows(popular)} marks={marks} />
+        <Row title="Top rated" href="/shows" items={asShows(topRated)} marks={marks} />
       </Layout>
     );
   }
@@ -58,11 +58,11 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
   const shown = new Set(slides.map((s) => s.key));
   return (
     <Layout slides={slides} kind={kind}>
-      <Row title="Trending this week" href="/explore?kind=movie" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} />
-      <Row title={`In cinemas · ${place}`} href="/explore?kind=movie" items={asMovies(inCinemas)} marks={marks} />
-      <Row title={`Coming soon · ${place}`} href="/explore?kind=movie" items={asMovies(upcoming)} marks={marks} />
-      <Row title="Popular now" href="/explore?kind=movie" items={asMovies(popular)} marks={marks} />
-      <Row title="Top rated" href="/explore?kind=movie" items={asMovies(topRated)} marks={marks} />
+      <Row title="Trending this week" href="/movies" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} />
+      <Row title={`In cinemas · ${place}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
+      <Row title={`Coming soon · ${place}`} href="/movies" items={asMovies(upcoming)} marks={marks} />
+      <Row title="Popular now" href="/movies" items={asMovies(popular)} marks={marks} />
+      <Row title="Top rated" href="/movies" items={asMovies(topRated)} marks={marks} />
     </Layout>
   );
 }
@@ -85,8 +85,8 @@ function Layout({ slides, kind, children }: { slides: Awaited<ReturnType<typeof 
     it sits on the billboard's photograph. */
 function KindSwitch({ kind }: { kind: "show" | "movie" }) {
   const tabs: [string, string, boolean][] = [
-    ["/explore", "Shows", kind === "show"],
-    ["/explore?kind=movie", "Movies", kind === "movie"],
+    ["/shows", "Shows", kind === "show"],
+    ["/movies", "Movies", kind === "movie"],
   ];
   return (
     <div className="inline-flex gap-1 p-[3px] rounded-full bg-black/40 border border-white/20 backdrop-blur-md">

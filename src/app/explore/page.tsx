@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
-import { ExplorePage } from "@/components/ExplorePage";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Explore — Kodigo" };
-
+// Explore is now Movies and Shows, each at its own address. Links to the old
+// one still land in the right half.
 export default async function Explore({ searchParams }: PageProps<"/explore">) {
   const { kind } = await searchParams;
-  return <ExplorePage kind={kind === "movie" ? "movie" : "show"} />;
+  redirect(kind === "movie" ? "/movies" : "/shows");
 }
