@@ -230,7 +230,7 @@ export default async function About() {
               <div className="card !bg-card-hi !border-accent transition-colors duration-500">
                 <div className="display text-[52px] leading-none">$15.99</div>
                 <div className="text-sm text-dim">per year</div>
-                <div className="text-xs font-bold tracking-[.1em] uppercase text-accent mt-2.5">Four months free</div>
+                <div className="text-xs font-bold tracking-[.1em] uppercase text-accent mt-2.5">Save 33%</div>
               </div>
             </div>
             <p className="text-sm text-dim mt-4">Prices shown in USD and converted to your local store currency by Apple.</p>
