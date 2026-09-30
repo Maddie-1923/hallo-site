@@ -19,6 +19,9 @@
   --graphite: #1a1a19;
   --bone: #eeeff2;
   --ink: #eeeff2;
+  /* The logo's k and wordmark: cream by night as the page's ink; by day the
+     app icon's navy, never black. */
+  --logo-ink: var(--ink);
   --card: #2a2d32;
   --card-hi: #353a41;
   /* The app's list-row pieces (Theme.swift, night): the row's card
@@ -70,6 +73,7 @@
 }
 
 :root[data-scheme="light"] {
+  --logo-ink: #122042;
   --page: #e6e0d6;
   --ink: #1a1a19;
   --card: #f4f1ea;
@@ -106,6 +110,7 @@
    the default, and a light `data-scheme` has already overridden them by the
    time this applies. */
 .scheme-dark {
+  --logo-ink: #eeeff2;
   --page: #17191c;
   --ink: #eeeff2;
   --card: #2a2d32;

@@ -10,7 +10,7 @@ export function SiteFooter() {
           <div>
             <Link href="/" className="flex items-center gap-2.5 no-underline mb-3.5">
               <LogoMark size={18} />
-              <span className="display text-[22px] text-ink">Kodigo</span>
+              <span className="display text-[22px] text-[color:var(--logo-ink)]">Kodigo</span>
             </Link>
             <div>© 2026 Kodigo</div>
           </div>

@@ -5,8 +5,8 @@
 // size), in that image's 1024-pixel coordinates.
 //
 // Vector rather than the PNG so it stays sharp at any size, and so the k can
-// take the page's ink: cream by night as in the app, graphite by day, where a
-// cream k would disappear into a Bone page. The stripes keep their own colours
+// take the logo's ink (--logo-ink): cream by night as in the app, and by day
+// the app icon's navy, since a cream k would disappear into a Bone page. The stripes keep their own colours
 // in both.
 //
 // The k is three thick strokes with round caps: the stem, and two arms at 45°
@@ -40,7 +40,7 @@ export function LogoMark({ size = 20, label }: { size?: number; label?: string }
       <rect x="295" y="65" width="137" height="560" rx="68.5" fill={PINK} />
       <rect x="385" y="118" width="14" height="507" fill="url(#kodigo-stripe-shade)" />
       <rect x="248" y="65" width="137" height="560" rx="68.5" fill={YELLOW} />
-      <g stroke="var(--ink)" strokeWidth="226" strokeLinecap="round" fill="none">
+      <g stroke="var(--logo-ink)" strokeWidth="226" strokeLinecap="round" fill="none">
         <path d="M361 568V852" />
         <path d="M640 568L361 847" />
         <path d="M648 852L361 565" />
@@ -74,7 +74,7 @@ export function LogoBleed({ height = 48 }: { height?: number }) {
       <rect x="317" y="-260" width="136" height="820" fill={PINK} />
       <rect x="406" y="-260" width="14" height="820" fill="url(#kodigo-bleed-shade)" />
       <rect x="270" y="-260" width="136" height="820" fill={YELLOW} />
-      <g stroke="var(--ink)" strokeWidth="226" strokeLinecap="round" fill="none">
+      <g stroke="var(--logo-ink)" strokeWidth="226" strokeLinecap="round" fill="none">
         <path d="M383 520V804" />
         <path d="M662 520L383 799" />
         <path d="M670 804L383 517" />

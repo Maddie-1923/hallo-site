@@ -95,7 +95,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
             <span className="absolute left-0 bottom-[4px]">
               <LogoBleed height={logoHeight} />
             </span>
-            <span className="display text-2xl leading-none">Kodigo</span>
+            <span className="display text-2xl leading-none text-[color:var(--logo-ink)]">Kodigo</span>
           </Link>
           <div className="hidden md:flex items-baseline gap-5 text-sm text-dim">
             <NavLinks links={tabs} />
