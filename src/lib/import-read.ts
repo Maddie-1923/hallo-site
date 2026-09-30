@@ -2,7 +2,10 @@
 // file is and what's in it, as the app's import tells you before it writes
 // anything, before Import reads it properly (lib/imports).
 import { isArchive, type LibraryArchive } from "./archive";
-import { readZip } from "./imports/zip";
+import { looksLikeZip } from "./imports/zip";
+import { describeImportFile, readTvTimeFiles } from "./imports";
+import type { ImportedEntry } from "./imports/table";
+import { isEpisode } from "./imports/table";
 
 export interface ImportSummary {
   file: string;
@@ -11,37 +14,6 @@ export interface ImportSummary {
   counts: [string, number][];
   /** Anything the reader couldn't use, in a sentence. */
   note?: string;
-}
-
-/** Splits a CSV into rows of cells, honouring quotes. */
-function csv(text: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let cell = "";
-  let quoted = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (quoted) {
-      if (c === '"' && text[i + 1] === '"') {
-        cell += '"';
-        i++;
-      } else if (c === '"') quoted = false;
-      else cell += c;
-    } else if (c === '"') quoted = true;
-    else if (c === ",") {
-      row.push(cell);
-      cell = "";
-    } else if (c === "\n" || c === "\r") {
-      if (c === "\r" && text[i + 1] === "\n") i++;
-      row.push(cell);
-      if (row.some((x) => x !== "")) rows.push(row);
-      row = [];
-      cell = "";
-    } else cell += c;
-  }
-  row.push(cell);
-  if (row.some((x) => x !== "")) rows.push(row);
-  return rows;
 }
 
 function kodigo(a: LibraryArchive, file: string): ImportSummary {
@@ -61,71 +33,59 @@ function kodigo(a: LibraryArchive, file: string): ImportSummary {
   };
 }
 
+/** The app's name out of what the reader called the file: "Refract library" → "Refract". */
+function appName(format: string): string {
+  return format.replace(/\s*\(.*\)$/, "").replace(/ (library|history|ratings|episodes|favourites|diary|watched|watchlist|likes|lists|reviews|shows|movies|csv|json)$/i, "");
+}
+
+/** A title once, however many rows name it: by its id, else its folded name. */
+function titleOf(e: ImportedEntry) {
+  return String(e.tmdbID ?? e.imdbID ?? e.tvdbID ?? e.title.toLowerCase());
+}
+
 export async function readImport(f: File): Promise<ImportSummary> {
-  const name = f.name.toLowerCase();
-  // A zip (TV Time's export, Letterboxd's): what's inside, each file read the
-  // same way, as the importer will open it itself.
-  if (name.endsWith(".zip")) {
-    let inside: { name: string; data: Uint8Array }[];
+  const name = f.name;
+  const data = new Uint8Array(await f.arrayBuffer());
+  const zip = looksLikeZip(data);
+  if (/\.json$/i.test(name) && !zip) {
     try {
-      inside = readZip(new Uint8Array(await f.arrayBuffer()), [".csv", ".json"]).payloads;
+      const parsed = JSON.parse(new TextDecoder().decode(data));
+      if (isArchive(parsed)) return kodigo(parsed, name);
     } catch {
-      return { file: f.name, source: "Unreadable zip", counts: [], note: "This zip couldn't be opened. Download it again and try once more." };
+      return { file: name, source: "Unreadable", counts: [], note: "This file isn't valid JSON." };
     }
-    const parts = await Promise.all(inside.map((e) => readImport(new File([e.data.slice()], e.name.split("/").pop() ?? e.name))));
-    const known = parts.filter((p) => p.counts.length > 0);
-    if (!known.length) return { file: f.name, source: "A zip file", counts: [], note: "Nothing inside looked like a watch history." };
-    const tv = known.find((p) => p.source.startsWith("TV Time"));
-    const counts = new Map<string, number>();
-    for (const p of known) for (const [label, n] of p.counts) counts.set(label, (counts.get(label) ?? 0) + n);
-    return { file: f.name, source: tv ? "TV Time export" : `${known[0].source} (zip)`, counts: [...counts.entries()], note: `${inside.length} files inside, ${known.length} with history in them.` };
   }
-  const text = await f.text();
-  if (name.endsWith(".json")) {
-    let data: unknown;
+  if (!zip && !/\.(csv|json|txt)$/i.test(name)) return { file: name, source: "Not an export", counts: [], note: "Pick the CSV, JSON or zip your old app exported, or a Kodigo backup." };
+
+  // TV Time's own export first, as Import tries it first.
+  if (zip || /tv.?time/i.test(name)) {
     try {
-      data = JSON.parse(text);
-    } catch {
-      return { file: f.name, source: "Unreadable", counts: [], note: "This file isn't valid JSON." };
-    }
-    if (isArchive(data)) return kodigo(data, f.name);
-    if (Array.isArray(data)) {
-      const first = (data[0] ?? {}) as Record<string, unknown>;
-      if ("show" in first || "movie" in first || "episode" in first) {
-        const shows = data.filter((x) => (x as Record<string, unknown>).show).length;
-        const films = data.filter((x) => (x as Record<string, unknown>).movie).length;
-        return { file: f.name, source: "Trakt export", counts: [["Show entries", shows], ["Film entries", films]].filter(([, n]) => (n as number) > 0) as [string, number][] };
+      const t = readTvTimeFiles([{ name, data }]);
+      const episodes = t.shows.reduce((n, s) => n + s.episodes.length, 0);
+      if (t.shows.length || t.movies.length) {
+        return { file: name, source: "TV Time export", counts: ([["Series", t.shows.length], ["Films", t.movies.length], ["Episodes watched", episodes]] as [string, number][]).filter(([, n]) => n > 0) };
       }
-    }
-    const o = data as Record<string, unknown>;
-    if (o && (Array.isArray(o.shows) || Array.isArray(o.movies) || Array.isArray(o.anime))) {
-      return {
-        file: f.name,
-        source: "Simkl export",
-        counts: [
-          ["Shows", Array.isArray(o.shows) ? o.shows.length : 0],
-          ["Films", Array.isArray(o.movies) ? o.movies.length : 0],
-          ["Anime", Array.isArray(o.anime) ? o.anime.length : 0],
-        ].filter(([, n]) => (n as number) > 0) as [string, number][],
-      };
-    }
-    return { file: f.name, source: "Unknown JSON", counts: [], note: "Kodigo couldn't tell which app this came from." };
+    } catch {}
   }
-  if (name.endsWith(".csv")) {
-    const rows = csv(text);
-    const head = (rows[0] ?? []).map((h) => h.trim().toLowerCase());
-    const n = Math.max(0, rows.length - 1);
-    const has = (...cols: string[]) => cols.every((c) => head.includes(c));
-    if (has("letterboxd uri")) {
-      const kind = name.includes("rating") ? "Ratings" : name.includes("review") ? "Reviews" : name.includes("diary") ? "Diary entries" : name.includes("watchlist") ? "Watchlist films" : "Films watched";
-      return { file: f.name, source: "Letterboxd export", counts: [[kind, n]] };
-    }
-    if (has("const", "your rating")) return { file: f.name, source: "IMDb ratings", counts: [["Ratings", n]] };
-    if (has("const") && head.includes("title type")) return { file: f.name, source: "IMDb list", counts: [["Titles", n]] };
-    if (head.some((h) => h.startsWith("tv_show") || h.startsWith("episode_") || h === "series_name")) return { file: f.name, source: "TV Time export", counts: [["Rows", n]] };
-    if (head.some((h) => h.includes("simkl"))) return { file: f.name, source: "Simkl export", counts: [["Titles", n]] };
-    if (head.some((h) => h.includes("trakt"))) return { file: f.name, source: "Trakt export", counts: [["Rows", n]] };
-    return { file: f.name, source: "Unknown CSV", counts: [["Rows", n]], note: "Kodigo couldn't tell which app this came from." };
+
+  // Everything else, read exactly as Import will read it (lib/imports).
+  let parts: ReturnType<typeof describeImportFile>;
+  try {
+    parts = describeImportFile({ name, data });
+  } catch {
+    return { file: name, source: "Unreadable", counts: [], note: "This file couldn't be opened. Export it again and try once more." };
   }
-  return { file: f.name, source: "Not an export", counts: [], note: "Pick the CSV or JSON files your old app exported, or a Kodigo backup." };
+  const used = parts.filter((p) => p.entries.length > 0);
+  if (!used.length) return { file: name, source: zip ? "A zip file" : "Unknown file", counts: [], note: zip ? "Nothing inside looked like a watch history." : "Kodigo couldn't find a watch history in this file." };
+  const entries = used.flatMap((p) => p.entries);
+  const series = new Set(entries.filter((e) => isEpisode(e) || e.kind === "shows").map(titleOf));
+  const films = new Set(entries.filter((e) => !isEpisode(e) && e.kind === "movies").map(titleOf));
+  const other = new Set(entries.filter((e) => !isEpisode(e) && e.kind !== "shows" && e.kind !== "movies").map(titleOf));
+  const named = used.find((p) => p.format)?.format;
+  return {
+    file: name,
+    source: named ? `${appName(named)} export` : "Another app's export",
+    counts: ([["Series", series.size], ["Films", films.size], ["Titles", other.size], ["Episodes watched", entries.filter(isEpisode).length]] as [string, number][]).filter(([, n]) => n > 0),
+    note: zip && parts.length > 1 ? `${parts.length} files inside, ${used.length} with history in them.` : named || zip ? undefined : "Kodigo couldn't tell which app this came from, so it read the columns.",
+  };
 }

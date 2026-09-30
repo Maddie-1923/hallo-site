@@ -54,6 +54,19 @@ function read(name: string, data: Uint8Array): [ImportedEntry[], string | null] 
   return [readEntries(table, mapping), null];
 }
 
+/**
+ * What the importer will make of a file, before anything is looked up: each
+ * file inside it (a zip opened), what it was recognised as, and its rows.
+ * The website shows this under the files picked, so what it says there is
+ * what Import will do.
+ */
+export function describeImportFile(file: ImportFile): { name: string; format: string | null; entries: ImportedEntry[] }[] {
+  return unpack(file).map((f) => {
+    const [entries, format] = read(f.name, f.data);
+    return { name: f.name, format, entries };
+  });
+}
+
 type Match = { kind: "show"; show: Show; guessed: boolean } | { kind: "movie"; movie: Movie; guessed: boolean };
 
 /**

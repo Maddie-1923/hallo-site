@@ -7,8 +7,8 @@
 // is saved.
 
 export * from "./types";
-export { runUniversalImport, showStatus, movieStatus } from "./universal";
+export { runUniversalImport, showStatus, movieStatus, describeImportFile } from "./universal";
 export { runTvTimeImport, tvTimeRatingScore } from "./tvtime";
 export { applyImportPlan } from "./apply";
 export { mergeArchives, pruneArchive, MERGED_VERSION } from "./merge";
-export { diagnosticsReport } from "./tvtime-reader";
+export { diagnosticsReport, readTvTimeFiles } from "./tvtime-reader";
