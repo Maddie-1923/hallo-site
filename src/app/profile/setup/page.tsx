@@ -4,7 +4,6 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { UsernameSetup } from "@/components/UsernameSetup";
 import { accountsOpen } from "@/lib/accounts";
-import { optionalLibrary } from "@/lib/library";
 import { loadProfile } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,14 +16,12 @@ export default async function ProfileSetup() {
   let current: string | null = null;
   let isPrivate = false;
   let suggestion = "";
-  let hasLibrary = false;
   if (accountsOpen) {
     const { data: { user } } = await (await createClient()).auth.getUser();
     if (!user) redirect("/login?next=/profile/setup");
-    const [profile, lib] = await Promise.all([loadProfile(), optionalLibrary()]);
+    const profile = await loadProfile();
     current = profile.username;
     isPrivate = profile.is_private;
-    hasLibrary = !!lib.archive;
     suggestion = suggest(profile.display_name || user.email?.split("@")[0] || "");
   } else {
     redirect("/");
@@ -33,7 +30,7 @@ export default async function ProfileSetup() {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <UsernameSetup current={current} initialPrivate={isPrivate} suggestion={suggestion} hasLibrary={hasLibrary} preview={!accountsOpen} />
+        <UsernameSetup current={current} initialPrivate={isPrivate} suggestion={suggestion} />
       </main>
       <SiteFooter />
     </div>

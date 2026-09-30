@@ -25,8 +25,8 @@ export async function usernameAvailable(raw: string): Promise<{ ok: boolean; mes
   if (!accountsOpen || !db) return { ok: true, message: "Looks good." };
   const { data: { user } } = await (await createClient()).auth.getUser();
   const { data } = await db.from("profiles").select("user_id").eq("username", name).maybeSingle();
-  if (data && data.user_id !== user?.id) return { ok: false, message: "That username is taken." };
-  return { ok: true, message: data ? "That's your username now." : "Available." };
+  if (data && data.user_id !== user?.id) return { ok: false, message: "Taken. Try another." };
+  return { ok: true, message: data ? "That's your username now." : "Available" };
 }
 
 /** Takes the username and the public/private choice for the signed-in person. */

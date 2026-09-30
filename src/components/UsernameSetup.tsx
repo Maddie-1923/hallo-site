@@ -8,7 +8,7 @@ const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--li
 
 // The username form: the name, checked as it's typed; what a public profile
 // shows; public or private; save, then on to the profile.
-export function UsernameSetup({ current, initialPrivate, suggestion, hasLibrary, preview }: { current: string | null; initialPrivate: boolean; suggestion: string; hasLibrary: boolean; preview: boolean }) {
+export function UsernameSetup({ current, initialPrivate, suggestion }: { current: string | null; initialPrivate: boolean; suggestion: string }) {
   const router = useRouter();
   const [name, setName] = useState(current ?? suggestion);
   const [isPrivate, setPrivate] = useState(initialPrivate);
@@ -34,7 +34,7 @@ export function UsernameSetup({ current, initialPrivate, suggestion, hasLibrary,
     setError(null);
     const r = await claimUsername(clean, isPrivate).catch(() => ({ ok: false as const, message: "That didn't save. Try again." }));
     if (!r.ok) {
-      setError(preview ? "This is the preview: usernames save once accounts open." : r.message);
+      setError(r.message);
       setBusy(false);
       return;
     }
@@ -66,13 +66,13 @@ export function UsernameSetup({ current, initialPrivate, suggestion, hasLibrary,
         <div className="rounded-shell bg-piece p-4 grid gap-4">
           <div>
             <h1 className="!text-[clamp(32px,4.4vw,48px)] !leading-[.9] tracking-[.02em] uppercase">{current ? "Your username" : "Choose your username"}</h1>
-            <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">It&apos;s your profile&apos;s address and how people find you. Nothing of yours is public until you choose one.</p>
+            <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">It&apos;s how people find you on Kodigo.</p>
           </div>
 
           <label className="grid gap-1.5">
             <span className="text-[12.5px] text-dim">Username</span>
             <span className={`flex items-center rounded-[12px] bg-card border px-3 ${status && !status.ok ? "border-loved" : "border-hair focus-within:border-accent"}`}>
-              <span className="text-[14px] text-dim select-none">kodigo.pro/u/</span>
+              <span className="text-[14px] text-dim select-none">@</span>
               <input
                 autoFocus
                 value={name}
@@ -88,24 +88,24 @@ export function UsernameSetup({ current, initialPrivate, suggestion, hasLibrary,
                 className="flex-1 min-w-0 bg-transparent py-2 text-[14px] text-ink focus:outline-none"
               />
             </span>
-            <span id="username-status" role="status" className={`text-[12.5px] min-h-[18px] ${status ? (status.ok ? "text-accent" : "text-loved") : "text-dim"}`}>
-              {!clean ? "3 to 20 letters, numbers, dots or underscores." : status ? `${status.ok ? "✓ " : ""}${status.message}` : "Checking…"}
+            {/* The checker: as they type, whether the name is free. */}
+            <span id="username-status" role="status" className={`flex items-center gap-1.5 text-[12.5px] min-h-[18px] ${status ? (status.ok ? "text-seen" : "text-loved") : "text-dim"}`}>
+              {status && (
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  {status.ok ? <path d="M5 12.5l4.5 4.5L19 7.5" /> : <path d="M6 6l12 12M18 6L6 18" />}
+                </svg>
+              )}
+              {!clean ? "3 to 20 letters, numbers, dots or underscores." : status ? status.message : "Checking…"}
             </span>
           </label>
 
           {current && clean !== current && <p className="m-0 -mt-2 text-[12.5px] leading-[1.6] text-dim">Links to @{current} stop working when you change it.</p>}
 
-          <div className="rounded-[12px] bg-card p-3 grid gap-1.5">
-            <div className="text-[12.5px] font-semibold text-ink">Profiles on Kodigo are public</div>
-            <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">
-              Your profile shows your reviews and ratings, your lists, what you&apos;ve watched and when, your stats and your Year in Review
-              {hasLibrary ? ", including what's already in your library" : ""}. Your email and your notes are never shown. You can hide sections, or the whole profile, in Settings → Privacy at any time.
-            </p>
-          </div>
+          <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">Your profile shows your reviews, ratings, lists and what you&apos;ve watched. Never your email. You can change this any time in Settings.</p>
 
           <div role="radiogroup" aria-label="Who can see your profile" className="grid gap-2">
-            {option(!isPrivate, "Public", "Anyone can see your profile and find your reviews. Best for sharing.", () => setPrivate(false))}
-            {option(isPrivate, "Private", "Only people you let follow you see more than your name and photo.", () => setPrivate(true))}
+            {option(!isPrivate, "Public", "Anyone can see your profile.", () => setPrivate(false))}
+            {option(isPrivate, "Private", "Only people you approve can see it.", () => setPrivate(true))}
           </div>
 
           {error && (
