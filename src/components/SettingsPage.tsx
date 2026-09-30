@@ -28,6 +28,7 @@ const SECTIONS = [
   ["account", "Account"],
   ["privacy", "Privacy"],
   ["notifications", "Notifications"],
+  ["alerts", "Reminders"],
   ["watch", "Where you watch"],
   ["appearance", "Appearance"],
   ["spoilers", "Spoilers"],
@@ -191,13 +192,20 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
           </Field>
         </Group>
 
-        <Group id="notifications" title="Notifications" note="By email, at most one an hour, gathered into one. They're always in the bell on the site too. Episode and release reminders are in the app.">
+        <Group id="notifications" title="Notifications" note="By email. What people do is gathered into one email at most an hour, and is always in the bell on the site too.">
           <Field label="Someone follows you">{toggle("notifyFollows")}</Field>
           <Field label="Likes on your reviews and lists">{toggle("notifyLikes")}</Field>
           <Field label="Replies and comments">{toggle("notifyComments")}</Field>
-          <Field label="Weekly digest" hint="What's new from your shows and the people you follow, once a week.">
-            <span className="text-[12.5px] text-dim">Coming soon</span>
+        </Group>
+
+        <Group id="alerts" title="Reminders" note="By email, in your morning: at most one a day, only when there's something to say.">
+          <Field label="Weekly digest" hint="Your week, what's new from your shows and what the people you follow watched. Sunday mornings.">
+            {toggle("weeklyDigest")}
           </Field>
+          <Field label="New episodes" hint="The day a new episode of a show you're watching comes out.">{toggle("alertEpisodes")}</Field>
+          <Field label="New seasons and premieres" hint="The day a show you track starts a new season.">{toggle("alertSeasons")}</Field>
+          <Field label="Films you're waiting for" hint="The day a film on your watchlist comes out.">{toggle("alertFilms")}</Field>
+          <Field label="New releases" hint="The day's most talked-about new films and series, whether or not you track them.">{toggle("alertReleases")}</Field>
         </Group>
 
         <Group id="watch" title="Where you watch">

@@ -15,6 +15,14 @@ export interface Settings {
   notifyLikes: boolean;
   notifyComments: boolean;
   weeklyDigest: boolean;
+  // Reminders by email about what they track, each on its own.
+  alertEpisodes: boolean;
+  alertSeasons: boolean;
+  alertFilms: boolean;
+  alertReleases: boolean;
+  /** Their time zone (IANA, from the browser), so the digest comes on
+      their Sunday morning and the day's alerts on their morning. */
+  timeZone: string;
   // Where they watch.
   region: string | null;
   services: number[];
@@ -49,6 +57,11 @@ export const DEFAULTS: Settings = {
   notifyLikes: true,
   notifyComments: true,
   weeklyDigest: false,
+  alertEpisodes: false,
+  alertSeasons: false,
+  alertFilms: false,
+  alertReleases: false,
+  timeZone: "",
   region: null,
   services: [],
   onlyMyServices: false,
@@ -92,6 +105,8 @@ export function cleanSettings(patch: Record<string, unknown>): Partial<Settings>
       if (v === "grid" || v === "list") out[k] = v;
     } else if (k === "showSort" || k === "movieSort" || k === "watchlistSort") {
       if (LIBRARY_SORTS.includes(v as LibrarySort)) out[k] = v;
+    } else if (k === "timeZone") {
+      if (typeof v === "string" && /^[A-Za-z]+(?:\/[A-Za-z0-9_+-]+){0,2}$/.test(v) && v.length <= 64) out[k] = v;
     } else if (typeof d === "boolean") {
       if (typeof v === "boolean") out[k] = v;
     } else if (typeof d === "string") {

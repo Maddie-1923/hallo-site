@@ -43,7 +43,7 @@ export async function unsubscribeAll(uid: string): Promise<boolean> {
   const db = adminClient();
   if (!db) return false;
   const { data } = await db.from("user_settings").select("settings").eq("user_id", uid).maybeSingle();
-  const settings = { ...((data?.settings as Record<string, unknown> | null) ?? {}), notifyFollows: false, notifyLikes: false, notifyComments: false, weeklyDigest: false };
+  const settings = { ...((data?.settings as Record<string, unknown> | null) ?? {}), notifyFollows: false, notifyLikes: false, notifyComments: false, weeklyDigest: false, alertEpisodes: false, alertSeasons: false, alertFilms: false, alertReleases: false };
   const { error } = await db.from("user_settings").upsert({ user_id: uid, settings });
   return !error;
 }

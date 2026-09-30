@@ -40,7 +40,7 @@ export default async function Unsubscribe({ searchParams }: PageProps<"/unsubscr
               <h1 className="!text-[clamp(32px,4.4vw,48px)] !leading-[.95] tracking-[.02em] uppercase">{done ? "Unsubscribed" : "Email settings"}</h1>
               {done ? (
                 <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">
-                  You won&apos;t get notification emails any more. You&apos;ll still see everything in the bell on Kodigo, and sign-in emails still come when you ask for them. To turn some back on, go to{" "}
+                  You won&apos;t get notifications, the weekly digest or reminders by email any more. You&apos;ll still see everything in the bell on Kodigo, and sign-in emails still come when you ask for them. To turn some back on, go to{" "}
                   <Link href="/settings#notifications" className="text-accent no-underline hover:underline">
                     Settings → Notifications
                   </Link>
@@ -48,7 +48,7 @@ export default async function Unsubscribe({ searchParams }: PageProps<"/unsubscr
                 </p>
               ) : valid ? (
                 <form action={stop} className="grid gap-3">
-                  <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">Stop all notification emails from Kodigo for this account? Follows, likes and comments will still show in the bell on the site.</p>
+                  <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">Stop all emails from Kodigo for this account: notifications, the weekly digest and reminders? Follows, likes and comments will still show in the bell on the site.</p>
                   <input type="hidden" name="u" value={u} />
                   <input type="hidden" name="t" value={t ?? ""} />
                   {p.failed === "1" && <p className="m-0 text-[12.5px] text-loved">That didn&apos;t go through. Try again in a moment.</p>}

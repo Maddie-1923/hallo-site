@@ -645,6 +645,15 @@ Each is its own switch in Settings → Notifications:
 - Films I'm waiting for (their release day)
 - New releases in general (notable films and series out this week)
 Nothing is sent for a switch left off; an empty day sends nothing.
+Built 30 Sep (`20260930110000_scheduled_emails.sql`, `app/api/scheduled-emails`,
+`lib/scheduled-emails.ts` gathering, `lib/digest-email.ts` the emails,
+`lib/email-schedule.ts` the timing; `npm run test:email`). The browser tells
+the account its time zone (`timeZone` in settings). Settings → Reminders
+holds the five switches, all off by default. Each email is recorded in
+`scheduled_email_log` before it's sent, so it goes once. For trying it: on
+a laptop or preview, `/api/scheduled-emails?preview=digest&user=NAME`
+shows it, `?send=…` sends it. For opening: `supabase/cron/
+scheduled-emails.sql` on live (hourly), after the notification timer.
 
 ## For the apps (from the website's design)
 

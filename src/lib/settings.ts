@@ -55,6 +55,14 @@ async function askAccount() {
   const { settings, ...rest } = got;
   account = rest;
   keep({ ...state, ...settings }, "region" in settings && settings.region !== state.region);
+  // The account learns this browser's time zone, for when emails come.
+  try {
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (zone && zone !== state.timeZone) {
+      keep({ ...state, timeZone: zone }, false);
+      saveSoon({ timeZone: zone });
+    }
+  } catch {}
   // Their theme follows them too; day or night stays with the device.
   if (got.theme) {
     try {

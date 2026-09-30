@@ -1109,3 +1109,19 @@ export const importCatalog = {
     return lists.flatMap((l) => (l?.episodes ?? []).map((e) => ({ season: e.season_number, episode: e.episode_number, name: e.name, airDate: e.air_date ?? null, runtime: e.runtime ?? null })));
   },
 };
+
+// ---- Reminders (lib/scheduled-emails.ts) ----
+
+/** The day's most popular new films (released that day in the region) and
+    series (premiering that day), for the "New releases" reminder. Kept a few hours. */
+export async function releasesOn(day: string, region: string): Promise<{ key: string; kind: "movie" | "show"; title: string; href: string; poster: string | null }[]> {
+  const [films, series] = await Promise.all([
+    tmdb<PageOf<RawMovie>>("/discover/movie", { region, "release_date.gte": day, "release_date.lte": day, with_release_type: "2|3|4", sort_by: "popularity.desc", "vote_count.gte": 0 }, 14400),
+    tmdb<PageOf<RawShow>>("/discover/tv", { "first_air_date.gte": day, "first_air_date.lte": day, sort_by: "popularity.desc", watch_region: region }, 14400),
+  ]);
+  const out = [
+    ...(films?.results ?? []).filter((m) => ((m as { popularity?: number }).popularity ?? 0) >= 10).slice(0, 3).map((r) => { const m = toMovie(r); return { key: `m${m.id}`, kind: "movie" as const, title: m.title, href: `/movie/${m.id}`, poster: image.poster(m.poster_path, "w342") }; }),
+    ...(series?.results ?? []).filter((s) => ((s as { popularity?: number }).popularity ?? 0) >= 10).slice(0, 3).map((r) => { const s = toShow(r); return { key: `s${s.id}`, kind: "show" as const, title: s.name, href: `/show/${s.id}`, poster: image.poster(s.poster_path, "w342") }; }),
+  ];
+  return out;
+}
