@@ -1,0 +1,36 @@
+<!-- Supabase → Authentication → Emails → Templates: paste into both
+     "Magic link or OTP" and "Confirm signup". Subject: Your Kodigo sign-in code: {{ .Token }} -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f1ea;padding:32px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1a1a19">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:440px">
+        <tr>
+          <td style="padding:0 4px 18px">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="vertical-align:middle"><img src="https://kodigo.pro/email/kodigo-icon.png" width="40" height="40" alt="Kodigo" style="display:block;width:40px;height:40px;border-radius:10px;border:0" /></td>
+                <td style="vertical-align:middle;padding-left:10px;font-size:20px;font-weight:700;letter-spacing:.02em;color:#122042">Kodigo</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#ffffff;border-radius:16px;padding:32px 28px;border:1px solid #e4dfd4">
+            <h1 style="margin:0 0 8px;font-size:22px;line-height:1.3;font-weight:700;color:#1a1a19">Your sign-in code</h1>
+            <p style="margin:0 0 22px;font-size:15px;line-height:1.55;color:#4a4740">Enter this code on the Kodigo sign-in page:</p>
+            <div style="margin:0 0 24px;padding:16px 0;background:#f4f1ea;border-radius:12px;text-align:center;font-size:32px;font-weight:700;letter-spacing:.32em;color:#122042;font-family:'SF Mono',Menlo,Consolas,monospace">{{ .Token }}</div>
+            <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#4a4740">Or sign in on this device with one tap:</p>
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#122042;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;padding:13px 26px;border-radius:999px">Sign in to Kodigo</a>
+            <p style="margin:26px 0 0;padding-top:18px;border-top:1px solid #eee9df;font-size:13px;line-height:1.55;color:#7a766c">The code and the button work once, for one hour. If you didn't ask to sign in, you can ignore this email; nobody can sign in without the code.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:18px 4px 0;font-size:12px;line-height:1.6;color:#8c877c;text-align:center">
+            Kodigo &middot; Track your shows and movies<br />
+            <a href="https://kodigo.pro" style="color:#8c877c;text-decoration:underline">kodigo.pro</a> &middot; <a href="https://kodigo.pro/privacy" style="color:#8c877c;text-decoration:underline">Privacy</a> &middot; <a href="mailto:hello@kodigo.pro" style="color:#8c877c;text-decoration:underline">hello@kodigo.pro</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

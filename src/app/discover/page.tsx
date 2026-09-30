@@ -4,5 +4,5 @@ import { redirect } from "next/navigation";
 // app's. These paths were public and may be linked from outside, so they
 // forward rather than 404.
 export default function Moved() {
-  redirect("/explore");
+  redirect("/shows");
 }

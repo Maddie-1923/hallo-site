@@ -6,15 +6,41 @@ nothing else.
 
 ## What's here
 
-- `src/app/page.tsx` — the landing page. `privacy/` and `support/` are the
+- `src/app/page.tsx` — the home page, Netflix-shaped: `CinemaHero` (a
+  full-width billboard of the week's trending titles, sliding right to left,
+  sized by `.billboard-fit` in globals.css so it and the first row fit one
+  screen) and `WideRow`s of landscape cards with each title's TMDB logo
+  underneath. `components/TitleRows.tsx` builds both (billboard slides, wide
+  rows) and is shared with Explore (`components/ExplorePage.tsx`), which is
+  the same layout for one catalogue at a time, with its Shows/Movies switch
+  in the billboard's corner. The app's pitch (features,
+  themes, pricing, FAQ) lives at `about/`. `privacy/` and `support/` are the
   policy pages (they replaced the Jekyll `privacy.md`/`support.md`).
-- `src/app/login/` — magic-link email sign-in plus a Sign in with Apple button.
-  `src/app/auth/callback/route.ts` exchanges the code; `auth/signout` clears it.
+- `src/app/u/[username]/` — public profiles, and `review/[key]/` a review's
+  own page with its link-preview picture (`opengraph-image.tsx`, fonts in
+  `src/fonts/og/` because the image renderer can't read woff2). Read from the
+  public tables (`lib/real-profile.ts`); there's no sample data, so local
+  work with content means `SITE_ACCOUNTS=on`, signing in to kodigo-dev and
+  importing a backup.
+- `docs/social-plan.md` — the plan for the social side (public profiles,
+  members' reviews, follows, likes, comments) and its build order.
+- `src/app/login/` — magic-link email sign-in (it also signs up); Sign in with
+  Apple shows once `NEXT_PUBLIC_APPLE_SIGNIN=on`. It draws in development even
+  while accounts are closed. `src/app/auth/callback/route.ts` exchanges the
+  code and sends a first sign-in (no username yet) to `/profile/setup`;
+  `auth/signout` clears it.
 - `src/proxy.ts` — refreshes the Supabase session cookie on every request and
   keeps `/app/*` behind sign-in. Next 16 renamed `middleware` to `proxy`.
-- `src/app/app/` — the signed-in library: `shows`, `movies`, `profile`,
-  `account` (sign out, remove library, delete account) and `import` (upload a
-  backup JSON to seed or replace the row).
+- `src/app/app/` — retired: one catch-all that sends old addresses on
+  (profile and history to `/u/<username>`, account to Settings, the rest to
+  `/library`). The signed-in pages are `/library`, `/watchlist`, `/calendar`,
+  `/stats`, `/settings` and the profile, where the owner picks their photo
+  and banner (`ProfilePictures`). Import is in
+  Settings → Import & export (`components/ImportPanel.tsx`): the app's
+  importers ported to `src/lib/imports/` (TV Time, Letterboxd, Trakt, Simkl,
+  IMDb and any CSV/JSON, plus the archive merge) run in the browser against
+  TMDB through `lib/import-actions.ts`, and `importIntoLibrary` merges the
+  result on the server. `npm run test:imports` runs their tests.
 - `src/app/api/account/route.ts` — the one server-only route; deletes the auth
   user with the service-role key.
 - `src/lib/archive.ts` — the TypeScript twin of the app's `LibraryArchive`.
@@ -58,9 +84,9 @@ same shape iCloud sync pushes as one CKRecord and Backup writes to a file. The
 server never interprets it. Conflict handling stays in the app: `changed_at` on
 the row is the library-wide stamp the app routes on ("did the other side move
 since I last synced"), and the per-record stamps and tombstones inside the
-archive settle a two-sided change. The import page writes `changed_at` from the
-file's `exported` date, never from the clock, so an old backup can't look newer
-than a phone's live copy.
+archive settle a two-sided change. An import on the web (a backup included) is
+merged into the row with the app's own merge (`src/lib/imports/merge.ts`), never
+written over it; replacing a library with a backup is the app's job.
 
 ### What the iOS side needs (not built yet)
 
@@ -81,7 +107,11 @@ A `SupabaseSync` next to `CloudSync.swift` that mirrors it:
 
 ## Setup
 
-1. Supabase → SQL editor → run `supabase/migrations/20260905000000_libraries.sql`.
+1. Supabase → SQL editor → run every file in `supabase/migrations/` in
+   name order. Two projects exist: `kodigo` (live, the app's) and
+   `kodigo-dev` (fxehhckzghqssupmzdig), which `.env.local` points at and where
+   every new table is built and tested first. Live gets a migration only
+   once its step is finished, and only after asking.
 2. Authentication → Providers: Email on (magic link). Apple needs a Services
    ID and key from the Apple Developer portal; the site works without it.
 3. Authentication → URL configuration: Site URL and a redirect of
@@ -91,3 +121,13 @@ A `SupabaseSync` next to `CloudSync.swift` that mirrors it:
 5. `npm run dev`.
 
 Deploys to Vercel as-is; set the same env vars there.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

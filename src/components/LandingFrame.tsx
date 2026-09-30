@@ -62,7 +62,7 @@ export function LandingFrame({ slides, children }: { slides: FrameSlide[]; child
           the frame is the picture, not a paragraph. */}
       <div className="relative mx-auto w-full max-w-[1320px] px-[var(--pad)] pt-10 sm:pt-16 pb-16">
         <div
-          className="relative rounded-[28px] overflow-hidden border border-white/15 shadow-[0_40px_120px_rgba(0,0,0,.55)]"
+          className="relative rounded-shell overflow-hidden border border-white/15 shadow-[0_40px_120px_rgba(0,0,0,.55)]"
           style={{ background: "var(--graphite)" }}
         >
           {/* A floor rather than a fixed ratio. The words sit inside the frame,

@@ -1,5 +1,6 @@
 "use client";
 
+import { HeadingPill } from "./TitleParts";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Movie, Review, Show } from "@/lib/archive";
@@ -39,7 +40,7 @@ export function ReviewPanel({
   const [heart, setHeart] = useState(loved);
   const title = target.kind === "show" ? target.show.name : target.movie.title;
 
-  const tile = "rounded-2xl border border-hair bg-card p-4";
+  const tile = "rounded-shell border border-hair bg-card p-4";
 
   function submit() {
     if (!signedIn) {
@@ -77,7 +78,9 @@ export function ReviewPanel({
 
   return (
     <section id="review" className="scroll-mt-24">
-      <h2 className="display text-3xl mb-4">Review &amp; catalogue</h2>
+      <div className="mb-2">
+        <HeadingPill small>Review &amp; catalogue</HeadingPill>
+      </div>
       <div className="grid gap-3 sm:grid-cols-3">
         <div className={`${tile} sm:col-span-2 sm:row-span-2 flex flex-col`}>
           <label htmlFor="review-text" className="eyebrow">Your review</label>

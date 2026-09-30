@@ -1,0 +1,155 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { ListView } from "@/lib/lists";
+import { HeadingPill } from "./TitleParts";
+import { MoreButton } from "./SafetySheets";
+import { CommentThread } from "./CommentThread";
+import { likeInfo, setLike } from "@/lib/social-actions";
+
+// A list's own page: its name and whose it is, what it's about, how much of
+// it you've watched, like and share; then every title in order, the watched
+// ones marked; then what people said. Likes and comments are saved with
+// the account (CommentThread for the comments); signed out, the heart asks
+// you to sign in. The ⋯ on the list reports it
+// or blocks whoever made it.
+const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
+
+export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
+  const router = useRouter();
+  const [said, setSaid] = useState<string | null>(null);
+  // A real member's list: its likes from the account, and the heart saves.
+  const [live, setLive] = useState<{ count: number; liked: boolean } | null>(null);
+  useEffect(() => {
+    let stale = false;
+    likeInfo("list", l.owner, l.id)
+      .then((r) => !stale && r && setLive(r))
+      .catch(() => {});
+    return () => {
+      stale = true;
+    };
+  }, [l.owner, l.id]);
+  async function toggleLike() {
+    if (!live) return router.push(`/login?next=${encodeURIComponent(location.pathname)}`);
+    const before = live;
+    const on = !live.liked;
+    setLive({ liked: on, count: live.count + (on ? 1 : -1) });
+    const r = await setLike("list", l.owner, l.id, on).catch(() => ({ ok: false }));
+    if (!r.ok) setLive(before);
+  }
+  const isLiked = live?.liked ?? false;
+  const likeCount = live ? live.count : l.likes;
+  const seen = l.titles.filter((t) => watched.includes(t.key)).length;
+  const pct = l.titles.length ? Math.round((seen / l.titles.length) * 100) : 0;
+  async function share() {
+    const url = location.href.split("#")[0];
+    try {
+      if (navigator.share) await navigator.share({ url, title: `${l.name} — a list on Kodigo` });
+      else {
+        await navigator.clipboard.writeText(url);
+        setSaid("Link copied");
+        setTimeout(() => setSaid(null), 2400);
+      }
+    } catch {}
+  }
+
+  return (
+    <div className="max-w-[1040px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
+      <div className={SHELL}>
+        <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="rounded-shell bg-piece p-3">
+            <Link href={`/u/${l.owner}`} className="inline-flex items-center gap-2 no-underline text-ink group">
+              <span className="w-7 h-7 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[15px] leading-none pt-[2px]">{l.owner[0].toUpperCase()}</span>
+              <span className="text-[12.5px] font-semibold group-hover:text-accent transition-colors">@{l.owner}</span>
+            </Link>
+            <MoreButton what={{ kind: "list", target: `${l.owner}/${l.id}`, author: l.owner, href: `/u/${l.owner}/list/${l.id}`, excerpt: l.name }} className="float-right -mt-0.5" />
+            <h1 className="mt-3 !text-[clamp(32px,4.4vw,52px)] !leading-[.95] tracking-[.02em] uppercase">{l.name}</h1>
+            {l.detail && <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">{l.detail}</p>}
+            <div className="mt-2 text-[12.5px] text-dim">
+              {l.titles.length} {l.titles.length === 1 ? "title" : "titles"}
+            </div>
+          </div>
+          <div className="rounded-shell bg-piece p-3 flex flex-col gap-3">
+            <div>
+              <div className="flex items-baseline justify-between text-[12.5px]">
+                <span className="text-ink">
+                  You&apos;ve watched <b className="font-semibold tabular-nums">{seen}</b> of <b className="font-semibold tabular-nums">{l.titles.length}</b>
+                </span>
+                <span className="text-dim tabular-nums">{pct}%</span>
+              </div>
+              <div className="mt-2 h-[3px] rounded-full bg-track overflow-hidden">
+                <div className="h-full rounded-full bg-accent-fill" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+            <div className="mt-auto grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                aria-pressed={isLiked}
+                onClick={toggleLike}
+                className={`h-[46px] rounded-[12px] flex flex-col items-center justify-center gap-0.5 text-[12.5px] font-semibold cursor-pointer transition-colors ${isLiked ? "bg-accent-fill text-on-accent" : "bg-card text-dim hover:text-ink"}`}
+              >
+                <span aria-hidden>{isLiked ? "♥" : "♡"}</span>
+                {likeCount} {likeCount === 1 ? "like" : "likes"}
+              </button>
+              <button type="button" onClick={share} className="h-[46px] rounded-[12px] bg-card text-dim hover:text-ink flex flex-col items-center justify-center gap-0.5 text-[12.5px] font-semibold cursor-pointer">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
+                </svg>
+                {said ?? "Share"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section className="grid grid-cols-[minmax(0,1fr)] gap-2">
+        <div>
+          <HeadingPill small>Titles</HeadingPill>
+        </div>
+        <div className={SHELL}>
+          <ol className="m-0 p-0 list-none grid gap-2 grid-cols-3 sm:grid-cols-4 lg:grid-cols-6">
+            {l.titles.map((t, i) => {
+              const done = watched.includes(t.key);
+              return (
+                <li key={t.key} className="min-w-0">
+                  <Link href={t.href} className="group block no-underline text-ink">
+                    <span className="relative block aspect-[2/3] rounded-[10px] overflow-hidden bg-card border border-hair group-hover:border-accent transition-colors">
+                      {t.poster && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={t.poster} alt="" loading="lazy" className={`w-full h-full object-cover ${done ? "opacity-60" : ""}`} />
+                      )}
+                      <span className="absolute left-1.5 top-1.5 min-w-[22px] h-[22px] px-1 rounded-full bg-black/60 text-white text-[10.5px] font-bold flex items-center justify-center tabular-nums">{i + 1}</span>
+                      {done && (
+                        <span title="Watched" className="absolute right-1.5 bottom-1.5 w-6 h-6 rounded-full bg-accent-fill text-on-accent flex items-center justify-center">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                            <path d="M5 12.5l4.5 4.5L19 7.5" />
+                          </svg>
+                        </span>
+                      )}
+                    </span>
+                    <span className="block mt-1.5 text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{t.title}</span>
+                    <span className="block text-[12.5px] leading-[16px] text-dim">
+                      {t.year}
+                      {t.kind === "show" && " · Series"}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-[minmax(0,1fr)] gap-2">
+        <div>
+          <HeadingPill small>Comments</HeadingPill>
+        </div>
+        <div className={SHELL}>
+          <CommentThread kind="list" owner={l.owner} target={l.id} href={`/u/${l.owner}/list/${l.id}`} />
+        </div>
+      </section>
+    </div>
+  );
+}

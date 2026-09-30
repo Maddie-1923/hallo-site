@@ -22,7 +22,7 @@ export function CastRow({ cast }: { cast: RawPerson[] }) {
     <section>
       <div className="rule" />
       <div className="eyebrow">Cast</div>
-      <div className="flex gap-4 overflow-x-auto pb-3 [scrollbar-width:thin]">
+      <div className="flex gap-4 overflow-x-auto pb-3 soft-scroll">
         {cast.map((p) => {
           const src = image.profile(p.profile_path);
           return (

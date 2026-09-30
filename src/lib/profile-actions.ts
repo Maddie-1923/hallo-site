@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { checkName } from "@/lib/word-filter";
 import { createClient } from "@/lib/supabase/server";
 
 // Only TMDB paths are accepted for the banner and avatar — "/abc123.jpg" —
@@ -13,6 +14,9 @@ export async function saveProfile(input: { display_name?: string | null; banner_
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Sign in first." };
+  // The word filter again here, where it can't be skipped.
+  const nameProblem = input.display_name ? checkName(input.display_name) : null;
+  if (nameProblem) return { error: nameProblem };
 
   const row: Record<string, string | number | null> = {};
   if ("display_name" in input) row.display_name = (input.display_name ?? "").trim().slice(0, 40) || null;
@@ -24,6 +28,7 @@ export async function saveProfile(input: { display_name?: string | null; banner_
 
   const { error } = await supabase.from("profiles").upsert({ user_id: user.id, ...row });
   if (error) return { error: error.message };
-  revalidatePath("/app", "layout");
+  revalidatePath("/u", "layout");
   return {};
 }
+

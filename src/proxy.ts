@@ -15,7 +15,9 @@ export async function proxy(request: NextRequest) {
   // the sign-in link is rescued and before Supabase is touched at all: a closed
   // door should not be exchanging auth codes behind itself, and the public side
   // of the site has no business paying for a session lookup it will not use.
-  if (!accountsOpen && needsAccount(path)) {
+  // The sign-in page itself still answers, to say accounts aren't open yet
+  // (every "Sign in" on the site leads there); nothing past it opens.
+  if (!accountsOpen && needsAccount(path) && path !== "/login") {
     const home = request.nextUrl.clone();
     home.pathname = "/";
     home.search = "";
@@ -72,7 +74,7 @@ export async function proxy(request: NextRequest) {
   }
   if (user && path === "/login") {
     const url = request.nextUrl.clone();
-    url.pathname = "/app";
+    url.pathname = "/shows";
     url.search = "";
     return NextResponse.redirect(url);
   }

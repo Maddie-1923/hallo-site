@@ -5,21 +5,37 @@
    head (and by the appearance menu after that), so there is no flash of the
    wrong one. Night is the default for the moment before the script runs.
 
-   Two accent tokens, the way the app has two: --accent is the accent as type
-   (the raw hex at night, halved by day so it can carry on Bone), and
-   --accent-fill is the accent as a filled surface (raw by day, scaled toward
-   black at night to the 4.5:1 floor). --accent-raw is the theme's own hex for
-   swatches. All three are set on <html> by the script; the values here are
-   Lagune's night pair for the same moment-before-the-script reason. */
+   The accent tokens, from the theme's two tones (see lib/theme.ts):
+   --accent is the accent as type, --accent-fill the accent as a filled
+   surface, --on-accent the lettering on that fill, and --accent-night the
+   night tone for the billboards' photographs. All are set on <html> by the
+   script; the values here are Lagune's night ones for the moment before the
+   script runs. */
 :root {
-  --page: #1a1a19;
+  --shell-radius: 14px;
+  /* Night is the app's Dark Slate (KodigoNeutral in Theme.swift): cool
+     greys, where the warm style's are brown. */
+  --page: #17191c;
   --graphite: #1a1a19;
-  --bone: #e6e0d6;
-  --ink: #e6e0d6;
-  --card: #30302e;
-  --card-hi: #383836;
-  --dim: #918e88;
-  --hair: #42423f;
+  --bone: #eeeff2;
+  --ink: #eeeff2;
+  --card: #2a2d32;
+  --card-hi: #353a41;
+  /* The app's list-row pieces (Theme.swift, night): the row's card
+     (`kodigoWell`), the panel and keys inside it (`kodigoRowPiece`), the lit
+     top of its edge (`kodigoLitEdge`), the mid tone for an episode code, and
+     a progress bar's track. */
+  --well: #202327;
+  --piece: #33373d;
+  --lit-edge: #4f555f;
+  --mid-tone: #babec4;
+  --track: #2c3035;
+  /* `kodigoQuietFill`: an episode's band in a season list. */
+  --quiet: #3c4148;
+  /* `kodigoListFill`: a title set on a list or the watchlist. */
+  --list-fill: #6faecf;
+  --dim: #8c9097;
+  --hair: #464b53;
   --shows: #ffc300;
   --movies: #ff5a6e;
   /* The app's `loved` and `badgeOn` pairs — the heart and the watched tick. */
@@ -32,9 +48,13 @@
   /* `badgeOnQuiet` in Theme.swift — the app's green for a mark on a plate.
      `badgeOn` is the brighter pair, right for the glyph as type. */
   --seen-plate: #2fa34a;
-  --accent: #5a97d7;
-  --accent-fill: #4f85be;
-  --accent-raw: #5a97d7;
+  --accent: #6faecf;
+  --accent-fill: #6faecf;
+  --accent-raw: #6faecf;
+  --accent-night: #6faecf;
+  /* Lettering on a filled accent: graphite or cream, whichever the theme's
+     tone for the scheme reads better against (`onColor` in Theme.swift). */
+  --on-accent: #1a1a19;
   /* The app's status chips (KodigoStatusChip): blue for a show still going
      somewhere, grey for one that is complete, red for one that was stopped.
      Night values here, day values in the light block — the pairs are the app's
@@ -54,6 +74,13 @@
   --ink: #1a1a19;
   --card: #f4f1ea;
   --card-hi: #fdfaf3;
+  --well: #f4f1ea;
+  --piece: #e8e6df;
+  --lit-edge: #fffdf6;
+  --mid-tone: color-mix(in srgb, #1a1a19 78%, transparent);
+  --track: #cfc8bb;
+  --quiet: #cfc8bb;
+  --list-fill: #43a5df;
   --dim: #6b665d;
   --hair: #b4aea2;
   --movies: #a3122b;
@@ -79,12 +106,12 @@
    the default, and a light `data-scheme` has already overridden them by the
    time this applies. */
 .scheme-dark {
-  --page: #1a1a19;
-  --ink: #e6e0d6;
-  --card: #30302e;
-  --card-hi: #383836;
-  --dim: #918e88;
-  --hair: #42423f;
+  --page: #17191c;
+  --ink: #eeeff2;
+  --card: #2a2d32;
+  --card-hi: #353a41;
+  --dim: #8c9097;
+  --hair: #464b53;
   --movies: #ff5a6e;
   --loved: #ff5a6e;
   /* `lovedQuiet` in Theme.swift — the app's own answer for a loved mark on a
@@ -99,10 +126,17 @@
 }
 
 @theme inline {
+  /* Every shell's curve, and every panel's inside one (the inner curve
+     matches the outer), in one place: `rounded-shell`. */
+  --radius-shell: var(--shell-radius);
   --color-page: var(--page);
   --color-graphite: var(--graphite);
   --color-card: var(--card);
   --color-card-hi: var(--card-hi);
+  --color-well: var(--well);
+  --color-piece: var(--piece);
+  --color-mid-tone: var(--mid-tone);
+  --color-track: var(--track);
   --color-bone: var(--bone);
   --color-ink: var(--ink);
   --color-dim: var(--dim);
@@ -114,6 +148,7 @@
   --color-accent: var(--accent);
   --color-accent-fill: var(--accent-fill);
   --color-accent-raw: var(--accent-raw);
+  --color-on-accent: var(--on-accent);
   --font-display: var(--font-bebas), Impact, sans-serif;
   --font-body: var(--font-runde), ui-rounded, -apple-system, system-ui, sans-serif;
 }
@@ -184,7 +219,7 @@ h3 { font-size: clamp(20px, 2.4vw, 24px); }
   padding: 14px 22px;
   border-radius: 999px;
   background: var(--accent-fill);
-  color: var(--graphite);
+  color: var(--on-accent);
   font-weight: 700;
   text-decoration: none;
   border: 1px solid transparent;
@@ -241,10 +276,46 @@ details.faq[open] summary::after { content: "–"; }
 details.faq p { margin: 14px 0 0; color: var(--dim); font-size: 15px; max-width: 62ch; }
 
 .prose h2 { font-size: clamp(26px, 4vw, 36px); margin: 40px 0 12px; }
-.prose p, .prose li { color: var(--bone); max-width: 68ch; }
+.prose p, .prose li { color: var(--ink); max-width: 68ch; }
 .prose p { margin: 0 0 1em; }
-.prose ul { padding-left: 1.2em; margin: 0 0 1em; }
+.prose ul { padding-left: 1.2em; margin: 0 0 1em; list-style: disc; }
+.prose li::marker { color: var(--accent); }
+.prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
 .prose strong { color: var(--ink); }
+
+/* A theme swatch: its own tone for whichever scheme the page is in. The
+   element carries both tones as --tone-day and --tone-night. */
+.tone { background: var(--tone-night); }
+:root[data-scheme="light"] .tone { background: var(--tone-day); }
+
+/* The home billboard's height on a desktop, worked out from the window the
+   way Netflix's is: the bar, the billboard and the whole first row of wide
+   cards fit on one screen with nothing cut off. The billboard takes whatever
+   height is left after the rest.
+   --g   the page gutter, the same clamp the bar and the rows use;
+   --pt  the gap above the billboard;
+   --row the first row's height: a card is a quarter-and-a-bit of the strip
+         (four across with the fifth peeking), 16:9, plus its heading;
+   155px the bar, the gap under the billboard and a little air at the foot.
+   Never shorter than the words need, and never taller than 1.9 times as wide
+   as it is wide, so a very tall window doesn't stretch it into a portrait. */
+@media (min-width: 1024px) {
+  .billboard-fit {
+    --g: clamp(16px, 3.2vw, 64px);
+    --pt: clamp(12px, 2.2vw, 40px);
+    --row: calc((100vw - 2 * var(--g) - 36px) / 4.25 * 9 / 16);
+    /* In vh first, for a browser that drops the svh line as unknown, so
+       the frame can never be left with no height at all. */
+    height: max(360px, min(calc(100vh - var(--pt) - var(--row) - 155px), calc((100vw - 2 * var(--g)) / 1.9)));
+    height: max(360px, min(calc(100svh - var(--pt) - var(--row) - 155px), calc((100vw - 2 * var(--g)) / 1.9)));
+  }
+}
+
+/* The home billboard's strip of pictures. */
+@keyframes slide-in-right { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes slide-in-left { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes slide-out-left { from { transform: none; } to { transform: translateX(-100%); } }
+@keyframes slide-out-right { from { transform: none; } to { transform: translateX(100%); } }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
@@ -258,3 +329,69 @@ section.band p + p { margin-top: 1em; }
 /* Body copy on the site was written as text-bone when the site was night-only.
    By day Bone is the page itself, so those lines read as ink instead. */
 :root[data-scheme="light"] .text-bone { color: var(--ink); }
+
+/* The tracker keys' confirmation, as the app plays it
+   (`KodigoKeyTraceConfirmation`): an outline travels once round the key from
+   its top centre, the key fills behind it and pushes forward, and a ring
+   leaves the glyph as the stroke closes. */
+@keyframes key-trace {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes key-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+@keyframes key-burst {
+  from { transform: scale(0.3); opacity: 1; }
+  to { transform: scale(1.9); opacity: 0; }
+}
+
+/* A scrolling list or rail (the Tracker, a title page's rails): a slim
+   rounded thumb and no track, inset from the ends so it never meets a
+   corner square. Works across (height) as well as down (width). */
+.soft-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--hair) transparent;
+}
+.soft-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.soft-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 10px;
+}
+.soft-scroll::-webkit-scrollbar-thumb {
+  background: var(--hair);
+  border-radius: 999px;
+}
+.soft-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--dim);
+}
+
+/* Your take's cards, placed by the width Your take has rather than the
+   window's: beside the reviews it has half a page, across the page all of
+   it. The note is laid over its space (it never sets a row's height), so it
+   takes the review's height when beside it and a fixed one otherwise. */
+.take { container-type: inline-size; }
+.take-note { height: 132px; }
+@container (min-width: 560px) {
+  .take-grid {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "rate tags" "moods moods" "review review" "note note";
+  }
+  .take-rate { grid-area: rate; }
+  .take-tags { grid-area: tags; }
+  .take-moods { grid-area: moods; }
+  .take-review { grid-area: review; }
+  .take-note { grid-area: note; }
+}
+@container (min-width: 1000px) {
+  .take-grid {
+    grid-template-columns: auto minmax(0, 5fr) minmax(0, 4fr);
+    grid-template-areas: "rate moods tags" "review review note";
+  }
+  .take-note { height: auto; }
+}

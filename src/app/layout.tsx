@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Unbounded } from "next/font/google";
 import "./globals.css";
 import { prePaintScript } from "@/lib/theme";
 
@@ -23,6 +24,11 @@ const runde = localFont({
   display: "swap",
 });
 
+// The wide, heavy face for the billboard's taglines, the reference's
+// "DON'T COME WITH HIM!" line. next/font downloads it at build time and
+// serves it from this site, so no request goes to Google from a visitor.
+const wide = Unbounded({ weight: ["700", "800"], subsets: ["latin"], variable: "--font-wide", display: "swap" });
+
 export const metadata: Metadata = {
   title: "Kodigo — Track your shows and movies",
   description:
@@ -33,11 +39,11 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport = { themeColor: "#1a1a19" };
+export const viewport = { themeColor: "#17191c" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${bebas.variable} ${runde.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${bebas.variable} ${runde.variable} ${wide.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
         {/* Runs before first paint so a Day person never sees a Night flash. */}
         <script dangerouslySetInnerHTML={{ __html: prePaintScript }} />

@@ -48,7 +48,7 @@ export function ReviewDialog({
 
   const title = target.kind === "show" ? target.show.name : target.movie.title;
   const when = target.kind === "show" ? year(target.show.first_air_date) : year(target.movie.release_date);
-  const art = posterURL(target.kind === "show" ? target.show.poster_path : target.movie.poster_path, "w342");
+  const art = posterURL(target.kind === "show" ? target.show.poster_path : target.movie.poster_path, "w780");
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -105,7 +105,7 @@ export function ReviewDialog({
         aria-modal="true"
         aria-label={`Log ${title}`}
         tabIndex={-1}
-        className="w-full max-w-[760px] max-h-[90vh] overflow-y-auto rounded-2xl border border-hair bg-card shadow-[0_40px_120px_rgba(0,0,0,.7)] outline-none"
+        className="w-full max-w-[760px] max-h-[90vh] overflow-y-auto rounded-shell border border-hair bg-card shadow-[0_40px_120px_rgba(0,0,0,.7)] outline-none"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-hair">
           <div className="text-[15px] font-semibold tracking-[.02em] text-ink">Review &amp; catalogue</div>
@@ -219,7 +219,7 @@ export function ReviewDialog({
                       disabled={full}
                       onClick={() => setPicked((p) => (on ? p.filter((x) => x !== m.id) : [...p, m.id].slice(0, MOOD_LIMIT)))}
                       className={`flex flex-col items-center gap-1 rounded-xl border px-1 py-2 cursor-pointer transition-colors ${
-                        on ? "border-transparent text-graphite" : "border-hair text-dim hover:text-ink hover:bg-card-hi"
+                        on ? "border-transparent text-on-accent" : "border-hair text-dim hover:text-ink hover:bg-card-hi"
                       } ${full ? "opacity-30 cursor-default" : ""}`}
                       style={on ? { background: "var(--accent-fill)" } : undefined}
                     >

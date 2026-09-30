@@ -75,6 +75,56 @@ export interface Review {
   modified: string;
 }
 
+/**
+ * A saved Discover rail. The site doesn't read its insides (`catalogue` is
+ * "shows" or "movies", `filter` the app's DiscoverFilter); it only needs the
+ * id and `created` to carry one through a merge.
+ */
+export interface SavedRail {
+  id: string;
+  name: string;
+  catalogue?: string;
+  filter?: unknown;
+  created?: string;
+  [extra: string]: unknown;
+}
+
+/** A rewatch of a show in progress, one per show. `ticks` maps episode ids to the night each was watched again. */
+export interface RewatchRun {
+  showID: number;
+  started?: string;
+  ticks?: Record<string, string>;
+  modified?: string;
+}
+
+/** A finished-rewatch tally for one show. */
+export interface RewatchCount {
+  id: number;
+  count: number;
+}
+
+/** One episode watched again on one night. Kept after its run is gone. */
+export interface RewatchTick {
+  episodeID: string;
+  showID: number;
+  watched: string;
+}
+
+/** One night a film was watched again. */
+export interface MovieRewatchTick {
+  movieID: number;
+  watched: string;
+}
+
+/**
+ * A rewatch night taken back. The id is the night's own — the title's id and
+ * the whole second, as "1-1-1-1785931200.0".
+ */
+export interface TickTombstone {
+  id: string;
+  removed: string;
+}
+
 export interface LibraryArchive {
   version: number;
   exported: string;
@@ -86,6 +136,8 @@ export interface LibraryArchive {
   /** Episode ids as "showID-season-episode". */
   watched: string[];
   skipped?: string[];
+  /** When each skip was made, keyed like `skipped`. */
+  skippedDates?: Record<string, string>;
   watchedDates?: Record<string, string>;
   /** Keys are "show:ID", "movie:ID" or "episode:showID-s-e". */
   reactions?: Record<string, Reaction>;
@@ -102,6 +154,31 @@ export interface LibraryArchive {
   watchedStamps?: Record<string, string>;
   showTombstones?: Tombstone[];
   movieTombstones?: Tombstone[];
+  catchUpOptOuts?: number[];
+  /** Shows whose alerts arrive silently. */
+  mutedShows?: number[];
+  /** Shows kept out of Up Next. */
+  hiddenShows?: number[];
+  /** Titles kept off the For You rail, keyed like reactions. */
+  hiddenRecs?: string[];
+  savedRails?: SavedRail[];
+  /** Null or missing is "no opinion", as with `showOrder`. */
+  savedRailOrder?: string[] | null;
+  rewatchRuns?: RewatchRun[];
+  rewatchRunTombstones?: Tombstone[];
+  rewatchCounts?: RewatchCount[];
+  rewatchLog?: RewatchTick[];
+  rewatchTickTombstones?: TickTombstone[];
+  movieRewatchLog?: MovieRewatchTick[];
+  movieRewatchTickTombstones?: TickTombstone[];
+  /** Which picture the viewer chose for a title, keyed "target#role#surface". */
+  chosenArt?: Record<string, string>;
+  /** Uploaded pictures by id, as base64 (Swift writes `Data` that way). */
+  uploadedArt?: Record<string, string>;
+  profileAvatar?: string | null;
+  profileBanner?: string | null;
+  /** When the avatar and banner last changed, together. */
+  profilePicturesChanged?: string | null;
   [extra: string]: unknown;
 }
 
@@ -113,7 +190,7 @@ export function isArchive(value: unknown): value is LibraryArchive {
   return typeof v.version === "number" && Array.isArray(v.shows) && Array.isArray(v.movies) && Array.isArray(v.watched);
 }
 
-export function poster(path: string | null | undefined, size: "w185" | "w342" | "w500" = "w342") {
+export function poster(path: string | null | undefined, size: "w185" | "w342" | "w500" | "w780" = "w780") {
   const base = process.env.NEXT_PUBLIC_TMDB_IMAGE_URL ?? "https://image.tmdb.org/t/p";
   return path ? `${base}/${size}${path}` : null;
 }

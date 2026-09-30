@@ -2,6 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { hasPro } from "@/lib/pro";
+import { applyDeleteList, applyEpisodeSkipped, applyEpisodeWatched, applyListCover, applyMovieWatched, applySaveList, applyTake, clearTake, type ListInput, type TakeInput, type TakeTarget } from "@/lib/library-rules";
+import { checkText } from "@/lib/word-filter";
+import { applyImportPlan, type ImportPlan } from "@/lib/imports";
 import { CURRENT_VERSION, isArchive, type LibraryArchive, type Movie, type MovieStatus, type Show, type WatchStatus } from "./archive";
 
 // Every change the website makes to a library goes through here, and each one
@@ -36,12 +40,15 @@ function emptyArchive(): LibraryArchive {
   };
 }
 
-async function withArchive(mutate: (a: LibraryArchive, stamp: string) => void): Promise<{ error?: string }> {
+// `pro`: a change only Kodigo Pro can make on the web (episode tracking and
+// skips, the tracker's keys). Logging films, rating and reviewing are free.
+async function withArchive(mutate: (a: LibraryArchive, stamp: string) => void, opts: { pro?: boolean } = {}): Promise<{ error?: string }> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Sign in to track titles." };
+  if (opts.pro && !(await hasPro())) return { error: "Tracking and importing on the web come with Kodigo Pro." };
 
   const { data } = await supabase.from("libraries").select("archive").eq("user_id", user.id).maybeSingle();
   const archive: LibraryArchive = data && isArchive(data.archive) ? (data.archive as LibraryArchive) : emptyArchive();
@@ -63,7 +70,7 @@ async function withArchive(mutate: (a: LibraryArchive, stamp: string) => void): 
     device: DEVICE,
   });
   if (error) return { error: error.message };
-  revalidatePath("/app", "layout");
+  revalidatePath("/calendar");
   return {};
 }
 
@@ -96,32 +103,37 @@ export async function untrackShow(id: number) {
 }
 
 export async function setEpisodeWatched(showID: number, season: number, episode: number, watched: boolean) {
-  const key = `${showID}-${season}-${episode}`;
-  return withArchive((a, stamp) => {
-    const set = new Set(a.watched);
-    a.watchedDates ??= {};
-    a.watchedStamps ??= {};
-    if (watched) {
-      set.add(key);
-      // First viewing date is never rewritten — the app's rule, kept here.
-      a.watchedDates[key] ??= stamp;
-    } else {
-      set.delete(key);
-      delete a.watchedDates[key];
-    }
-    // The stamp moves either way. Present in stamps and absent from watched is
-    // how an uncheck survives a merge.
-    a.watchedStamps[key] = stamp;
-    a.watched = [...set];
-    const tracked = a.shows.find((s) => s.show.id === showID);
-    if (tracked) tracked.modified = stamp;
-  });
+  return withArchive((a, stamp) => applyEpisodeWatched(a, `${showID}-${season}-${episode}`, watched, stamp), { pro: true });
+}
+
+/** Watch an episode later: the app's toggleSkipped (lib/library-rules.ts). */
+export async function setEpisodeSkipped(showID: number, season: number, episode: number, skipped: boolean) {
+  return withArchive((a, stamp) => applyEpisodeSkipped(a, `${showID}-${season}-${episode}`, skipped, stamp), { pro: true });
+}
+
+/** My order on the Library page: the ids in the order they were dragged
+    into, as the app's showOrder / movieOrder. The whole order is written, and
+    travels whole (the merge takes the newer order rather than folding two). */
+export async function saveOrder(kind: "show" | "movie", ids: number[]) {
+  return withArchive(
+    (a) => {
+      const tracked = new Set((kind === "show" ? a.shows.map((t) => t.show.id) : a.movies.map((t) => t.movie.id)));
+      const order = [...new Set(ids.filter((id) => Number.isInteger(id) && tracked.has(id)))];
+      if (kind === "show") a.showOrder = order;
+      else a.movieOrder = order;
+    },
+    { pro: true },
+  );
 }
 
 // ---- Movies ----
 
 export async function trackMovie(movie: Movie, status: MovieStatus = "To Watch") {
   return withArchive((a, stamp) => {
+    // A film already watched stays Watched unless it's being set aside (the
+    // app's rule: watching is about the past, the status about now).
+    const setAside = status === "On Hold" || status === "Dropped";
+    if ((a.watchedMovies ?? []).includes(movie.id) && !setAside) status = "Watched";
     const existing = a.movies.find((m) => m.movie.id === movie.id);
     if (existing) {
       existing.status = status;
@@ -137,6 +149,11 @@ export async function trackMovie(movie: Movie, status: MovieStatus = "To Watch")
       a.movieWatchedDates[String(movie.id)] ??= stamp;
     }
   });
+}
+
+/** The app's setMovieWatched(true), for a film already in the library. */
+export async function markMovieWatched(id: number) {
+  return withArchive((a, stamp) => applyMovieWatched(a, id, stamp));
 }
 
 export async function untrackMovie(id: number) {
@@ -379,4 +396,82 @@ export async function deleteReview(target: { kind: "show"; show: Show } | { kind
     if (a.reviews) delete a.reviews[key];
     touch(a, target, stamp);
   });
+}
+
+// ---- Your take ----
+
+/** Saves "Your take" from a title's page (lib/library-rules.ts applyTake).
+    The review is public, so the word filter checks it first; the note is
+    private and isn't checked. Free: rating, reviewing and logging aren't Pro. */
+export async function saveTake(target: TakeTarget, input: TakeInput) {
+  const problem = input.text.trim() ? checkText(input.text) : null;
+  if (problem) return { error: problem };
+  const r = await withArchive((a, stamp) => applyTake(a, target, input, stamp));
+  if (!r.error) revalidateTitle(target);
+  return r;
+}
+
+/** Takes the whole take off a title; what was watched stays watched. */
+export async function removeTake(target: TakeTarget) {
+  const r = await withArchive((a, stamp) => clearTake(a, target, stamp));
+  if (!r.error) revalidateTitle(target);
+  return r;
+}
+
+function revalidateTitle(t: TakeTarget) {
+  revalidatePath(t.kind === "movie" ? `/movie/${t.movie.id}` : `/show/${t.show.id}`, "layout");
+}
+
+// ---- Import (Settings → Import & export) ----
+
+/** Lands an import worked out in the browser (lib/imports): merged into
+    the library as it is now, on the server, with the app's own merge, so
+    nothing already here is replaced and a phone that synced meanwhile loses
+    nothing; ratings and hearts only fill gaps. A Kodigo backup comes the
+    same way, as a plan whose archive is the backup. Pro. */
+export async function importIntoLibrary(plan: ImportPlan) {
+  if (!plan || !isArchive(plan.archive)) return { error: "That import couldn't be read. Try again." };
+  const clean: ImportPlan = {
+    archive: plan.archive,
+    ratings: Object.fromEntries(Object.entries(plan.ratings ?? {}).filter(([k, v]) => /^(movie|show|episode):[\d-]+$/.test(k) && typeof v === "number" && v >= 0.5 && v <= 10)),
+    loved: (plan.loved ?? []).filter((k) => /^(movie|show|episode):[\d-]+$/.test(k)),
+  };
+  return withArchive(
+    (a) => {
+      const next = applyImportPlan(a, clean, new Date());
+      for (const k of Object.keys(a)) delete (a as Record<string, unknown>)[k];
+      Object.assign(a, next);
+    },
+    { pro: true },
+  );
+}
+
+// ---- Lists from the profile (lib/library-rules.ts) ----
+
+/** Makes or edits one of the person's lists: its name, description and
+    titles. Free, like the rest of the social side. The name and description
+    are public, so the word filter reads them first. */
+export async function saveList(input: ListInput): Promise<{ error?: string; id?: string }> {
+  const problem = checkText(`${input.name}\n${input.detail}`);
+  if (problem) return { error: problem };
+  let id: string | undefined;
+  const r = await withArchive((a, stamp) => {
+    id = applySaveList(a, input, stamp, () => crypto.randomUUID().toUpperCase());
+  });
+  if (!r.error) revalidatePath("/u", "layout");
+  return r.error ? r : { id };
+}
+
+/** Deletes a list; what was on it stays tracked. */
+export async function removeList(id: string) {
+  const r = await withArchive((a) => applyDeleteList(a, id));
+  if (!r.error) revalidatePath("/u", "layout");
+  return r;
+}
+
+/** A list's picture: a poster from one of its titles, or null for the default. */
+export async function setListPicture(id: string, posterPath: string | null) {
+  const r = await withArchive((a) => applyListCover(a, id, posterPath));
+  if (!r.error) revalidatePath("/u", "layout");
+  return r;
 }

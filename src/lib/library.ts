@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { isArchive, type LibraryArchive } from "./archive";
+import { accountsOpen } from "./accounts";
+import { loadProfile } from "./profile";
 
 export interface LibraryRow {
   archive: LibraryArchive;
@@ -39,4 +41,12 @@ export async function loadLibrary(): Promise<{ userId: string; email?: string; r
 
   const row = data && isArchive(data.archive) ? (data as LibraryRow) : null;
   return { userId: user.id, email: user.email ?? undefined, row };
+}
+
+/** The signed-in person's library when `username` is theirs, else null: the
+    pages made from a whole library (Year in review) are the owner's own. */
+export async function ownLibraryAt(username: string): Promise<LibraryArchive | null> {
+  if (!accountsOpen) return null;
+  const [{ archive }, me] = await Promise.all([optionalLibrary(), loadProfile()]);
+  return me.username && me.username === username.toLowerCase() ? archive : null;
 }

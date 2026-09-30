@@ -5,18 +5,24 @@ import { usePathname } from "next/navigation";
 
 // The tab strip on the left of the bar, lit for the section you're in. The
 // nav itself is a server component (it reads the session), so the pathname
-// check lives in this small client piece. A title page counts as its
-// catalogue — /show/123 lights Shows — and anything under /app is My Lists,
-// since that's where every signed-in page hangs.
+// check lives in this small client piece.
+// Each tab's line takes a colour of the logo's stripes, in the logo's order:
+// Explore the yellow, Calendar the pink, Community the blue. Any other tab
+// keeps the theme's accent.
+const STRIPE: Record<string, string> = {
+  "/shows": "#FFCB14",
+  "/calendar": "#FF69C4",
+  "/members": "#38B6FF",
+};
+
 export function NavLinks({ links }: { links: [string, string][] }) {
   const path = usePathname();
   const active = (href: string) => {
     if (href.startsWith("/#")) return false;
-    // A title page belongs to the tab it was reached from as far as the bar
-    // is concerned: a show's page lights Shows, a film's lights Movies.
-    if (href === "/app/shows") return path.startsWith("/app/shows") || path.startsWith("/show/");
-    if (href === "/app/movies") return path.startsWith("/app/movies") || path.startsWith("/movie/");
-    if (href === "/app/profile") return path.startsWith("/app/profile") || path.startsWith("/app/history");
+    // Explore covers both catalogues, their title pages, Browse and people.
+    if (href === "/shows") return ["/shows", "/movies", "/explore", "/show/", "/movie/", "/browse", "/person/"].some((p) => path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`));
+    // Community covers Members and Lists, and members' own pages.
+    if (href === "/members") return ["/members", "/lists", "/u/"].some((p) => path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`));
     return path === href || path.startsWith(`${href}/`);
   };
   return (
@@ -28,12 +34,12 @@ export function NavLinks({ links }: { links: [string, string][] }) {
             key={href}
             href={href}
             aria-current={on ? "page" : undefined}
-            className={`relative no-underline transition-colors py-5 ${on ? "text-ink font-semibold" : "hover:text-ink"}`}
+            className={`relative no-underline transition-colors pt-5 pb-2.5 ${on ? "text-ink font-semibold" : "hover:text-ink"}`}
           >
             {label}
             {/* The accent line under the current tab, hung from the link's
                 own padding so it sits on the bar's bottom edge. */}
-            {on && <span aria-hidden className="absolute left-0 right-0 bottom-0 h-[3px] rounded-t-full" style={{ background: "var(--accent-fill)" }} />}
+            {on && <span aria-hidden className="absolute left-0 right-0 bottom-0 h-[3px] rounded-t-full" style={{ background: STRIPE[href] ?? "var(--accent-fill)" }} />}
           </Link>
         );
       })}

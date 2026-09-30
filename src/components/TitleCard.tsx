@@ -29,7 +29,7 @@ function Card({
       href={href}
       // Hover is an outline, not a lift — the Letterboxd move. A 2px ring in the
       // ink colour with a soft glow, and the card stays where it is.
-      className="block no-underline group rounded-2xl overflow-hidden bg-card border border-hair transition-[box-shadow,border-color] duration-150 hover:border-ink hover:shadow-[0_0_0_2px_var(--ink),0_10px_30px_rgba(0,0,0,.45)]"
+      className="block no-underline group rounded-shell overflow-hidden bg-card border border-hair transition-[box-shadow,border-color] duration-150 hover:border-ink hover:shadow-[0_0_0_2px_var(--ink),0_10px_30px_rgba(0,0,0,.45)]"
     >
       <div className="aspect-[2/3] bg-card">
         {src ? (

@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Support — Kodigo" };
 
 export default function Support() {
   return (
-    <div className="scheme-dark min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col">
         <SiteNav />
         <main className="wrap prose py-16">
           <h1 className="!text-[clamp(44px,8vw,84px)]">Support</h1>
@@ -40,6 +40,25 @@ export default function Support() {
             writes everything to a JSON file you can save wherever you like, and any copy of Kodigo can
             read it back in. Kodigo can also email the file to you, so a copy lives somewhere other
             than the phone it came from.
+          </p>
+
+          <h2 id="safety">Safety and reporting</h2>
+          <p>
+            If someone&apos;s review, comment, list or profile breaks the{" "}
+            <a href="/terms#community-rules">community rules</a>, press the <strong>⋯</strong> beside it and
+            choose <strong>Report</strong>. Reports are read by a person, and whoever you report isn&apos;t told
+            it was you.
+          </p>
+          <p>
+            To stop someone seeing your things, or you seeing theirs, press <strong>⋯</strong> and{" "}
+            <strong>Block</strong>. They aren&apos;t told, and any follow between you ends. You can unblock them in{" "}
+            <strong>Settings → Privacy → Blocked people</strong>. On your own profile, press your follower count to
+            remove a follower.
+          </p>
+          <p>
+            For anything urgent, such as threats, someone&apos;s private details, or anything that puts a child at
+            risk, email <strong>hello@kodigo.pro</strong> with &ldquo;Safety&rdquo; in the subject and a link to
+            what you saw. If someone is in danger, contact your local emergency services first.
           </p>
 
           <h2>Sync questions</h2>
