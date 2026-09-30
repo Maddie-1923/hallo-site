@@ -1,19 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 // The search icon that becomes a field. Closed, it's a 22px glyph. Open, the
 // field grows leftwards out of the icon — it lives at the right end of the
 // bar, so a width transition on the wrapper is all the leftward motion needs.
-// Empty and blurred, it folds back; on /search it starts open with the query.
+// Empty and blurred, it folds back. It starts closed on /search too, which has
+// its own big box (open, it also ran the bar past a 1024px window there).
 export function NavSearch() {
   const router = useRouter();
-  const path = usePathname();
-  const params = useSearchParams();
-  const onSearchPage = path === "/search";
-  const [open, setOpen] = useState(onSearchPage);
-  const [value, setValue] = useState(onSearchPage ? (params.get("q") ?? "") : "");
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
   const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -60,7 +58,7 @@ export function NavSearch() {
           }
         }}
         onBlur={() => {
-          if (!value.trim() && !onSearchPage) setOpen(false);
+          if (!value.trim()) setOpen(false);
         }}
         placeholder="Titles, people, genres"
         aria-label="Search shows and movies"

@@ -96,3 +96,31 @@ export async function publicList(username: string, id: string): Promise<ListView
   const w = who.get(p.user_id);
   return w ? toList(data as ListRow, w) : null;
 }
+
+/** Members' written reviews whose title or words match, newest first (search). */
+export async function searchReviews(query: string): Promise<{ review: ReviewEntry; username: string; avatar: string | null }[]> {
+  if (!accountsOpen) return [];
+  const q = query.trim().replace(/[%_,()]/g, "").slice(0, 60);
+  if (q.length < 2) return [];
+  const { data } = await (await createClient())
+    .from("public_entries")
+    .select("user_id, kind, tmdb_id, title, poster_path, backdrop_path, year, rating, reaction, review, spoilers, watched_on, rewatch, updated_at")
+    .not("review", "is", null)
+    .neq("kind", "episode")
+    .or(`title.ilike.%${q}%,review.ilike.%${q}%`)
+    .order("updated_at", { ascending: false })
+    .limit(40);
+  const who = await members((data ?? []).map((r) => r.user_id));
+  return (data ?? []).flatMap((r) => {
+    const w = who.get(r.user_id);
+    if (!w || !r.review) return [];
+    const kind = r.kind as "movie" | "show";
+    return [
+      {
+        review: { ...titleOf(kind, r.tmdb_id, r), text: r.review, date: r.watched_on ?? r.updated_at.slice(0, 10), rating: r.rating == null ? null : Number(r.rating), spoilers: r.spoilers, rewatch: r.rewatch, loved: r.reaction === "loved" },
+        username: w.username,
+        avatar: w.avatar,
+      },
+    ];
+  });
+}

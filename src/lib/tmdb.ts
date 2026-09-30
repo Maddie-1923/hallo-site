@@ -201,6 +201,25 @@ export async function searchTitles(query: string, page = 1): Promise<SearchHit[]
   return hits;
 }
 
+/** A person in search results: who, their picture, what they're known for. */
+export type PersonHit = { id: number; name: string; photo: string | null; department: string | null; knownFor: string[] };
+
+/** One search for everything TMDB has: titles and people, most popular first. */
+export async function searchEverything(query: string): Promise<{ titles: SearchHit[]; people: PersonHit[] }> {
+  const res = await tmdb<PageOf<(RawShow | RawMovie | { media_type: "person"; id: number; name: string; profile_path?: string | null; known_for_department?: string; known_for?: { title?: string; name?: string }[] })>>("/search/multi", { query }, 300);
+  const titles: SearchHit[] = [];
+  const people: PersonHit[] = [];
+  for (const r of res?.results ?? []) {
+    if (r.media_type === "tv") titles.push({ kind: "show", show: toShow(r as RawShow) });
+    else if (r.media_type === "movie") titles.push({ kind: "movie", movie: toMovie(r as RawMovie) });
+    else if (r.media_type === "person") {
+      const p = r as { id: number; name: string; profile_path?: string | null; known_for_department?: string; known_for?: { title?: string; name?: string }[] };
+      people.push({ id: p.id, name: p.name, photo: p.profile_path ? `${IMG}/h632${p.profile_path}` : null, department: p.known_for_department ?? null, knownFor: (p.known_for ?? []).map((k) => k.title ?? k.name ?? "").filter(Boolean).slice(0, 3) });
+    }
+  }
+  return { titles, people };
+}
+
 // ---- Detail ----
 
 export interface ShowDetail {
