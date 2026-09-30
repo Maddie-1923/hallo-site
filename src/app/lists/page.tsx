@@ -6,6 +6,7 @@ import { accountsOpen } from "@/lib/accounts";
 import { loadProfile } from "@/lib/profile";
 import { Unblocked } from "@/components/SafetySheets";
 import { allLists } from "@/lib/lists";
+import { CommunitySwitch } from "@/components/CommunitySwitch";
 
 export const metadata: Metadata = { title: "Lists — Kodigo" };
 
@@ -35,6 +36,7 @@ export default async function Lists() {
         <div className="max-w-[1040px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
           <div className={SHELL}>
             <div className="rounded-shell bg-piece p-3">
+              <CommunitySwitch on="lists" />
               <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">Lists</h1>
               <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">Collections people have made of what to watch, from comfort rewatches to the year&apos;s best.</p>
             </div>

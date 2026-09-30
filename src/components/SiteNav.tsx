@@ -20,27 +20,15 @@ import { sampleNotifications } from "@/lib/notifications";
 // week's episodes, and an avatar menu that keeps everything else — account,
 // themes, the marketing pages, sign out — out of the way.
 
-// No Home: the logo and wordmark are the way home.
-// Movies and Shows go straight to Explore's two halves; the app's own page
-// is in the profile menu with the subscription.
-const marketing: [string, string][] = [
-  ["/movies", "Movies"],
-  ["/shows", "Shows"],
+// No Home: the logo and wordmark are the way home. Three tabs, one for each
+// of the logo's stripes: Explore (Shows and Movies, switched on the page),
+// Calendar, and Community (Members and Lists, switched on the page). The
+// same three signed in; Library, Profile and the rest are in the profile
+// menu, and the app's own page sits there with the subscription.
+const tabs: [string, string][] = [
+  ["/shows", "Explore"],
   ["/calendar", "Calendar"],
-  ["/members", "Members"],
-  ["/lists", "Lists"],
-];
-
-// Signed in: the same finding tabs as everyone gets, then their tracker
-// (Calendar) and everything they track (Library), and the social pages.
-const product: [string, string][] = [
-  ["/movies", "Movies"],
-  ["/shows", "Shows"],
-  ["/calendar", "Calendar"],
-  ["/library", "Library"],
-  ["/members", "Members"],
-  ["/lists", "Lists"],
-  ["/app/profile", "Profile"],
+  ["/members", "Community"],
 ];
 
 const menuLinks = [
@@ -113,7 +101,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
             <span className="display text-2xl leading-none">Kodigo</span>
           </Link>
           <div className="hidden md:flex items-baseline gap-5 text-sm text-dim">
-            <NavLinks links={user ? product : marketing} />
+            <NavLinks links={tabs} />
           </div>
         </div>
         {user ? (

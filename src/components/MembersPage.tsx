@@ -6,6 +6,7 @@ import { searchMembers } from "@/lib/member-directory";
 import type { Member } from "@/lib/members";
 import { useSafety } from "@/lib/safety";
 import { FollowPill } from "./FollowPill";
+import { CommunitySwitch } from "./CommunitySwitch";
 
 // Members, as the plan has it: the popular reviewers this week, the most
 // followed, and new members, with a search over them all. Each person is
@@ -46,6 +47,7 @@ export function MembersPage({ members: everyone, live = false }: { members: Memb
       <div className={SHELL}>
         <div className="rounded-shell bg-piece p-3 flex flex-wrap items-end justify-between gap-3">
           <div>
+            <CommunitySwitch on="members" />
             <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">Members</h1>
             <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">Find people who watch what you watch, and follow their reviews and lists.</p>
           </div>

@@ -8,14 +8,13 @@ import { usePathname } from "next/navigation";
 // check lives in this small client piece. A title page counts as its
 // catalogue — /show/123 lights Shows — and anything under /app is My Lists,
 // since that's where every signed-in page hangs.
-// Each tab's line takes a colour of the logo's stripes: Movies the yellow,
-// Shows the pink, Calendar the blue. Any other tab keeps the theme's accent.
+// Each tab's line takes a colour of the logo's stripes, in the logo's order:
+// Explore the yellow, Calendar the pink, Community the blue. Any other tab
+// keeps the theme's accent.
 const STRIPE: Record<string, string> = {
-  "/movies": "#FFCB14",
-  "/app/movies": "#FFCB14",
-  "/shows": "#FF69C4",
-  "/app/shows": "#FF69C4",
-  "/calendar": "#38B6FF",
+  "/shows": "#FFCB14",
+  "/calendar": "#FF69C4",
+  "/members": "#38B6FF",
 };
 
 export function NavLinks({ links }: { links: [string, string][] }) {
@@ -26,8 +25,10 @@ export function NavLinks({ links }: { links: [string, string][] }) {
     // is concerned: a show's page lights Shows, a film's lights Movies.
     if (href === "/app/shows") return path.startsWith("/app/shows") || path.startsWith("/show/");
     if (href === "/app/movies") return path.startsWith("/app/movies") || path.startsWith("/movie/");
-    if (href === "/shows") return path === "/shows" || path.startsWith("/show/");
-    if (href === "/movies") return path === "/movies" || path.startsWith("/movie/");
+    // Explore covers both catalogues, their title pages, Browse and people.
+    if (href === "/shows") return ["/shows", "/movies", "/explore", "/show/", "/movie/", "/browse", "/person/"].some((p) => path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`));
+    // Community covers Members and Lists, and members' own pages.
+    if (href === "/members") return ["/members", "/lists", "/u/"].some((p) => path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`));
     if (href === "/app/profile") return path.startsWith("/app/profile") || path.startsWith("/app/history");
     return path === href || path.startsWith(`${href}/`);
   };
