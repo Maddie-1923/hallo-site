@@ -9,6 +9,7 @@ import { loadProfile } from "@/lib/profile";
 import { image } from "@/lib/tmdb";
 import { createClient } from "@/lib/supabase/server";
 import { NavLinks } from "./NavLinks";
+import { LogButton } from "./LogButton";
 import { accountsOpen } from "@/lib/accounts";
 import { NotificationsBell } from "./Notifications";
 import { myNotifications } from "@/lib/my-notifications";
@@ -37,6 +38,7 @@ const menuLinks = [
   ["/watchlist", "Watchlist"],
   ["/stats", "Stats"],
   ["/settings", "Settings"],
+  ["/settings#appearance", "Appearance"],
   ["/settings#data", "Import & export"],
   ["/about#themes", "Themes"],
   ["/about", "The app"],
@@ -153,14 +155,20 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
     // Centred on the k, as the signed-out buttons are (7px above the row's
     // middle); only the buttons move, never the logo.
     <div className="ml-auto flex items-center gap-2 sm:gap-4 shrink-0 -translate-y-[7px]">
+      {/* "+ Log", Letterboxd's way in: something watched, logged from any page. */}
+      <LogButton framed={framed} />
       <SearchBoundary />
 
       {/* Their notifications: follows, requests, likes and comments. What's
           airing next is the Calendar's job now. */}
       <NotificationsBell items={notes} framed={framed} />
 
-      <DayNightToggle onPicture={framed} />
-      <ThemeMenu onPicture={framed} />
+      {/* On a phone the bar holds the logo and four buttons at most; day or
+          night and the theme are in the menu's Appearance (Settings). */}
+      <div className="hidden sm:flex items-center gap-4">
+        <DayNightToggle onPicture={framed} />
+        <ThemeMenu onPicture={framed} />
+      </div>
 
       <Menu
         label="Account menu"
