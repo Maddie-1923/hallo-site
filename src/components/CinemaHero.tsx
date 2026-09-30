@@ -160,14 +160,16 @@ export function CinemaHero({ slides, corner, banner = false }: { slides: CinemaS
               />
             ))}
             {/* Shade where the words are and nowhere else: up from the bottom,
-                where both columns now sit, and a little down the left behind
-                the title. The top of the picture is left alone. */}
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.8) 0%, rgba(12,10,9,.35) 26%, transparent 50%)" }} />
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(12,10,9,.82) 0%, rgba(12,10,9,.5) 28%, rgba(12,10,9,.15) 42%, transparent 55%)" }} />
+                where both columns now sit, and down the left as far as the
+                description runs (a little past the middle on a wide screen),
+                so a bright picture can't wash the small text out. The top
+                right of the picture is left alone. */}
+            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.86) 0%, rgba(12,10,9,.55) 28%, rgba(12,10,9,.2) 45%, transparent 58%)" }} />
+            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(12,10,9,.88) 0%, rgba(12,10,9,.72) 30%, rgba(12,10,9,.42) 46%, rgba(12,10,9,.14) 58%, transparent 68%)" }} />
             {/* And deeper in the bottom-left corner, where every word sits, so a
                 bright picture (a blue sky, a white kitchen) can't wash them
                 out; it fades before the middle, leaving the faces alone. */}
-            <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 85% at 0% 100%, rgba(12,10,9,.72) 0%, rgba(12,10,9,.45) 38%, rgba(12,10,9,.12) 62%, transparent 78%)" }} />
+            <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 90% at 0% 100%, rgba(12,10,9,.78) 0%, rgba(12,10,9,.55) 40%, rgba(12,10,9,.2) 64%, transparent 80%)" }} />
 
             {/* The words ride with their picture: each slide's words are a
                 layer that slides in and out with the same timing as the image,
@@ -256,7 +258,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
   return (
     <div className="px-[clamp(20px,5vw,80px)] sm:pl-[clamp(84px,7vw,108px)] pt-24 lg:pt-8 pb-[clamp(24px,3vw,44px)]">
       <div className="max-w-[min(460px,100%)]">
-        <div className="text-[11px] tracking-[.08em] uppercase text-white/85 mb-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.9)]">{s.eyebrow}
+        <div className="text-[11px] tracking-[.08em] uppercase text-white/85 mb-2 [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">{s.eyebrow}
           {s.eyebrowDate && <> <Day iso={s.eyebrowDate} style={s.eyebrowDate.slice(0, 4) === String(new Date().getFullYear()) ? "dayMonth" : "long"} /></>}
         </div>
         {/* The title as Netflix sets it: the show's own logo artwork, kept
@@ -276,16 +278,16 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             )}
           </Link>
         </h1>
-        {s.note && <p className="m-0 mt-2 text-[12.5px] font-semibold text-white drop-shadow-[0_1px_8px_rgba(0,0,0,.8)]">{s.note}
+        {s.note && <p className="m-0 mt-2 text-[12.5px] font-semibold text-white [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">{s.note}
             {s.noteDate && <> <Day iso={s.noteDate} /></>}
           </p>}
 
         {s.tagline && (
-          <p className="m-0 mt-3 text-white uppercase tracking-[.04em] leading-[1.2] text-[11px] [font-family:var(--font-wide)] font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,.7)]">
+          <p className="m-0 mt-3 text-white uppercase tracking-[.04em] leading-[1.2] text-[11px] [font-family:var(--font-wide)] font-extrabold [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">
             {s.tagline}
           </p>
         )}
-        <p className="m-0 mt-1.5 text-[12px] text-white/95 flex flex-wrap items-center gap-x-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.9)]">
+        <p className="m-0 mt-1.5 text-[12px] text-white/95 flex flex-wrap items-center gap-x-2 [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">
           {[
             s.year,
             s.certification ? (
@@ -299,7 +301,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             .filter(Boolean)
             .flatMap((x, i) => (i ? [<span key={`d${i}`} className="text-white/45">|</span>, <span key={i}>{x}</span>] : [<span key={i}>{x}</span>]))}
         </p>
-        {s.overview && <p className="m-0 mt-2 text-[12.5px] leading-[1.45] text-white/95 line-clamp-2 drop-shadow-[0_1px_8px_rgba(0,0,0,.9)]">{s.overview}</p>}
+        {s.overview && <p className="m-0 mt-2 text-[12.5px] leading-[1.45] text-white/95 line-clamp-2 [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">{s.overview}</p>}
 
         <div className="flex flex-wrap items-center gap-2 mt-3.5">
           {s.trailer && (
