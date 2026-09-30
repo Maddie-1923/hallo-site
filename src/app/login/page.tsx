@@ -6,10 +6,12 @@ import { LoginForm } from "./LoginForm";
 
 export const metadata: Metadata = { title: "Sign in — Kodigo", robots: { index: false } };
 
-// Signing in, which is also signing up: an email address gets a link, and
-// the link is the password. Apple appears once its sign-in is set up for the
-// site (NEXT_PUBLIC_APPLE_SIGNIN=on), since a button that fails is worse
-// than none.
+// Signing in, which is also signing up: one tap with Apple, Google or
+// Facebook, or an email address that gets a link. Each provider's button
+// appears once it's set up in Supabase and listed in NEXT_PUBLIC_SIGNIN_WITH
+// ("apple,google,facebook"), since a button that fails is worse than none.
+const PROVIDERS = ["apple", "google", "facebook"] as const;
+const enabled = PROVIDERS.filter((p) => (process.env.NEXT_PUBLIC_SIGNIN_WITH ?? "").split(",").map((s) => s.trim().toLowerCase()).includes(p));
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 
 export default async function Login({ searchParams }: PageProps<"/login">) {
@@ -26,9 +28,9 @@ export default async function Login({ searchParams }: PageProps<"/login">) {
             <div className="rounded-shell bg-piece p-4">
               <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">Sign in</h1>
               <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">
-                No password: we email you a link, you open it, and you&apos;re in. The first time, that makes your account.
+                {enabled.length ? "One tap, or an emailed link. The first time, that makes your account." : "No password: we email you a link, you open it, and you're in. The first time, that makes your account."}
               </p>
-              <LoginForm next={next} initialError={error} apple={process.env.NEXT_PUBLIC_APPLE_SIGNIN === "on"} />
+              <LoginForm next={next} initialError={error} providers={enabled} />
             </div>
           </div>
           <p className="m-0 px-2 text-[12px] leading-[1.6] text-dim">
