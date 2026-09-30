@@ -80,8 +80,26 @@ export async function publicLists(limit = 120): Promise<ListView[]> {
   if (!accountsOpen) return [];
   const { data } = await (await createClient()).from("public_lists").select("user_id, id, name, detail, titles").neq("titles", "[]").order("updated_at", { ascending: false }).limit(limit);
   const rows = (data ?? []) as ListRow[];
-  const who = await members(rows.map((r) => r.user_id));
-  return rows.flatMap((r) => (who.get(r.user_id) ? [toList(r, who.get(r.user_id)!)] : []));
+  const owners = [...new Set(rows.map((r) => r.user_id))];
+  const [who, likes] = await Promise.all([
+    members(owners),
+    owners.length ? (await createClient()).from("likes").select("owner, target, created_at").eq("kind", "list").in("owner", owners).limit(5000) : Promise.resolve({ data: [] }),
+  ]);
+  // Each list's likes, all told and in the last seven days.
+  const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
+  const total = new Map<string, number>();
+  const week = new Map<string, number>();
+  for (const l of likes.data ?? []) {
+    const k = `${l.owner}/${l.target}`;
+    total.set(k, (total.get(k) ?? 0) + 1);
+    if (l.created_at > weekAgo) week.set(k, (week.get(k) ?? 0) + 1);
+  }
+  return rows.flatMap((r) => {
+    const w = who.get(r.user_id);
+    if (!w) return [];
+    const k = `${r.user_id}/${r.id}`;
+    return [{ ...toList(r, w), likes: total.get(k) ?? 0, likesWeek: week.get(k) ?? 0 }];
+  });
 }
 
 /** One member's list, by their username and the list's id. */

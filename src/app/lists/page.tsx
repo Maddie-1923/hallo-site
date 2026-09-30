@@ -2,23 +2,31 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ListCard } from "@/components/ListCard";
+import { accountsOpen } from "@/lib/accounts";
+import { loadProfile } from "@/lib/profile";
 import { Unblocked } from "@/components/SafetySheets";
 import { allLists } from "@/lib/lists";
 
 export const metadata: Metadata = { title: "Lists — Kodigo" };
 
-// The Lists hub: the most liked lists this week, the ones with the most in
-// them to dig into, and your own. Each goes to the list's page.
+// The Lists hub: the most liked this week and of all time, the recently
+// updated, the ones with the most in them to dig into, and your own. Each
+// goes to the list's page. (Featured and by-topic rows wait for lists to
+// carry genres and for someone to pick.)
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 const H = "inline-flex items-center h-[34px] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink";
 
 export default async function Lists() {
-  const lists = await allLists();
-  const others = lists.filter((l) => l.owner !== "preview");
+  const [lists, me] = await Promise.all([allLists(), accountsOpen ? loadProfile().then((p) => p.username) : Promise.resolve(process.env.NODE_ENV === "development" ? "preview" : null)]);
+  const others = lists.filter((l) => l.owner !== me);
+  // A real list counts its likes this week; a sample list, its made-up total.
+  const week = (l: (typeof lists)[number]) => l.likesWeek ?? l.likes;
   const groups: [string, typeof lists][] = [
-    ["Popular this week", [...others].sort((a, b) => b.likes - a.likes).slice(0, 8)],
+    ["Popular this week", [...others].filter((l) => week(l) > 0).sort((a, b) => week(b) - week(a)).slice(0, 8)],
+    ["Most liked", [...others].filter((l) => l.likesWeek !== undefined && l.likes > 0).sort((a, b) => b.likes - a.likes).slice(0, 8)],
+    ["Recently updated", others.filter((l) => l.likesWeek !== undefined).slice(0, 8)],
     ["Big lists to dig into", [...others].sort((a, b) => b.titles.length - a.titles.length).slice(0, 4)],
-    ["Your lists", lists.filter((l) => l.owner === "preview")],
+    ["Your lists", lists.filter((l) => l.owner === me)],
   ];
   return (
     <div className="min-h-screen flex flex-col">

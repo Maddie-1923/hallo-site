@@ -19,6 +19,8 @@ export interface ListView {
   detail: string | null;
   titles: ProfileTitle[];
   likes: number;
+  /** Real lists: likes in the last seven days, for Popular this week. */
+  likesWeek?: number;
   comments: { who: string; text: string; ago: string }[];
 }
 
