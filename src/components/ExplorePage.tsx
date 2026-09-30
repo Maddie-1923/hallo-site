@@ -3,20 +3,27 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { CinemaHero } from "@/components/CinemaHero";
 import { asMovies, asShows, billboard, interleave, Row } from "@/components/TitleRows";
-import { movieRails, showRails } from "@/lib/tmdb";
+import { movieRails, regionServices, savedRailTitles, showRails, type Service } from "@/lib/tmdb";
 import { optionalLibrary } from "@/lib/library";
 import { markLookup } from "@/lib/marks";
 import { accountsOpen } from "@/lib/accounts";
 import { regionName, visitorRegion } from "@/lib/region";
 import { AdSlot } from "@/components/AdSlot";
+import { NewCategoryButton } from "@/components/CategoryDialog";
+import { CategoryMenu } from "@/components/CategoryMenu";
+import { CATALOGUES, orderedRails, railCounts, type Catalogue } from "@/lib/saved-rails";
+import type { LibraryArchive } from "@/lib/archive";
 
 // Explore, the app's name for the same idea: where you go to find something
 // rather than to work through what you have. The home page's layout, with an
 // All/Shows/Movies switch under the billboard: All mixes the two catalogues
 // (where Explore opens), Shows and Movies keep to one each.
 //
-// Nothing personal draws here. The library only decides whether the
-// billboard's watchlist chip reads "added", so the page works signed out.
+// Nothing personal draws here but the visitor's own custom categories (the
+// app's saved rails), under the built-in rows: both catalogues on All, one on
+// Shows or Movies, in the order they were arranged on the phone. Otherwise the
+// library only decides whether the billboard's watchlist chip reads "added",
+// so the page works signed out.
 type Kind = "all" | "show" | "movie";
 
 export async function ExplorePage({ kind }: { kind: Kind }) {
@@ -24,6 +31,8 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
   const region = await visitorRegion();
   const marks = markLookup(lib.archive);
   const place = regionName(region);
+  // Started now, awaited with the rest, so the custom rows cost no extra wait.
+  const mine = customCategories(lib.archive, kind, region);
 
   if (kind === "all") {
     const [trendingShows, trendingMovies, inCinemas, airing, comingFilms, comingShows, topFilms, topShows, soonShows, soonFilms] = await Promise.all([
@@ -41,7 +50,7 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
     const slides = await billboard(trendingShows, trendingMovies, lib.archive, region, { shows: soonShows, movies: soonFilms });
     const shown = new Set(slides.map((s) => s.key));
     return (
-      <Layout slides={slides} kind={kind}>
+      <Layout slides={slides} kind={kind} mine={await mine}>
         <Row title="Trending this week" href="/shows" items={interleave(asMovies(trendingMovies), asShows(trendingShows)).filter((x) => !shown.has(x.key))} marks={marks} />
         <Row title={`In cinemas · ${place}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
         <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
@@ -64,7 +73,7 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
     const slides = await billboard(trending, [], lib.archive, region, { shows: soon });
     const shown = new Set(slides.map((s) => s.key));
     return (
-      <Layout slides={slides} kind={kind}>
+      <Layout slides={slides} kind={kind} mine={await mine}>
         <Row title="Trending this week" href="/shows" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} />
         <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
         <AdSlot place="rows" className="mt-8" />
@@ -86,7 +95,7 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
   const slides = await billboard([], trending, lib.archive, region, { movies: soon });
   const shown = new Set(slides.map((s) => s.key));
   return (
-    <Layout slides={slides} kind={kind}>
+    <Layout slides={slides} kind={kind} mine={await mine}>
       <Row title="Trending this week" href="/movies" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} />
       <Row title={`In cinemas · ${place}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
       <AdSlot place="rows" className="mt-8" />
@@ -97,7 +106,7 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
   );
 }
 
-function Layout({ slides, kind, children }: { slides: Awaited<ReturnType<typeof billboard>>; kind: Kind; children: React.ReactNode }) {
+function Layout({ slides, kind, mine, children }: { slides: Awaited<ReturnType<typeof billboard>>; kind: Kind; mine: Categories | null; children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
@@ -105,10 +114,12 @@ function Layout({ slides, kind, children }: { slides: Awaited<ReturnType<typeof 
         <CinemaHero slides={slides} />
       </header>
       <main className="flex-1 w-full px-[clamp(16px,3.2vw,64px)] pb-16 [&>section:first-of-type]:!mt-5">
-        <div className="mt-5">
+        <div className="mt-5 flex flex-wrap items-center gap-3">
           <KindSwitch kind={kind} />
+          {mine && <NewCategoryButton services={mine.services} counts={mine.counts} kinds={kindCatalogues(kind)} />}
         </div>
         {children}
+        {mine?.rows}
       </main>
       <SiteFooter />
     </div>
@@ -140,4 +151,34 @@ function KindSwitch({ kind }: { kind: Kind }) {
       ))}
     </nav>
   );
+}
+
+const kindCatalogues = (kind: Kind): Catalogue[] => (kind === "show" ? ["Shows"] : kind === "movie" ? ["Movies"] : [...CATALOGUES]);
+
+type Categories = { services: Service[]; counts: Record<Catalogue, number>; rows: React.ReactNode };
+
+/** The signed-in visitor's custom categories for this tab, as rows, and what
+    the New category dialog needs. Null when there's nobody to make them for
+    (accounts closed, signed out, or no library synced yet). */
+async function customCategories(archive: LibraryArchive | null, kind: Kind, region: string): Promise<Categories | null> {
+  if (!accountsOpen || !archive) return null;
+  const rails = kind === "all" ? orderedRails(archive) : orderedRails(archive, kind === "show" ? "Shows" : "Movies");
+  const [services, pages] = await Promise.all([regionServices(region, 60), Promise.all(rails.map((r) => savedRailTitles(r, region)))]);
+  const counts = railCounts(archive);
+  const marks = markLookup(archive);
+  const rows = rails.map((rail, i) => {
+    const p = pages[i];
+    return (
+      <Row
+        key={rail.id}
+        title={rail.name}
+        href={`/explore/category/${rail.id}`}
+        items={p.kind === "show" ? asShows(p.titles) : asMovies(p.titles)}
+        marks={marks}
+        empty="Nothing matches this category right now."
+        extra={<CategoryMenu rail={rail} services={services} counts={counts} />}
+      />
+    );
+  });
+  return { services, counts, rows };
 }

@@ -76,9 +76,12 @@ export interface Review {
 }
 
 /**
- * A saved Discover rail. The site doesn't read its insides (`catalogue` is
- * "shows" or "movies", `filter` the app's DiscoverFilter); it only needs the
- * id and `created` to carry one through a merge.
+ * A saved Explore rail — a custom category. `id` is an uppercase UUID,
+ * `catalogue` exactly "Shows" or "Movies", `filter` the app's DiscoverFilter
+ * and `created` ISO 8601 without fractional seconds; the app's decoder fails
+ * the whole archive on a rail that breaks any of that. Loose here because
+ * the merge only needs id and `created`; lib/saved-rails.ts reads the
+ * insides and writes new ones.
  */
 export interface SavedRail {
   id: string;

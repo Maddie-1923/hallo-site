@@ -677,6 +677,31 @@ sync in `npm run test:rules`). Episodes are Pro like ticking; films free.
 Not yet: rewatching a whole series as a run (start, tick through, finish,
 `rewatchRuns` / `rewatchCounts`), as the app has.
 
+## Custom categories on Explore (built 30 Sep 2026)
+
+The app's saved Explore rails, on the website and synced with it: the same
+`savedRails` and `savedRailOrder` in the archive, so a category made on the
+phone shows on the site and one made on the site shows on the phone after
+its next sync. Signed in, Explore draws them after its own rows (All: both
+catalogues in the phone's order; Shows or Movies: that tab's), each heading
+with a ••• for Rename, Edit filter and Remove, and leading to the category's
+own page (`/explore/category/<id>`, a poster grid with Show more). "New
+category" beside the All/Shows/Movies switch opens the app's filter as a
+dialog: Shows and/or Movies, genres, years, where it was made, original
+language, streaming services in the visitor's country, length, rating, and
+for shows status and type, then the sort. Saving both catalogues makes two
+categories, one per tab, as the app does; ten per tab, names up to 26.
+
+The query each one asks TMDB, the genre table, the suggested name and the
+JSON a category is written as are ported from the app in
+`lib/saved-rails.ts` and tested in `npm run test:categories` (uppercase ids,
+"Shows"/"Movies", dates without fractional seconds — any of those wrong and
+the app can't open the archive). Free, like the app. Not yet: dragging
+categories into a new order (the site keeps the phone's), and a removal
+doesn't leave a tombstone — the app's merge unions rails by id, so a phone
+that changed its own library before syncing the removal brings it back (the
+app has the same gap between two phones).
+
 ## Speed for many members (30 Sep 2026)
 
 - Likes and comment counts under reviews: every card on a page asks

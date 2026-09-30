@@ -1,5 +1,6 @@
 import "server-only";
 import type { Movie, Show } from "./archive";
+import { discoverQuery, type Catalogue, type DiscoverFilter } from "./saved-rails";
 
 // Server-side TMDB client. The key never reaches the browser; every page that
 // draws TMDB data is a Server Component or a route handler. Responses are
@@ -1043,6 +1044,25 @@ export async function discoverTitles(q: {
   };
 }
 
+
+// ---- Custom categories (the app's saved rails) ----
+
+/** One page of a saved category: TMDB's discover asked exactly the way the
+    app asks it (saved-rails.ts builds the query), in the visitor's country
+    for the services. Cached an hour like the rest. */
+export async function savedRailTitles(
+  rail: { catalogue: Catalogue; filter: DiscoverFilter },
+  region: string,
+  page = 1,
+): Promise<({ kind: "show"; titles: Show[] } | { kind: "movie"; titles: Movie[] }) & { pages: number }> {
+  const { path, params } = discoverQuery(rail.filter, rail.catalogue, region, page);
+  if (rail.catalogue === "Shows") {
+    const r = await tmdb<PageOf<RawShow>>(path, params);
+    return { kind: "show", titles: r?.results.map(toShow) ?? [], pages: Math.min(r?.total_pages ?? 0, 500) };
+  }
+  const r = await tmdb<PageOf<RawMovie>>(path, params);
+  return { kind: "movie", titles: r?.results.map(toMovie) ?? [], pages: Math.min(r?.total_pages ?? 0, 500) };
+}
 
 /** The services streaming a title in a country, as provider ids: the
     subscription services and the free-with-ads ones, which is what "Only

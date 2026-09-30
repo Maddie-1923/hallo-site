@@ -101,8 +101,10 @@ type Marks = ReturnType<typeof markLookup>;
 
 /** A row of poster cards, the app's Explore rail. `marks` is the visitor's
     library read into what each card's keys should show (all off when nobody
-    is signed in). Titles without a poster are left out. */
-export function Row({ title, href, items, marks }: { title: string; href: string; items: PosterItem[]; marks: Marks }) {
+    is signed in). Titles without a poster are left out. `extra` and `empty`
+    go through to PosterRow (a custom category's menu, and its line when
+    nothing matches). */
+export function Row({ title, href, items, marks, extra, empty }: { title: string; href: string; items: PosterItem[]; marks: Marks; extra?: React.ReactNode; empty?: string }) {
   const cards: PosterRowItem[] = items
     .filter((it) => it.poster)
     .slice(0, 20)
@@ -115,7 +117,7 @@ export function Row({ title, href, items, marks }: { title: string; href: string
       target: it.target,
       marks: it.target.kind === "show" ? marks.show(it.target.show.id) : marks.movie(it.target.movie.id),
     }));
-  return <PosterRow title={title} href={href} items={cards} lists={marks.lists} />;
+  return <PosterRow title={title} href={href} items={cards} lists={marks.lists} extra={extra} empty={empty} />;
 }
 
 export function interleave<T>(a: T[], b: T[]) {

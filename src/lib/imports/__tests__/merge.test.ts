@@ -263,7 +263,7 @@ test("lists and rails take this side's copy whole", () => {
   assert.deepEqual(m.customLists!.map((l) => l.name), ["Older", "Mine"]);
   assert.deepEqual(m.customLists![m.customLists!.length - 1].showIDs, [1]);
 
-  const rail: SavedRail = { id, name: "Mine", catalogue: "shows", filter: {}, created: nowText };
+  const rail: SavedRail = { id, name: "Mine", catalogue: "Shows", filter: {}, created: nowText };
   const theirRail = { ...rail, name: "Theirs" };
   assert.deepEqual(merged(archive({ savedRails: [rail] }), archive({ savedRails: [theirRail] })).savedRails!.map((r) => r.name), ["Mine"]);
 });

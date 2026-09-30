@@ -9,11 +9,19 @@ nothing else.
 - `src/app/page.tsx` — the home page, Netflix-shaped: `CinemaHero` (a
   full-width billboard of the week's trending titles, sliding right to left,
   sized by `.billboard-fit` in globals.css so it and the first row fit one
-  screen) and `WideRow`s of landscape cards with each title's TMDB logo
-  underneath. `components/TitleRows.tsx` builds both (billboard slides, wide
-  rows) and is shared with Explore (`components/ExplorePage.tsx`), which is
-  the same layout for one catalogue at a time, with its Shows/Movies switch
-  in the billboard's corner. The app's pitch (features,
+  screen) and rows of portrait posters laid out like the app's Explore rails
+  (`components/PosterRow.tsx`: the heading on its plate, each poster on a
+  raised well with its title, year and keys). `components/TitleRows.tsx`
+  builds both (billboard slides, and `Row`, which turns titles into
+  `PosterRow` cards) and is shared with Explore (`components/ExplorePage.tsx`
+  at /explore, /shows and /movies), the same layout with an All/Shows/Movies
+  switch under the billboard. Signed in, Explore also draws the visitor's
+  custom categories (the app's saved rails, `savedRails` in the archive)
+  after its own rows, each with a ••• menu (`CategoryMenu`), a "New
+  category" dialog beside the switch (`CategoryDialog`), and a page of its
+  own at `explore/category/[id]`. `lib/saved-rails.ts` is the app's
+  DiscoverFilter and its TMDB query, `lib/saved-rail-actions.ts` the writes;
+  `npm run test:categories` runs their tests. The app's pitch (features,
   themes, pricing, FAQ) lives at `about/`. `privacy/` and `support/` are the
   policy pages (they replaced the Jekyll `privacy.md`/`support.md`).
 - `src/app/u/[username]/` — public profiles, and `review/[key]/` a review's
@@ -54,6 +62,8 @@ nothing else.
   decode. `TMDB_BASE_URL` overrides the host for testing against a stand-in.
 - `src/lib/library-actions.ts` — the server actions that change a library from
   the web: track/untrack shows and movies, set status, check episodes off.
+  They (and `saved-rail-actions.ts`) write through `withArchive` in
+  `lib/archive-write.ts`.
   Every write stamps `modified`, keeps tombstones, moves `watchedStamps`, and
   sets the row's `changed_at`, so the app's merge treats the web as one more
   device. Dates are ISO 8601 without fractional seconds — Swift's `.iso8601`

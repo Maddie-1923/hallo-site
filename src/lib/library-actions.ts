@@ -1,13 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
-import { hasPro } from "@/lib/pro";
+import { withArchive } from "@/lib/archive-write";
 import { applyDeleteList, applyDeleteRewatch, applyEpisodeSkipped, applyEpisodeWatched, applyListCover, applyMovieWatched, applyRewatch, applySaveList, applyTake, clearTake, type ListInput, type RewatchTarget, type TakeInput, type TakeTarget } from "@/lib/library-rules";
 import { tickID } from "@/lib/imports/merge";
 import { checkText } from "@/lib/word-filter";
 import { applyImportPlan, type ImportPlan } from "@/lib/imports";
-import { CURRENT_VERSION, isArchive, type LibraryArchive, type Movie, type MovieStatus, type Show, type WatchStatus } from "./archive";
+import { isArchive, type LibraryArchive, type Movie, type MovieStatus, type Show, type WatchStatus } from "./archive";
 
 // Every change the website makes to a library goes through here, and each one
 // follows the rules the app's merge relies on: the record that changed gets a
@@ -15,65 +14,6 @@ import { CURRENT_VERSION, isArchive, type LibraryArchive, type Movie, type Movie
 // its `watchedStamps` entry, and the row's `changed_at` moves so the phone's
 // three-way comparison sees that the other side moved. Get any of those wrong
 // and the next sync from a phone quietly undoes what was done here.
-
-const DEVICE = "Kodigo web";
-
-// Swift's .iso8601 decoder refuses fractional seconds, so `toISOString()` as
-// it comes would make the whole archive undecodable on the phone.
-function now() {
-  return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
-}
-
-function emptyArchive(): LibraryArchive {
-  return {
-    version: CURRENT_VERSION,
-    exported: now(),
-    device: DEVICE,
-    shows: [],
-    movies: [],
-    watched: [],
-    watchedMovies: [],
-    movieWatchedDates: {},
-    watchedDates: {},
-    watchedStamps: {},
-    showTombstones: [],
-    movieTombstones: [],
-  };
-}
-
-// `pro`: a change only Kodigo Pro can make on the web (episode tracking and
-// skips, the tracker's keys). Logging films, rating and reviewing are free.
-async function withArchive(mutate: (a: LibraryArchive, stamp: string) => void, opts: { pro?: boolean } = {}): Promise<{ error?: string }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Sign in to track titles." };
-  if (opts.pro && !(await hasPro())) return { error: "Tracking and importing on the web come with Kodigo Pro." };
-
-  const { data } = await supabase.from("libraries").select("archive").eq("user_id", user.id).maybeSingle();
-  const archive: LibraryArchive = data && isArchive(data.archive) ? (data.archive as LibraryArchive) : emptyArchive();
-
-  const stamp = now();
-  try {
-    mutate(archive, stamp);
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Couldn't make that change." };
-  }
-  archive.exported = stamp;
-  archive.device = DEVICE;
-
-  const { error } = await supabase.from("libraries").upsert({
-    user_id: user.id,
-    archive,
-    version: archive.version,
-    changed_at: stamp,
-    device: DEVICE,
-  });
-  if (error) return { error: error.message };
-  revalidatePath("/calendar");
-  return {};
-}
 
 function dropTombstone(list: { id: number; removed: string }[] | undefined, id: number) {
   return (list ?? []).filter((t) => t.id !== id);

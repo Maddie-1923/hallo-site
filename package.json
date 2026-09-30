@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test:imports": "bash scripts/test-imports.sh",
     "test:email": "npx tsx src/lib/__tests__/notification-email.test.ts && npx tsx src/lib/__tests__/digest-email.test.ts",
-    "test:rules": "npx tsx src/lib/__tests__/rewatch-rules.test.ts"
+    "test:rules": "npx tsx src/lib/__tests__/rewatch-rules.test.ts",
+    "test:categories": "npx tsx src/lib/__tests__/saved-rails.test.ts"
   },
   "dependencies": {
     "@sentry/nextjs": "^11.1.0",

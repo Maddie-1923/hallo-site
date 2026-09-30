@@ -26,7 +26,26 @@ export interface PosterRowItem {
 // keys under that — More and Add. The round chevrons halfway down the sides
 // move the row by the whole cards in view; past the end goes back to the
 // start. On a phone it is a swipe.
-export function PosterRow({ title, href, items, lists = [] }: { title: string; href?: string; items: PosterRowItem[]; lists?: ListOption[] }) {
+//
+// `extra` sits beside the plate — a custom category's ••• menu — so a row
+// somebody made draws the same as the built-in ones. `empty` keeps the
+// heading (and that menu) on screen when nothing matches, with the line in
+// place of the posters; without it an empty row isn't drawn at all.
+export function PosterRow({
+  title,
+  href,
+  items,
+  lists = [],
+  extra,
+  empty,
+}: {
+  title: string;
+  href?: string;
+  items: PosterRowItem[];
+  lists?: ListOption[];
+  extra?: React.ReactNode;
+  empty?: string;
+}) {
   const strip = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: true, end: false, scrollable: false });
 
@@ -59,7 +78,7 @@ export function PosterRow({ title, href, items, lists = [] }: { title: string; h
     el.scrollBy({ left: dir * Math.max(1, Math.floor((el.clientWidth + gap) / card)) * card, behavior: "smooth" });
   }
 
-  if (items.length === 0) return null;
+  if (items.length === 0 && !empty) return null;
 
   const heading = (
     <>
@@ -76,7 +95,7 @@ export function PosterRow({ title, href, items, lists = [] }: { title: string; h
     <section className="mt-10 first:mt-2">
       {/* The heading on its plate, the app's heading pill. The whole plate is
           the link to the category. */}
-      <div className="mb-3">
+      <div className="mb-3 flex items-center gap-2">
         {href ? (
           <Link href={href} aria-label={`Show all ${title}`} className="inline-flex items-center gap-1.5 h-11 px-3.5 rounded-[10px] bg-piece no-underline hover:[&_svg]:text-ink">
             {heading}
@@ -84,7 +103,10 @@ export function PosterRow({ title, href, items, lists = [] }: { title: string; h
         ) : (
           <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece !m-0">{heading}</h2>
         )}
+        {extra}
       </div>
+
+      {items.length === 0 && <p className="m-0 text-[13px] text-dim">{empty}</p>}
 
       <div className="group/row relative">
         <div
