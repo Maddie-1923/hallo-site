@@ -406,7 +406,7 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
       style={{ background: FILL, color: ON_FILL }}
     >
       {/* The app's marks: a plus until it's on the watchlist, a bookmark once it is. */}
-      {on ? <MarkBookmark size={20} className="-mx-1" /> : <MarkAdd size={20} className="-mx-1" />}
+      {on ? <MarkBookmark size={20} className="-mx-1 -my-[3px]" /> : <MarkAdd size={20} className="-mx-1 -my-[3px]" />}
       {on ? "Added" : "Add"}
     </button>
   );
