@@ -571,6 +571,19 @@ and import a backup in Settings → Import & export. Kept on purpose: the ad
 space drawn in development (AdSlot), `DEV_PRO`, and the sign-in page drawing
 in development while accounts are closed.
 
+### Before opening: sign-in
+
+- Google: verify Kodigo's branding in Google Auth Platform (prove kodigo.pro
+  in Search Console, add the logo), so the consent screen says "Sign in to
+  Kodigo"; publish the app out of Testing.
+- Hide the supabase.co address: either Google's own button on the page
+  (Google Identity Services + `signInWithIdToken`, free) or a Supabase custom
+  domain such as auth.kodigo.pro (Supabase Pro + add-on).
+- Apple, then Facebook (optional), the same way; each listed in
+  `NEXT_PUBLIC_SIGNIN_WITH` once set up. Repeat every provider on the live
+  project.
+- Sign-in lands on Explore (`/shows`), or back where it started.
+
 ### 9. Open the site
 
 Turn on `SITE_ACCOUNTS`, move the finished tables to the live project, and

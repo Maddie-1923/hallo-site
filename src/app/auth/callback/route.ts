@@ -6,10 +6,10 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/library";
+  const next = searchParams.get("next") ?? "/shows";
   // Only ever send people somewhere on this site — an open redirect is the
   // classic way a sign-in link gets abused.
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/library";
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/shows";
 
   if (code) {
     const supabase = await createClient();

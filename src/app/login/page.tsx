@@ -16,7 +16,7 @@ const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--li
 
 export default async function Login({ searchParams }: PageProps<"/login">) {
   const params = await searchParams;
-  const next = typeof params.next === "string" ? params.next : "/library";
+  const next = typeof params.next === "string" ? params.next : "/shows";
   const error = typeof params.error === "string" ? params.error : undefined;
 
   return (
