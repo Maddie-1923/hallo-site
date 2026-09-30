@@ -18,7 +18,7 @@ const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--li
 export default async function Login({ searchParams }: PageProps<"/login">) {
   if (!accountsOpen) return <NotOpen />;
   const params = await searchParams;
-  const next = typeof params.next === "string" ? params.next : "/shows";
+  const next = typeof params.next === "string" ? params.next : "/explore";
   const error = typeof params.error === "string" ? params.error : undefined;
 
   return (
@@ -77,7 +77,7 @@ function NotOpen() {
                 <Link href="/about" className="inline-flex items-center h-10 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold no-underline">
                   Get the app
                 </Link>
-                <Link href="/shows" className="inline-flex items-center h-10 px-5 rounded-full bg-card border border-hair text-ink text-[12.5px] font-semibold no-underline hover:text-accent">
+                <Link href="/explore" className="inline-flex items-center h-10 px-5 rounded-full bg-card border border-hair text-ink text-[12.5px] font-semibold no-underline hover:text-accent">
                   Explore
                 </Link>
               </div>

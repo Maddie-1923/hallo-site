@@ -26,7 +26,7 @@ import { myNotifications } from "@/lib/my-notifications";
 // same three signed in; Library, Profile and the rest are in the profile
 // menu, and the app's own page sits there with the subscription.
 const tabs: [string, string][] = [
-  ["/shows", "Explore"],
+  ["/explore", "Explore"],
   ["/calendar", "Calendar"],
   ["/members", "Community"],
 ];
@@ -91,11 +91,13 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
             11px under the wordmark puts it on the same line it has beside
             them. */}
         <div className="self-end pb-[11px] md:pb-0 flex items-baseline gap-6">
-          <Link href="/" aria-label="Kodigo home" className="relative inline-flex no-underline" style={{ paddingLeft: (logoHeight * 528) / 1185 + 10 }}>
+          <Link href="/" aria-label="Kodigo home" className="relative inline-flex no-underline" style={{ paddingLeft: (logoHeight * 528) / 1185 }}>
             <span className="absolute left-0 bottom-[4px]">
               <LogoBleed height={logoHeight} />
             </span>
-            <span className="display text-2xl leading-none text-[color:var(--logo-ink)]">Kodigo</span>
+            {/* The mark alone, no wordmark. This empty letter keeps the
+                wordmark's baseline, which the tabs beside it stand on. */}
+            <span aria-hidden className="display text-2xl leading-none w-0">&#8203;</span>
           </Link>
           <div className="hidden md:flex items-baseline gap-5 text-sm text-dim">
             <NavLinks links={tabs} />

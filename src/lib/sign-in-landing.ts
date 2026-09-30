@@ -4,7 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 /** Only ever somewhere on this site: an open redirect is the classic way a
     sign-in link gets abused. */
 export function safeNext(next: string | null): string {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/shows";
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/explore";
 }
 
 /** Where a fresh sign-in goes: choosing a username first if they haven't

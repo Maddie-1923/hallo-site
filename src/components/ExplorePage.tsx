@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { CinemaHero } from "@/components/CinemaHero";
-import { asMovies, asShows, billboard, Row } from "@/components/TitleRows";
+import { asMovies, asShows, billboard, interleave, Row } from "@/components/TitleRows";
 import { movieRails, showRails } from "@/lib/tmdb";
 import { optionalLibrary } from "@/lib/library";
 import { markLookup } from "@/lib/marks";
@@ -11,19 +11,46 @@ import { regionName, visitorRegion } from "@/lib/region";
 import { AdSlot } from "@/components/AdSlot";
 
 // Explore, the app's name for the same idea: where you go to find something
-// rather than to work through what you have. The home page's layout, one
-// catalogue at a time behind a Shows/Movies switch the way the phone does it,
-// because a mixed page made "trending" mean two different leaderboards at
-// once. The switch sits in the billboard's corner so the billboard and the
-// first row still fit one screen.
+// rather than to work through what you have. The home page's layout, with an
+// All/Shows/Movies switch under the billboard: All mixes the two catalogues
+// (where Explore opens), Shows and Movies keep to one each.
 //
 // Nothing personal draws here. The library only decides whether the
 // billboard's watchlist chip reads "added", so the page works signed out.
-export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
+type Kind = "all" | "show" | "movie";
+
+export async function ExplorePage({ kind }: { kind: Kind }) {
   const lib = accountsOpen ? await optionalLibrary() : { archive: null };
   const region = await visitorRegion();
   const marks = markLookup(lib.archive);
   const place = regionName(region);
+
+  if (kind === "all") {
+    const [trendingShows, trendingMovies, inCinemas, airing, comingFilms, comingShows, topFilms, topShows, soonShows, soonFilms] = await Promise.all([
+      showRails.trending(),
+      movieRails.trending(),
+      movieRails.nowPlaying(region),
+      showRails.airingNow(),
+      movieRails.upcoming(region),
+      showRails.upcoming(),
+      movieRails.topRated(),
+      showRails.topRated(),
+      showRails.anticipated(),
+      movieRails.anticipated(region),
+    ]);
+    const slides = await billboard(trendingShows, trendingMovies, lib.archive, region, { shows: soonShows, movies: soonFilms });
+    const shown = new Set(slides.map((s) => s.key));
+    return (
+      <Layout slides={slides} kind={kind}>
+        <Row title="Trending this week" href="/shows" items={interleave(asMovies(trendingMovies), asShows(trendingShows)).filter((x) => !shown.has(x.key))} marks={marks} />
+        <Row title={`In cinemas · ${place}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
+        <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
+        <AdSlot place="rows" className="mt-8" />
+        <Row title="Coming soon" href="/movies" items={interleave(asMovies(comingFilms), asShows(comingShows))} marks={marks} />
+        <Row title="Top rated" href="/browse/films/sort/rated" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
+      </Layout>
+    );
+  }
 
   if (kind === "show") {
     const [trending, airing, upcoming, popular, topRated, soon] = await Promise.all([
@@ -70,45 +97,47 @@ export async function ExplorePage({ kind }: { kind: "show" | "movie" }) {
   );
 }
 
-function Layout({ slides, kind, children }: { slides: Awaited<ReturnType<typeof billboard>>; kind: "show" | "movie"; children: React.ReactNode }) {
+function Layout({ slides, kind, children }: { slides: Awaited<ReturnType<typeof billboard>>; kind: Kind; children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <header>
-        <CinemaHero slides={slides} corner={<KindSwitch kind={kind} />} />
+        <CinemaHero slides={slides} />
       </header>
-      <main className="flex-1 w-full px-[clamp(16px,3.2vw,64px)] pb-16">{children}</main>
+      <main className="flex-1 w-full px-[clamp(16px,3.2vw,64px)] pb-16">
+        <div className="mt-6">
+          <KindSwitch kind={kind} />
+        </div>
+        {children}
+      </main>
       <SiteFooter />
     </div>
   );
 }
 
-/** Shows or Movies, as links rather than state — the choice is the URL, so it
-    can be shared, bookmarked and rendered on the server. Smoky glass, since
-    it sits on the billboard's photograph. */
-function KindSwitch({ kind }: { kind: "show" | "movie" }) {
+/** All, Shows or Movies, as links rather than state — the choice is the
+    URL, so it can be shared, bookmarked and rendered on the server. On the
+    page under the billboard, in the page's own colours. */
+function KindSwitch({ kind }: { kind: Kind }) {
   const tabs: [string, string, boolean][] = [
+    ["/explore", "All", kind === "all"],
     ["/shows", "Shows", kind === "show"],
     ["/movies", "Movies", kind === "movie"],
   ];
   return (
-    <div className="inline-flex gap-1 p-[3px] rounded-full bg-black/40 border border-white/20 backdrop-blur-md">
+    <nav aria-label="Explore" className="inline-flex gap-1 p-[3px] rounded-full bg-card border border-hair">
       {tabs.map(([href, label, on]) => (
         <Link
           key={label}
           href={href}
           aria-current={on ? "page" : undefined}
           className={`px-4 py-1.5 rounded-full text-[13px] font-bold no-underline transition-colors ${
-            on ? "bg-accent-fill text-on-accent" : "text-white/75 hover:text-white"
+            on ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"
           }`}
         >
           {label}
         </Link>
       ))}
-      {/* Every film or series, with filters. */}
-      <Link href={kind === "show" ? "/browse/series" : "/browse/films"} className="px-4 py-1.5 rounded-full text-[13px] font-bold no-underline text-white/75 hover:text-white">
-        Browse all →
-      </Link>
-    </div>
+    </nav>
   );
 }

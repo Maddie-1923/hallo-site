@@ -89,7 +89,7 @@ what Pro gates.
 - **Home page:** a Netflix-style billboard, wide cards with title logos, rows
   of trending, in cinemas and coming soon for the visitor's country, and the
   app pitch at the foot.
-- **Explore:** the same layout, Shows or Movies.
+- **Explore:** the same layout, with an All / Shows / Movies switch under the billboard. Opens on All (`/explore`), both mixed.
 - **Profile page layout** at `/u/[username]`, previewed from a local library
   file (`/u/preview`) and a made-up profile (`/u/sample`):
   - the banner and the photo hanging from it;
@@ -603,7 +603,7 @@ in development while accounts are closed.
   Apple and Google cover nearly everyone. Each provider is listed in
   `NEXT_PUBLIC_SIGNIN_WITH` once set up. Repeat every provider on the live
   project.
-- Sign-in lands on Explore (`/shows`), or back where it started.
+- Sign-in lands on Explore (`/explore`), or back where it started.
 - Email: done on kodigo-dev 30 Sep. Resend SMTP (its own key, "Supabase
   kodigo-dev"; the "Supabase auth" key is the live project's), sender
   signin@kodigo.pro, `supabase/templates/sign-in.html` in Magic link or OTP

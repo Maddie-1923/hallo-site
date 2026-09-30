@@ -10,7 +10,7 @@ import { usePathname } from "next/navigation";
 // Explore the yellow, Calendar the pink, Community the blue. Any other tab
 // keeps the theme's accent.
 const STRIPE: Record<string, string> = {
-  "/shows": "#FFCB14",
+  "/explore": "#FFCB14",
   "/calendar": "#FF69C4",
   "/members": "#38B6FF",
 };
@@ -20,7 +20,7 @@ export function NavLinks({ links }: { links: [string, string][] }) {
   const active = (href: string) => {
     if (href.startsWith("/#")) return false;
     // Explore covers both catalogues, their title pages, Browse and people.
-    if (href === "/shows") return ["/shows", "/movies", "/explore", "/show/", "/movie/", "/browse", "/person/"].some((p) => path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`));
+    if (href === "/explore") return ["/shows", "/movies", "/explore", "/show/", "/movie/", "/browse", "/person/"].some((p) => path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`));
     // Community covers Members and Lists, and members' own pages.
     if (href === "/members") return ["/members", "/lists", "/u/"].some((p) => path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`));
     return path === href || path.startsWith(`${href}/`);
