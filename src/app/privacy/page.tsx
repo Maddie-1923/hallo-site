@@ -66,7 +66,7 @@ export default function Privacy() {
         <p>
           An account lets you keep the same library in the app and on the website, and share what you watch.
           It&apos;s made from your email address. You sign in with a link or code sent to that address, or
-          with Apple, Google or Facebook, which tell us your email address and nothing else we keep (Apple
+          with Apple or Google, which tell us your email address and nothing else we keep (Apple
           may give us a private relay address instead of your real one). We never post anything to them.
         </p>
         <p>With an account, we keep:</p>
@@ -204,7 +204,7 @@ export default function Privacy() {
             starts playing, from YouTube&apos;s privacy-enhanced player, when you press it.
           </li>
           <li><strong>Stripe</strong>, <strong>Apple</strong> and <strong>Google</strong> handle subscriptions, as above.</li>
-          <li><strong>Apple</strong>, <strong>Google</strong> and <strong>Meta</strong> (Facebook) handle signing in with them, if you use it.</li>
+          <li><strong>Apple</strong> and <strong>Google</strong> handle signing in with them, if you use it.</li>
           {ADS && <li><strong>Google AdSense</strong> shows ads on the website, as above.</li>}
           {CRASH_REPORTS && <li><strong>Sentry</strong> receives crash reports, as above.</li>}
         </ul>

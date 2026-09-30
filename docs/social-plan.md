@@ -579,7 +579,8 @@ in development while accounts are closed.
 - Hide the supabase.co address: either Google's own button on the page
   (Google Identity Services + `signInWithIdToken`, free) or a Supabase custom
   domain such as auth.kodigo.pro (Supabase Pro + add-on).
-- Apple, then Facebook (optional), the same way; each listed in
+- Apple the same way (done on dev, below). Facebook skipped (30 Sep):
+  Apple and Google cover nearly everyone. Each provider is listed in
   `NEXT_PUBLIC_SIGNIN_WITH` once set up. Repeat every provider on the live
   project.
 - Sign-in lands on Explore (`/shows`), or back where it started.
