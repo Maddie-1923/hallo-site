@@ -150,7 +150,9 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
   const avatar = image.poster(profile.avatar_path, "w342");
 
   return (
-    <div className="ml-auto flex items-center gap-2 sm:gap-4 shrink-0">
+    // Centred on the k, as the signed-out buttons are (7px above the row's
+    // middle); only the buttons move, never the logo.
+    <div className="ml-auto flex items-center gap-2 sm:gap-4 shrink-0 -translate-y-[7px]">
       <SearchBoundary />
 
       {/* Their notifications: follows, requests, likes and comments. What's
