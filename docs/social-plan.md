@@ -656,6 +656,15 @@ database; `setPinnedReview` in `lib/profile-actions.ts`; "Pin to profile" /
 "Unpin" on the owner's own cards, `components/PinReview.tsx`). The tab now
 lists every review, not the latest twelve.
 
+## Featured and by-topic lists (built 30 Sep 2026)
+
+The Lists page opens with Featured (lists a moderator picked with "Feature
+on the Lists page" on the list's own page; `featured_lists`, written only
+through `setFeaturedList`) and has a row per genre with two or more lists
+in it, the fullest five. A list's genre is the one at least half its
+titles share (`public.list_topics`, from the owner's public library's
+genre ids, run as the reader; lists of three titles or more).
+
 ## Email alerts (planned 30 Sep 2026)
 
 Beside the weekly digest (Sunday 9am, the person's own time zone, off by

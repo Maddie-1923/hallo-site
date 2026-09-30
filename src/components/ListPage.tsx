@@ -8,6 +8,7 @@ import { HeadingPill } from "./TitleParts";
 import { MoreButton } from "./SafetySheets";
 import { CommentThread } from "./CommentThread";
 import { likeInfo, setLike } from "@/lib/social-actions";
+import { setFeaturedList } from "@/lib/safety-actions";
 
 // A list's own page: its name and whose it is, what it's about, how much of
 // it you've watched, like and share; then every title in order, the watched
@@ -17,8 +18,11 @@ import { likeInfo, setLike } from "@/lib/social-actions";
 // or blocks whoever made it.
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 
-export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
+// A moderator also sees Feature, which puts the list at the top of the
+// Lists page.
+export function ListPage({ l, watched, moderator = false }: { l: ListView; watched: string[]; moderator?: boolean }) {
   const router = useRouter();
+  const [featured, setFeatured] = useState(!!l.featured);
   const [said, setSaid] = useState<string | null>(null);
   // A real member's list: its likes from the account, and the heart saves.
   const [live, setLive] = useState<{ count: number; liked: boolean } | null>(null);
@@ -100,6 +104,20 @@ export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
                 {said ?? "Share"}
               </button>
             </div>
+            {moderator && (
+              <button
+                type="button"
+                aria-pressed={featured}
+                onClick={async () => {
+                  const on = !featured;
+                  setFeatured(on);
+                  if (!(await setFeaturedList(l.owner, l.id, on).catch(() => false))) setFeatured(!on);
+                }}
+                className={`h-9 rounded-[12px] text-[12px] font-semibold cursor-pointer ${featured ? "bg-accent-fill text-on-accent" : "bg-card text-dim hover:text-ink"}`}
+              >
+                {featured ? "Featured on Lists · Stop" : "Feature on the Lists page"}
+              </button>
+            )}
           </div>
         </div>
       </div>

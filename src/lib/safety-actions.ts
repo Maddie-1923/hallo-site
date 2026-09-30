@@ -93,3 +93,16 @@ export async function resolveReports(ids: string[], status: Report["status"]): P
   const { error } = await db.from("reports").update({ status, resolved_at: status === "open" ? null : new Date().toISOString(), resolved_by: status === "open" ? null : user?.id }).in("id", ids);
   return !error;
 }
+
+/** Features a list at the top of the Lists page, or stops featuring it (moderators only). */
+export async function setFeaturedList(username: string, listID: string, on: boolean): Promise<boolean> {
+  if (!(await moderatorAccess())) return false;
+  const db = admin();
+  if (!db) return false;
+  const { data: p } = await db.from("profiles").select("user_id").eq("username", username.toLowerCase()).maybeSingle();
+  if (!p) return false;
+  const { error } = on
+    ? await db.from("featured_lists").upsert({ owner: p.user_id, list_id: listID.slice(0, 64) })
+    : await db.from("featured_lists").delete().eq("owner", p.user_id).eq("list_id", listID);
+  return !error;
+}

@@ -17,6 +17,10 @@ export interface ListView {
   likes: number;
   /** Likes in the last seven days, for Popular this week. */
   likesWeek?: number;
+  /** The genre most of its titles share, for the Lists page's topic rows. */
+  topic?: string | null;
+  /** Picked by a moderator for the top of the Lists page. */
+  featured?: boolean;
 }
 
 export async function allLists(): Promise<ListView[]> {

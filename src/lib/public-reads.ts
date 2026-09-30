@@ -3,7 +3,7 @@ import { accountsOpen } from "@/lib/accounts";
 import type { ListView } from "@/lib/lists";
 import type { ProfileTitle, ReviewEntry } from "@/lib/public-profile";
 import { createClient } from "@/lib/supabase/server";
-import { image } from "@/lib/tmdb";
+import { genreNames, image } from "@/lib/tmdb";
 
 // Reading other members' public side: the projection tables filled from
 // their libraries (supabase/migrations/20260930040000_public_projection.sql).
@@ -112,10 +112,15 @@ export async function publicLists(limit = 120): Promise<ListView[]> {
   const { data } = await (await createClient()).from("public_lists").select("user_id, id, name, detail, titles").neq("titles", "[]").order("updated_at", { ascending: false }).limit(limit);
   const rows = (data ?? []) as ListRow[];
   const owners = [...new Set(rows.map((r) => r.user_id))];
-  const [who, likes] = await Promise.all([
+  const supabase = await createClient();
+  const [who, likes, topics, featured] = await Promise.all([
     members(owners),
-    owners.length ? (await createClient()).from("likes").select("owner, target, created_at").eq("kind", "list").in("owner", owners).limit(5000) : Promise.resolve({ data: [] }),
+    owners.length ? supabase.from("likes").select("owner, target, created_at").eq("kind", "list").in("owner", owners).limit(5000) : Promise.resolve({ data: [] }),
+    supabase.rpc("list_topics"),
+    supabase.from("featured_lists").select("owner, list_id"),
   ]);
+  const topicOf = new Map(((topics.data ?? []) as { user_id: string; id: string; genre: number }[]).map((t) => [`${t.user_id}/${t.id}`, genreNames([t.genre], 1)[0] ?? null]));
+  const picked = new Set(((featured.data ?? []) as { owner: string; list_id: string }[]).map((f) => `${f.owner}/${f.list_id}`));
   // Each list's likes, all told and in the last seven days.
   const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
   const total = new Map<string, number>();
@@ -129,7 +134,7 @@ export async function publicLists(limit = 120): Promise<ListView[]> {
     const w = who.get(r.user_id);
     if (!w) return [];
     const k = `${r.user_id}/${r.id}`;
-    return [{ ...toList(r, w), likes: total.get(k) ?? 0, likesWeek: week.get(k) ?? 0 }];
+    return [{ ...toList(r, w), likes: total.get(k) ?? 0, likesWeek: week.get(k) ?? 0, topic: topicOf.get(k) ?? null, featured: picked.has(k) }];
   });
 }
 
@@ -139,11 +144,14 @@ export async function publicList(username: string, id: string): Promise<ListView
   const supabase = await createClient();
   const { data: p } = await supabase.from("profiles").select("user_id").eq("username", username.toLowerCase()).maybeSingle();
   if (!p) return null;
-  const { data } = await supabase.from("public_lists").select("user_id, id, name, detail, titles").eq("user_id", p.user_id).eq("id", id).maybeSingle();
+  const [{ data }, { data: pick }] = await Promise.all([
+    supabase.from("public_lists").select("user_id, id, name, detail, titles").eq("user_id", p.user_id).eq("id", id).maybeSingle(),
+    supabase.from("featured_lists").select("list_id").eq("owner", p.user_id).eq("list_id", id).maybeSingle(),
+  ]);
   if (!data) return null;
   const who = await members([p.user_id]);
   const w = who.get(p.user_id);
-  return w ? toList(data as ListRow, w) : null;
+  return w ? { ...toList(data as ListRow, w), featured: !!pick } : null;
 }
 
 /** Members' written reviews whose title or words match, newest first (search). */
