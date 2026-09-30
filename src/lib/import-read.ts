@@ -1,8 +1,8 @@
 // Reading an export in the browser for Settings, Import & export: what the
 // file is and what's in it, as the app's import tells you before it writes
-// anything. Nothing is uploaded. Bringing it into the library comes with
-// accounts.
+// anything, before Import reads it properly (lib/imports).
 import { isArchive, type LibraryArchive } from "./archive";
+import { readZip } from "./imports/zip";
 
 export interface ImportSummary {
   file: string;
@@ -63,7 +63,23 @@ function kodigo(a: LibraryArchive, file: string): ImportSummary {
 
 export async function readImport(f: File): Promise<ImportSummary> {
   const name = f.name.toLowerCase();
-  if (name.endsWith(".zip")) return { file: f.name, source: "A zip file", counts: [], note: "Unzip it first, then pick the files inside (the CSV or JSON files)." };
+  // A zip (TV Time's export, Letterboxd's): what's inside, each file read the
+  // same way, as the importer will open it itself.
+  if (name.endsWith(".zip")) {
+    let inside: { name: string; data: Uint8Array }[];
+    try {
+      inside = readZip(new Uint8Array(await f.arrayBuffer()), [".csv", ".json"]).payloads;
+    } catch {
+      return { file: f.name, source: "Unreadable zip", counts: [], note: "This zip couldn't be opened. Download it again and try once more." };
+    }
+    const parts = await Promise.all(inside.map((e) => readImport(new File([e.data.slice()], e.name.split("/").pop() ?? e.name))));
+    const known = parts.filter((p) => p.counts.length > 0);
+    if (!known.length) return { file: f.name, source: "A zip file", counts: [], note: "Nothing inside looked like a watch history." };
+    const tv = known.find((p) => p.source.startsWith("TV Time"));
+    const counts = new Map<string, number>();
+    for (const p of known) for (const [label, n] of p.counts) counts.set(label, (counts.get(label) ?? 0) + n);
+    return { file: f.name, source: tv ? "TV Time export" : `${known[0].source} (zip)`, counts: [...counts.entries()], note: `${inside.length} files inside, ${known.length} with history in them.` };
+  }
   const text = await f.text();
   if (name.endsWith(".json")) {
     let data: unknown;

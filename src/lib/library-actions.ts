@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { hasPro } from "@/lib/pro";
 import { applyEpisodeSkipped, applyEpisodeWatched, applyMovieWatched, applyTake, clearTake, type TakeInput, type TakeTarget } from "@/lib/library-rules";
 import { checkText } from "@/lib/word-filter";
+import { applyImportPlan, type ImportPlan } from "@/lib/imports";
 import { CURRENT_VERSION, isArchive, type LibraryArchive, type Movie, type MovieStatus, type Show, type WatchStatus } from "./archive";
 
 // Every change the website makes to a library goes through here, and each one
@@ -47,7 +48,7 @@ async function withArchive(mutate: (a: LibraryArchive, stamp: string) => void, o
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Sign in to track titles." };
-  if (opts.pro && !(await hasPro())) return { error: "Episode tracking on the web comes with Kodigo Pro." };
+  if (opts.pro && !(await hasPro())) return { error: "Tracking and importing on the web come with Kodigo Pro." };
 
   const { data } = await supabase.from("libraries").select("archive").eq("user_id", user.id).maybeSingle();
   const archive: LibraryArchive = data && isArchive(data.archive) ? (data.archive as LibraryArchive) : emptyArchive();
@@ -420,4 +421,28 @@ export async function removeTake(target: TakeTarget) {
 
 function revalidateTitle(t: TakeTarget) {
   revalidatePath(t.kind === "movie" ? `/movie/${t.movie.id}` : `/show/${t.show.id}`, "layout");
+}
+
+// ---- Import (Settings → Import & export) ----
+
+/** Lands an import worked out in the browser (lib/imports): merged into
+    the library as it is now, on the server, with the app's own merge, so
+    nothing already here is replaced and a phone that synced meanwhile loses
+    nothing; ratings and hearts only fill gaps. A Kodigo backup comes the
+    same way, as a plan whose archive is the backup. Pro. */
+export async function importIntoLibrary(plan: ImportPlan) {
+  if (!plan || !isArchive(plan.archive)) return { error: "That import couldn't be read. Try again." };
+  const clean: ImportPlan = {
+    archive: plan.archive,
+    ratings: Object.fromEntries(Object.entries(plan.ratings ?? {}).filter(([k, v]) => /^(movie|show|episode):[\d-]+$/.test(k) && typeof v === "number" && v >= 0.5 && v <= 10)),
+    loved: (plan.loved ?? []).filter((k) => /^(movie|show|episode):[\d-]+$/.test(k)),
+  };
+  return withArchive(
+    (a) => {
+      const next = applyImportPlan(a, clean, new Date());
+      for (const k of Object.keys(a)) delete (a as Record<string, unknown>)[k];
+      Object.assign(a, next);
+    },
+    { pro: true },
+  );
 }

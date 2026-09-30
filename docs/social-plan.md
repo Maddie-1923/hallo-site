@@ -206,6 +206,18 @@ tables; entitlements and safety go there when accounts open.
    - country and streaming services;
    - import and export: Kodigo backups, and TV Time, Letterboxd and IMDb
      files like the app takes, including Letterboxd review text and lists;
+     import built 30 Sep: Settings → Import & export (`ImportPanel`), Pro.
+     The Android importers and archive merge ported to `src/lib/imports/`
+     (144 ported tests, `npm run test:imports`); the run happens in the
+     browser (no server time limit) against a snapshot of the library, TMDB
+     reached through `lib/import-actions.ts`; a review step shows what
+     would be added, what couldn't be found and what was matched by name;
+     Add to my library merges the plan on the server into the library as it
+     is then (`importIntoLibrary`), ratings and hearts only filling gaps. A
+     Kodigo backup is merged the same way; replacing a library stays in the
+     app. Zips are opened in the browser. `/app/import` redirects here.
+     Still not imported on the web either: Letterboxd review text and lists
+     (the importers don't carry them yet on any platform);
    - delete account.
 
    Settings sync built 30 Sep (`20260930050000_settings_sync.sql`,

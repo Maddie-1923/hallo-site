@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useAccountExtras, useSettings, type Settings } from "@/lib/settings";
 import { loadServices } from "@/lib/settings-actions";
-import { readImport, type ImportSummary } from "@/lib/import-read";
 import { APPEARANCE_KEY, DEFAULT_THEME, THEMES, THEME_KEY, applyTheme, type Appearance } from "@/lib/theme";
 import type { Service } from "@/lib/tmdb";
 import { HeadingPill } from "./TitleParts";
 import { DeleteAccount } from "./DeleteAccount";
+import { ImportPanel } from "./ImportPanel";
 import { ManageSubscription } from "./ProCheckout";
 import { saveAbout as saveAboutToAccount, saveAccountTheme } from "@/lib/account-settings";
 import { formatDate } from "@/lib/dates";
@@ -45,7 +45,6 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
   const [appearance, setAppearance] = useState<Appearance>("system");
   const [services, setServices] = useState(initialServices);
   const [loading, startLoading] = useTransition();
-  const [read, setRead] = useState<ImportSummary[]>([]);
   const region = s.region ?? detected;
 
   useEffect(() => {
@@ -276,47 +275,7 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
         </Group>
 
         <Group id="data" title="Import & export">
-          <Field label="Bring your history" hint="From TV Time, Letterboxd, Trakt, Simkl or IMDb, or a Kodigo backup. Kodigo reads the files here in your browser and tells you what's in them.">
-            <label className="inline-flex items-center h-8 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink cursor-pointer hover:text-accent transition-colors">
-              Choose files
-              <input
-                type="file"
-                multiple
-                accept=".json,.csv,.zip"
-                className="sr-only"
-                onChange={async (e) => {
-                  const files = [...(e.target.files ?? [])];
-                  e.target.value = "";
-                  if (files.length) setRead(await Promise.all(files.map(readImport)));
-                }}
-              />
-            </label>
-          </Field>
-          {read.length > 0 && (
-            <div className="py-[10px] grid gap-2">
-              {read.map((r, i) => (
-                <div key={`${r.file}${i}`} className="rounded-[10px] bg-card border border-hair p-3">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-[12.5px] font-semibold text-ink truncate">{r.source}</span>
-                    <span className="text-[12.5px] text-dim truncate">{r.file}</span>
-                  </div>
-                  {r.counts.length > 0 && (
-                    <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px]">
-                      {r.counts
-                        .filter(([, n]) => n > 0)
-                        .map(([label, n]) => (
-                          <span key={label} className="text-mid-tone">
-                            <b className="font-semibold text-ink tabular-nums">{n.toLocaleString("en")}</b> {(n === 1 ? label.replace(/^(\w+?)(ies|s)\b/, (_, w, end) => (end === "ies" ? `${w}y` : w)) : label).toLowerCase()}
-                          </span>
-                        ))}
-                    </div>
-                  )}
-                  {r.note && <p className="m-0 mt-1.5 text-[12.5px] text-dim">{r.note}</p>}
-                </div>
-              ))}
-              <p className="m-0 text-[12.5px] leading-[1.6] text-dim">Nothing has been uploaded. Bringing these into your library opens with accounts; until then, the app&apos;s Import does it on your phone.</p>
-            </div>
-          )}
+          <ImportPanel />
           <Field label="Download everything" hint="Your whole library as one Kodigo backup file, which any copy of Kodigo can read back.">
             <a href="/api/export" download className="inline-flex items-center h-8 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink no-underline hover:text-accent transition-colors">
               Export

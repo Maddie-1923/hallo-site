@@ -1065,3 +1065,47 @@ export async function filmLength(id: number): Promise<number | null> {
   const r = await tmdb<{ runtime?: number | null }>(`/movie/${id}`, {}, 604800);
   return r?.runtime || null;
 }
+
+// ---- Import (lib/import-actions.ts) ----
+
+/** What an import asks TMDB, the calls Android's ImportCatalog makes: first
+    pages only, as the apps ask for. Each is cached a day. */
+export const importCatalog = {
+  /** A title by its IMDb or TheTVDB id. */
+  async find(source: "imdb" | "tvdb", id: string): Promise<{ shows: Show[]; movies: Movie[] }> {
+    const r = await tmdb<{ tv_results?: RawShow[]; movie_results?: RawMovie[] }>(`/find/${encodeURIComponent(id)}`, { external_source: source === "imdb" ? "imdb_id" : "tvdb_id" }, 86400);
+    return { shows: (r?.tv_results ?? []).map(toShow), movies: (r?.movie_results ?? []).map(toMovie) };
+  },
+  async show(id: number): Promise<Show | null> {
+    const r = await tmdb<RawShow>(`/tv/${id}`, {}, 86400);
+    return r ? toShow(r) : null;
+  },
+  async movie(id: number): Promise<Movie | null> {
+    const r = await tmdb<RawMovie>(`/movie/${id}`, {}, 86400);
+    return r ? toMovie(r) : null;
+  },
+  async searchShows(text: string, year?: number | null): Promise<Show[]> {
+    const r = await tmdb<PageOf<RawShow>>("/search/tv", { query: text, first_air_date_year: year ?? undefined }, 86400);
+    return (r?.results ?? []).map(toShow);
+  },
+  async searchMovies(text: string, year?: number | null): Promise<Movie[]> {
+    const r = await tmdb<PageOf<RawMovie>>("/search/movie", { query: text, year: year ?? undefined }, 86400);
+    return (r?.results ?? []).map(toMovie);
+  },
+  async searchMulti(text: string, year?: number | null): Promise<({ kind: "show"; show: Show } | { kind: "movie"; movie: Movie })[]> {
+    const r = await tmdb<PageOf<RawShow | RawMovie>>("/search/multi", { query: text, year: year ?? undefined }, 86400);
+    const out: ({ kind: "show"; show: Show } | { kind: "movie"; movie: Movie })[] = [];
+    for (const x of r?.results ?? []) {
+      if (x.media_type === "tv") out.push({ kind: "show", show: toShow(x as RawShow) });
+      else if (x.media_type === "movie") out.push({ kind: "movie", movie: toMovie(x as RawMovie) });
+    }
+    return out;
+  },
+  /** Every episode of a series, season by season, specials included. */
+  async episodes(showID: number): Promise<{ season: number; episode: number; name: string; airDate: string | null; runtime: number | null }[]> {
+    const show = await tmdb<RawShow>(`/tv/${showID}`, {}, 86400);
+    const seasons = (show?.seasons ?? []).map((s) => s.season_number);
+    const lists = await Promise.all(seasons.map((n) => tmdb<RawSeason>(`/tv/${showID}/season/${n}`, {}, 86400)));
+    return lists.flatMap((l) => (l?.episodes ?? []).map((e) => ({ season: e.season_number, episode: e.episode_number, name: e.name, airDate: e.air_date ?? null, runtime: e.runtime ?? null })));
+  },
+};

@@ -27,8 +27,12 @@ nothing else.
 - `src/proxy.ts` — refreshes the Supabase session cookie on every request and
   keeps `/app/*` behind sign-in. Next 16 renamed `middleware` to `proxy`.
 - `src/app/app/` — the signed-in library: `shows`, `movies`, `profile`,
-  `account` (sign out, remove library, delete account) and `import` (upload a
-  backup JSON to seed or replace the row).
+  `account` (sign out, remove library, delete account). Import moved to
+  Settings → Import & export (`components/ImportPanel.tsx`): the app's
+  importers ported to `src/lib/imports/` (TV Time, Letterboxd, Trakt, Simkl,
+  IMDb and any CSV/JSON, plus the archive merge) run in the browser against
+  TMDB through `lib/import-actions.ts`, and `importIntoLibrary` merges the
+  result on the server. `npm run test:imports` runs their tests.
 - `src/app/api/account/route.ts` — the one server-only route; deletes the auth
   user with the service-role key.
 - `src/lib/archive.ts` — the TypeScript twin of the app's `LibraryArchive`.
@@ -72,9 +76,9 @@ same shape iCloud sync pushes as one CKRecord and Backup writes to a file. The
 server never interprets it. Conflict handling stays in the app: `changed_at` on
 the row is the library-wide stamp the app routes on ("did the other side move
 since I last synced"), and the per-record stamps and tombstones inside the
-archive settle a two-sided change. The import page writes `changed_at` from the
-file's `exported` date, never from the clock, so an old backup can't look newer
-than a phone's live copy.
+archive settle a two-sided change. An import on the web (a backup included) is
+merged into the row with the app's own merge (`src/lib/imports/merge.ts`), never
+written over it; replacing a library with a backup is the app's job.
 
 ### What the iOS side needs (not built yet)
 
