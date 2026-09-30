@@ -87,7 +87,13 @@ export function Sheet({ label, title, onClose, footer, children, width = 720 }: 
   );
 }
 
-/** A choice that is on or off, drawn as the dialog's pills. */
+// Laid out as the app's Browse sheet is: cards with a plain heading each —
+// Type, Sort by, Genres, a "Narrow by" list of rows, and Series — rather than
+// a wall of pills under spaced capitals. Built to be easy to read: sentence
+// case, no letter-spacing, 15px type with room between lines, everything
+// left-aligned, and a chosen pill marked with a tick as well as a colour.
+
+/** A choice that is on or off. */
 function Chip({ on, onClick, children, disabled = false }: { on: boolean; onClick: () => void; children: React.ReactNode; disabled?: boolean }) {
   return (
     <button
@@ -95,23 +101,79 @@ function Chip({ on, onClick, children, disabled = false }: { on: boolean; onClic
       aria-pressed={on}
       disabled={disabled}
       onClick={onClick}
-      className={`h-8 px-3.5 rounded-full border text-[12.5px] font-semibold cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default ${
-        on ? "border-transparent bg-accent-fill text-on-accent" : "border-hair text-dim hover:text-ink"
+      className={`inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full border text-[14px] font-semibold cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default ${
+        on ? "border-transparent bg-accent-fill text-on-accent" : "border-hair text-ink hover:border-ink"
       }`}
     >
+      {on && (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M5 12.5l4.5 4.5L19 7.5" />
+        </svg>
+      )}
       {children}
     </button>
   );
 }
 
-function Section({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
+/** One card of the sheet, its heading in plain words. */
+function Card({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
-    <div>
-      <div className="flex items-baseline gap-3">
-        <div className="eyebrow">{title}</div>
-        {note && <span className="text-xs text-dim">{note}</span>}
+    <section className="rounded-[14px] bg-piece/60 border border-hair/70 px-4 py-4">
+      <div role="heading" aria-level={3} className="text-[15px] font-semibold text-ink">
+        {title}
       </div>
-      <div className="flex flex-wrap gap-1.5 mt-2">{children}</div>
+      {note && <p className="m-0 mt-1 text-[13.5px] leading-[1.5] text-dim">{note}</p>}
+      <div className="mt-3">{children}</div>
+    </section>
+  );
+}
+
+/** A one-of-several choice drawn as the app's segmented track. */
+function Segments<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {
+  return (
+    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1 p-1 rounded-full bg-card border border-hair w-fit max-w-full">
+      {options.map(([v, text]) => (
+        <button
+          key={v}
+          type="button"
+          role="radio"
+          aria-checked={value === v}
+          onClick={() => onChange(v)}
+          className={`h-9 px-4 rounded-full text-[14px] font-semibold cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-ink hover:bg-piece"}`}
+        >
+          {text}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** A "Narrow by" row: what it narrows on the left, the choice on the right.
+    A menu of one value is a native select; a set of several opens a list of
+    ticks under the row. */
+function Row({ label, first, children }: { label: string; first?: boolean; children: React.ReactNode }) {
+  return (
+    <div className={`flex items-center justify-between gap-4 min-h-12 py-1.5 ${first ? "" : "border-t border-hair/70"}`}>
+      <span className="text-[15px] text-ink">{label}</span>
+      <div className="flex items-center gap-2 text-[14px] text-dim">{children}</div>
+    </div>
+  );
+}
+
+function MultiRow({ label, summary, first, children }: { label: string; summary: string; first?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={first ? "" : "border-t border-hair/70"}>
+      <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="w-full flex items-center justify-between gap-4 min-h-12 py-1.5 text-left cursor-pointer">
+        <span className="text-[15px] text-ink">{label}</span>
+        <span className="flex items-center gap-2 text-[14px] text-dim min-w-0">
+          <span className="truncate max-w-[260px]">{summary}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`}>
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </span>
+      </button>
+      {open && <div className="pb-3 flex flex-wrap gap-2">{children}</div>}
     </div>
   );
 }
@@ -120,7 +182,6 @@ const toggle = <T,>(xs: T[], x: T) => (xs.includes(x) ? xs.filter((y) => y !== x
 const thisYear = new Date().getFullYear();
 // The app's picker: 1950 to next year, newest first.
 const YEARS = Array.from({ length: thisYear + 1 - 1950 + 1 }, (_, i) => thisYear + 1 - i);
-const SCORES = Array.from({ length: 21 }, (_, i) => i / 2);
 
 export function CategoryDialog({
   services,
@@ -218,11 +279,11 @@ export function CategoryDialog({
     onClose();
   }
 
-  const select = "field !w-auto !h-8 !py-0 !px-2.5 !text-[12.5px]";
+  const select = "field !w-auto !h-10 !py-0 !pl-3 !pr-8 !text-[14px] !text-ink";
   return (
     <Sheet
-      label={browse ? "Filter" : edit ? `Edit ${edit.name}` : "New category"}
-      title={browse ? "Filter" : edit ? `Edit ${edit.name}` : "New category"}
+      label={browse ? "Browse" : edit ? `Edit ${edit.name}` : "New category"}
+      title={browse ? "Browse" : edit ? `Edit ${edit.name}` : "New category"}
       onClose={onClose}
       footer={
         browse ? (
@@ -254,183 +315,154 @@ export function CategoryDialog({
         )
       }
     >
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-3 text-[15px] leading-[1.5]">
         {!edit && !browse && (
-          <label className="block">
-            <div className="flex items-baseline gap-3">
-              <div className="eyebrow">Name</div>
-              <span className="text-xs text-dim">
-                {Array.from(name).length}/{RAIL_NAME_LIMIT}
-              </span>
-            </div>
-            <input className="field mt-2" value={name} maxLength={RAIL_NAME_LIMIT} placeholder={suggestedName(f)} onChange={(e) => setTyped(e.target.value)} />
-          </label>
+          <Card title="Name" note={`${Array.from(name).length} of ${RAIL_NAME_LIMIT} letters`}>
+            <input className="field !text-[15px]" aria-label="Category name" value={name} maxLength={RAIL_NAME_LIMIT} placeholder={suggestedName(f)} onChange={(e) => setTyped(e.target.value)} />
+          </Card>
         )}
 
         {!edit && (
-          // Both makes two categories, one on each tab — the app's rule, since
-          // a row can't be half on Shows and half on Movies.
-          <Section title="Show me" note={f.kinds.length > 1 && !browse ? "Makes one category for each" : undefined}>
-            {CATALOGUES.map((c) => (
-              <Chip
-                key={c}
-                on={f.kinds.includes(c)}
-                onClick={() => {
-                  // Never neither: a filter that asks nothing finds nothing.
-                  const next = CATALOGUES.filter((k) => (k === c ? !f.kinds.includes(k) : f.kinds.includes(k)));
-                  if (next.length) set({ kinds: next });
-                }}
-              >
-                {c}
-                {!browse && counts[c] >= RAIL_LIMIT ? " (full)" : ""}
-              </Chip>
-            ))}
-          </Section>
+          // All is both catalogues. Saving both makes two categories, one on
+          // each tab — the app's rule, since a row can't be half and half.
+          <Card title="Type" note={f.kinds.length > 1 && !browse ? "Saving makes one category for shows and one for movies." : undefined}>
+            <Segments
+              label="Type"
+              value={f.kinds.length > 1 ? "all" : f.kinds[0] === "Shows" ? "shows" : "movies"}
+              options={[
+                ["all", "All"],
+                ["shows", `Shows${!browse && counts.Shows >= RAIL_LIMIT ? " (full)" : ""}`],
+                ["movies", `Movies${!browse && counts.Movies >= RAIL_LIMIT ? " (full)" : ""}`],
+              ]}
+              onChange={(v) => set({ kinds: v === "all" ? [...CATALOGUES] : v === "shows" ? ["Shows"] : ["Movies"] })}
+            />
+          </Card>
         )}
 
-        <Section title="Genres" note="Any of these">
-          {GENRES.map((g) => (
-            <Chip key={g.key} on={f.genreKeys.includes(g.key)} onClick={() => set({ genreKeys: GENRES.map((x) => x.key).filter((k) => (k === g.key ? !f.genreKeys.includes(k) : f.genreKeys.includes(k))) })}>
-              {g.label}
-            </Chip>
-          ))}
-        </Section>
+        <Card title="Sort by">
+          <Segments label="Sort by" value={f.sort} options={SORTS} onChange={(v) => set({ sort: v })} />
+        </Card>
 
-        <div className="flex flex-wrap gap-x-8 gap-y-5">
-          <div>
-            <div className="eyebrow">Years</div>
-            <div className="flex items-center gap-2 mt-2 text-[12.5px] text-dim">
-              <select className={select} aria-label="From year" value={f.yearFrom ?? ""} onChange={(e) => (e.target.value ? set({ yearFrom: Number(e.target.value) }) : unset("yearFrom"))}>
-                <option value="">Any</option>
-                {YEARS.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-              to
-              <select className={select} aria-label="To year" value={f.yearTo ?? ""} onChange={(e) => (e.target.value ? set({ yearTo: Number(e.target.value) }) : unset("yearTo"))}>
-                <option value="">Any</option>
-                {YEARS.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <Card title="Genres" note="Pick any number. Titles in any of them are shown.">
+          <div className="flex flex-wrap gap-2">
+            {GENRES.map((g) => (
+              <Chip key={g.key} on={f.genreKeys.includes(g.key)} onClick={() => set({ genreKeys: GENRES.map((x) => x.key).filter((k) => (k === g.key ? !f.genreKeys.includes(k) : f.genreKeys.includes(k))) })}>
+                {g.label}
+              </Chip>
+            ))}
           </div>
-          <div>
-            <div className="eyebrow">Made in</div>
-            <select className={`${select} mt-2`} aria-label="Country of origin" value={f.originCountry ?? ""} onChange={(e) => (e.target.value ? set({ originCountry: e.target.value }) : unset("originCountry"))}>
-              <option value="">Anywhere</option>
-              {COUNTRIES.map((c) => [c, countryName(c)] as const)
-                .sort((a, b) => a[1].localeCompare(b[1]))
-                .map(([c, n]) => (
-                  <option key={c} value={c}>
-                    {n}
-                  </option>
-                ))}
-            </select>
-          </div>
-          <div>
-            <div className="eyebrow">Original language</div>
-            <select className={`${select} mt-2`} aria-label="Original language" value={f.originalLanguage ?? ""} onChange={(e) => (e.target.value ? set({ originalLanguage: e.target.value }) : unset("originalLanguage"))}>
-              <option value="">Any</option>
-              {LANGUAGES.map((c) => [c, languageName(c)] as const)
-                .sort((a, b) => a[1].localeCompare(b[1]))
-                .map(([c, n]) => (
-                  <option key={c} value={c}>
-                    {n}
-                  </option>
-                ))}
-            </select>
-          </div>
-        </div>
+        </Card>
 
-        {serviceList.length > 0 && (
-          <div>
-            <Section title="Streaming on" note="Any of these">
+        <Card title="Narrow by">
+          {serviceList.length > 0 && (
+            <MultiRow first label="Streaming on" summary={f.providerIDs.length ? f.providerIDs.map((id) => serviceList.find((s) => s.id === id)?.name ?? f.providerNames[String(id)]).join(", ") : "Any service"}>
               {shown.map((s) => (
                 <Chip key={s.id} on={f.providerIDs.includes(s.id)} onClick={() => toggleService(s)}>
                   {s.name}
                 </Chip>
               ))}
-            </Section>
-            {serviceList.length > shown.length && (
-              <button type="button" onClick={() => setAllServices(true)} className="mt-2 text-[12.5px] font-semibold text-accent hover:underline cursor-pointer">
-                All {serviceList.length} services
-              </button>
-            )}
-          </div>
-        )}
-
-        <Section title={shows ? "Length (episode)" : "Length"}>
-          <Chip on={!f.runtime} onClick={() => unset("runtime")}>
-            Any
-          </Chip>
-          {RUNTIMES.map((r) => (
-            <Chip key={r.band} on={f.runtime === r.band} onClick={() => set({ runtime: r.band })}>
-              {r.label}
-            </Chip>
-          ))}
-        </Section>
-
-        <div>
-          <Section title="Rating">
-            {RATING_BANDS.map((b) => (
-              <Chip key={b.label} on={f.ratingFrom === b.from && f.ratingTo === b.to} onClick={() => setRating(b.from, b.to)}>
-                {b.label}
-              </Chip>
-            ))}
-          </Section>
-          <div className="flex items-center gap-2 mt-2 text-[12.5px] text-dim">
-            <select className={select} aria-label="Rated from" value={f.ratingFrom ?? ""} onChange={(e) => setRating(e.target.value ? Number(e.target.value) : undefined, f.ratingTo)}>
-              <option value="">Any</option>
-              {SCORES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
+              {serviceList.length > shown.length && (
+                <button type="button" onClick={() => setAllServices(true)} className="h-9 px-2 text-[14px] font-semibold text-accent hover:underline cursor-pointer">
+                  Show all {serviceList.length}
+                </button>
+              )}
+            </MultiRow>
+          )}
+          <Row first={serviceList.length === 0} label="Made in">
+            <select className={select} aria-label="Made in" value={f.originCountry ?? ""} onChange={(e) => (e.target.value ? set({ originCountry: e.target.value }) : unset("originCountry"))}>
+              <option value="">Anywhere</option>
+              {COUNTRIES.map((c) => [c, countryName(c)] as const)
+                .sort((x, y) => x[1].localeCompare(y[1]))
+                .map(([c, n]) => (
+                  <option key={c} value={c}>
+                    {n}
+                  </option>
+                ))}
+            </select>
+          </Row>
+          <Row label="Original language">
+            <select className={select} aria-label="Original language" value={f.originalLanguage ?? ""} onChange={(e) => (e.target.value ? set({ originalLanguage: e.target.value }) : unset("originalLanguage"))}>
+              <option value="">Any language</option>
+              {LANGUAGES.map((c) => [c, languageName(c)] as const)
+                .sort((x, y) => x[1].localeCompare(y[1]))
+                .map(([c, n]) => (
+                  <option key={c} value={c}>
+                    {n}
+                  </option>
+                ))}
+            </select>
+          </Row>
+          <Row label={shows && f.kinds.length === 1 ? "Episode length" : "Length"}>
+            <select className={select} aria-label="Length" value={f.runtime ?? ""} onChange={(e) => (e.target.value ? set({ runtime: e.target.value as DiscoverFilter["runtime"] }) : unset("runtime"))}>
+              <option value="">Any length</option>
+              {RUNTIMES.map((r) => (
+                <option key={r.band} value={r.band}>
+                  {r.label}
                 </option>
               ))}
             </select>
-            to
-            <select className={select} aria-label="Rated to" value={f.ratingTo ?? ""} onChange={(e) => setRating(f.ratingFrom, e.target.value ? Number(e.target.value) : undefined)}>
+          </Row>
+          <Row label="Years">
+            <select className={select} aria-label="From year" value={f.yearFrom ?? ""} onChange={(e) => (e.target.value ? set({ yearFrom: Number(e.target.value) }) : unset("yearFrom"))}>
               <option value="">Any</option>
-              {SCORES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
+              {YEARS.map((y) => (
+                <option key={y} value={y}>
+                  {y}
                 </option>
               ))}
             </select>
-            <span>out of 10, on TMDB</span>
-          </div>
-        </div>
+            <span>to</span>
+            <select className={select} aria-label="To year" value={f.yearTo ?? ""} onChange={(e) => (e.target.value ? set({ yearTo: Number(e.target.value) }) : unset("yearTo"))}>
+              <option value="">Any</option>
+              {YEARS.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </Row>
+          <Row label="Rating on TMDB">
+            <select
+              className={select}
+              aria-label="Rating"
+              value={RATING_BANDS.findIndex((b) => b.from === f.ratingFrom && b.to === f.ratingTo)}
+              onChange={(e) => {
+                const band = RATING_BANDS[Number(e.target.value)];
+                if (band) setRating(band.from, band.to);
+              }}
+            >
+              {RATING_BANDS.findIndex((b) => b.from === f.ratingFrom && b.to === f.ratingTo) < 0 && (
+                <option value={-1}>
+                  {f.ratingFrom ?? 0}–{f.ratingTo ?? 10} out of 10
+                </option>
+              )}
+              {RATING_BANDS.map((b, i) => (
+                <option key={b.label} value={i}>
+                  {b.label === "Any" ? "Any rating" : b.label}
+                </option>
+              ))}
+            </select>
+          </Row>
+        </Card>
 
         {shows && (
-          <>
-            <Section title="Status" note={f.kinds.length > 1 ? "Shows only" : undefined}>
+          <Card title="Series" note={f.kinds.length > 1 ? "Status and show type narrow series only. Movies aren't affected by them." : undefined}>
+            <MultiRow first label="Status" summary={f.statuses.length ? STATUSES.filter(([n]) => f.statuses.includes(n)).map(([, l]) => l).join(", ") : "Any status"}>
               {STATUSES.map(([n, label]) => (
-                <Chip key={n} on={f.statuses.includes(n)} onClick={() => set({ statuses: toggle(f.statuses, n).sort((a, b) => a - b) })}>
+                <Chip key={n} on={f.statuses.includes(n)} onClick={() => set({ statuses: toggle(f.statuses, n).sort((x, y) => x - y) })}>
                   {label}
                 </Chip>
               ))}
-            </Section>
-            <Section title="Type" note={f.kinds.length > 1 ? "Shows only" : undefined}>
+            </MultiRow>
+            <MultiRow label="Show type" summary={f.types.length ? TYPES.filter(([n]) => f.types.includes(n)).map(([, l]) => l).join(", ") : "Any type"}>
               {TYPES.map(([n, label]) => (
-                <Chip key={n} on={f.types.includes(n)} onClick={() => set({ types: toggle(f.types, n).sort((a, b) => a - b) })}>
+                <Chip key={n} on={f.types.includes(n)} onClick={() => set({ types: toggle(f.types, n).sort((x, y) => x - y) })}>
                   {label}
                 </Chip>
               ))}
-            </Section>
-          </>
+            </MultiRow>
+          </Card>
         )}
-
-        <Section title="Sort by">
-          {SORTS.map(([s, label]) => (
-            <Chip key={s} on={f.sort === s} onClick={() => set({ sort: s })}>
-              {label}
-            </Chip>
-          ))}
-        </Section>
       </div>
     </Sheet>
   );
@@ -466,7 +498,7 @@ export function FilterButton({ services, kinds, initial, count = 0 }: { services
           <circle cx="16" cy="7" r="2" />
           <circle cx="10" cy="17" r="2" />
         </svg>
-        Filter{count > 0 ? ` · ${count}` : ""}
+        Browse{count > 0 ? ` · ${count}` : ""}
       </button>
       {open && <CategoryDialog browse services={services} counts={{ Shows: 0, Movies: 0 }} kinds={kinds} initial={initial} onClose={() => setOpen(false)} />}
     </>
