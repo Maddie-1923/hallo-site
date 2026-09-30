@@ -230,7 +230,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
   return (
     <Menu
       label="Profile"
-      width={260}
+      width={240}
       button={
         <span className={`w-9 h-9 rounded-full border flex items-center justify-center ${shell}`}>
           <PersonIcon />
@@ -240,7 +240,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
       {accountsOpen ? (
         <div className="p-4 grid gap-3">
           <p className="m-0 text-sm text-dim">Sign in to keep your diary, ratings, reviews and lists here and on your phone.</p>
-          <Link href="/login" className="btn !py-2 !px-4 text-sm justify-center">
+          <Link href="/login" className="justify-self-start inline-flex items-center h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold no-underline hover:brightness-110">
             Sign in
           </Link>
         </div>
@@ -249,7 +249,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
           <p className="m-0 text-sm text-dim">
             Kodigo accounts on the web are coming soon. Your profile, diary, reviews and lists will live here.
           </p>
-          <Link href="/about" className="btn ghost !py-2 !px-4 text-sm justify-center">
+          <Link href="/about" className="justify-self-start inline-flex items-center h-9 px-5 rounded-full bg-card border border-hair text-ink text-[13px] font-semibold no-underline hover:text-accent">
             Get the app meanwhile
           </Link>
         </div>
