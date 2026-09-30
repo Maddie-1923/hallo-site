@@ -18,6 +18,9 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | undefined>(initialError);
   // The code from the same email, for when the link opens on another device.
+  // Only once the email carries one: Supabase's own template can't be edited
+  // until the site sends through its own SMTP (NEXT_PUBLIC_EMAIL_CODE=on).
+  const withCode = process.env.NEXT_PUBLIC_EMAIL_CODE === "on";
   const [code, setCode] = useState("");
   const [checking, setChecking] = useState(false);
 
@@ -65,8 +68,17 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
       <div className="mt-4 rounded-[10px] bg-card border border-hair p-3" role="status">
         <div className="text-[12.5px] font-semibold text-ink">Check your email</div>
         <p className="m-0 mt-1 text-[12.5px] leading-[1.6] text-mid-tone">
-          We sent a link and a 6-digit code to <b className="font-semibold text-ink">{email.trim()}</b>. Open the link, or type the code here. Either works once, for an hour.
+          {withCode ? (
+            <>
+              We sent a link and a 6-digit code to <b className="font-semibold text-ink">{email.trim()}</b>. Open the link, or type the code here. Either works once, for an hour.
+            </>
+          ) : (
+            <>
+              A sign-in link is on its way to <b className="font-semibold text-ink">{email.trim()}</b>. It works once and lasts an hour. Open it on this device.
+            </>
+          )}
         </p>
+        {withCode && (
         <form onSubmit={useCode} className="mt-3 grid gap-2">
           <label className="sr-only" htmlFor="code">
             6-digit code
@@ -86,6 +98,7 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
             {checking ? "Signing in…" : "Sign in with the code"}
           </button>
         </form>
+        )}
         {error && (
           <p className="m-0 mt-2 text-[12.5px] text-loved" role="alert">
             {error}
