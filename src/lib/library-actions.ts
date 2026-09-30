@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { hasPro } from "@/lib/pro";
-import { applyDeleteList, applyEpisodeSkipped, applyEpisodeWatched, applyListCover, applyMovieWatched, applySaveList, applyTake, clearTake, type ListInput, type TakeInput, type TakeTarget } from "@/lib/library-rules";
+import { applyDeleteList, applyDeleteRewatch, applyEpisodeSkipped, applyEpisodeWatched, applyListCover, applyMovieWatched, applyRewatch, applySaveList, applyTake, clearTake, type ListInput, type RewatchTarget, type TakeInput, type TakeTarget } from "@/lib/library-rules";
+import { tickID } from "@/lib/imports/merge";
 import { checkText } from "@/lib/word-filter";
 import { applyImportPlan, type ImportPlan } from "@/lib/imports";
 import { CURRENT_VERSION, isArchive, type LibraryArchive, type Movie, type MovieStatus, type Show, type WatchStatus } from "./archive";
@@ -474,4 +475,24 @@ export async function setListPicture(id: string, posterPath: string | null) {
   const r = await withArchive((a) => applyListCover(a, id, posterPath));
   if (!r.error) revalidatePath("/u", "layout");
   return r;
+}
+
+/**
+ * Watched it again tonight: the app's recordRewatch / recordMovieRewatch.
+ * The first viewing's date never moves; the night goes in the rewatch log.
+ */
+export async function watchAgain(t: RewatchTarget): Promise<{ error?: string }> {
+  // Episodes are Pro on the web, like ticking them; films aren't.
+  return withArchive(
+    (a, stamp) => {
+      if (!applyRewatch(a, t, stamp)) throw new Error("Mark it watched first.");
+    },
+    { pro: t.kind === "episode" },
+  );
+}
+
+/** Takes back one night it was watched again, by the moment it was logged. */
+export async function takeBackRewatch(t: RewatchTarget, watched: string): Promise<{ error?: string }> {
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(watched)) return { error: "That isn't a night." };
+  return withArchive((a, stamp) => applyDeleteRewatch(a, t, watched, stamp, tickID), { pro: t.kind === "episode" });
 }

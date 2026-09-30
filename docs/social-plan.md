@@ -665,6 +665,18 @@ in it, the fullest five. A list's genre is the one at least half its
 titles share (`public.list_topics`, from the owner's public library's
 genre ids, run as the reader; lists of three titles or more).
 
+## Watching again (built 30 Sep 2026)
+
+"Watched it again" on a watched film's or episode's page (Your take): the
+app's recordMovieRewatch / recordRewatch, a night in `movieRewatchLog` /
+`rewatchLog` with the first viewing untouched, "Seen N times" and the
+nights, each takeable back with a tombstone by the app's night id
+(`applyRewatch`, `applyDeleteRewatch`, `rewatchNights` in
+`lib/library-rules.ts`; `watchAgain`, `takeBackRewatch`; tested with a
+sync in `npm run test:rules`). Episodes are Pro like ticking; films free.
+Not yet: rewatching a whole series as a run (start, tick through, finish,
+`rewatchRuns` / `rewatchCounts`), as the app has.
+
 ## Email alerts (planned 30 Sep 2026)
 
 Beside the weekly digest (Sunday 9am, the person's own time zone, off by

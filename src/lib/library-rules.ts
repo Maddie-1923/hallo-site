@@ -261,3 +261,64 @@ export function applyListCover(a: LibraryArchive, id: string, posterPath: string
   if (posterPath && /^\/[A-Za-z0-9_-]+\.(jpg|png|webp)$/.test(posterPath)) l.cover = { poster: { _0: posterPath } };
   else delete l.cover;
 }
+
+// ---- Watching again (the app's recordRewatch and recordMovieRewatch) ----
+//
+// A rewatch is another night, not a change to the first one: `watched`,
+// `watchedStamps`, `watchedMovies` and `movieWatchedDates` never move. Each
+// night goes in the log; taking one back removes it and writes a tombstone
+// by the night's own id (the title and the whole second, tickID), so another
+// device can't bring it back. Only a watched title can be watched again.
+
+export type RewatchTarget = { kind: "movie"; id: number } | { kind: "episode"; showID: number; season: number; episode: number };
+
+const episodeIDOf = (t: Extract<RewatchTarget, { kind: "episode" }>) => `${t.showID}-${t.season}-${t.episode}`;
+
+function movieWatched(a: LibraryArchive, id: number) {
+  return (a.watchedMovies ?? []).includes(id) || String(id) in (a.movieWatchedDates ?? {});
+}
+
+/** Records tonight as another viewing. False when it hasn't been watched the first time. */
+export function applyRewatch(a: LibraryArchive, t: RewatchTarget, stamp: string): boolean {
+  if (t.kind === "movie") {
+    if (!movieWatched(a, t.id)) return false;
+    (a.movieRewatchLog ??= []).push({ movieID: t.id, watched: stamp });
+    return true;
+  }
+  const episodeID = episodeIDOf(t);
+  if (!a.watched.includes(episodeID)) return false;
+  (a.rewatchLog ??= []).push({ episodeID, showID: t.showID, watched: stamp });
+  return true;
+}
+
+/** Takes back one night, found by its own id; the tombstone goes in either way. */
+export function applyDeleteRewatch(a: LibraryArchive, t: RewatchTarget, watched: string, stamp: string, tickID: (title: string, watched: string) => string) {
+  const title = t.kind === "movie" ? String(t.id) : episodeIDOf(t);
+  const id = tickID(title, watched);
+  if (t.kind === "movie") {
+    a.movieRewatchLog = (a.movieRewatchLog ?? []).filter((x) => !(x.movieID === t.id && tickID(String(x.movieID), x.watched) === id));
+    a.movieRewatchTickTombstones = [...(a.movieRewatchTickTombstones ?? []).filter((s) => s.id !== id), { id, removed: stamp }];
+    return;
+  }
+  a.rewatchLog = (a.rewatchLog ?? []).filter((x) => !(x.episodeID === title && tickID(x.episodeID, x.watched) === id));
+  // A night from a run still going sits in the run's ticks.
+  for (const run of a.rewatchRuns ?? []) {
+    if (run.showID === t.showID && run.ticks?.[title] && tickID(title, run.ticks[title]) === id) {
+      delete run.ticks[title];
+      run.modified = stamp;
+    }
+  }
+  a.rewatchTickTombstones = [...(a.rewatchTickTombstones ?? []).filter((s) => s.id !== id), { id, removed: stamp }];
+}
+
+/** The nights it was watched again, newest first; none unless it's watched. */
+export function rewatchNights(a: LibraryArchive, t: RewatchTarget): string[] {
+  if (t.kind === "movie") {
+    if (!movieWatched(a, t.id)) return [];
+    return (a.movieRewatchLog ?? []).filter((x) => x.movieID === t.id).map((x) => x.watched).sort().reverse();
+  }
+  const episodeID = episodeIDOf(t);
+  if (!a.watched.includes(episodeID)) return [];
+  const open = (a.rewatchRuns ?? []).find((r) => r.showID === t.showID)?.ticks?.[episodeID];
+  return [...(a.rewatchLog ?? []).filter((x) => x.episodeID === episodeID).map((x) => x.watched), ...(open ? [open] : [])].sort().reverse();
+}

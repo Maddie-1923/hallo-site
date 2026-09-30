@@ -11,6 +11,8 @@ import { TitleActions } from "@/components/TitleActions";
 import { ReviewsSection } from "@/components/TitleReviews";
 import { publicReviewsOfEpisode } from "@/lib/public-reads";
 import { YourReview } from "@/components/YourReview";
+import { WatchAgain } from "@/components/WatchAgain";
+import { rewatchNights } from "@/lib/library-rules";
 import { EpisodesSection, HeaderCard, TitleBento, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { optionalLibrary } from "@/lib/library";
 import { readTake } from "@/lib/library-rules";
@@ -143,6 +145,11 @@ export default async function EpisodePage({ params }: Params) {
           <div className="lg:pl-2 min-w-0">
             <Section title="Your take" small>
               <SectionCard>
+                {lib.signedIn && lib.archive?.watched.includes(key) && (
+                  <div className="mb-2">
+                    <WatchAgain target={{ kind: "episode", showID, season: ep.season, episode: ep.episode }} nights={rewatchNights(lib.archive, { kind: "episode", showID, season: ep.season, episode: ep.episode })} />
+                  </div>
+                )}
                 <YourReview target={{ kind: "episode", show: show.show, season: ep.season, episode: ep.episode }} initial={lib.archive ? readTake(lib.archive, `episode:${key}`) : null} live={lib.signedIn} kind="episode" out={ep.airDate ?? null} title={{ key: `e${key}`, kind: "show", title: `${show.show.name} ${code(ep.season, ep.episode)}`, href: `/show/${showID}/season/${ep.season}/episode/${ep.episode}`, poster: image.poster(show.show.poster_path, "w780"), backdrop: ep.still, year: (ep.airDate ?? "").slice(0, 4) }} />
               </SectionCard>
             </Section>
