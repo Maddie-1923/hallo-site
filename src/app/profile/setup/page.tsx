@@ -12,8 +12,7 @@ export const metadata: Metadata = { title: "Choose your username — Kodigo", ro
 
 // Choosing (or changing) a username, and with it the one-time notice that a
 // profile is public, with the private switch beside it. Nothing of an
-// account shows publicly until this is done. Before accounts open, the form
-// can be tried in development and saves nothing.
+// account shows publicly until this is done.
 export default async function ProfileSetup() {
   let current: string | null = null;
   let isPrivate = false;
@@ -27,7 +26,7 @@ export default async function ProfileSetup() {
     isPrivate = profile.is_private;
     hasLibrary = !!lib.archive;
     suggestion = suggest(profile.display_name || user.email?.split("@")[0] || "");
-  } else if (process.env.NODE_ENV !== "development") {
+  } else {
     redirect("/");
   }
   return (

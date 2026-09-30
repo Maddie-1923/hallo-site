@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { NotificationsPage } from "@/components/Notifications";
-import { sampleNotifications } from "@/lib/notifications";
 import { myNotifications } from "@/lib/my-notifications";
 
 export const metadata: Metadata = { title: "Notifications — Kodigo" };
 
 export default async function Notifications() {
-  // Signed in, their own; before accounts, the preview's made-up handful.
-  const items = (await myNotifications()) ?? (await sampleNotifications());
+  // Signed in, their own; signed out, none.
+  const items = (await myNotifications()) ?? [];
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />

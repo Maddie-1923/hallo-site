@@ -12,7 +12,7 @@ import { TitleActions } from "@/components/TitleActions";
 import { SeasonBrowser } from "@/components/SeasonBrowser";
 import { SeriesPill, seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
-import { reviewsOfTitle } from "@/lib/profile-previews";
+import { publicReviewsOfTitle } from "@/lib/public-reads";
 import { readTake } from "@/lib/library-rules";
 import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
@@ -40,7 +40,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   if (!Number.isInteger(showID)) notFound();
 
   const region = await visitorRegion();
-  const [page, lib, logo, reviews] = await Promise.all([seriesPage(showID, region), optionalLibrary(), titleLogo("show", showID), reviewsOfTitle(`s${showID}`)]);
+  const [page, lib, logo, reviews] = await Promise.all([seriesPage(showID, region), optionalLibrary(), titleLogo("show", showID), publicReviewsOfTitle("show", showID)]);
   if (!page) notFound();
   // The newest trailer, then each season's own, newest season first.
   const trailers = await showTrailers(showID, page.seasons.filter((x) => x.season_number > 0).map((x) => x.season_number));

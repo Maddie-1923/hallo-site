@@ -14,16 +14,14 @@ export interface FollowPerson {
 // A profile's Followers or Following tile, pressed: the people, each going
 // to their profile. On your own Followers, Remove takes someone off the list
 // (they aren't told, and can follow again unless you block them). Blocked
-// people never show. Until accounts open the people are the sample members.
-// On a real member's profile (`username`) the people come from the account
-// when the list opens, and the owner's Followers also has their requests to
+// people never show. The people come from the account when the list opens, and the owner's Followers also has their requests to
 // accept or decline; Remove takes a follower off for real.
-export function FollowList({ kind, owner, people: sample, username, className, children }: { kind: "followers" | "following"; owner: boolean; people: FollowPerson[]; username?: string; className: string; children: React.ReactNode }) {
+export function FollowList({ kind, owner, username, className, children }: { kind: "followers" | "following"; owner: boolean; username?: string; className: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [live, setLive] = useState<{ people: FollowPerson[]; requests: FollowPerson[] } | null>(null);
   const [gone, setGone] = useState<string[]>([]);
   const { blocked, removedFollowers } = useSafety();
-  const people = live?.people ?? sample;
+  const people = live?.people ?? [];
   const requests = (live?.requests ?? []).filter((p) => !gone.includes(p.username));
   const shown = people.filter((p) => !blocked.includes(p.username) && !gone.includes(p.username) && !(kind === "followers" && owner && removedFollowers.includes(p.username)));
   async function openList() {

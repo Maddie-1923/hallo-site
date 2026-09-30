@@ -69,9 +69,8 @@ function toList(r: ListRow, w: Who): ListView {
     name: r.name,
     detail: r.detail,
     titles: (r.titles ?? []).map((t) => titleOf(t.kind, t.id, t)),
-    // Likes and comments arrive with their own tables (step 4).
+    // Counted by the callers from the likes table.
     likes: 0,
-    comments: [],
   };
 }
 

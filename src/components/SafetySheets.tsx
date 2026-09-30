@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu } from "./Menu";
-import { REPORT_REASONS, addReport, block, unblock, useBlocked, useSafety, type ReportKind, type ReportReason } from "@/lib/safety";
+import { REPORT_REASONS, block, unblock, useBlocked, useSafety, type ReportKind, type ReportReason } from "@/lib/safety";
 import { fileReport } from "@/lib/safety-actions";
 
 // Reporting and blocking (docs/social-plan.md, step 6): the sheets, and the
@@ -59,9 +59,6 @@ export function ReportSheet({ what, onClose }: { what: ReportTarget; onClose: ()
       setBusy(false);
       return;
     }
-    // Before accounts, the report is kept here so the moderation page can
-    // show it.
-    if (!r.saved) addReport({ ...what, reason, note: note.trim() });
     setSent(true);
     setBusy(false);
   }
@@ -177,7 +174,6 @@ export function MoreButton({ what, className = "" }: { what: ReportTarget; class
   const blocked = useBlocked(what.author);
   useSafety();
   const item = "w-full flex items-center gap-3 px-4 py-2.5 text-[13px] text-ink hover:bg-card-hi cursor-pointer text-left";
-  if (what.author === "preview") return null;
   return (
     <span className={className}>
       <Menu

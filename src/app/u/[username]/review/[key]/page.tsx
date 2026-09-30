@@ -7,7 +7,7 @@ import { ReviewSheetCard } from "@/components/ReviewSheet";
 import { BlockGate } from "@/components/SafetySheets";
 import { CommentThread } from "@/components/CommentThread";
 import { HeadingPill } from "@/components/TitleParts";
-import { loadProfile } from "@/lib/profile-previews";
+import { loadProfile } from "@/lib/real-profile";
 import { reviewFor } from "@/lib/public-profile";
 
 // A review's own page, the address Share hands out: /u/<username>/review/<title key>.

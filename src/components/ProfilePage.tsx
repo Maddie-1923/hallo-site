@@ -4,7 +4,6 @@ import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
 import { FollowList } from "./FollowList";
 import { WatchingNow } from "./WatchingNow";
-import { MEMBERS } from "@/lib/members";
 import { ViewingAsOthers } from "./ViewingAsOthers";
 import { ProfileCategories } from "./ProfileCategories";
 import { ProfileAbout } from "./ProfileAbout";
@@ -220,10 +219,6 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-// Who's in the Followers and Following lists: the sample members until
-// accounts open, and only in development.
-const people = process.env.NODE_ENV === "development" ? MEMBERS.map((m) => ({ username: m.username, displayName: m.displayName })) : [];
-
 function NumberTiles({ v }: { v: PublicProfileView }) {
   const s = v.stats;
   const tiles: [string, string | number][] = [
@@ -247,7 +242,7 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
         // fits its tile.
         label === "Followers" || label === "Following" ? (
           // Pressed, the people (FollowList).
-          <FollowList key={label} kind={label === "Followers" ? "followers" : "following"} owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} people={people.filter((p) => p.username !== v.username)} className={TILE}>
+          <FollowList key={label} kind={label === "Followers" ? "followers" : "following"} owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={TILE}>
             <Tile label={label} value={value} />
           </FollowList>
         ) : (

@@ -15,7 +15,7 @@ const REASONS = REPORT_REASONS.map(([id]) => id) as readonly string[];
 
 export async function fileReport(input: { kind: ReportKind; target: string; author: string; href: string; excerpt: string; reason: ReportReason; note: string }): Promise<{ saved: boolean; error?: string }> {
   if (!KINDS.includes(input.kind) || !REASONS.includes(input.reason)) return { saved: false, error: "Choose what's wrong." };
-  if (!accountsOpen) return { saved: false };
+  if (!accountsOpen) return { saved: false, error: "Reports open with accounts. Meanwhile, email hello@kodigo.pro." };
   const supabase = await createClient();
   const {
     data: { user },
@@ -41,17 +41,16 @@ export async function fileReport(input: { kind: ReportKind; target: string; auth
 }
 
 /** Whether the signed-in person runs moderation: their email is in
-    MODERATOR_EMAILS (comma-separated). In development the preview's queue
-    is open to whoever runs the site locally. */
-export async function moderatorAccess(): Promise<"live" | "preview" | null> {
+    MODERATOR_EMAILS (comma-separated). */
+export async function moderatorAccess(): Promise<boolean> {
   if (accountsOpen) {
     const {
       data: { user },
     } = await (await createClient()).auth.getUser();
     const allowed = (process.env.MODERATOR_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-    if (user?.email && allowed.includes(user.email.toLowerCase())) return "live";
+    if (user?.email && allowed.includes(user.email.toLowerCase())) return true;
   }
-  return process.env.NODE_ENV === "development" ? "preview" : null;
+  return false;
 }
 
 function admin() {
@@ -62,7 +61,7 @@ function admin() {
 
 /** The live queue, newest first, for the moderation page. */
 export async function loadReports(): Promise<Report[] | null> {
-  if ((await moderatorAccess()) !== "live") return null;
+  if (!(await moderatorAccess())) return null;
   const db = admin();
   if (!db) return null;
   const { data } = await db.from("reports").select("*").order("created_at", { ascending: false }).limit(500);
@@ -85,7 +84,7 @@ export async function loadReports(): Promise<Report[] | null> {
     Removing content and suspending act on the public tables once they
     exist (step 1); until then the decision is recorded on the reports. */
 export async function resolveReports(ids: string[], status: Report["status"]): Promise<boolean> {
-  if ((await moderatorAccess()) !== "live") return false;
+  if (!(await moderatorAccess())) return false;
   const db = admin();
   if (!db) return false;
   const {

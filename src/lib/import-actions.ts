@@ -4,19 +4,16 @@ import { accountsOpen } from "@/lib/accounts";
 import type { LibraryArchive, Movie, Show } from "@/lib/archive";
 import { optionalLibrary } from "@/lib/library";
 import { hasPro } from "@/lib/pro";
-import { previewArchive } from "@/lib/profile-previews";
 import { importCatalog } from "@/lib/tmdb";
 
 // The server's half of importing on the web (Settings → Import & export).
 // The import runs in the browser (lib/imports, the app's importers), so a
 // file of thousands of titles never meets a server time limit; it reaches
 // TMDB through these, one question at a time, so the TMDB key stays here.
-// Import is Pro (docs/social-plan.md, "Free and Pro"); before accounts open
-// it can be tried in development against the preview library.
+// Import is Pro (docs/social-plan.md, "Free and Pro").
 
 async function allowed(): Promise<boolean> {
-  if (accountsOpen) return hasPro();
-  return process.env.NODE_ENV === "development";
+  return accountsOpen && hasPro();
 }
 
 export async function importFind(source: "imdb" | "tvdb", id: string): Promise<{ shows: Show[]; movies: Movie[] }> {
@@ -51,7 +48,7 @@ export async function importEpisodes(showID: number) {
 /** The person's library as it is now, for the importer to read (never to
     write: the result is merged on the server, into a fresh copy). */
 export async function importSnapshot(): Promise<{ ok: boolean; library: LibraryArchive | null; reason?: string }> {
-  if (!accountsOpen) return process.env.NODE_ENV === "development" ? { ok: true, library: await previewArchive() } : { ok: false, library: null, reason: "Importing on the web opens with accounts." };
+  if (!accountsOpen) return { ok: false, library: null, reason: "Importing on the web opens with accounts." };
   const { signedIn, archive } = await optionalLibrary();
   if (!signedIn) return { ok: false, library: null, reason: "Sign in to import." };
   if (!(await hasPro())) return { ok: false, library: null, reason: "Importing on the web comes with Kodigo Pro." };

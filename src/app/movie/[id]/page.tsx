@@ -10,7 +10,7 @@ import { TitleActivity } from "@/components/TitleActivity";
 import { HeaderCard, TitleBento, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { TitleActions } from "@/components/TitleActions";
 import { optionalLibrary } from "@/lib/library";
-import { reviewsOfTitle } from "@/lib/profile-previews";
+import { publicReviewsOfTitle } from "@/lib/public-reads";
 import { readTake } from "@/lib/library-rules";
 import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
@@ -36,7 +36,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
   if (!Number.isInteger(movieID)) notFound();
 
   const region = await visitorRegion();
-  const [page, lib, logo, reviews] = await Promise.all([filmPage(movieID, region), optionalLibrary(), titleLogo("movie", movieID), reviewsOfTitle(`m${movieID}`)]);
+  const [page, lib, logo, reviews] = await Promise.all([filmPage(movieID, region), optionalLibrary(), titleLogo("movie", movieID), publicReviewsOfTitle("movie", movieID)]);
   if (!page) notFound();
   const { movie } = page;
 

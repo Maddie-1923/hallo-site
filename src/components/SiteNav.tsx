@@ -12,7 +12,6 @@ import { NavLinks } from "./NavLinks";
 import { accountsOpen } from "@/lib/accounts";
 import { NotificationsBell } from "./Notifications";
 import { myNotifications } from "@/lib/my-notifications";
-import { sampleNotifications } from "@/lib/notifications";
 
 // Two navs in one. Signed out, the bar sells the app: the landing page's
 // sections and a Sign in button. Signed in, it becomes the product: the
@@ -57,7 +56,6 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
   // page for an answer the page cannot use.
   const user = accountsOpen ? await signedInUser() : null;
   const logoHeight = framed ? 70 : 54;
-  const notes = user ? [] : await sampleNotifications();
 
   return (
     <nav
@@ -112,8 +110,6 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
             <SearchBoundary />
             <DayNightToggle onPicture={framed} />
             <ThemeMenu onPicture={framed} />
-            {/* The preview's notifications (development only until accounts). */}
-            {notes.length > 0 && <NotificationsBell items={notes} framed={framed} />}
             <GuestProfile framed={framed} />
           </div>
         )}
@@ -221,47 +217,17 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
 function GuestProfile({ framed }: { framed: boolean }) {
   const shell = framed ? "bg-black/35 border-white/25 backdrop-blur-md text-white" : "bg-card border-hair text-ink";
   const item = "block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink";
-  // In development the menu is drawn as a signed-in one would be, on the
-  // preview profile, so the site can be worked on as it will look.
-  const preview = process.env.NODE_ENV === "development";
   return (
     <Menu
       label="Profile"
-      // As wide as its longest line needs; the message it shows signed out
-      // needs more.
-      width={preview ? 188 : 260}
+      width={260}
       button={
         <span className={`w-9 h-9 rounded-full border flex items-center justify-center ${shell}`}>
           <PersonIcon />
         </span>
       }
     >
-      {preview ? (
-        <div className="py-1">
-          <Link href="/u/preview" className="flex items-center gap-2.5 px-4 py-2.5 no-underline text-ink hover:bg-card-hi">
-            <span className="w-7 h-7 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[15px] leading-none pt-[2px]">P</span>
-            <span className="text-sm font-semibold">@preview</span>
-          </Link>
-          {[
-            ["/feed", "Feed"],
-            ["/calendar", "Calendar"],
-            ["/library", "Library"],
-            ["/watchlist", "Watchlist"],
-            ["/u/preview", "Profile"],
-            ["/u/preview#reviews", "Reviews"],
-            ["/u/preview#watchlog", "Watchlog"],
-            ["/u/preview#categories", "Categories"],
-            ["/stats", "Stats"],
-            [`/u/preview/year/${new Date().getFullYear()}`, "Year in review"],
-            ["/settings", "Settings"],
-            ["/moderation", "Moderation"],
-          ].map(([href, label]) => (
-            <Link key={href} href={href} className={item}>
-              {label}
-            </Link>
-          ))}
-        </div>
-      ) : accountsOpen ? (
+      {accountsOpen ? (
         <div className="p-4 grid gap-3">
           <p className="m-0 text-sm text-dim">Sign in to keep your diary, ratings, reviews and lists here and on your phone.</p>
           <Link href="/login" className="btn !py-2 !px-4 text-sm justify-center">
@@ -291,13 +257,6 @@ function GuestProfile({ framed }: { framed: boolean }) {
           What&apos;s new
         </Link>
       </div>
-      {preview && (
-        <div className="border-t border-hair py-1">
-          <Link href="/u/sample" className={item}>
-            Sample profile
-          </Link>
-        </div>
-      )}
     </Menu>
   );
 }

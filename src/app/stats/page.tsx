@@ -9,15 +9,13 @@ import type { LibraryArchive } from "@/lib/archive";
 import { optionalLibrary } from "@/lib/library";
 import { hasPro } from "@/lib/pro";
 import { loadProfile } from "@/lib/profile";
-import { previewArchive } from "@/lib/profile-previews";
 import { statsInput, watchMinutes } from "@/lib/stats-data";
 
 export const metadata: Metadata = { title: "Stats — Kodigo" };
 
 // Stats (docs/social-plan.md, step 2.5): the full numbers behind the
 // profile's panels, as the app's stat pages have them. Pro, like the
-// Calendar and Library; before accounts open, development draws it from the
-// preview library.
+// Calendar and Library.
 export default async function Stats() {
   let archive: LibraryArchive | null = null;
   let gate: "signin" | "pro" | "empty" | "closed" | null = null;
@@ -32,9 +30,7 @@ export default async function Stats() {
       owner = (await loadProfile()).username;
     }
   } else {
-    archive = await previewArchive();
-    if (!archive) gate = "closed";
-    else owner = "preview";
+    gate = "closed";
   }
   return (
     <div className="min-h-screen flex flex-col">

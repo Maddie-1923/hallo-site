@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { loadProfile } from "@/lib/profile-previews";
+import { loadProfile } from "@/lib/real-profile";
 import { reviewFor } from "@/lib/public-profile";
 
 // The picture a shared review's link unfolds into in iMessage, WhatsApp, X

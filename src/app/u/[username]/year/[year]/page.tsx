@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Day } from "@/components/Day";
 import { ShareLink } from "@/components/ShareLink";
 import { YearChart } from "@/components/YearChart";
-import { previewArchive } from "@/lib/profile-previews";
+import { ownLibraryAt } from "@/lib/library";
 import { yearReview, type YearTitle } from "@/lib/year-review";
 
 type Params = PageProps<"/u/[username]/year/[year]">;
@@ -18,15 +18,15 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 // Year in Review at /u/<name>/year/<year>: the year in numbers, the shows and
 // films it was made of, month by month, the genres and moods, and where it
-// began and ended. From the library's watch dates; the development preview's
-// until accounts.
+// began and ended. From the library's watch dates, so it's the owner's own
+// page: anyone else gets a 404.
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 const H = "inline-flex items-center h-[34px] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink";
 const MOODS: Record<string, string> = { "Loved it": "❤️", "Hated it": "😡", "Liked it": "🙂", Sad: "😭", "On Edge": "🫣", Boring: "🥱", Frustrated: "😤", "Let down": "😞", Hot: "❤️‍🔥", Shocked: "🤯", Scared: "😱", Confused: "🙃" };
 
 export default async function YearInReview({ params }: Params) {
   const { username, year } = await params;
-  const archive = username === "preview" ? await previewArchive() : null;
+  const archive = await ownLibraryAt(username);
   const r = archive ? yearReview(archive, Number(year)) : null;
   if (!r) notFound();
   const hero = [...r.topShows, ...r.topFilms].find((t) => t.backdrop)?.backdrop ?? null;

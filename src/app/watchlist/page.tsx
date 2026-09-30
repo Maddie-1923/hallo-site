@@ -8,7 +8,6 @@ import type { LibraryArchive } from "@/lib/archive";
 import { optionalLibrary } from "@/lib/library";
 import { libraryItems } from "@/lib/library-view";
 import { hasPro } from "@/lib/pro";
-import { previewArchive } from "@/lib/profile-previews";
 import { visitorRegion } from "@/lib/region";
 
 export const metadata: Metadata = { title: "Watchlist — Kodigo" };
@@ -31,8 +30,7 @@ export default async function Watchlist() {
       live = true;
     }
   } else {
-    archive = await previewArchive();
-    if (!archive) gate = "closed";
+    gate = "closed";
   }
   return (
     <div className="min-h-screen flex flex-col">

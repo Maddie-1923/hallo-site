@@ -1,9 +1,30 @@
 "use server";
 
 import { accountsOpen } from "@/lib/accounts";
-import type { Member } from "@/lib/members";
 import { createClient } from "@/lib/supabase/server";
 import { image } from "@/lib/tmdb";
+
+// One member as the Members page and search show them.
+export interface Member {
+  username: string;
+  displayName: string;
+  location: string;
+  bio: string;
+  followers: number;
+  following: number;
+  reviews: number;
+  films: number;
+  shows: number;
+  /** Days since they joined. */
+  joined: number;
+  /** Reviews liked this week, for "popular this week". */
+  likesThisWeek: number;
+  /** Their photo, whether the reader follows them, and whether the profile
+      is private (found by search only). */
+  avatar?: string | null;
+  follow?: "none" | "pending" | "following" | "self";
+  isPrivate?: boolean;
+}
 
 // Real members for the Members page, through public.member_directory
 // (supabase/migrations/20260930090000_members.sql), which runs with the
@@ -45,7 +66,6 @@ export async function memberDirectory(): Promise<Member[] | null> {
     shows: 0,
     joined: Math.max(0, Math.floor((Date.now() - Date.parse(r.joined)) / DAY)),
     likesThisWeek: Number(r.likes_this_week),
-    seed: 0,
     avatar: image.poster(r.avatar_path, "w342"),
     follow: r.user_id === me ? "self" : r.my_follow === "accepted" ? "following" : r.my_follow === "pending" ? "pending" : "none",
   }));
@@ -76,7 +96,6 @@ export async function searchMembers(query: string): Promise<Member[] | null> {
     shows: 0,
     joined: Math.max(0, Math.floor((Date.now() - Date.parse(p.created_at)) / DAY)),
     likesThisWeek: 0,
-    seed: 0,
     avatar: image.poster(p.avatar_path, "w342"),
     isPrivate: p.is_private,
     follow: p.user_id === user?.id ? "self" : state.get(p.user_id) === "accepted" ? "following" : state.get(p.user_id) === "pending" ? "pending" : "none",

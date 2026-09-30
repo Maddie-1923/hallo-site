@@ -2,25 +2,22 @@
 
 import { useSyncExternalStore } from "react";
 
-// Safety on the site: blocking people, reporting what they post, and taking
-// followers off your list. Until accounts open, all three are kept in this
-// browser (so every part of it can be tried on the preview pages) and the
-// server actions in safety-actions.ts do nothing; once they open, those
-// actions write the `blocks` and `reports` tables
-// (supabase/migrations/20260930000000_safety.sql) and this store mirrors them.
+// Safety on the site: whom you've blocked and which followers you took off
+// your list, kept in this browser so every page hides them at once, and
+// mirrored to the account's `blocks` table
+// (supabase/migrations/20260930000000_safety.sql). Reports go straight to
+// the server (safety-actions.ts).
 
-import type { Report } from "./safety-types";
 import { setBlockedOnAccount } from "./social-actions";
 export { REPORT_REASONS, type Report, type ReportKind, type ReportReason } from "./safety-types";
 
 interface Safety {
   blocked: string[];
   removedFollowers: string[];
-  reports: Report[];
 }
 
 const KEY = "kodigo.safety";
-const EMPTY: Safety = { blocked: [], removedFollowers: [], reports: [] };
+const EMPTY: Safety = { blocked: [], removedFollowers: [] };
 let state: Safety = EMPTY;
 let loaded = false;
 const subs = new Set<() => void>();
@@ -91,26 +88,4 @@ export function unblock(username: string) {
 export function removeFollower(username: string) {
   load();
   if (!state.removedFollowers.includes(username)) save({ ...state, removedFollowers: [...state.removedFollowers, username] });
-}
-
-export function addReport(r: Omit<Report, "id" | "at" | "status" | "reporter">) {
-  load();
-  const report: Report = { ...r, id: crypto.randomUUID(), at: new Date().toISOString(), status: "open", reporter: "preview" };
-  save({ ...state, reports: [report, ...state.reports] });
-  return report;
-}
-
-export function setReportStatus(ids: string[], status: Report["status"]) {
-  load();
-  save({ ...state, reports: state.reports.map((r) => (ids.includes(r.id) ? { ...r, status } : r)) });
-}
-
-/** The preview's made-up reports, added once so the moderation page has a
-    queue to try (development only; see docs/social-plan.md, "Before
-    opening"). */
-export function seedReports(samples: Report[]) {
-  load();
-  const have = new Set(state.reports.map((r) => r.id));
-  const fresh = samples.filter((r) => !have.has(r.id));
-  if (fresh.length) save({ ...state, reports: [...state.reports, ...fresh] });
 }

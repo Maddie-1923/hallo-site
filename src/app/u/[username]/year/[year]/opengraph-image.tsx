@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { previewArchive } from "@/lib/profile-previews";
+import { ownLibraryAt } from "@/lib/library";
 import { yearReview } from "@/lib/year-review";
 
 // The picture a shared Year in Review unfolds into in a chat: the year, big,
@@ -18,7 +18,7 @@ const fonts = join(process.cwd(), "src/fonts/og");
 
 export default async function Image({ params }: { params: Promise<{ username: string; year: string }> }) {
   const { username, year } = await params;
-  const archive = username === "preview" ? await previewArchive() : null;
+  const archive = await ownLibraryAt(username);
   const r = archive ? yearReview(archive, Number(year)) : null;
   const [bebas, runde, rundeSemi] = await Promise.all([readFile(join(fonts, "BebasNeue-Regular.ttf")), readFile(join(fonts, "OpenRunde-Regular.otf")), readFile(join(fonts, "OpenRunde-Semibold.otf"))]);
   // The first of their top titles that has a wide picture.

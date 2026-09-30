@@ -18,8 +18,10 @@ nothing else.
   policy pages (they replaced the Jekyll `privacy.md`/`support.md`).
 - `src/app/u/[username]/` — public profiles, and `review/[key]/` a review's
   own page with its link-preview picture (`opengraph-image.tsx`, fonts in
-  `src/fonts/og/` because the image renderer can't read woff2). Only the
-  development previews exist yet; they load through `lib/profile-previews.ts`.
+  `src/fonts/og/` because the image renderer can't read woff2). Read from the
+  public tables (`lib/real-profile.ts`); there's no sample data, so local
+  work with content means `SITE_ACCOUNTS=on`, signing in to kodigo-dev and
+  importing a backup.
 - `docs/social-plan.md` — the plan for the social side (public profiles,
   members' reviews, follows, likes, comments) and its build order.
 - `src/app/login/` — magic-link email sign-in (it also signs up); Sign in with

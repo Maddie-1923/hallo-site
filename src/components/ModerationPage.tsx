@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { HeadingPill } from "./TitleParts";
-import { REPORT_REASONS, seedReports, setReportStatus, useSafety, type Report } from "@/lib/safety";
+import { REPORT_REASONS, type Report } from "@/lib/safety";
 import { resolveReports } from "@/lib/safety-actions";
 import * as Sentry from "@sentry/nextjs";
 import { sentryDsn } from "@/lib/sentry-options";
@@ -11,25 +11,14 @@ import { sentryDsn } from "@/lib/sentry-options";
 // Moderation: every report, gathered by what was reported, the most-reported
 // first. Each can be dismissed (nothing wrong), removed (the review, comment
 // or list comes down), or its author suspended. Settled ones move to
-// Resolved and can be reopened. Live, this reads and writes the `reports`
-// table; in the preview, the reports made in this browser and a few samples.
+// Resolved and can be reopened. It reads and writes the `reports` table.
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 const REASON = Object.fromEntries(REPORT_REASONS.map(([id, label]) => [id, label])) as Record<Report["reason"], string>;
 const NOUN = { review: "review", comment: "comment", list: "list", profile: "profile" } as const;
 const OUTCOME: Record<Report["status"], string> = { open: "Open", dismissed: "Dismissed", removed: "Removed", suspended: "Author suspended" };
 
-const DAY = 86_400_000;
-const ago = (d: number) => new Date(Date.now() - d * DAY).toISOString();
-const SAMPLES: Report[] = [
-  { id: "sample-1", kind: "comment", target: "night.owl.nadia/sample#2", author: "joelwatches", href: "/lists", excerpt: "Only an idiot would put this at number one. Get some taste.", reason: "harassment", note: "", reporter: "moviemarta", at: ago(0.2), status: "open" },
-  { id: "sample-2", kind: "comment", target: "night.owl.nadia/sample#2", author: "joelwatches", href: "/lists", excerpt: "Only an idiot would put this at number one. Get some taste.", reason: "harassment", note: "He does this on every list of hers.", reporter: "cinemasam", at: ago(0.5), status: "open" },
-  { id: "sample-3", kind: "review", target: "kdramakai/sample", author: "kdramakai", href: "/members", excerpt: "Can't believe the brother turns out to be the killer in the last episode.", reason: "spoilers", note: "No spoiler tag.", reporter: "reeltalk.rosa", at: ago(1), status: "open" },
-  { id: "sample-4", kind: "profile", target: "cinemasam", author: "cinemasam", href: "/u/cinemasam", excerpt: "", reason: "impersonation", note: "Says he's the real Sam Weller from the BBC.", reporter: "moviemarta", at: ago(3), status: "open" },
-];
-
-export function ModerationPage({ live, initial }: { live: boolean; initial: Report[] }) {
-  const local = useSafety().reports;
-  const [remote, setRemote] = useState(initial);
+export function ModerationPage({ initial }: { initial: Report[] }) {
+  const [reports, setReports] = useState(initial);
   const [tab, setTab] = useState<"open" | "resolved">("open");
   const [tested, setTested] = useState<string | null>(null);
   // Checks crash reports reach Sentry: one error from this browser, one from
@@ -43,10 +32,6 @@ export function ModerationPage({ live, initial }: { live: boolean; initial: Repo
     await fetch("/api/crash-test", { method: "POST" }).catch(() => {});
     setTested("Sent two test crashes, one from this browser and one from the server. They should show in Sentry within a minute.");
   }
-  useEffect(() => {
-    if (!live) seedReports(SAMPLES);
-  }, [live]);
-  const reports = live ? remote : local;
 
   // One card per reported thing.
   const groups = useMemo(() => {
@@ -60,9 +45,7 @@ export function ModerationPage({ live, initial }: { live: boolean; initial: Repo
 
   async function settle(rs: Report[], status: Report["status"]) {
     const ids = rs.map((r) => r.id);
-    if (live) {
-      if (await resolveReports(ids, status)) setRemote((all) => all.map((r) => (ids.includes(r.id) ? { ...r, status } : r)));
-    } else setReportStatus(ids, status);
+    if (await resolveReports(ids, status)) setReports((all) => all.map((r) => (ids.includes(r.id) ? { ...r, status } : r)));
   }
 
   return (
@@ -73,7 +56,6 @@ export function ModerationPage({ live, initial }: { live: boolean; initial: Repo
           <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone max-w-[60ch]">
             Reports from members, the most-reported first. Check each against the <Link href="/terms#community-rules" className="text-accent no-underline hover:underline">community rules</Link>. Urgent ones, such as threats or anything involving children, go to the authorities too.
           </p>
-          {!live && <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-dim">Preview: the reports made in this browser and four samples. Decisions are kept here too.</p>}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button type="button" onClick={testCrash} className="h-8 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink cursor-pointer hover:text-accent">
               Send a test crash

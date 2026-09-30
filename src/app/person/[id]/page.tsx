@@ -8,7 +8,6 @@ import { Section, SectionCard } from "@/components/TitleParts";
 import { personPage, type PersonCredit } from "@/lib/tmdb";
 import { accountsOpen } from "@/lib/accounts";
 import { optionalLibrary } from "@/lib/library";
-import { previewArchive } from "@/lib/profile-previews";
 import { Day } from "@/components/Day";
 
 // A person's page, reached from a title's cast, crew, director or creator:
@@ -127,10 +126,10 @@ function Credits({ title, items, showRole, seen }: { title: string; items: Perso
 }
 
 /** What the viewer has seen, by key ("m123", "s456"): films watched and
-    series with an episode watched. Their own library when signed in, the
-    preview's in development; nothing otherwise. */
+    series with an episode watched. Their own library when signed in;
+    nothing otherwise. */
 async function seenKeys(): Promise<Set<string>> {
-  const a = (accountsOpen ? (await optionalLibrary()).archive : null) ?? (await previewArchive());
+  const a = accountsOpen ? (await optionalLibrary()).archive : null;
   if (!a) return new Set();
   const films = new Set([...(a.watchedMovies ?? []), ...Object.keys(a.movieWatchedDates ?? {}).map(Number), ...a.movies.filter((t) => t.status === "Watched").map((t) => t.movie.id)]);
   const shows = new Set(a.watched.map((k) => Number(k.split("-")[0])));

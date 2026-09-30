@@ -36,10 +36,6 @@ export interface DiaryEntry extends ProfileTitle {
   reviewed: boolean;
   /** The review itself, read in a sheet from the Watchlog's Review column. */
   review?: DiaryReview;
-  /** A made-up entry on the local preview. Not shown on the page (the user
-      wants the mock-ups to read as real); kept so they can be found and
-      removed before opening. */
-  sample?: boolean;
 }
 
 export interface DiaryReview {
@@ -61,10 +57,6 @@ export interface ReviewEntry extends ProfileTitle {
   loved?: boolean;
   likes?: number;
   comments?: number;
-  /** A made-up review on the local preview. Not shown on the page (the user
-      wants the mock-ups to read as real); kept so they can be found and
-      removed before opening. */
-  sample?: boolean;
 }
 
 /**
@@ -91,8 +83,6 @@ export interface CategoryEntry {
   chosen?: string | null;
   /** A list the person made, rather than one of the eight. */
   custom: boolean;
-  /** A made-up list on the local preview, to be removed before opening. */
-  sample?: boolean;
   /** Shown to the profile's owner and nobody else: On Hold and Stopped
       Watching, which say what someone set aside or gave up on. */
   ownerOnly?: boolean;

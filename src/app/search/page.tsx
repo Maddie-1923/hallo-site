@@ -7,8 +7,7 @@ import { ReviewCard } from "@/components/ReviewCard";
 import { Unblocked } from "@/components/SafetySheets";
 import { allLists } from "@/lib/lists";
 import { searchMembers } from "@/lib/member-directory";
-import { MEMBERS, type Member } from "@/lib/members";
-import { loadProfile } from "@/lib/profile-previews";
+import type { Member } from "@/lib/member-directory";
 import { searchReviews } from "@/lib/public-reads";
 import type { ReviewEntry } from "@/lib/public-profile";
 import { image, searchEverything } from "@/lib/tmdb";
@@ -28,7 +27,6 @@ const TABS = [
   ["reviews", "Reviews"],
 ] as const;
 type Tab = (typeof TABS)[number][0];
-const DEV = process.env.NODE_ENV === "development";
 
 export default async function Search({ searchParams }: PageProps<"/search">) {
   const params = await searchParams;
@@ -171,21 +169,16 @@ function Posters({ items }: { items: { key: string; href: string; poster: string
 
 const has = (q: string, ...texts: (string | null | undefined)[]) => texts.some((t) => t?.toLowerCase().includes(q.toLowerCase()));
 
-/** Members by username or name: the account's search, or the sample members in development. */
+/** Members by username or name. */
 async function findMembers(q: string): Promise<Member[]> {
-  const real = await searchMembers(q);
-  if (real) return real;
-  return DEV ? MEMBERS.filter((m) => has(q, m.username, m.displayName, m.location)) : [];
+  return (await searchMembers(q)) ?? [];
 }
 
 async function findLists(q: string) {
   return (await allLists()).filter((l) => has(q, l.name, l.detail, ...l.titles.map((t) => t.title)));
 }
 
-/** Reviews whose title or words match: members' own, or the samples in development. */
+/** Reviews whose title or words match. */
 async function findReviews(q: string): Promise<{ review: ReviewEntry; username: string; avatar: string | null }[]> {
-  const real = await searchReviews(q);
-  if (real.length || !DEV) return real;
-  const views = await Promise.all(["preview", ...MEMBERS.slice(0, 5).map((m) => m.username)].map((u) => loadProfile(u)));
-  return views.flatMap((v) => (v ? v.reviews.filter((r) => has(q, r.title, r.text)).map((review) => ({ review, username: v.username, avatar: v.avatar })) : []));
+  return searchReviews(q);
 }

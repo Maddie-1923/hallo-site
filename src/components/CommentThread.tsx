@@ -13,13 +13,11 @@ import { deleteComment, loadComments, postComment, type CommentView, type Target
 // the server (the word filter again, a check the writer can see it, 30 an
 // hour), the author or the owner of the review or list can delete one, and
 // the ⋯ reports it or blocks whoever wrote it. Blocked people's comments
-// never show. Before accounts, `sample` stands in and posting only adds to
-// the page, after the same filter.
-export function CommentThread({ kind, owner, target, href, sample = [] }: { kind: TargetKind; owner: string; target: string; href: string; sample?: { who: string; text: string; ago: string }[] }) {
+// never show. Signed out, the box is a link to sign in.
+export function CommentThread({ kind, owner, target, href }: { kind: TargetKind; owner: string; target: string; href: string }) {
   const fmt = useDateFormat();
   const { blocked } = useSafety();
   const [live, setLive] = useState<CommentView[] | null>(null);
-  const [local, setLocal] = useState<{ who: string; text: string; ago: string }[]>([]);
   const [draft, setDraft] = useState("");
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -34,9 +32,7 @@ export function CommentThread({ kind, owner, target, href, sample = [] }: { kind
     };
   }, [kind, owner, target]);
 
-  const rows = live
-    ? live.filter((c) => !blocked.includes(c.author.username)).map((c) => ({ id: c.id, who: c.author.username, text: c.body, when: fmt(c.at.slice(0, 10), "dayMonth"), canDelete: c.canDelete }))
-    : [...sample, ...local].filter((c) => !blocked.includes(c.who)).map((c, i) => ({ id: `s${i}`, who: c.who, text: c.text, when: c.ago, canDelete: false }));
+  const rows = (live ?? []).filter((c) => !blocked.includes(c.author.username)).map((c) => ({ id: c.id, who: c.author.username, text: c.body, when: fmt(c.at.slice(0, 10), "dayMonth"), canDelete: c.canDelete }));
 
   async function post() {
     const text = draft.trim();
@@ -44,11 +40,6 @@ export function CommentThread({ kind, owner, target, href, sample = [] }: { kind
     const p = checkText(text);
     setProblem(p);
     if (p) return;
-    if (!live) {
-      setLocal((l) => [...l, { who: "you", text, ago: "just now" }]);
-      setDraft("");
-      return;
-    }
     setBusy(true);
     const r = await postComment(kind, owner, target, text).catch(() => ({ ok: false, error: "That didn't post. Try again." }) as { ok: boolean; error?: string; comment?: CommentView });
     setBusy(false);
@@ -82,9 +73,17 @@ export function CommentThread({ kind, owner, target, href, sample = [] }: { kind
               Delete
             </button>
           )}
-          {c.who !== "you" && <MoreButton what={{ kind: "comment", target: c.id, author: c.who, href, excerpt: c.text.slice(0, 200) }} className="shrink-0 -my-1" />}
+          <MoreButton what={{ kind: "comment", target: c.id, author: c.who, href, excerpt: c.text.slice(0, 200) }} className="shrink-0 -my-1" />
         </div>
       ))}
+      {!live ? (
+        <p className="m-0 p-3 text-[12.5px] text-dim">
+          <Link href={`/login?next=${encodeURIComponent(href)}`} className="text-accent font-semibold no-underline hover:underline">
+            Sign in
+          </Link>{" "}
+          to comment.
+        </p>
+      ) : (
       <form
         className="p-3 grid gap-1.5"
         onSubmit={(e) => {
@@ -115,6 +114,7 @@ export function CommentThread({ kind, owner, target, href, sample = [] }: { kind
           </p>
         )}
       </form>
+      )}
     </div>
   );
 }

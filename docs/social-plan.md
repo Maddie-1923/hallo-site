@@ -560,24 +560,16 @@ needs a Sentry auth token with read access.
 
 ### Before opening: remove the test scaffolding
 
-- The four sample reports on `/moderation` (`SAMPLES` in
-  `components/ModerationPage.tsx`) and the preview's local block/report
-  store fallback (`lib/safety.ts`).
-
-- The three sample reviews on `/u/preview` (`withSampleReviews` in
-  `app/u/[username]/page.tsx`), kept for testing at the user's request.
-- The sample Watchlog entries on `/u/preview` for 2025 and 2026
-  (`withSampleWatchlog`, same file), kept for testing.
-- The three made-up members' reviews (moviemarta, joelwatches,
-  night.owl.nadia) on every title page (`sampleReviewers` in
-  `lib/profile-previews.ts`).
-- The two sample lists in the preview's Categories (`withSampleLists` in
-  `lib/profile-previews.ts`).
-- The eight made-up members (`lib/members.ts`) and their sample profiles,
-  and the sample notifications (`lib/notifications.ts`).
-- The `/u/preview` and `/u/sample` pages themselves, and their links in the
-  profile menu. They only exist in development, but should go once real
-  profiles work.
+Done 30 Sep. The made-up members, their profiles, reviews, lists, comments,
+feed and notifications, the sample moderation reports, `/u/preview` and
+`/u/sample`, and the browser-only report store are gone
+(`lib/profile-previews.ts`, `lib/members.ts` deleted). Every page reads only
+real accounts: with accounts closed, the signed-in pages show their closed
+or sign-in states and the social pages are empty. To work on the site with
+content, run it locally with `SITE_ACCOUNTS=on` against kodigo-dev, sign in,
+and import a backup in Settings → Import & export. Kept on purpose: the ad
+space drawn in development (AdSlot), `DEV_PRO`, and the sign-in page drawing
+in development while accounts are closed.
 
 ### 9. Open the site
 

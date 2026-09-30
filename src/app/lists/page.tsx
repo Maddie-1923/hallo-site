@@ -18,9 +18,8 @@ const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--li
 const H = "inline-flex items-center h-[34px] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink";
 
 export default async function Lists() {
-  const [lists, me] = await Promise.all([allLists(), accountsOpen ? loadProfile().then((p) => p.username) : Promise.resolve(process.env.NODE_ENV === "development" ? "preview" : null)]);
+  const [lists, me] = await Promise.all([allLists(), accountsOpen ? loadProfile().then((p) => p.username) : Promise.resolve(null)]);
   const others = lists.filter((l) => l.owner !== me);
-  // A real list counts its likes this week; a sample list, its made-up total.
   const week = (l: (typeof lists)[number]) => l.likesWeek ?? l.likes;
   const groups: [string, typeof lists][] = [
     ["Popular this week", [...others].filter((l) => week(l) > 0).sort((a, b) => week(b) - week(a)).slice(0, 8)],

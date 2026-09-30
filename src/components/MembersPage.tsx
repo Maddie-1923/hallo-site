@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { searchMembers } from "@/lib/member-directory";
-import type { Member } from "@/lib/members";
+import type { Member } from "@/lib/member-directory";
 import { useSafety } from "@/lib/safety";
 import { FollowPill } from "./FollowPill";
 import { CommunitySwitch } from "./CommunitySwitch";

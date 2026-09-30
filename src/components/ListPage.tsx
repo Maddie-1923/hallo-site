@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { ListView } from "@/lib/lists";
 import { HeadingPill } from "./TitleParts";
 import { MoreButton } from "./SafetySheets";
@@ -11,13 +12,13 @@ import { likeInfo, setLike } from "@/lib/social-actions";
 // A list's own page: its name and whose it is, what it's about, how much of
 // it you've watched, like and share; then every title in order, the watched
 // ones marked; then what people said. Likes and comments are saved with
-// the account on a real member's list (CommentThread for the comments); on
-// the preview the like only changes the page. The ⋯ on the list reports it
+// the account (CommentThread for the comments); signed out, the heart asks
+// you to sign in. The ⋯ on the list reports it
 // or blocks whoever made it.
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 
 export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
-  const [liked, setLiked] = useState(false);
+  const router = useRouter();
   const [said, setSaid] = useState<string | null>(null);
   // A real member's list: its likes from the account, and the heart saves.
   const [live, setLive] = useState<{ count: number; liked: boolean } | null>(null);
@@ -31,15 +32,15 @@ export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
     };
   }, [l.owner, l.id]);
   async function toggleLike() {
-    if (!live) return setLiked(!liked);
+    if (!live) return router.push(`/login?next=${encodeURIComponent(location.pathname)}`);
     const before = live;
     const on = !live.liked;
     setLive({ liked: on, count: live.count + (on ? 1 : -1) });
     const r = await setLike("list", l.owner, l.id, on).catch(() => ({ ok: false }));
     if (!r.ok) setLive(before);
   }
-  const isLiked = live ? live.liked : liked;
-  const likeCount = live ? live.count : l.likes + (liked ? 1 : 0);
+  const isLiked = live?.liked ?? false;
+  const likeCount = live ? live.count : l.likes;
   const seen = l.titles.filter((t) => watched.includes(t.key)).length;
   const pct = l.titles.length ? Math.round((seen / l.titles.length) * 100) : 0;
   async function share() {
@@ -146,7 +147,7 @@ export function ListPage({ l, watched }: { l: ListView; watched: string[] }) {
           <HeadingPill small>Comments</HeadingPill>
         </div>
         <div className={SHELL}>
-          <CommentThread kind="list" owner={l.owner} target={l.id} href={`/u/${l.owner}/list/${l.id}`} sample={l.comments} />
+          <CommentThread kind="list" owner={l.owner} target={l.id} href={`/u/${l.owner}/list/${l.id}`} />
         </div>
       </section>
     </div>

@@ -5,7 +5,6 @@ import { TrackerBoard } from "@/components/TrackerBoard";
 import { CinemaHero } from "@/components/CinemaHero";
 import { billboard } from "@/components/TitleRows";
 import { visitorRegion } from "@/lib/region";
-import { previewArchive } from "@/lib/profile-previews";
 import { trackerFromArchive } from "@/lib/tracker";
 import { ProGate } from "@/components/ProGate";
 import { accountsOpen } from "@/lib/accounts";
@@ -34,8 +33,7 @@ export default async function TrackerPage() {
       live = true;
     }
   } else {
-    archive = await previewArchive();
-    if (!archive) gate = "closed";
+    gate = "closed";
   }
   const data = archive ? await trackerFromArchive(archive) : null;
   // The billboard, as Home and Explore have: what's just out from what they

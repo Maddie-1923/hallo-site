@@ -1,4 +1,5 @@
 import "server-only";
+import { accountsOpen } from "@/lib/accounts";
 import { isArchive, type LibraryArchive } from "@/lib/archive";
 import { profileFromArchive, withAiredEpisodes, withUpToDate, type LikedItem, type PublicProfileView } from "@/lib/public-profile";
 import { createClient } from "@/lib/supabase/server";
@@ -13,6 +14,11 @@ import { image } from "@/lib/tmdb";
 // else sees it drawn from the member's public copy (public_libraries, step
 // 1.2), so a visitor's page never touches anyone's private library.
 const EMPTY: LibraryArchive = { version: 12, exported: "", device: "", shows: [], movies: [], watched: [] };
+
+/** A member's profile by username, or null: nobody, or accounts closed. */
+export async function loadProfile(username: string): Promise<PublicProfileView | null> {
+  return accountsOpen ? realProfile(username) : null;
+}
 
 export async function realProfile(username: string): Promise<PublicProfileView | null> {
   const supabase = await createClient();

@@ -8,7 +8,6 @@ import type { LibraryArchive } from "@/lib/archive";
 import { optionalLibrary } from "@/lib/library";
 import { libraryItems } from "@/lib/library-view";
 import { hasPro } from "@/lib/pro";
-import { previewArchive } from "@/lib/profile-previews";
 import { visitorRegion } from "@/lib/region";
 
 export const metadata: Metadata = { title: "Library — Kodigo" };
@@ -16,8 +15,7 @@ export const metadata: Metadata = { title: "Library — Kodigo" };
 // The Library: everything someone tracks, series and films, with the app's
 // tools for it (docs/social-plan.md, step 2.3): status tabs, search, genre,
 // sort (the app's four and My order, dragged by hand), Hide watched, Only my
-// services, grid or list. Pro, like the Calendar; before accounts open,
-// development draws it from the preview library.
+// services, grid or list. Pro, like the Calendar.
 export default async function Library({ searchParams }: PageProps<"/library">) {
   const { kind } = await searchParams;
   let archive: LibraryArchive | null = null;
@@ -33,8 +31,7 @@ export default async function Library({ searchParams }: PageProps<"/library">) {
       live = true;
     }
   } else {
-    archive = await previewArchive();
-    if (!archive) gate = "closed";
+    gate = "closed";
   }
   return (
     <div className="min-h-screen flex flex-col">
