@@ -93,7 +93,7 @@ export function GoogleButton({ clientID, onSignedIn, onError, children }: { clie
   return (
     <div className="relative w-full h-11 rounded-full overflow-hidden hover:brightness-95">
       <div aria-hidden className="pointer-events-none">{children}</div>
-      <div ref={box} className="absolute inset-0 flex items-center justify-center opacity-[0.011] [color-scheme:light]" />
+      <div ref={box} className="absolute inset-0 flex items-center justify-center opacity-0 [color-scheme:light]" />
     </div>
   );
 }
