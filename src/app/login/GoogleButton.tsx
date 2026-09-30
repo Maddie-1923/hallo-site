@@ -46,7 +46,10 @@ async function sha256(text: string) {
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export function GoogleButton({ clientID, onSignedIn, onError }: { clientID: string; onSignedIn: () => void; onError: (message: string) => void }) {
+// Its height is Google's to choose and differs by browser and screen, so
+// once it's drawn it's measured and reported (onHeight), and the buttons
+// beside it take the same height.
+export function GoogleButton({ clientID, onSignedIn, onError, onHeight }: { clientID: string; onSignedIn: () => void; onError: (message: string) => void; onHeight?: (px: number) => void }) {
   const box = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
 
@@ -85,6 +88,30 @@ export function GoogleButton({ clientID, onSignedIn, onError }: { clientID: stri
       live = false;
     };
   }, [clientID, onError, onSignedIn]);
+
+  useEffect(() => {
+    const el = box.current;
+    if (!el || !onHeight) return;
+    // Google puts its button in an iframe inside the box; the box's height is
+    // the button's once that iframe has its size.
+    const report = () => {
+      const frame = el.querySelector("iframe");
+      const h = frame?.getBoundingClientRect().height ?? 0;
+      if (h > 24) onHeight(Math.round(h));
+    };
+    const watch = new ResizeObserver(report);
+    watch.observe(el);
+    const mutations = new MutationObserver(() => {
+      const frame = el.querySelector("iframe");
+      if (frame) watch.observe(frame);
+      report();
+    });
+    mutations.observe(el, { childList: true, subtree: true, attributes: true });
+    return () => {
+      watch.disconnect();
+      mutations.disconnect();
+    };
+  }, [onHeight]);
 
   // A blocker that stops Google's script leaves the email way in, said so.
   if (failed) return <p className="m-0 text-[12.5px] text-dim text-center">Google sign-in couldn&apos;t load here. Use your email below.</p>;

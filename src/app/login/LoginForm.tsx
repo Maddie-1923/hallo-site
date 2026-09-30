@@ -69,6 +69,9 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
     window.location.assign(`/auth/continue?next=${encodeURIComponent(next)}`);
   }, [next]);
   const googleError = useCallback((message: string) => setError(message), []);
+  // Google's button's measured height, which every other button and the box take.
+  const [rowHeight, setRowHeight] = useState<number | null>(null);
+  const row = rowHeight ? { height: rowHeight } : undefined;
 
   async function continueWith(provider: Provider) {
     setError(undefined);
@@ -140,9 +143,9 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
     <div className="mt-4 grid gap-2">
       {providers.map((p) =>
         p === "google" && googleID ? (
-          <GoogleButton key={p} clientID={googleID} onSignedIn={afterGoogle} onError={googleError} />
+          <GoogleButton key={p} clientID={googleID} onSignedIn={afterGoogle} onError={googleError} onHeight={setRowHeight} />
         ) : (
-          <button key={p} type="button" onClick={() => continueWith(p)} className={`w-full h-11 rounded-full text-[14px] font-medium cursor-pointer flex items-center justify-center gap-2.5 hover:brightness-95 ${BRAND[p].className}`}>
+          <button key={p} type="button" onClick={() => continueWith(p)} style={row} className={`w-full h-11 rounded-full text-[14px] font-medium cursor-pointer flex items-center justify-center gap-2.5 hover:brightness-95 ${BRAND[p].className}`}>
             {BRAND[p].logo}
             {BRAND[p].label}
           </button>
@@ -159,8 +162,8 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
         <label className="sr-only" htmlFor="email">
           Email
         </label>
-        <input id="email" type="email" required autoComplete="email" placeholder="you@example.com" className={input} value={email} onChange={(e) => setEmail(e.target.value)} />
-        <button className={primary} type="submit" disabled={state === "sending"}>
+        <input id="email" type="email" required autoComplete="email" placeholder="you@example.com" style={row} className={input} value={email} onChange={(e) => setEmail(e.target.value)} />
+        <button className={primary} style={row} type="submit" disabled={state === "sending"}>
           {state === "sending" ? "Sending…" : withCode ? "Email me a code" : "Email me a sign-in link"}
         </button>
       </form>
