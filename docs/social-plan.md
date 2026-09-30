@@ -632,6 +632,20 @@ redeploy. This is outward-facing, so ask first.
 comment, report and block, and Pro from a web purchase. It goes through App
 Review. Android picks the same up when it resumes.
 
+## Email alerts (planned 30 Sep 2026)
+
+Beside the weekly digest (Sunday 9am, the person's own time zone, off by
+default; mock-up approved in the chat, same design as the other emails),
+"out today" reminders for what someone tracks, as an extra nudge. One
+email a day at most, in the morning, gathering everything out that day.
+Each is its own switch in Settings → Notifications:
+- Weekly digest
+- New episodes of shows I track (the day they air)
+- New seasons and premieres of shows I track
+- Films I'm waiting for (their release day)
+- New releases in general (notable films and series out this week)
+Nothing is sent for a switch left off; an empty day sends nothing.
+
 ## For the apps (from the website's design)
 
 - **Category pictures:** one wide picture per category instead of the
@@ -645,6 +659,10 @@ Review. Android picks the same up when it resumes.
   watched-on and rewatch, as the website has it; the note stays private and
   is labelled so. Its cards run: rating, mood, review, note, then tags (the
   app has tags before the note today).
+- **Alert choices:** the same switches as the website's Settings →
+  Notifications (weekly digest, new episodes, new seasons, films I'm
+  waiting for, new releases in general), shared through the account, on
+  iOS and Android, where they can also be push notifications.
 - **Visibility:** every category has an eye the owner toggles, public or
   private. All start public except On Hold and Stopped Watching, which start
   private. The choice is stored in the library and the server leaves private
