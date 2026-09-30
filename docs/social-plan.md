@@ -584,12 +584,14 @@ in development while accounts are closed.
   `NEXT_PUBLIC_SIGNIN_WITH` once set up. Repeat every provider on the live
   project.
 - Sign-in lands on Explore (`/shows`), or back where it started.
-- Email service (custom SMTP in Supabase, e.g. Resend with kodigo.pro
-  verified): needed before opening, since Supabase's built-in sender only
-  reaches the project's team, a few an hour. Then paste
-  `supabase/templates/sign-in.html` into Magic Link and Confirm signup
-  (subject "Your Kodigo sign-in code: {{ .Token }}"), keep Email OTP length
-  at 6, and set `NEXT_PUBLIC_EMAIL_CODE=on` to show the code box.
+- Email: done on kodigo-dev 30 Sep. Resend SMTP (its own key, "Supabase
+  kodigo-dev"; the "Supabase auth" key is the live project's), sender
+  signin@kodigo.pro, `supabase/templates/sign-in.html` in Magic link or OTP
+  and Confirm signup (subject "Your Kodigo sign-in code: {{ .Token }}"),
+  Email OTP length 6, `NEXT_PUBLIC_EMAIL_CODE=on`. The icon it shows is
+  live at kodigo.pro/email/kodigo-icon.png. For opening: the same templates
+  and OTP length on live, the flag on Vercel, and raise the email rate
+  limit (30 an hour after SMTP).
 - Later (after opening): passkeys (once Supabase supports them as a main
   sign-in) and Discord. Microsoft and X not planned.
 - Apple (kodigo-dev, 30 Sep 2026): Services ID `com.lauradunlap.kodigo.web`,
