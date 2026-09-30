@@ -583,6 +583,12 @@ in development while accounts are closed.
   `NEXT_PUBLIC_SIGNIN_WITH` once set up. Repeat every provider on the live
   project.
 - Sign-in lands on Explore (`/shows`), or back where it started.
+- Apple (kodigo-dev, 30 Sep 2026): Services ID `com.lauradunlap.kodigo.web`,
+  primary App ID `com.lauradunlap.kodigo`, key V75K2Y8B6S (team 4LLVU76Q4L),
+  the .p8 in ~/Documents/KodigoKeys. The Supabase secret lasts six months:
+  renew with `scripts/apple-secret.mjs` before 29 Mar 2027 (and on live).
+  Still to do: Apple's "Register Email Sources" for the private relay once
+  Kodigo sends email.
 
 ### 9. Open the site
 
