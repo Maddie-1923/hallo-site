@@ -116,15 +116,13 @@ function Layout({ slides, kind, mine, services, children }: { slides: Awaited<Re
         <CinemaHero slides={slides} />
       </header>
       <main className="flex-1 w-full px-[clamp(16px,3.2vw,64px)] pb-16 [&>section:first-of-type]:!mt-5">
-        {/* The switch and Filter on the left, New category on the right. */}
+        {/* The switch on the left; Filter and New category on the right. */}
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <KindSwitch kind={kind} />
-          <FilterButton services={services} kinds={kindCatalogues(kind)} />
-          {mine && (
-            <div className="ml-auto">
-              <NewCategoryButton services={mine.services} counts={mine.counts} kinds={kindCatalogues(kind)} />
-            </div>
-          )}
+          <div className="ml-auto flex items-center gap-3">
+            <FilterButton services={services} kinds={kindCatalogues(kind)} />
+            {mine && <NewCategoryButton services={mine.services} counts={mine.counts} kinds={kindCatalogues(kind)} />}
+          </div>
         </div>
         {children}
         {mine?.rows}
