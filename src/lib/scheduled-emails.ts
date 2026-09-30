@@ -15,7 +15,10 @@ import { trackerFromArchive, type CalendarEvent } from "./tracker";
 
 const dayMs = 86_400_000;
 const addDays = (d: string, n: number) => new Date(Date.parse(`${d}T12:00:00Z`) + n * dayMs).toISOString().slice(0, 10);
-const fmt = (d: string, opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", ...opts }).format(new Date(`${d}T12:00:00Z`));
+// Day before month ("29 Sep"), with the short month spelled as the site does
+// ("Sep", where British formatting now writes "Sept").
+const fmt = (d: string, opts: Intl.DateTimeFormatOptions) =>
+  new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", ...opts }).format(new Date(`${d}T12:00:00Z`)).replace(/\bSept\b/, "Sep");
 const weekdayOf = (d: string) => fmt(d, { weekday: "short" });
 const joinAnd = (xs: string[]) => (xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 
