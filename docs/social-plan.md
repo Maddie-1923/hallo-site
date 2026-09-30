@@ -307,6 +307,17 @@ Everything the app does, on a computer.
 
 1. **"+ Log" in the nav:** log, rate or review anything from any page, with
    watched-on date, rewatch, spoilers and tags.
+   Writing on the web wired 30 Sep: "Your take" on film, series and episode
+   pages saves to the library when signed in (`saveTake` / `removeTake`,
+   rules in `lib/library-rules.ts` `applyTake`, tested): rating in half
+   steps, up to three moods (Loved it is the heart), up to 12 tags without
+   case duplicates, the review (word filter; spoilers, watched-on, rewatch),
+   the private note; saving logs the watch (a film to Watched with its first
+   date kept, a series tracked, an episode ticked on the day given, a skip
+   cleared); emptied fields are removed, and Remove clears the take but not
+   the watch. It opens on what the library holds; signed out it stays in the
+   browser. The public copy picks the review up at once, so it shows in
+   Reviews and the feed. Still to do: "+ Log" from any page.
 2. **Reviews on title pages:**
    - the members' average and a chart of how they rated;
    - "friends who watched";

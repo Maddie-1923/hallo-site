@@ -13,6 +13,7 @@ import { SeasonBrowser } from "@/components/SeasonBrowser";
 import { SeriesPill, seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
 import { reviewsOfTitle } from "@/lib/profile-previews";
+import { readTake } from "@/lib/library-rules";
 import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
 import { image, seriesPage, showTrailers, titleLogo } from "@/lib/tmdb";
@@ -151,7 +152,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
           <div className="lg:pl-2 min-w-0">
             <Section title="Your take" small>
               <SectionCard>
-                <YourReview kind="show" out={show.first_air_date ?? null} title={{ key: `s${showID}`, kind: "show", title: show.name, href: `/show/${showID}`, poster: image.poster(show.poster_path, "w780"), backdrop: image.backdrop(show.backdrop_path), year: (show.first_air_date ?? "").slice(0, 4) }} />
+                <YourReview target={{ kind: "show", show }} initial={lib.archive ? readTake(lib.archive, `show:${showID}`) : null} live={lib.signedIn} kind="show" out={show.first_air_date ?? null} title={{ key: `s${showID}`, kind: "show", title: show.name, href: `/show/${showID}`, poster: image.poster(show.poster_path, "w780"), backdrop: image.backdrop(show.backdrop_path), year: (show.first_air_date ?? "").slice(0, 4) }} />
               </SectionCard>
             </Section>
           </div>

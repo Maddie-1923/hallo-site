@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import type { ProfileTitle } from "@/lib/public-profile";
-import { readTakes, saveTake } from "@/lib/local-takes";
+import { readTakes, saveTake as keepInBrowser } from "@/lib/local-takes";
 import { ConfirmKey } from "./ConfirmKey";
 import { WatchedOn } from "./WatchedOn";
+import { useRouter } from "next/navigation";
+import { removeTake, saveTake } from "@/lib/library-actions";
+import { MOOD_IDS, type TakeInput, type TakeTarget } from "@/lib/library-rules";
 
 // The person's own take on a title, as the app's "Your take". Its cards, as the app draws them (kodigoTakeCard): the
 // rating, ten stars in half steps; how it made them feel, up to three of the
@@ -12,8 +15,11 @@ import { WatchedOn } from "./WatchedOn";
 // watched and whether it was a rewatch; the note, which stays private; and
 // tags last.
 //
-// Saving from the website opens with accounts; until then everything here
-// can be tried on the page and the Submit button says so.
+// Signed in (`live`), it opens on what their library holds for the title
+// (`initial`) and Save writes it there with the app's rules (saveTake in
+// lib/library-actions.ts): the review is checked by the word filter, the
+// note stays private, and saving logs the watch. Remove takes the take off.
+// Signed out, it's kept in this browser, for the preview's Watchlog.
 const MOODS = [
   ["❤️", "Loved it"],
   ["😡", "Hated it"],
@@ -29,23 +35,30 @@ const MOODS = [
   ["🙃", "Confused"],
 ] as const;
 
-export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "episode"; title: ProfileTitle; /** The day it came out, offered as a quick pick for when they watched. */ out?: string | null }) {
-  const [rating, setRating] = useState<number | null>(null);
-  const [moods, setMoods] = useState<string[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
+export function YourReview({ kind, title, out, target, initial = null, live = false }: { kind: "movie" | "show" | "episode"; title: ProfileTitle; /** The day it came out, offered as a quick pick for when they watched. */ out?: string | null; target?: TakeTarget; initial?: TakeInput | null; live?: boolean }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  // Signed in, the box starts on what their library holds.
+  const from = live && target ? initial : null;
+  const [saved, setSaved] = useState(!!from);
+  const [rating, setRating] = useState<number | null>(from?.rating ?? null);
+  const [moods, setMoods] = useState<string[]>(() => (from?.moods ?? []).map((id) => MOODS[MOOD_IDS.indexOf(id)]?.[1]).filter((m): m is (typeof MOODS)[number][1] => !!m));
+  const [tags, setTags] = useState<string[]>(from?.tags ?? []);
   const [tagDraft, setTagDraft] = useState<string | null>(null);
-  const [text, setText] = useState("");
-  const [spoilers, setSpoilers] = useState(false);
-  const [watchedOn, setWatchedOn] = useState("");
-  const [rewatch, setRewatch] = useState(false);
-  const [note, setNote] = useState("");
+  const [text, setText] = useState(from?.text ?? "");
+  const [spoilers, setSpoilers] = useState(from?.spoilers ?? false);
+  const [watchedOn, setWatchedOn] = useState(from?.watchedOn ?? "");
+  const [rewatch, setRewatch] = useState(from?.rewatch ?? false);
+  const [note, setNote] = useState(from?.note ?? "");
   const [said, setSaid] = useState(false);
 
-  // What they saved here before, from this browser.
+  // Signed out: what they submitted here before, from this browser.
   useEffect(() => {
+    if (live && target) return;
     const k = readTakes()[title.key];
     if (!k) return;
-    /* eslint-disable react-hooks/set-state-in-effect */
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRating(k.rating);
     setMoods(k.moods);
     setTags(k.tags);
@@ -54,14 +67,48 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
     setRewatch(k.rewatch);
     setWatchedOn(k.date);
     setNote(k.note);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [title.key]);
+  }, [title.key, live, target, initial]);
 
-  function save() {
+  async function save() {
+    if (live && target) {
+      setBusy(true);
+      setProblem(null);
+      setSaid(false);
+      const input: TakeInput = { rating, moods: moods.map((m) => MOOD_IDS[MOODS.findIndex(([, label]) => label === m)]).filter(Boolean), tags, text, spoilers, watchedOn, rewatch, note };
+      const r = await saveTake(target, input).catch(() => ({ error: "That didn't save. Try again." }));
+      setBusy(false);
+      if (r.error) return setProblem(r.error);
+      const empty = rating == null && !moods.length && !tags.length && !text.trim() && !watchedOn && !note.trim();
+      setSaved(!empty);
+      setSaid(true);
+      router.refresh();
+      return;
+    }
     const d = new Date();
     const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    saveTake({ t: title, date: watchedOn || today, rating, text, spoilers, rewatch, moods, tags, note });
+    keepInBrowser({ t: title, date: watchedOn || today, rating, text, spoilers, rewatch, moods, tags, note });
     setSaid(true);
+  }
+
+  /** Takes the whole take off: review, rating, moods, tags, note. */
+  async function remove() {
+    if (!target) return;
+    setBusy(true);
+    setProblem(null);
+    const r = await removeTake(target).catch(() => ({ error: "That didn't work. Try again." }));
+    setBusy(false);
+    if (r.error) return setProblem(r.error);
+    setRating(null);
+    setMoods([]);
+    setTags([]);
+    setText("");
+    setSpoilers(false);
+    setRewatch(false);
+    setWatchedOn("");
+    setNote("");
+    setSaved(false);
+    setSaid(true);
+    router.refresh();
   }
 
   const card = "rounded-shell bg-piece p-3 grid gap-2.5";
@@ -194,10 +241,24 @@ export function YourReview({ kind, title, out }: { kind: "movie" | "show" | "epi
       </div>
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-1">
-        {said && <span className="text-[12px] text-dim">Submitted in this browser: it shows in your Watchlog. Sending it to your account opens with accounts.</span>}
-        <button type="button" onClick={save} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold cursor-pointer hover:brightness-110">
-          Submit
+      <div className="flex flex-wrap items-center justify-end gap-3 pt-1">
+        {problem && (
+          <span role="alert" className="text-[12px] text-loved">
+            {problem}
+          </span>
+        )}
+        {said && !problem && (
+          <span role="status" className="text-[12px] text-dim">
+            {live ? (saved ? "Saved to your library. It's in your Watchlog and the app on your next sync." : "Removed.") : "Submitted in this browser: it shows in your Watchlog. Sending it to your account opens with accounts."}
+          </span>
+        )}
+        {live && saved && (
+          <button type="button" onClick={remove} disabled={busy} className="h-9 px-4 rounded-full bg-card border border-hair text-[13px] font-semibold text-ink cursor-pointer hover:text-loved disabled:opacity-50">
+            Remove
+          </button>
+        )}
+        <button type="button" onClick={save} disabled={busy} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold cursor-pointer hover:brightness-110 disabled:opacity-60">
+          {busy ? "Saving…" : live ? "Save" : "Submit"}
         </button>
       </div>
     </div>

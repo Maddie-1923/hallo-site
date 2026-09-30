@@ -11,6 +11,7 @@ import { HeaderCard, TitleBento, MoreLikeThisSection, Section, SectionCard, Titl
 import { TitleActions } from "@/components/TitleActions";
 import { optionalLibrary } from "@/lib/library";
 import { reviewsOfTitle } from "@/lib/profile-previews";
+import { readTake } from "@/lib/library-rules";
 import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
 import { filmPage, image, titleLogo } from "@/lib/tmdb";
@@ -111,7 +112,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
           <div className="lg:pl-2 min-w-0">
             <Section title="Your take" small>
               <SectionCard>
-                <YourReview kind="movie" out={page.released ?? movie.release_date ?? null} title={{ key: `m${movieID}`, kind: "movie", title: movie.title, href: `/movie/${movieID}`, poster: image.poster(movie.poster_path, "w780"), backdrop: image.backdrop(movie.backdrop_path), year: (movie.release_date ?? "").slice(0, 4) }} />
+                <YourReview target={{ kind: "movie", movie }} initial={lib.archive ? readTake(lib.archive, `movie:${movieID}`) : null} live={lib.signedIn} kind="movie" out={page.released ?? movie.release_date ?? null} title={{ key: `m${movieID}`, kind: "movie", title: movie.title, href: `/movie/${movieID}`, poster: image.poster(movie.poster_path, "w780"), backdrop: image.backdrop(movie.backdrop_path), year: (movie.release_date ?? "").slice(0, 4) }} />
               </SectionCard>
             </Section>
           </div>

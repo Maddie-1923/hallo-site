@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { hasPro } from "@/lib/pro";
-import { applyEpisodeSkipped, applyEpisodeWatched, applyMovieWatched } from "@/lib/library-rules";
+import { applyEpisodeSkipped, applyEpisodeWatched, applyMovieWatched, applyTake, clearTake, type TakeInput, type TakeTarget } from "@/lib/library-rules";
+import { checkText } from "@/lib/word-filter";
 import { CURRENT_VERSION, isArchive, type LibraryArchive, type Movie, type MovieStatus, type Show, type WatchStatus } from "./archive";
 
 // Every change the website makes to a library goes through here, and each one
@@ -395,4 +396,28 @@ export async function deleteReview(target: { kind: "show"; show: Show } | { kind
     if (a.reviews) delete a.reviews[key];
     touch(a, target, stamp);
   });
+}
+
+// ---- Your take ----
+
+/** Saves "Your take" from a title's page (lib/library-rules.ts applyTake).
+    The review is public, so the word filter checks it first; the note is
+    private and isn't checked. Free: rating, reviewing and logging aren't Pro. */
+export async function saveTake(target: TakeTarget, input: TakeInput) {
+  const problem = input.text.trim() ? checkText(input.text) : null;
+  if (problem) return { error: problem };
+  const r = await withArchive((a, stamp) => applyTake(a, target, input, stamp));
+  if (!r.error) revalidateTitle(target);
+  return r;
+}
+
+/** Takes the whole take off a title; what was watched stays watched. */
+export async function removeTake(target: TakeTarget) {
+  const r = await withArchive((a, stamp) => clearTake(a, target, stamp));
+  if (!r.error) revalidateTitle(target);
+  return r;
+}
+
+function revalidateTitle(t: TakeTarget) {
+  revalidatePath(t.kind === "movie" ? `/movie/${t.movie.id}` : `/show/${t.show.id}`, "layout");
 }
