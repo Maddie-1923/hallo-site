@@ -28,7 +28,7 @@ export default async function Login({ searchParams }: PageProps<"/login">) {
             <div className="rounded-shell bg-piece p-4">
               <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">Sign in</h1>
               <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">
-                {enabled.length ? "One tap, or an emailed link. The first time, that makes your account." : "No password: we email you a link, you open it, and you're in. The first time, that makes your account."}
+                {intro(enabled.length > 0, process.env.NEXT_PUBLIC_EMAIL_CODE === "on")}
               </p>
               <LoginForm next={next} initialError={error} providers={enabled} />
             </div>
@@ -49,4 +49,10 @@ export default async function Login({ searchParams }: PageProps<"/login">) {
       <SiteFooter />
     </div>
   );
+}
+
+/** The line under Sign in: what the ways in are. No password either way. */
+function intro(oneTap: boolean, code: boolean): string {
+  const byEmail = code ? "a code sent to your email" : "a link sent to your email";
+  return `${oneTap ? `One tap, or ${byEmail}` : `No password: just ${byEmail}`}. The first time, that makes your account.`;
 }

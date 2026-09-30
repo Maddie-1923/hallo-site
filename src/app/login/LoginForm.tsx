@@ -70,7 +70,7 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
         <p className="m-0 mt-1 text-[12.5px] leading-[1.6] text-mid-tone">
           {withCode ? (
             <>
-              We sent a link and a 6-digit code to <b className="font-semibold text-ink">{email.trim()}</b>. Open the link, or type the code here. Either works once, for an hour.
+              We sent a 6-digit code to <b className="font-semibold text-ink">{email.trim()}</b>. Type it here. It works once, for an hour. (The email&apos;s button signs you in too.)
             </>
           ) : (
             <>
@@ -144,7 +144,7 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
         </label>
         <input id="email" type="email" required autoComplete="email" placeholder="you@example.com" className={input} value={email} onChange={(e) => setEmail(e.target.value)} />
         <button className={primary} type="submit" disabled={state === "sending"}>
-          {state === "sending" ? "Sending…" : "Email me a sign-in link"}
+          {state === "sending" ? "Sending…" : withCode ? "Email me a code" : "Email me a sign-in link"}
         </button>
       </form>
       {error && (
