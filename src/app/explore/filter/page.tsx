@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PosterGrid } from "@/components/PosterGrid";
-import { FilterButton, NewCategoryButton } from "@/components/CategoryDialog";
+import { FilterButton } from "@/components/CategoryDialog";
 import { accountsOpen } from "@/lib/accounts";
 import { optionalLibrary } from "@/lib/library";
 import { visitorRegion } from "@/lib/region";
@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: "Filter — Kodigo" };
 // What Explore's Filter finds: the app's filter results, as a grid of
 // posters. The filter is the link (`?f=`), so the page renders on the server
 // and can be shared. Both catalogues take turns when both are asked for.
-// Signed in, the filter can be kept as a custom category from here.
+// Signed in, Browse here can keep the filter as a custom category.
 const PAGE_CAP = 10;
 
 export default async function FilterPage({ searchParams }: PageProps<"/explore/filter">) {
@@ -56,12 +56,7 @@ export default async function FilterPage({ searchParams }: PageProps<"/explore/f
         <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase !m-0 mt-3">Filtered</h1>
         {line && <p className="m-0 mt-2 text-[12.5px] text-dim">{line}</p>}
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <FilterButton services={services} kinds={f.kinds} initial={f} count={activeCount(f)} />
-          {lib.archive && activeCount(f) > 0 && (
-            <div className="ml-auto">
-              <NewCategoryButton services={services} counts={railCounts(lib.archive)} kinds={f.kinds} initial={f} label="Save as category" />
-            </div>
-          )}
+          <FilterButton services={services} kinds={f.kinds} initial={f} count={activeCount(f)} counts={lib.archive ? railCounts(lib.archive) : undefined} />
         </div>
 
         {titles.length === 0 ? <p className="mt-8 text-[13px] text-dim">Nothing matches these filters.</p> : <PosterGrid titles={titles} />}

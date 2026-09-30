@@ -9,7 +9,7 @@ import { markLookup } from "@/lib/marks";
 import { accountsOpen } from "@/lib/accounts";
 import { regionName, visitorRegion } from "@/lib/region";
 import { AdSlot } from "@/components/AdSlot";
-import { FilterButton, NewCategoryButton } from "@/components/CategoryDialog";
+import { FilterButton } from "@/components/CategoryDialog";
 import { CategoryMenu } from "@/components/CategoryMenu";
 import { CATALOGUES, orderedRails, railCounts, type Catalogue } from "@/lib/saved-rails";
 import type { LibraryArchive } from "@/lib/archive";
@@ -116,12 +116,11 @@ function Layout({ slides, kind, mine, services, children }: { slides: Awaited<Re
         <CinemaHero slides={slides} />
       </header>
       <main className="flex-1 w-full px-[clamp(16px,3.2vw,64px)] pb-16 [&>section:first-of-type]:!mt-5">
-        {/* The switch on the left; Filter and New category on the right. */}
+        {/* The switch on the left; Browse, which also makes categories, on the right. */}
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <KindSwitch kind={kind} />
-          <div className="ml-auto flex items-center gap-3">
-            <FilterButton services={services} kinds={kindCatalogues(kind)} />
-            {mine && <NewCategoryButton services={mine.services} counts={mine.counts} kinds={kindCatalogues(kind)} />}
+          <div className="ml-auto">
+            <FilterButton services={services} kinds={kindCatalogues(kind)} counts={mine?.counts} />
           </div>
         </div>
         {children}
