@@ -8,7 +8,7 @@ import type { Subscription } from "@/lib/entitlement";
 type Plan = "monthly" | "yearly";
 const PLANS: { id: Plan; price: string; per: string; note?: string }[] = [
   { id: "monthly", price: "$1.99", per: "per month" },
-  { id: "yearly", price: "$15.99", per: "per year", note: "Four months free" },
+  { id: "yearly", price: "$15.99", per: "per year", note: "Save 33%" },
 ];
 
 /** Opens Stripe's page for managing a web subscription. */
@@ -127,7 +127,7 @@ export function ProCheckout({ ready, signedIn, subscription }: { ready: boolean;
 
       <span aria-disabled className="inline-flex items-center justify-center gap-2 min-h-10 py-2 px-4 rounded-full bg-[color:var(--quiet)] text-dim text-[12.5px] font-semibold">
         <AppleMark />
-        Or try 7 days free in the app · coming soon
+        Or try 7 days free in the app
       </span>
     </div>
   );

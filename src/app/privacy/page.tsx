@@ -74,7 +74,8 @@ export default function Privacy() {
           <li><strong>Your email address</strong>, to sign you in and to send the emails you&apos;ve chosen.</li>
           <li>
             <strong>Your library</strong>: the same file <strong>Settings → Backup</strong> exports, with what you track, what
-            you&apos;ve watched and when, and your ratings, reviews, notes, lists and reactions.
+            you&apos;ve watched and when, and your ratings, reviews, notes, lists and reactions. It also
+            carries the name of the device that last synced it, so you can tell your copies apart.
           </li>
           <li>
             <strong>Your profile</strong>: your username, and anything you add, such as a display name, a photo and
@@ -210,7 +211,8 @@ export default function Privacy() {
         </ul>
         <p>
           Some of these companies store information outside your country, including in the United States.
-          We only use services that protect it to the standard the law requires.
+          Each of them is bound to protect it at least as well as this policy does, and to use it only to
+          provide their service to Kodigo.
         </p>
 
         <h2>Never sold</h2>
