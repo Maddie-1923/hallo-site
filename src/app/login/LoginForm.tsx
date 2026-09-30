@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { GoogleButton } from "./GoogleButton";
 
 const input = "w-full h-10 px-4 rounded-full bg-card border border-hair text-[13px] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
 const primary = "w-full h-10 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-default";
@@ -56,6 +57,15 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign(`/auth/continue?next=${encodeURIComponent(next)}`);
   }
+
+  // After Google's own button: the session is set in this browser, so on to
+  // where they were going (a full load, for the same reason as the code).
+  const googleID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const afterGoogle = useCallback(() => {
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign(`/auth/continue?next=${encodeURIComponent(next)}`);
+  }, [next]);
+  const googleError = useCallback((message: string) => setError(message), []);
 
   async function continueWith(provider: Provider) {
     setError(undefined);
@@ -125,12 +135,16 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
 
   return (
     <div className="mt-4 grid gap-2">
-      {providers.map((p) => (
-        <button key={p} type="button" onClick={() => continueWith(p)} className={`w-full h-10 rounded-full text-[12.5px] font-semibold cursor-pointer flex items-center justify-center gap-2.5 hover:brightness-95 ${BRAND[p].className}`}>
-          {BRAND[p].logo}
-          {BRAND[p].label}
-        </button>
-      ))}
+      {providers.map((p) =>
+        p === "google" && googleID ? (
+          <GoogleButton key={p} clientID={googleID} onSignedIn={afterGoogle} onError={googleError} />
+        ) : (
+          <button key={p} type="button" onClick={() => continueWith(p)} className={`w-full h-10 rounded-full text-[12.5px] font-semibold cursor-pointer flex items-center justify-center gap-2.5 hover:brightness-95 ${BRAND[p].className}`}>
+            {BRAND[p].logo}
+            {BRAND[p].label}
+          </button>
+        ),
+      )}
       {providers.length > 0 && (
         <div className="flex items-center gap-3 text-[12px] text-dim my-1">
           <span className="flex-1 h-px bg-hair" />

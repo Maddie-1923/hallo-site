@@ -591,9 +591,14 @@ in development while accounts are closed.
 - Google: verify Kodigo's branding in Google Auth Platform (prove kodigo.pro
   in Search Console, add the logo), so the consent screen says "Sign in to
   Kodigo"; publish the app out of Testing.
-- Hide the supabase.co address: either Google's own button on the page
-  (Google Identity Services + `signInWithIdToken`, free) or a Supabase custom
-  domain such as auth.kodigo.pro (Supabase Pro + add-on).
+- Hide the supabase.co address: built 30 Sep with Google's own button
+  (`app/login/GoogleButton.tsx`, Google Identity Services +
+  `signInWithIdToken` with a nonce), shown when
+  `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set (public; else the old redirect
+  button). For opening: add `https://kodigo.pro` (and `https://www.kodigo.pro`
+  if used) to the Google client's Authorized JavaScript origins, and set the
+  same variable on Vercel. Apple still goes through supabase.co; only a
+  Supabase custom domain would hide that.
 - Apple the same way (done on dev, below). Facebook skipped (30 Sep):
   Apple and Google cover nearly everyone. Each provider is listed in
   `NEXT_PUBLIC_SIGNIN_WITH` once set up. Repeat every provider on the live
