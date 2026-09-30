@@ -8,15 +8,17 @@ import type { Movie, Show } from "@/lib/archive";
 import type { ListOption } from "@/lib/marks";
 import { createList, setOnList, setRating, trackMovie, trackShow, untrackMovie, untrackShow } from "@/lib/library-actions";
 import type { MarkState } from "./MarkButtons";
-import { HeartRating } from "./HeartRating";
+import { StarRating } from "./StarRating";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 
 // The panel behind the list mark — Letterboxd's "•••" in Kodigo's words. Ten
-// hearts across the top (the app's rating, no label), then the rows: Recent
+// stars across the top (the app's rating, no label), then the rows: Recent
 // activity, Review & catalogue, the watchlist for this kind, Your lists (the
 // person's own, plus a field to start one), Other lists, Where to watch.
 // Everything writes through the same actions the app's merge understands.
+// Divided the way the app's menus are: a hairline between rows, and a wider
+// band between groups.
 export function MarkMenu({
   target,
   state,
@@ -116,8 +118,8 @@ export function MarkMenu({
       style={{ position: "fixed", ...pos }}
       className="z-[70] w-[232px] rounded-shell border border-hair bg-card shadow-[0_20px_50px_rgba(0,0,0,.6)] overflow-hidden text-left font-normal"
     >
-      <div className="px-1.5 pt-2 pb-1.5 border-b border-hair">
-        <HeartRating
+      <div className="px-1.5 pt-2 pb-1.5">
+        <StarRating
           value={rating}
           label={`Rate ${title} out of ten`}
           disabled={pending}
@@ -144,6 +146,8 @@ export function MarkMenu({
         )}
       </div>
 
+      <GroupGap />
+      <div className={GROUP}>
       <Link href={`${href}#activity`} className={row} onClick={onClose}>
         Recent activity
       </Link>
@@ -153,6 +157,9 @@ export function MarkMenu({
       <button type="button" className={row} onClick={onLog}>
         Review &amp; catalogue
       </button>
+      </div>
+      {extra && extra.length > 0 && <GroupGap />}
+      <div className={GROUP}>
       {extra?.map((x) => (
         <button
           key={x.label}
@@ -167,6 +174,9 @@ export function MarkMenu({
         </button>
       ))}
 
+      </div>
+      <GroupGap />
+      <div className={GROUP}>
       {/* The watchlist for this kind: Watching for a show, To Watch for a
           film. Once it's there the row reads as a tick and clicking takes it
           back out. */}
@@ -248,11 +258,13 @@ export function MarkMenu({
       <span className={`${row} text-dim cursor-default hover:bg-transparent`} aria-disabled="true" title="Lists from other people, once sharing exists">
         Other lists
       </span>
+      </div>
+      <GroupGap />
       <a
         href={target.kind === "movie" ? `https://www.themoviedb.org/movie/${target.movie.id}/watch` : `https://www.themoviedb.org/tv/${target.show.id}/watch`}
         target="_blank"
         rel="noopener"
-        className={`${row} border-t border-hair`}
+        className={row}
         onClick={onClose}
       >
         Where to watch ↗
@@ -263,4 +275,12 @@ export function MarkMenu({
     </div>,
     document.body,
   );
+}
+
+// A hairline between the rows of a group, and a wider band between groups —
+// the two dividers an iOS menu draws.
+const GROUP = "[&>*+*]:border-t [&>*+*]:border-[color:color-mix(in_srgb,var(--ink)_12%,transparent)]";
+
+function GroupGap() {
+  return <div aria-hidden className="h-2 bg-[color:color-mix(in_srgb,black_22%,transparent)]" />;
 }

@@ -36,7 +36,7 @@ export function FeedList({ items }: { items: FeedItem[] }) {
                   </Link>
                 </div>
                 <div className="text-dim">
-                  {i.rating != null && <span className="text-accent">♥ {i.rating}</span>}
+                  {i.rating != null && <span className="text-accent">★ {i.rating}</span>}
                   {i.rating != null && " · "}
                   {ago(i.at, fmt)}
                 </div>

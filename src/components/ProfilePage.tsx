@@ -281,8 +281,8 @@ function RatingsSpread({ values }: { values: number[] }) {
         ))}
       </div>
       <div className="flex justify-between text-[10.5px] text-dim mt-1.5">
-        <span>♥ 1</span>
-        <span>♥ 10</span>
+        <span>★ 1</span>
+        <span>★ 10</span>
       </div>
     </div>
   );

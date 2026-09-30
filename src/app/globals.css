@@ -22,11 +22,6 @@
   /* The logo's k and wordmark: cream by night as the page's ink; by day the
      app icon's navy, never black. */
   --logo-ink: var(--ink);
-  /* The app's Add key once a title is saved (KodigoConfirmedKey): by night
-     the key keeps its plate and the glyph takes the list blue; by day the
-     key fills blue and the glyph goes bone. */
-  --key-on-plate: var(--piece);
-  --key-on-glyph: var(--list-fill);
   --card: #2a2d32;
   --card-hi: #353a41;
   /* The app's list-row pieces (Theme.swift, night): the row's card
@@ -79,8 +74,6 @@
 
 :root[data-scheme="light"] {
   --logo-ink: #122042;
-  --key-on-plate: var(--list-fill);
-  --key-on-glyph: #f0efe9;
   --page: #e6e0d6;
   --ink: #1a1a19;
   --card: #f4f1ea;
@@ -118,8 +111,6 @@
    time this applies. */
 .scheme-dark {
   --logo-ink: #eeeff2;
-  --key-on-plate: var(--piece);
-  --key-on-glyph: var(--list-fill);
   --page: #17191c;
   --ink: #eeeff2;
   --card: #2a2d32;
@@ -408,4 +399,23 @@ section.band p + p { margin-top: 1em; }
     grid-template-areas: "rate moods tags" "review review note";
   }
   .take-note { height: auto; }
+}
+
+/* The app's key confirmation — see KeyConfirm.tsx. */
+@keyframes key-trace {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes key-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+@keyframes key-ring {
+  from { r: 2.7px; stroke-width: 6px; opacity: 1; }
+  to { r: 17px; stroke-width: 1px; opacity: 0; }
+}
+@keyframes key-spark {
+  0% { transform: translate(0, 0) scale(.4); opacity: 0; }
+  35% { transform: translate(calc(var(--dx) * .45), calc(var(--dy) * .45)) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(.3); opacity: 0; }
 }

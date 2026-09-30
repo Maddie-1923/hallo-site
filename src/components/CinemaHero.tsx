@@ -9,6 +9,7 @@ import type { Movie, Show } from "@/lib/archive";
 import { trackMovie, trackShow } from "@/lib/library-actions";
 import { nightTokens } from "@/lib/theme";
 import { MarkAdd, MarkBookmark } from "./marks";
+import { KeyConfirm } from "./KeyConfirm";
 
 export interface CinemaSlide {
   key: string;
@@ -397,17 +398,24 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
     });
   }
 
+  // The app's confirmed key: the offer is the accent-filled "+ Add"; once
+  // saved the key goes to the billboard's smoky glass and the bookmark takes
+  // the accent, after the stroke has run round it.
   return (
-    <button
-      type="button"
-      onClick={add}
-      disabled={pending}
-      className="inline-flex items-center gap-1.5 px-3 py-[6px] rounded-[3px] text-[12px] font-semibold cursor-pointer transition-[filter] hover:brightness-110"
-      style={{ background: FILL, color: ON_FILL }}
-    >
-      {/* The app's marks: a plus until it's on the watchlist, a bookmark once it is. */}
-      {on ? <MarkBookmark size={20} className="-mx-1 -my-[3px]" /> : <MarkAdd size={20} className="-mx-1 -my-[3px]" />}
-      {on ? "Added" : "Add"}
-    </button>
+    <KeyConfirm active={on} tint={FILL} corner={3}>
+      {(set) => (
+        <button
+          type="button"
+          onClick={add}
+          disabled={pending}
+          className={`inline-flex items-center gap-1.5 px-3 py-[6px] rounded-[3px] text-[12px] font-semibold cursor-pointer transition-[filter] hover:brightness-110 ${set ? "bg-black/40 text-white backdrop-blur-md shadow-[inset_0_0_0_1px_rgba(255,255,255,.25)]" : ""}`}
+          style={set ? undefined : { background: FILL, color: ON_FILL }}
+        >
+          {/* The app's marks: a plus until it's on the watchlist, a bookmark once it is. */}
+          {set ? <span className="inline-flex" style={{ color: TYPE }}><MarkBookmark size={20} className="-mx-1 -my-[3px]" /></span> : <MarkAdd size={20} className="-mx-1 -my-[3px]" />}
+          {set ? "Added" : "Add"}
+        </button>
+      )}
+    </KeyConfirm>
   );
 }

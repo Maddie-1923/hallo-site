@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Movie, Review, Show } from "@/lib/archive";
 import { deleteReview, saveReview } from "@/lib/library-actions";
-import { HeartRating } from "./HeartRating";
+import { StarRating } from "./StarRating";
 import { MarkHeart } from "./marks";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
@@ -110,7 +110,7 @@ export function ReviewPanel({
         <div className={`${tile} flex items-center justify-between gap-3`}>
           <div>
             <div className="eyebrow">Rating</div>
-            <HeartRating value={score} onChange={setScore} label={`Rate ${title} out of ten`} size={16} className="!justify-start mt-2" />
+            <StarRating value={score} onChange={setScore} label={`Rate ${title} out of ten`} size={16} className="!justify-start mt-2" />
             <div className="text-xs text-dim mt-1 h-4">
               {score !== null && (
                 <>

@@ -8,6 +8,7 @@ import { MarkAdd, MarkBookmark, MarkHeart, MarkList, MarkReview, MarkRewatched }
 import { MarkMenu } from "./MarkMenu";
 import { ReviewDialog } from "./ReviewDialog";
 import { MarkTip } from "./MarkTip";
+import { KeyConfirm } from "./KeyConfirm";
 import type { ListOption } from "@/lib/marks";
 
 export type MarkState = { loved: boolean; watched: boolean; tracked: boolean; rating: number | null; listIDs: string[]; review: Review | null; moods: string[]; rewatch: boolean };
@@ -119,25 +120,32 @@ export function MarkButtons({ target, state, lists = [], size = "sm", variant = 
             <MarkList size={22} />
           </button>
         </MarkTip>
+        {/* Add, the app's confirmed key: the plate never changes; once the
+            title is saved the plus becomes a bookmark in the list blue, after
+            the stroke has run round the key. */}
         <MarkTip label={watchTip} className="flex-1">
-          <button
-            type="button"
-            aria-label={
-              target.kind === "movie"
-                ? shown.watched ? `Remove ${title} from your watchlist` : `Add ${title} to your watchlist`
-                : shown.watched ? `Stop watching ${title}` : `Start watching ${title}`
-            }
-            aria-pressed={shown.watched}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleWatch();
-            }}
-            className={`${key} ${shown.watched ? "" : "bg-piece text-dim hover:text-ink"}`}
-            style={shown.watched ? { background: "var(--key-on-plate)", color: "var(--key-on-glyph)" } : undefined}
-          >
-            {shown.watched ? <MarkBookmark size={22} /> : <MarkAdd size={22} />}
-          </button>
+          <KeyConfirm active={shown.watched} tint="var(--list-fill)" corner={10} className="w-full">
+            {(set) => (
+              <button
+                type="button"
+                aria-label={
+                  target.kind === "movie"
+                    ? shown.watched ? `Remove ${title} from your watchlist` : `Add ${title} to your watchlist`
+                    : shown.watched ? `Stop watching ${title}` : `Start watching ${title}`
+                }
+                aria-pressed={shown.watched}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleWatch();
+                }}
+                className={`${key} bg-piece ${set ? "" : "text-dim hover:text-ink"}`}
+                style={set ? { color: "var(--list-fill)" } : undefined}
+              >
+                {set ? <MarkBookmark size={22} /> : <MarkAdd size={22} />}
+              </button>
+            )}
+          </KeyConfirm>
         </MarkTip>
         {menuPanel}
         {logDialog}

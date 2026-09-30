@@ -1,16 +1,12 @@
-import { TightHeart } from "./marks";
 import { MarkTip } from "./MarkTip";
 
-// How a rating out of ten is drawn on the profile: the app's ten hearts, or
-// ten stars to see whether stars read better. Either way one mark a point,
-// half a mark for a half point. One switch, so trying one against the other
-// is a one-word change.
-const SHAPE: "hearts" | "stars" = "stars";
+// How a rating out of ten is drawn: ten stars, one a point, half a star for
+// a half point.
 
 // `rows` of 2 sets the ten marks as two rows of five, so each can be drawn
 // larger in a narrow column.
 export function RatingMarks({ value, size = 10, rows = 1 }: { value: number; size?: number; rows?: 1 | 2 }) {
-  const glyph = SHAPE === "stars" ? <Star size={size * 1.15} /> : <TightHeart size={size} />;
+  const glyph = <Star size={size * 1.15} />;
   return (
     // Its caption is the site's own (MarkTip), on the same short delay as
     // every other caption, rather than the browser's slower title tooltip.
@@ -37,7 +33,7 @@ export function RatingMarks({ value, size = 10, rows = 1 }: { value: number; siz
   );
 }
 
-function Star({ size }: { size: number }) {
+export function Star({ size }: { size: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden className="block shrink-0">
       {/* The same star with a rounded outline in its own colour, which

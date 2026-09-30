@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Movie, Review, Show } from "@/lib/archive";
 import { poster as posterURL, year } from "@/lib/archive";
 import { saveReview } from "@/lib/library-actions";
-import { HeartRating } from "./HeartRating";
+import { StarRating } from "./StarRating";
 import { MOODS, MOOD_LIMIT } from "@/lib/moods";
 import { MarkRewatched } from "./marks";
 import { SeriesBadge } from "./SeriesBadge";
@@ -194,7 +194,7 @@ export function ReviewDialog({
                 the dialog. */}
             <div>
               <div className="eyebrow">Rating</div>
-              <HeartRating value={score} onChange={setScore} label={`Rate ${title} out of ten`} size={22} className="!justify-start mt-1.5" />
+              <StarRating value={score} onChange={setScore} label={`Rate ${title} out of ten`} size={22} className="!justify-start mt-1.5" />
             </div>
 
             {/* The app's moods, drawn the way the app draws them: a grid of

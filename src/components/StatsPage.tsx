@@ -262,7 +262,7 @@ export function StatsPage({ input, watchTime, owner }: { input: StatsInput; watc
           <div className="grid gap-2">
             <div className="grid gap-2 grid-cols-3">
               <Tile value={input.genres[0]?.name ?? "—"} label="Top genre" small />
-              <Tile value={avg == null ? "—" : `♥ ${avg.toFixed(1)}`} label="Average rating" />
+              <Tile value={avg == null ? "—" : `★ ${avg.toFixed(1)}`} label="Average rating" />
               <Tile value={rated.length.toLocaleString("en")} label="Rated" />
             </div>
             <div className="grid gap-2 md:grid-cols-2">
@@ -284,7 +284,7 @@ export function StatsPage({ input, watchTime, owner }: { input: StatsInput; watc
                 )}
               </Panel>
               <Panel title="Ratings">
-                {rated.length ? <Bars bars={buckets.map((n, i) => ({ label: `${i + 1}`, tip: `♥ ${i + 1}: ${n} rated`, value: n }))} height={120} /> : <Empty>Rate something and your spread shows here.</Empty>}
+                {rated.length ? <Bars bars={buckets.map((n, i) => ({ label: `${i + 1}`, tip: `★ ${i + 1}: ${n} rated`, value: n }))} height={120} /> : <Empty>Rate something and your spread shows here.</Empty>}
               </Panel>
             </div>
             <Panel title="Highest rated">
@@ -300,7 +300,7 @@ export function StatsPage({ input, watchTime, owner }: { input: StatsInput; watc
                           )}
                         </span>
                         <span className="block mt-1 text-[12px] truncate group-hover:text-accent">{r.title}</span>
-                        <span className="block text-[12px] text-dim">♥ {r.rating}</span>
+                        <span className="block text-[12px] text-dim">★ {r.rating}</span>
                       </Link>
                     </li>
                   ))}

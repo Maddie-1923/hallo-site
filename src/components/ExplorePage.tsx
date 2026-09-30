@@ -104,8 +104,8 @@ function Layout({ slides, kind, children }: { slides: Awaited<ReturnType<typeof 
       <header>
         <CinemaHero slides={slides} />
       </header>
-      <main className="flex-1 w-full px-[clamp(16px,3.2vw,64px)] pb-16">
-        <div className="mt-6">
+      <main className="flex-1 w-full px-[clamp(16px,3.2vw,64px)] pb-16 [&>section:first-of-type]:!mt-5">
+        <div className="mt-5">
           <KindSwitch kind={kind} />
         </div>
         {children}

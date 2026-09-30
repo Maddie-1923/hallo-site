@@ -1,16 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { TightHeart } from "./marks";
+import { Star } from "./RatingMarks";
 
-// Ten hearts in half steps, the app's scale. A mouse can point at half a
-// heart, so the left half of each one previews and sets the half score and
+// Ten stars in half steps, the app's scale. A mouse can point at half a
+// star, so the left half of each one previews and sets the half score and
 // the right half the whole — the app's tap-again toggle isn't needed here. A
-// half heart is the dim outline with the lit heart clipped to its left half
-// on top, the same way the app builds it from two symbols. The hearts are
-// `TightHeart`, cropped to their bounds so the row sits as tight as
-// Letterboxd's stars.
-export function HeartRating({
+// half star is the dim one with the lit star clipped to its left half on
+// top, the same way the app builds it from two symbols.
+export function StarRating({
   value,
   onChange,
   label,
@@ -21,7 +19,7 @@ export function HeartRating({
   value: number | null;
   onChange: (next: number) => void;
   label: string;
-  /** Width of one heart in px; the slot is a pixel wider. */
+  /** Width of one star in px; the slot is a pixel wider. */
   size?: number;
   disabled?: boolean;
   className?: string;
@@ -49,12 +47,12 @@ export function HeartRating({
             disabled={disabled}
             onClick={(e) => onChange(pointed(e))}
             className="relative flex items-center justify-center cursor-pointer disabled:cursor-default"
-            style={{ width: size + 1, height: size + 6, color: lit && !half ? "var(--loved)" : off }}
+            style={{ width: size + 1, height: size + 6, color: lit && !half ? "var(--accent-fill)" : off }}
           >
-            <TightHeart size={size} />
+            <Star size={size} />
             {half && (
-              <span aria-hidden className="absolute inset-0 flex items-center justify-center" style={{ color: "var(--loved)", clipPath: "inset(0 50% 0 0)" }}>
-                <TightHeart size={size} />
+              <span aria-hidden className="absolute inset-0 flex items-center justify-center" style={{ color: "var(--accent-fill)", clipPath: "inset(0 50% 0 0)" }}>
+                <Star size={size} />
               </span>
             )}
           </button>

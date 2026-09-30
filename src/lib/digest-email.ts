@@ -115,8 +115,8 @@ function rowsCard(label: string, rows: Row[]) {
   return `<tr><td style="${CARD};padding:20px 22px 8px"><div style="${LABEL}">${esc(label)}</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px">${items}</table></td></tr>`;
 }
 
-function hearts(rating: number) {
-  return `<span style="color:#d9485c">&#9829;</span> ${String(rating).replace(/\.0$/, "")}/10`;
+function stars(rating: number) {
+  return `<span style="color:#c99a2e">&#9733;</span> ${String(rating).replace(/\.0$/, "")}/10`;
 }
 
 function friendLine(f: FriendItem) {
@@ -124,9 +124,9 @@ function friendLine(f: FriendItem) {
   const t = `<b style="color:#122042">${esc(f.title)}</b>`;
   switch (f.kind) {
     case "review":
-      return `${who} reviewed ${t}${f.rating != null ? ` &nbsp;${hearts(f.rating)}` : ""}`;
+      return `${who} reviewed ${t}${f.rating != null ? ` &nbsp;${stars(f.rating)}` : ""}`;
     case "rating":
-      return `${who} rated ${t}${f.rating != null ? ` &nbsp;${hearts(f.rating)}` : ""}`;
+      return `${who} rated ${t}${f.rating != null ? ` &nbsp;${stars(f.rating)}` : ""}`;
     case "loved":
       return `${who} loved ${t} &nbsp;<span style="color:#d9485c">&#9829;</span>`;
     case "list":
