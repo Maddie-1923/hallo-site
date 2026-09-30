@@ -88,5 +88,5 @@ export function GoogleButton({ clientID, onSignedIn, onError }: { clientID: stri
 
   // A blocker that stops Google's script leaves the email way in, said so.
   if (failed) return <p className="m-0 text-[12.5px] text-dim text-center">Google sign-in couldn&apos;t load here. Use your email below.</p>;
-  return <div ref={box} className="w-full min-h-10 flex justify-center [color-scheme:light]" />;
+  return <div ref={box} className="w-full min-h-11 flex justify-center [color-scheme:light]" />;
 }
