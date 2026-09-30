@@ -159,17 +159,19 @@ export function CinemaHero({ slides, corner, banner = false }: { slides: CinemaS
                 style={slideStyle(i, at, leaving)}
               />
             ))}
-            {/* Shade where the words are and nowhere else: up from the bottom,
+            {/* Shade where the words are and nowhere else, on layer 2: above
+                the pictures (the one showing is layer 1 for its slide-in) and
+                below the words (layer 10). Up from the bottom,
                 where both columns now sit, and down the left as far as the
                 description runs (a little past the middle on a wide screen),
                 so a bright picture can't wash the small text out. The top
                 right of the picture is left alone. */}
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.86) 0%, rgba(12,10,9,.55) 28%, rgba(12,10,9,.2) 45%, transparent 58%)" }} />
-            <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(12,10,9,.88) 0%, rgba(12,10,9,.72) 30%, rgba(12,10,9,.42) 46%, rgba(12,10,9,.14) 58%, transparent 68%)" }} />
+            <div aria-hidden className="absolute inset-0 z-[2] pointer-events-none" style={{ background: "linear-gradient(0deg, rgba(12,10,9,.86) 0%, rgba(12,10,9,.55) 28%, rgba(12,10,9,.2) 45%, transparent 58%)" }} />
+            <div aria-hidden className="absolute inset-0 z-[2] pointer-events-none" style={{ background: "linear-gradient(90deg, rgba(12,10,9,.88) 0%, rgba(12,10,9,.72) 30%, rgba(12,10,9,.42) 46%, rgba(12,10,9,.14) 58%, transparent 68%)" }} />
             {/* And deeper in the bottom-left corner, where every word sits, so a
                 bright picture (a blue sky, a white kitchen) can't wash them
                 out; it fades before the middle, leaving the faces alone. */}
-            <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 90% at 0% 100%, rgba(12,10,9,.78) 0%, rgba(12,10,9,.55) 40%, rgba(12,10,9,.2) 64%, transparent 80%)" }} />
+            <div aria-hidden className="absolute inset-0 z-[2] pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 90% at 0% 100%, rgba(12,10,9,.78) 0%, rgba(12,10,9,.55) 40%, rgba(12,10,9,.2) 64%, transparent 80%)" }} />
 
             {/* The words ride with their picture: each slide's words are a
                 layer that slides in and out with the same timing as the image,
