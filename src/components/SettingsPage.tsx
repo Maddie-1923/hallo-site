@@ -191,12 +191,12 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
           </Field>
         </Group>
 
-        <Group id="notifications" title="Notifications" note="By email. Episode and release reminders are in the app.">
+        <Group id="notifications" title="Notifications" note="By email, at most one an hour, gathered into one. They're always in the bell on the site too. Episode and release reminders are in the app.">
           <Field label="Someone follows you">{toggle("notifyFollows")}</Field>
           <Field label="Likes on your reviews and lists">{toggle("notifyLikes")}</Field>
           <Field label="Replies and comments">{toggle("notifyComments")}</Field>
           <Field label="Weekly digest" hint="What's new from your shows and the people you follow, once a week.">
-            {toggle("weeklyDigest")}
+            <span className="text-[12.5px] text-dim">Coming soon</span>
           </Field>
         </Group>
 

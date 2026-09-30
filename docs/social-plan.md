@@ -386,9 +386,24 @@ Everything the app does, on a computer.
      account;
    - /feed: what the people you follow reviewed, rated, loved and listed,
      linked from the account menu.
-   Tested with made-up members in rolled-back transactions. Not yet: email
-   notifications, real Members page data (4.5), batching the per-review
-   like lookups on long title pages.
+   Tested with made-up members in rolled-back transactions. Not yet: real
+   Members page data (4.5), batching the per-review like lookups on long
+   title pages.
+   Email notifications built 30 Sep (`20260930100000_notification_emails.sql`,
+   `app/api/notification-emails`, `lib/notification-email.ts`): one email
+   per person per batch, at most one an hour, two minutes' grace, nothing
+   already read on the site, nothing about someone blocked either way,
+   nothing for a kind switched off in Settings, nothing older than a day.
+   The database claims each batch (`claim_notification_emails`, service role
+   only) and the site sends it through Resend from
+   notifications@kodigo.pro; a refused batch goes back
+   (`release_notification_emails`). Every email has an unsubscribe link
+   (`/unsubscribe`, which asks first; signed, no sign-in) and the one-click
+   List-Unsubscribe header (`/api/email/unsubscribe`). For opening:
+   RESEND_API_KEY and CRON_SECRET on Vercel, then `supabase/cron/
+   notification-emails.sql` on live; Apple's "Register Email Sources" must
+   list notifications@kodigo.pro (and signin@) for Hide My Email addresses.
+   The weekly digest is "Coming soon" in Settings until it's built.
 5. **Members page:** popular reviewers, most followed, new members.
    `/members` built 29 Sep with made-up members (`lib/members.ts`), each with
    a sample profile; linked from the profile menu.
