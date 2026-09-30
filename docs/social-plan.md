@@ -648,6 +648,14 @@ members' reviews on the episode's page (`publicReviewsOfEpisode`), on
 their author's profile with "S2 E4" (key `e1396-2-4`, its own review
 page), in the feed and in the weekly digest.
 
+## Pinned reviews (built 30 Sep 2026)
+
+Up to three of the owner's reviews first on their profile's Reviews tab,
+marked Pinned (`profiles.pinned_reviews`, review keys, checked in the
+database; `setPinnedReview` in `lib/profile-actions.ts`; "Pin to profile" /
+"Unpin" on the owner's own cards, `components/PinReview.tsx`). The tab now
+lists every review, not the latest twelve.
+
 ## Email alerts (planned 30 Sep 2026)
 
 Beside the weekly digest (Sunday 9am, the person's own time zone, off by

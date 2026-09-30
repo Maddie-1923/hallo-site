@@ -32,3 +32,19 @@ export async function saveProfile(input: { display_name?: string | null; banner_
   return {};
 }
 
+/** Pins a review to the top of the owner's profile, or unpins it; three at most. */
+export async function setPinnedReview(key: string, on: boolean): Promise<{ error?: string }> {
+  if (!/^[mse][0-9-]{1,30}$/.test(key)) return { error: "That isn't a review." };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Sign in first." };
+  const { data } = await supabase.from("profiles").select("pinned_reviews, username").eq("user_id", user.id).maybeSingle();
+  const now = ((data?.pinned_reviews as string[] | null) ?? []).filter((k) => k !== key);
+  if (on && now.length >= 3) return { error: "You can pin three reviews. Unpin one first." };
+  const { error } = await supabase.from("profiles").update({ pinned_reviews: on ? [...now, key] : now }).eq("user_id", user.id);
+  if (error) return { error: "That didn't save. Try again." };
+  if (data?.username) revalidatePath(`/u/${data.username}`);
+  return {};
+}

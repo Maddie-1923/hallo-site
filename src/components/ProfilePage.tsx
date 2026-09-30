@@ -77,7 +77,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                   v.reviews.length > 0 ? (
                     <div className="grid gap-2">
                       {v.reviews.map((r) => (
-                        <ReviewCard key={r.key} r={r} username={v.username} avatar={v.avatar} />
+                        <ReviewCard key={r.key} r={r} username={v.username} avatar={v.avatar} owner={v.viewerFollow === "self"} />
                       ))}
                     </div>
                   ) : (

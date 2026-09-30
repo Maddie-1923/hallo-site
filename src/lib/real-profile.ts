@@ -1,7 +1,7 @@
 import "server-only";
 import { accountsOpen } from "@/lib/accounts";
 import { isArchive, type LibraryArchive } from "@/lib/archive";
-import { profileFromArchive, withAiredEpisodes, withUpToDate, type LikedItem, type PublicProfileView } from "@/lib/public-profile";
+import { profileFromArchive, withAiredEpisodes, withUpToDate, type LikedItem, type PublicProfileView, type ReviewEntry } from "@/lib/public-profile";
 import { createClient } from "@/lib/supabase/server";
 import { image } from "@/lib/tmdb";
 
@@ -24,10 +24,16 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   const supabase = await createClient();
   const { data: p } = await supabase
     .from("profiles")
-    .select("user_id, username, display_name, avatar_path, banner_path, location, quote, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, category_privacy")
+    .select("user_id, username, display_name, avatar_path, banner_path, location, quote, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, category_privacy, pinned_reviews")
     .eq("username", username.toLowerCase())
     .maybeSingle();
   if (!p?.username) return null;
+  // The reviews they pinned, first on the tab in the order pinned.
+  const pins = (p.pinned_reviews as string[] | null) ?? [];
+  const pinFirst = <T extends { reviews: ReviewEntry[] }>(v: T): T => ({
+    ...v,
+    reviews: [...pins.flatMap((k) => v.reviews.filter((r) => r.key === k).map((r) => ({ ...r, pinned: true }))), ...v.reviews.filter((r) => !pins.includes(r.key))],
+  });
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -55,7 +61,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
     const { data: row } = await supabase.from("libraries").select("archive").eq("user_id", user.id).maybeSingle();
     const archive = row && isArchive(row.archive) ? row.archive : EMPTY;
     const view = profileFromArchive(archive, meta, true);
-    return { ...(await withAiredEpisodes(await withUpToDate(view, archive))), ...social, isPrivate: p.is_private, categoryPrivacy: (p.category_privacy as Record<string, boolean>) ?? {} };
+    return { ...pinFirst(await withAiredEpisodes(await withUpToDate(view, archive))), ...social, isPrivate: p.is_private, categoryPrivacy: (p.category_privacy as Record<string, boolean>) ?? {} };
   }
   // Everyone else: their public copy, drawn by the same code as the owner's
   // view. None for a private profile unless the viewer is an approved
@@ -69,7 +75,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   // aren't even in the public copy.
   const hiddenCategories = (p.category_privacy as Record<string, boolean>) ?? {};
   return {
-    ...view,
+    ...pinFirst(view),
     ...social,
     categories: view.categories.filter((c) => !hiddenCategories[c.id]),
     // Private, and the viewer isn't an approved follower: only the card.

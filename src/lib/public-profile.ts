@@ -57,6 +57,8 @@ export interface ReviewEntry extends ProfileTitle {
   loved?: boolean;
   likes?: number;
   comments?: number;
+  /** One of the three the owner pinned to the top of their profile. */
+  pinned?: boolean;
 }
 
 /**
@@ -385,7 +387,8 @@ export function profileFromArchive(
     genres,
     // The whole diary: the page shows it a year at a time.
     diary,
-    reviews: reviewList.slice(0, 12),
+    // Every review: the tab lists them all, pinned ones first.
+    reviews: reviewList,
     categories,
   };
 }
