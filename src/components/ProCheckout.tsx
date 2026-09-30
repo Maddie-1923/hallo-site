@@ -21,7 +21,7 @@ async function openPortal() {
 
 // The Pro page's offer: the two plans, pressed to choose (yearly to begin
 // with), and under them the way to pay. On the web it's Stripe, in US dollars,
-// charged today: the free week belongs to the app. Until checkout is set up
+// charged today: the free trial belongs to the app. Until checkout is set up
 // and accounts are open the button says so and does nothing; signed out it
 // asks you to sign in; already Pro, it manages the subscription instead.
 export function ProCheckout({ ready, signedIn, subscription }: { ready: boolean; signedIn: boolean; subscription: Subscription | null }) {
@@ -127,7 +127,7 @@ export function ProCheckout({ ready, signedIn, subscription }: { ready: boolean;
 
       <span aria-disabled className="inline-flex items-center justify-center gap-2 min-h-10 py-2 px-4 rounded-full bg-[color:var(--quiet)] text-dim text-[12.5px] font-semibold">
         <AppleMark />
-        Or start a free week in the app · coming soon
+        Or try 7 days free in the app · coming soon
       </span>
     </div>
   );

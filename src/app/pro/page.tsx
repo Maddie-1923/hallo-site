@@ -17,14 +17,14 @@ export const metadata: Metadata = {
 // what Pro adds, what stays free, and the questions people ask. One
 // subscription covers the app and the website (see the plan's "Free and
 // Pro"). The web sells it through Stripe in US dollars, charged at checkout;
-// the free week is the app's (ProCheckout). Until Stripe's keys are set and
+// the free trial is the app's, Apple's 7-day introductory offer (ProCheckout). Until Stripe's keys are set and
 // accounts are open, the button says so and nothing can charge.
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 
 const adds: [string, string][] = [
   ["Up next", "Every show you're partway through in one queue, and each episode or whole season checked off in a tap."],
   ["Calendar and reminders", "What airs next, counted down to the day, with a reminder when an episode lands or a film opens."],
-  ["The app and the website in step", "One library on your phone and on a computer, and the same subscription unlocks both."],
+  ["The app and the website in step", "One library on your phone and on a computer."],
   ["Stats worth reading", "Hours watched, what you finish and what you drift away from, and the genres and moods you return to."],
   ["Your services first", "Hide what you've watched, and show only what's on the services you pay for."],
   ["No ads", "Pro members never see an ad on the website. The app has none for anyone."],
@@ -41,8 +41,7 @@ const table: [string, boolean, boolean, boolean][] = [
 ];
 
 const faq: [string, string][] = [
-  ["How does the free week work?", "It's in the app: it starts the first time you open it, with everything unlocked and no card needed. Subscribing on the website starts Pro straight away, with no free week."],
-  ["Does one subscription cover the app and the website?", "Yes. Kodigo Pro is one subscription, whichever you start it on."],
+  ["How does the free trial work?", "New subscribers in the app get 7 days free through the App Store. After that the plan you picked renews automatically, unless you cancel at least 24 hours before the trial ends. Subscribing on the website starts Pro straight away."],
   ["Is the website free to use?", "Reading is free for everyone: title pages, profiles, reviews and lists. A free account lets you rate, review and follow. Tracking is Pro."],
   ["Can I cancel?", "Any time. Subscribed on the website, use Manage subscription in Settings; in the app, your Apple Account's subscriptions. Pro lasts to the end of the period you paid for."],
   ["What currency is it in?", "The website charges in US dollars; your bank converts it if your card is in another currency. The App Store shows its price in your own currency."],

@@ -82,7 +82,7 @@ export default function Terms() {
         </p>
         <p>
           <strong>Bought in the app.</strong> Subscriptions bought through the App Store or Google Play,
-          including the free week in the app, are sold and billed by Apple or Google under their own
+          including the free trial in the app, are sold and billed by Apple or Google under their own
           terms. Cancel them and ask for refunds in your Apple Account or Google Play subscriptions; Kodigo
           can&apos;t cancel or refund them for you.
         </p>
