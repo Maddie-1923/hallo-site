@@ -8,6 +8,7 @@ import { Day } from "./Day";
 import type { Movie, Show } from "@/lib/archive";
 import { trackMovie, trackShow } from "@/lib/library-actions";
 import { nightTokens } from "@/lib/theme";
+import { MarkAdd, MarkBookmark } from "./marks";
 
 export interface CinemaSlide {
   key: string;
@@ -39,7 +40,7 @@ export interface CinemaSlide {
 
 // The accent is the visitor's theme, the same one the day/night pill, the
 // nav and every button on the site carry. Fills (the watchlist chip, the
-// rating chip, Trailer, the position bar) take the theme's fill for the
+// rating chip, the position bar) take the theme's fill for the
 // current scheme and its lettering, so they match the pill exactly; the one
 // accent-coloured word in a title takes the theme's night tone, because it is
 // type on a darkened photograph and a Day tone like Lagune's deep blue would
@@ -293,7 +294,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
           {[
             s.year,
             s.certification ? (
-              <span key="c" className="px-1 rounded-[2px] font-bold text-[11px] leading-[17px]" style={{ background: FILL, color: ON_FILL }}>
+              <span key="c" className="px-[5px] rounded-[2px] font-semibold text-[10.5px] leading-[16px] tracking-[.02em] [text-shadow:none]" style={{ background: FILL, color: ON_FILL }}>
                 {s.certification}
               </span>
             ) : null,
@@ -310,8 +311,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             <button
               type="button"
               onClick={() => onTrailer(s.trailer!)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-[6px] rounded-[3px] text-[12px] font-bold uppercase tracking-[.04em] cursor-pointer transition-[filter] hover:brightness-110"
-              style={{ background: FILL, color: ON_FILL }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-[6px] rounded-[3px] bg-white text-[#141312] text-[12px] font-bold uppercase tracking-[.04em] cursor-pointer transition-colors hover:bg-white/85"
             >
               <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden>
                 <path d="M2 1l9 5-9 5z" fill="currentColor" />
@@ -405,10 +405,9 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
       className="inline-flex items-center gap-1.5 px-3 py-[6px] rounded-[3px] text-[12px] font-semibold cursor-pointer transition-[filter] hover:brightness-110"
       style={{ background: FILL, color: ON_FILL }}
     >
-      <svg width="15" height="15" viewBox="0 0 24 24" fill={on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden>
-        <path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z" />
-      </svg>
-      {on ? "In your library" : "Add to watchlist"}
+      {/* The app's marks: a plus until it's on the watchlist, a bookmark once it is. */}
+      {on ? <MarkBookmark size={20} className="-mx-1" /> : <MarkAdd size={20} className="-mx-1" />}
+      {on ? "Added" : "Add"}
     </button>
   );
 }
