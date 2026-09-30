@@ -1,0 +1,12 @@
+<!-- Supabase → Authentication → Emails → Templates: paste into both
+     "Magic Link" and "Confirm signup". Subject: Your Kodigo sign-in code: {{ .Token }} -->
+<div style="margin:0;padding:32px 16px;background:#17191c;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#eeeff2">
+  <div style="max-width:420px;margin:0 auto;background:#2a2d32;border-radius:14px;padding:28px 24px">
+    <div style="font-size:22px;font-weight:700;letter-spacing:.04em">KODIGO</div>
+    <p style="margin:20px 0 6px;font-size:15px;line-height:1.5">Here's your code to sign in:</p>
+    <div style="margin:0 0 20px;font-size:34px;font-weight:700;letter-spacing:.3em;color:#eeeff2">{{ .Token }}</div>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.5">Type it on the sign-in page, or tap the button to sign in on this device.</p>
+    <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#6faecf;color:#1a1a19;text-decoration:none;font-weight:600;font-size:15px;padding:12px 22px;border-radius:999px">Sign in to Kodigo</a>
+    <p style="margin:24px 0 0;font-size:13px;line-height:1.5;color:#8c9097">The code and the button work once, for an hour. If you didn't ask to sign in, you can ignore this email.</p>
+  </div>
+</div>

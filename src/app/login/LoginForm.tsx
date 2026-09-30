@@ -17,6 +17,9 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | undefined>(initialError);
+  // The code from the same email, for when the link opens on another device.
+  const [code, setCode] = useState("");
+  const [checking, setChecking] = useState(false);
 
   const callback = () => `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
@@ -33,6 +36,24 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
     }
   }
 
+  async function useCode(e: React.FormEvent) {
+    e.preventDefault();
+    const token = code.replace(/\D/g, "");
+    if (token.length < 6) return;
+    setChecking(true);
+    setError(undefined);
+    const { error } = await createClient().auth.verifyOtp({ email: email.trim(), token, type: "email" });
+    if (error) {
+      setError(/expired/i.test(error.message) ? "That code has expired. Ask for a new email." : "That code isn't right. Check it and try again.");
+      setChecking(false);
+      return;
+    }
+    // A full page load, not router.push: /auth/continue is a route handler
+    // that redirects, and the new session cookie has to reach the server.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign(`/auth/continue?next=${encodeURIComponent(next)}`);
+  }
+
   async function continueWith(provider: Provider) {
     setError(undefined);
     const { error } = await createClient().auth.signInWithOAuth({ provider, options: { redirectTo: callback() } });
@@ -44,8 +65,43 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
       <div className="mt-4 rounded-[10px] bg-card border border-hair p-3" role="status">
         <div className="text-[12.5px] font-semibold text-ink">Check your email</div>
         <p className="m-0 mt-1 text-[12.5px] leading-[1.6] text-mid-tone">
-          A sign-in link is on its way to <b className="font-semibold text-ink">{email.trim()}</b>. It works once and lasts an hour. Nothing there? Look in spam, or{" "}
-          <button type="button" onClick={() => setState("idle")} className="text-accent font-semibold cursor-pointer hover:underline">
+          We sent a link and a 6-digit code to <b className="font-semibold text-ink">{email.trim()}</b>. Open the link, or type the code here. Either works once, for an hour.
+        </p>
+        <form onSubmit={useCode} className="mt-3 grid gap-2">
+          <label className="sr-only" htmlFor="code">
+            6-digit code
+          </label>
+          <input
+            id="code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            autoFocus
+            maxLength={10}
+            placeholder="123456"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/[^\d\s]/g, ""))}
+            className={`${input} text-center tracking-[.3em] text-[16px]`}
+          />
+          <button className={primary} type="submit" disabled={checking || code.replace(/\D/g, "").length < 6}>
+            {checking ? "Signing in…" : "Sign in with the code"}
+          </button>
+        </form>
+        {error && (
+          <p className="m-0 mt-2 text-[12.5px] text-loved" role="alert">
+            {error}
+          </p>
+        )}
+        <p className="m-0 mt-2 text-[12px] text-dim">
+          Nothing there? Look in spam, or{" "}
+          <button
+            type="button"
+            onClick={() => {
+              setState("idle");
+              setCode("");
+              setError(undefined);
+            }}
+            className="text-accent font-semibold cursor-pointer hover:underline"
+          >
             try another address
           </button>
           .
