@@ -6,6 +6,9 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ExpandableText } from "@/components/ExpandableText";
 import { Section, SectionCard } from "@/components/TitleParts";
 import { personPage, type PersonCredit } from "@/lib/tmdb";
+import { accountsOpen } from "@/lib/accounts";
+import { optionalLibrary } from "@/lib/library";
+import { previewArchive } from "@/lib/profile-previews";
 import { Day } from "@/components/Day";
 
 // A person's page, reached from a title's cast, crew, director or creator:
@@ -23,13 +26,17 @@ export default async function PersonPage({ params }: PageProps<"/person/[id]">) 
   const { id } = await params;
   const personID = Number(id);
   if (!Number.isInteger(personID)) notFound();
-  const p = await personPage(personID);
+  const [p, seen] = await Promise.all([personPage(personID), seenKeys()]);
   if (!p) notFound();
+  // "You've seen 7 of these": everything they're in, counted once.
+  const all = new Set([...p.acted, ...p.directed, ...p.crew].map((c) => `${c.kind[0]}${c.id}`));
+  const seenHere = [...all].filter((k) => seen.has(k)).length;
 
   const facts = [
     p.knownFor && { label: "Known for", value: p.knownFor },
     p.born && { label: "Born", value: <Day iso={p.born} /> },
     p.place && { label: "From", value: p.place },
+    seen.size > 0 && { label: "You've seen", value: `${seenHere} of ${all.size}` },
   ].filter(Boolean) as { label: string; value: React.ReactNode }[];
 
   return (
@@ -67,20 +74,21 @@ export default async function PersonPage({ params }: PageProps<"/person/[id]">) 
           </div>
         </div>
 
-        {p.knownFor === "Acting" && p.acted.length > 0 && <Credits title="Acting" items={p.acted} showRole />}
-        {p.directed.length > 0 && <Credits title="Directed" items={p.directed} showRole={p.directed.some((c) => c.role === "Creator")} />}
-        {p.knownFor !== "Acting" && p.acted.length > 0 && <Credits title="Acting" items={p.acted} showRole />}
-        {p.crew.length > 0 && <Credits title="Crew" items={p.crew} showRole />}
+        {p.knownFor === "Acting" && p.acted.length > 0 && <Credits title="Acting" items={p.acted} showRole seen={seen} />}
+        {p.directed.length > 0 && <Credits title="Directed" items={p.directed} showRole={p.directed.some((c) => c.role === "Creator")} seen={seen} />}
+        {p.knownFor !== "Acting" && p.acted.length > 0 && <Credits title="Acting" items={p.acted} showRole seen={seen} />}
+        {p.crew.length > 0 && <Credits title="Crew" items={p.crew} showRole seen={seen} />}
       </main>
       <SiteFooter />
     </div>
   );
 }
 
-function Credits({ title, items, showRole }: { title: string; items: PersonCredit[]; showRole: boolean }) {
+function Credits({ title, items, showRole, seen }: { title: string; items: PersonCredit[]; showRole: boolean; seen: Set<string> }) {
   const today = new Date().toISOString().slice(0, 10);
+  const watched = items.filter((c) => seen.has(`${c.kind[0]}${c.id}`)).length;
   return (
-    <Section title={`${title} · ${items.length}`} small>
+    <Section title={`${title} · ${items.length}${seen.size ? ` · Seen ${watched}` : ""}`} small>
       <SectionCard>
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(130px,1fr))]">
           {items.map((c) => {
@@ -93,6 +101,13 @@ function Credits({ title, items, showRole }: { title: string; items: PersonCredi
                     <img src={c.poster} alt="" loading="lazy" className="w-full h-full object-cover" />
                   )}
                   {coming && <span className="absolute top-2 left-2 rounded-[6px] bg-accent-fill text-on-accent px-1.5 py-[2px] text-[10.5px] font-bold tracking-[.12em] uppercase">Coming</span>}
+                  {seen.has(`${c.kind[0]}${c.id}`) && (
+                    <span title="You've seen it" className="absolute right-1.5 bottom-1.5 w-6 h-6 rounded-full bg-accent-fill text-on-accent flex items-center justify-center">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" aria-label="Seen">
+                        <path d="M5 12.5l4.5 4.5L19 7.5" />
+                      </svg>
+                    </span>
+                  )}
                 </div>
                 <div className="px-2.5 pt-2 pb-2.5">
                   <div className="text-[12.5px] leading-[16px] font-semibold truncate group-hover:text-accent transition-colors">{c.title}</div>
@@ -111,3 +126,13 @@ function Credits({ title, items, showRole }: { title: string; items: PersonCredi
   );
 }
 
+/** What the viewer has seen, by key ("m123", "s456"): films watched and
+    series with an episode watched. Their own library when signed in, the
+    preview's in development; nothing otherwise. */
+async function seenKeys(): Promise<Set<string>> {
+  const a = (accountsOpen ? (await optionalLibrary()).archive : null) ?? (await previewArchive());
+  if (!a) return new Set();
+  const films = new Set([...(a.watchedMovies ?? []), ...Object.keys(a.movieWatchedDates ?? {}).map(Number), ...a.movies.filter((t) => t.status === "Watched").map((t) => t.movie.id)]);
+  const shows = new Set(a.watched.map((k) => Number(k.split("-")[0])));
+  return new Set([...[...films].map((id) => `m${id}`), ...[...shows].map((id) => `s${id}`)]);
+}
