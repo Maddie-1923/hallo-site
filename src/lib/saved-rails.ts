@@ -502,3 +502,23 @@ export function applyDeleteRail(a: LibraryArchive, id: string) {
   a.savedRails = (a.savedRails ?? []).filter((r) => !(typeof r.id === "string" && sameID(r.id, id)));
   if (a.savedRailOrder) a.savedRailOrder = a.savedRailOrder.filter((x) => !sameID(String(x), id));
 }
+
+/** A filter in a link: the app's JSON, base64url, so a filtered Explore page
+    can be shared, bookmarked and rendered on the server. */
+export function filterParam(f: DiscoverFilter): string {
+  const bytes = new TextEncoder().encode(JSON.stringify(encodeFilter(f)));
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+export function readFilterParam(param: string | undefined): DiscoverFilter | null {
+  if (!param) return null;
+  try {
+    const bin = atob(param.replace(/-/g, "+").replace(/_/g, "/"));
+    const json = new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+    return cleanFilter(readFilter(JSON.parse(json)));
+  } catch {
+    return null;
+  }
+}

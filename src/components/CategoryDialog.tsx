@@ -22,12 +22,15 @@ import {
   STATUSES,
   suggestedName,
   TYPES,
+  filterParam,
   type Catalogue,
   type DiscoverFilter,
 } from "@/lib/saved-rails";
 
 // The app's filter sheet as a dialog: build a filter and keep it as a custom
 // category, a row of its own on Explore (and on the phone, after a sync).
+// `browse` is the same sheet behind Explore's Filter button: no name, and
+// its button shows what matches rather than saving anything.
 // The same dialog edits a category's filter, with the catalogue fixed, since
 // a category belongs to one tab and remaking it would send it to the bottom.
 
@@ -124,6 +127,8 @@ export function CategoryDialog({
   counts,
   kinds = [...CATALOGUES],
   edit,
+  initial,
+  browse = false,
   onClose,
 }: {
   /** The visitor's country's services, biggest first. */
@@ -134,12 +139,15 @@ export function CategoryDialog({
   kinds?: Catalogue[];
   /** A category being edited, rather than one being made. */
   edit?: { id: string; name: string; catalogue: Catalogue; filter: DiscoverFilter };
+  /** A filter to start from: the one on screen when Filter or Save is pressed on a results page. */
+  initial?: DiscoverFilter;
+  browse?: boolean;
   onClose: () => void;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string>();
-  const [f, setF] = useState<DiscoverFilter>(() => (edit ? { ...edit.filter, kinds: [edit.catalogue] } : emptyFilter(kinds)));
+  const [f, setF] = useState<DiscoverFilter>(() => (edit ? { ...edit.filter, kinds: [edit.catalogue] } : initial ? { ...initial } : emptyFilter(kinds)));
   // The name follows the suggestion until somebody types in it.
   const [typed, setTyped] = useState<string | null>(null);
   const [allServices, setAllServices] = useState(false);
@@ -205,13 +213,31 @@ export function CategoryDialog({
     });
   }
 
+  function show() {
+    router.push(`/explore/filter?f=${filterParam(shows ? f : { ...f, statuses: [], types: [] })}`);
+    onClose();
+  }
+
   const select = "field !w-auto !h-8 !py-0 !px-2.5 !text-[12.5px]";
   return (
     <Sheet
-      label={edit ? `Edit ${edit.name}` : "New category"}
-      title={edit ? `Edit ${edit.name}` : "New category"}
+      label={browse ? "Filter" : edit ? `Edit ${edit.name}` : "New category"}
+      title={browse ? "Filter" : edit ? `Edit ${edit.name}` : "New category"}
       onClose={onClose}
       footer={
+        browse ? (
+          <>
+            <button type="button" className="text-[15px] font-semibold text-dim hover:text-ink cursor-pointer mr-auto" onClick={() => setF(emptyFilter(f.kinds))}>
+              Clear
+            </button>
+            <button type="button" className="text-[15px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="button" className="btn !py-2.5 !px-6 !text-[15px]" onClick={show}>
+              Show results
+            </button>
+          </>
+        ) : (
         <>
           {(error || note) && (
             <span className="text-sm mr-auto" style={error ? { color: "var(--movies)" } : undefined} role={error ? "alert" : undefined}>
@@ -225,10 +251,11 @@ export function CategoryDialog({
             {pending ? "Saving…" : edit ? "Save" : "Save as category"}
           </button>
         </>
+        )
       }
     >
       <div className="flex flex-col gap-5">
-        {!edit && (
+        {!edit && !browse && (
           <label className="block">
             <div className="flex items-baseline gap-3">
               <div className="eyebrow">Name</div>
@@ -243,7 +270,7 @@ export function CategoryDialog({
         {!edit && (
           // Both makes two categories, one on each tab — the app's rule, since
           // a row can't be half on Shows and half on Movies.
-          <Section title="Show me" note={f.kinds.length > 1 ? "Makes one category for each" : undefined}>
+          <Section title="Show me" note={f.kinds.length > 1 && !browse ? "Makes one category for each" : undefined}>
             {CATALOGUES.map((c) => (
               <Chip
                 key={c}
@@ -255,7 +282,7 @@ export function CategoryDialog({
                 }}
               >
                 {c}
-                {counts[c] >= RAIL_LIMIT ? " (full)" : ""}
+                {!browse && counts[c] >= RAIL_LIMIT ? " (full)" : ""}
               </Chip>
             ))}
           </Section>
@@ -409,22 +436,41 @@ export function CategoryDialog({
   );
 }
 
-/** "+ New category" beside Explore's switch, for a signed-in visitor. */
-export function NewCategoryButton({ services, counts, kinds }: { services: Service[]; counts: Record<Catalogue, number>; kinds: Catalogue[] }) {
+/** "+ New category" on Explore, for a signed-in visitor; on a results page
+    it starts from the filter on screen. */
+export function NewCategoryButton({ services, counts, kinds, initial, label = "New category" }: { services: Service[]; counts: Record<Catalogue, number>; kinds: Catalogue[]; initial?: DiscoverFilter; label?: string }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 h-[38px] px-4 rounded-full bg-card border border-hair text-[13px] font-bold text-dim hover:text-ink cursor-pointer transition-colors"
-      >
+      <button type="button" onClick={() => setOpen(true)} className={PILL}>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden>
           <path d="M12 5v14M5 12h14" />
         </svg>
-        New category
+        {label}
       </button>
-      {open && <CategoryDialog services={services} counts={counts} kinds={kinds} onClose={() => setOpen(false)} />}
+      {open && <CategoryDialog services={services} counts={counts} kinds={kinds} initial={initial} onClose={() => setOpen(false)} />}
     </>
   );
 }
+
+/** Explore's Filter: the app's Browse sheet, open to everyone. It leads to
+    the titles that match, where a signed-in visitor can keep the filter as
+    a category. */
+export function FilterButton({ services, kinds, initial, count = 0 }: { services: Service[]; kinds: Catalogue[]; initial?: DiscoverFilter; count?: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)} className={PILL}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden>
+          <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+          <circle cx="16" cy="7" r="2" />
+          <circle cx="10" cy="17" r="2" />
+        </svg>
+        Filter{count > 0 ? ` · ${count}` : ""}
+      </button>
+      {open && <CategoryDialog browse services={services} counts={{ Shows: 0, Movies: 0 }} kinds={kinds} initial={initial} onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
+const PILL = "inline-flex items-center gap-1.5 h-[38px] px-4 rounded-full bg-card border border-hair text-[13px] font-bold text-dim hover:text-ink cursor-pointer transition-colors";

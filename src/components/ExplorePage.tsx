@@ -9,7 +9,7 @@ import { markLookup } from "@/lib/marks";
 import { accountsOpen } from "@/lib/accounts";
 import { regionName, visitorRegion } from "@/lib/region";
 import { AdSlot } from "@/components/AdSlot";
-import { NewCategoryButton } from "@/components/CategoryDialog";
+import { FilterButton, NewCategoryButton } from "@/components/CategoryDialog";
 import { CategoryMenu } from "@/components/CategoryMenu";
 import { CATALOGUES, orderedRails, railCounts, type Catalogue } from "@/lib/saved-rails";
 import type { LibraryArchive } from "@/lib/archive";
@@ -33,6 +33,8 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
   const place = regionName(region);
   // Started now, awaited with the rest, so the custom rows cost no extra wait.
   const mine = customCategories(lib.archive, kind, region);
+  // The Filter sheet's services, for everyone (the category rows fetch their own).
+  const services = regionServices(region, 60);
 
   if (kind === "all") {
     const [trendingShows, trendingMovies, inCinemas, airing, comingFilms, comingShows, topFilms, topShows, soonShows, soonFilms] = await Promise.all([
@@ -50,7 +52,7 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
     const slides = await billboard(trendingShows, trendingMovies, lib.archive, region, { shows: soonShows, movies: soonFilms });
     const shown = new Set(slides.map((s) => s.key));
     return (
-      <Layout slides={slides} kind={kind} mine={await mine}>
+      <Layout slides={slides} kind={kind} mine={await mine} services={await services}>
         <Row title="Trending this week" href="/explore/rail/trending" items={interleave(asMovies(trendingMovies), asShows(trendingShows)).filter((x) => !shown.has(x.key))} marks={marks} />
         <Row title={`In cinemas · ${place}`} href="/explore/rail/in-cinemas" items={asMovies(inCinemas)} marks={marks} />
         <Row title="New episodes this week" href="/explore/rail/new-episodes" items={asShows(airing)} marks={marks} />
@@ -73,7 +75,7 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
     const slides = await billboard(trending, [], lib.archive, region, { shows: soon });
     const shown = new Set(slides.map((s) => s.key));
     return (
-      <Layout slides={slides} kind={kind} mine={await mine}>
+      <Layout slides={slides} kind={kind} mine={await mine} services={await services}>
         <Row title="Trending this week" href="/explore/rail/trending-series" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} />
         <Row title="New episodes this week" href="/explore/rail/new-episodes" items={asShows(airing)} marks={marks} />
         <AdSlot place="rows" className="mt-8" />
@@ -95,7 +97,7 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
   const slides = await billboard([], trending, lib.archive, region, { movies: soon });
   const shown = new Set(slides.map((s) => s.key));
   return (
-    <Layout slides={slides} kind={kind} mine={await mine}>
+    <Layout slides={slides} kind={kind} mine={await mine} services={await services}>
       <Row title="Trending this week" href="/explore/rail/trending-films" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} />
       <Row title={`In cinemas · ${place}`} href="/explore/rail/in-cinemas" items={asMovies(inCinemas)} marks={marks} />
       <AdSlot place="rows" className="mt-8" />
@@ -106,7 +108,7 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
   );
 }
 
-function Layout({ slides, kind, mine, children }: { slides: Awaited<ReturnType<typeof billboard>>; kind: Kind; mine: Categories | null; children: React.ReactNode }) {
+function Layout({ slides, kind, mine, services, children }: { slides: Awaited<ReturnType<typeof billboard>>; kind: Kind; mine: Categories | null; services: Service[]; children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
@@ -114,9 +116,15 @@ function Layout({ slides, kind, mine, children }: { slides: Awaited<ReturnType<t
         <CinemaHero slides={slides} />
       </header>
       <main className="flex-1 w-full px-[clamp(16px,3.2vw,64px)] pb-16 [&>section:first-of-type]:!mt-5">
+        {/* The switch and Filter on the left, New category on the right. */}
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <KindSwitch kind={kind} />
-          {mine && <NewCategoryButton services={mine.services} counts={mine.counts} kinds={kindCatalogues(kind)} />}
+          <FilterButton services={services} kinds={kindCatalogues(kind)} />
+          {mine && (
+            <div className="ml-auto">
+              <NewCategoryButton services={mine.services} counts={mine.counts} kinds={kindCatalogues(kind)} />
+            </div>
+          )}
         </div>
         {children}
         {mine?.rows}
