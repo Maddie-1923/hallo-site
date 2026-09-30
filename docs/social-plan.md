@@ -394,6 +394,15 @@ Everything the app does, on a computer.
    seen X of these".
 4. **Search tabs** for members, lists and reviews, beside titles and people.
 
+   Step 5 finished 30 Sep: `/search` rebuilt in the site's design with tabs
+   (Titles, People, Members, Lists, Reviews, each counted; the tab is in the
+   address); person pages say "You've seen X of these" overall and per
+   section and mark the seen ones; the Lists hub ranks real likes (this week
+   and all time) and shows Recently updated and your own lists by account;
+   Browse narrows a decade to one year (`/decade/1990s/year/1994`). Left out:
+   featured and by-topic list rows (lists don't carry genres, and featuring
+   needs someone to pick).
+
 ### 6. Safety and policies (before anything opens)
 
 1. **Safety**, required before the site opens, and by Apple guideline 1.2 for

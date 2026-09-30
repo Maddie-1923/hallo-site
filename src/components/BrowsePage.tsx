@@ -41,7 +41,7 @@ export function BrowsePage({ filters: f, first, services }: { filters: Filters; 
 
   const chips: [string, Partial<Filters>][] = [
     ...(genreName ? [[genreName, { genre: undefined }] as [string, Partial<Filters>]] : []),
-    ...(f.decade ? [[f.decade, { decade: undefined }] as [string, Partial<Filters>]] : []),
+    ...(f.decade ? [[f.year ?? f.decade, f.year ? { year: undefined } : { decade: undefined, year: undefined }] as [string, Partial<Filters>]] : []),
     ...(f.on ?? []).map((s) => [serviceName(s), { on: f.on!.filter((x) => x !== s) }] as [string, Partial<Filters>]),
     ...(f.network ? [[NETWORKS.find(([, n]) => slug(n) === f.network)?.[1] ?? f.network, { network: undefined }] as [string, Partial<Filters>]] : []),
     ...(f.status ? [[STATUSES.find(([s]) => s === f.status)?.[1] ?? f.status, { status: undefined }] as [string, Partial<Filters>]] : []),
@@ -84,15 +84,28 @@ export function BrowsePage({ filters: f, first, services }: { filters: Filters; 
                 </Option>
               ))}
             </Pick>
-            <Pick label={f.decade ?? "Decade"} on={!!f.decade}>
-              <Option on={!f.decade} onClick={() => go({ decade: undefined })}>
+            <Pick label={f.year ?? f.decade ?? "Decade"} on={!!f.decade}>
+              <Option on={!f.decade} onClick={() => go({ decade: undefined, year: undefined })}>
                 Any time
               </Option>
               {DECADES.map((d) => (
-                <Option key={d} on={d === f.decade} onClick={() => go({ decade: d })}>
+                <Option key={d} on={d === f.decade && !f.year} onClick={() => go({ decade: d, year: undefined })}>
                   {d}
                 </Option>
               ))}
+              {/* Once a decade is chosen, its years, to narrow it to one. */}
+              {f.decade && (
+                <>
+                  <div className="px-3 pt-2 pb-1 text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">{f.decade} by year</div>
+                  {Array.from({ length: 10 }, (_, i) => String(Number(f.decade!.slice(0, 4)) + i))
+                    .filter((y) => Number(y) <= new Date().getFullYear() + 1)
+                    .map((y) => (
+                      <Option key={y} on={y === f.year} onClick={() => go({ year: y })}>
+                        {y}
+                      </Option>
+                    ))}
+                </>
+              )}
             </Pick>
             <Pick label={f.on?.length ? (f.on.length === 1 ? serviceName(f.on[0]) : `${f.on.length} services`) : "Where to watch"} on={!!f.on?.length} wide>
               {mine.length > 0 && (
@@ -161,7 +174,7 @@ export function BrowsePage({ filters: f, first, services }: { filters: Filters; 
                   <span aria-hidden className="text-dim">×</span>
                 </button>
               ))}
-              <button type="button" onClick={() => go({ genre: undefined, decade: undefined, on: undefined, network: undefined, status: undefined })} className="text-[12.5px] text-dim hover:text-ink cursor-pointer px-1">
+              <button type="button" onClick={() => go({ genre: undefined, decade: undefined, year: undefined, on: undefined, network: undefined, status: undefined })} className="text-[12.5px] text-dim hover:text-ink cursor-pointer px-1">
                 Clear all
               </button>
             </div>

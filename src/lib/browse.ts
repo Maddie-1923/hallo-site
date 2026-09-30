@@ -9,6 +9,7 @@ export interface Filters {
   kind: Kind;
   genre?: string; // slug
   decade?: string; // "1990s"
+  year?: string; // "1994", within the decade
   on?: string[]; // service slugs
   sort: Sort;
   network?: string; // slug, series only
@@ -63,11 +64,14 @@ export function parse(segments: string[] = []): Filters {
     const [key, v] = [rest[i], rest[i + 1]];
     if (key === "genre") f.genre = v;
     else if (key === "decade" && DECADES.includes(v)) f.decade = v;
+    else if (key === "year" && /^(19|20)\d\d$/.test(v)) f.year = v;
     else if (key === "on") f.on = v.split("+").filter(Boolean);
     else if (key === "sort" && SORTS.some(([s]) => s === v)) f.sort = v as Sort;
     else if (key === "network" && f.kind === "series") f.network = v;
     else if (key === "status" && f.kind === "series" && STATUSES.some(([s]) => s === v)) f.status = v as Filters["status"];
   }
+  // A year only counts inside its own decade.
+  if (f.year && (!f.decade || f.year.slice(0, 3) !== f.decade.slice(0, 3))) delete f.year;
   return f;
 }
 
@@ -76,6 +80,7 @@ export function path(f: Filters): string {
   const parts = ["/browse", f.kind];
   if (f.genre) parts.push("genre", f.genre);
   if (f.decade) parts.push("decade", f.decade);
+  if (f.decade && f.year) parts.push("year", f.year);
   if (f.on?.length) parts.push("on", f.on.join("+"));
   if (f.kind === "series" && f.network) parts.push("network", f.network);
   if (f.kind === "series" && f.status) parts.push("status", f.status);

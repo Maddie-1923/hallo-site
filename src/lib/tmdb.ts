@@ -994,6 +994,7 @@ export async function discoverTitles(q: {
   kind: "films" | "series";
   genre?: number;
   decade?: string;
+  year?: string;
   providers?: number[];
   network?: number;
   status?: "airing" | "ended" | "cancelled";
@@ -1015,9 +1016,11 @@ export async function discoverTitles(q: {
     region: tv ? undefined : q.region,
   };
   if (q.decade) {
-    const y = Number(q.decade.slice(0, 4));
+    // A year narrows the decade to itself.
+    const y = Number((q.year ?? q.decade).slice(0, 4));
+    const span = q.year ? 0 : 9;
     params[`${dateKey}.gte`] = `${y}-01-01`;
-    params[`${dateKey}.lte`] = [`${y + 9}-12-31`, params[`${dateKey}.lte`] as string | undefined].filter(Boolean).sort()[0];
+    params[`${dateKey}.lte`] = [`${y + span}-12-31`, params[`${dateKey}.lte`] as string | undefined].filter(Boolean).sort()[0];
   }
   if (q.providers?.length) {
     params.with_watch_providers = q.providers.join("|");

@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const f = parse((await params).filters);
   const genre = GENRES[f.kind].find(([, n]) => slug(n) === f.genre)?.[1];
   const network = NETWORKS.find(([, n]) => slug(n) === f.network)?.[1];
-  const bits = [genre, f.kind === "films" ? "films" : "series", f.decade && `from the ${f.decade}`, network && `on ${network}`].filter(Boolean).join(" ");
+  const bits = [genre, f.kind === "films" ? "films" : "series", (f.year ? `from ${f.year}` : f.decade && `from the ${f.decade}`), network && `on ${network}`].filter(Boolean).join(" ");
   return { title: `${bits.charAt(0).toUpperCase()}${bits.slice(1)} — Kodigo` };
 }
 
