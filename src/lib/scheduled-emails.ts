@@ -160,7 +160,7 @@ async function friendsWeek(db: SupabaseClient, uid: string, start: string): Prom
   if (!ids.length) return [];
   const since = `${start}T00:00:00Z`;
   const [entries, lists, profiles] = await Promise.all([
-    db.from("public_entries").select("user_id, kind, tmdb_id, title, poster_path, rating, reaction, review, spoilers, updated_at").in("user_id", ids).neq("kind", "episode").gte("updated_at", since).order("updated_at", { ascending: false }).limit(40),
+    db.from("public_entries").select("user_id, kind, tmdb_id, episode, title, poster_path, rating, reaction, review, spoilers, updated_at").in("user_id", ids).or("kind.neq.episode,review.not.is.null").gte("updated_at", since).order("updated_at", { ascending: false }).limit(40),
     db.from("public_lists").select("user_id, id, name, titles, updated_at").in("user_id", ids).gte("updated_at", since).order("updated_at", { ascending: false }).limit(10),
     db.from("profiles").select("user_id, username, suspended_at").in("user_id", ids),
   ]);
@@ -170,7 +170,9 @@ async function friendsWeek(db: SupabaseClient, uid: string, start: string): Prom
     const name = who.get(e.user_id);
     if (!name || (!e.review && e.rating == null && e.reaction !== "loved")) continue;
     const kind: FriendItem["kind"] = e.review && !e.spoilers ? "review" : e.rating != null ? "rating" : "loved";
-    items.push({ who: name, kind, title: e.title, href: e.review ? `/u/${name}/review/${e.kind === "movie" ? "m" : "s"}${e.tmdb_id}` : `/${e.kind}/${e.tmdb_id}`, poster: image.poster(e.poster_path, "w185"), rating: e.rating == null ? null : Number(e.rating), text: kind === "review" ? e.review : null, at: e.updated_at, rank: kind === "review" ? 0 : 1 });
+    const ep = e.kind === "episode" && e.episode ? e.episode.split("-") : null;
+    const key = ep ? `e${e.tmdb_id}-${ep[0]}-${ep[1]}` : `${e.kind === "movie" ? "m" : "s"}${e.tmdb_id}`;
+    items.push({ who: name, kind, title: ep ? `${e.title} S${ep[0]} E${ep[1]}` : e.title, href: e.review ? `/u/${name}/review/${key}` : `/${e.kind}/${e.tmdb_id}`, poster: image.poster(e.poster_path, "w185"), rating: e.rating == null ? null : Number(e.rating), text: kind === "review" ? e.review : null, at: e.updated_at, rank: kind === "review" ? 0 : 1 });
   }
   for (const l of lists.data ?? []) {
     const name = who.get(l.user_id);

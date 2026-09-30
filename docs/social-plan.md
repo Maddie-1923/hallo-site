@@ -641,6 +641,13 @@ rated or loved it, each to their review or profile (`titleRatings` in
 `lib/public-reads.ts`, `RatingsSummary` in `components/TitleReviews.tsx`).
 Hidden when there's nothing to show.
 
+## Episode reviews (built 30 Sep 2026)
+
+Writing one was already on each episode's page (Your take). Reading them:
+members' reviews on the episode's page (`publicReviewsOfEpisode`), on
+their author's profile with "S2 E4" (key `e1396-2-4`, its own review
+page), in the feed and in the weekly digest.
+
 ## Email alerts (planned 30 Sep 2026)
 
 Beside the weekly digest (Sunday 9am, the person's own time zone, off by

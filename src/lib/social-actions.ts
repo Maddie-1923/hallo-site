@@ -305,7 +305,7 @@ export async function loadFeed(): Promise<FeedItem[] | null> {
   const ids = (f ?? []).map((x) => x.followee);
   if (!ids.length) return [];
   const [entries, lists, who] = await Promise.all([
-    m.supabase.from("public_entries").select("user_id, key, kind, tmdb_id, title, poster_path, rating, reaction, review, spoilers, updated_at").in("user_id", ids).neq("kind", "episode").order("updated_at", { ascending: false }).limit(80),
+    m.supabase.from("public_entries").select("user_id, key, kind, tmdb_id, episode, title, poster_path, rating, reaction, review, spoilers, updated_at").in("user_id", ids).or("kind.neq.episode,review.not.is.null").order("updated_at", { ascending: false }).limit(80),
     m.supabase.from("public_lists").select("user_id, id, name, titles, updated_at").in("user_id", ids).order("updated_at", { ascending: false }).limit(20),
     people(m.supabase, ids),
   ]);
@@ -313,14 +313,16 @@ export async function loadFeed(): Promise<FeedItem[] | null> {
   for (const e of entries.data ?? []) {
     const w = who.get(e.user_id);
     if (!w) continue;
-    const short = `${e.kind === "movie" ? "m" : "s"}${e.tmdb_id}`;
+    // An episode's review: its own page, key and label ("S2 E4").
+    const ep = e.kind === "episode" && e.episode ? e.episode.split("-") : null;
+    const short = ep ? `e${e.tmdb_id}-${ep[0]}-${ep[1]}` : `${e.kind === "movie" ? "m" : "s"}${e.tmdb_id}`;
     items.push({
       key: `${e.user_id}:${e.key}`,
       who: w,
       at: e.updated_at,
       kind: e.review ? "review" : e.rating != null ? "rating" : "loved",
-      title: e.title,
-      href: `/${e.kind}/${e.tmdb_id}`,
+      title: ep ? `${e.title} · S${ep[0]} E${ep[1]}` : e.title,
+      href: ep ? `/show/${e.tmdb_id}/season/${ep[0]}/episode/${ep[1]}` : `/${e.kind}/${e.tmdb_id}`,
       poster: image.poster(e.poster_path, "w342"),
       rating: e.rating == null ? null : Number(e.rating),
       text: e.review,

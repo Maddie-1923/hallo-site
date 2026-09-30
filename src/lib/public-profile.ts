@@ -262,8 +262,18 @@ export function profileFromArchive(
   const reviewList: ReviewEntry[] = [];
   for (const [key, rv] of Object.entries(reviews)) {
     const [kind, id] = key.split(":");
+    if (!rv.text?.trim()) continue;
+    // A review of one episode: the series' picture, the episode's own page
+    // and key ("e1396-1-2"), and which episode it is.
+    if (kind === "episode") {
+      const [sid, season, episode] = id.split("-").map(Number);
+      const show = shows.get(sid);
+      if (!show || !season || !episode) continue;
+      reviewList.push({ ...showTitle(show), key: `e${sid}-${season}-${episode}`, href: `/show/${sid}/season/${season}/episode/${episode}`, episode: `S${season} E${episode}`, text: rv.text, date: rv.watchedOn ?? rv.modified?.slice(0, 10) ?? null, rating: ratings[key] ?? null, spoilers: rv.spoilers ?? false });
+      continue;
+    }
     const t = kind === "show" ? (shows.get(Number(id)) ? showTitle(shows.get(Number(id))!) : null) : movies.get(Number(id)) ? movieTitle(movies.get(Number(id))!) : null;
-    if (!t || !rv.text?.trim()) continue;
+    if (!t) continue;
     reviewList.push({ ...t, text: rv.text, date: rv.watchedOn ?? rv.modified?.slice(0, 10) ?? null, rating: ratings[key] ?? null, spoilers: rv.spoilers ?? false });
   }
   reviewList.sort((x, y) => (y.date ?? "").localeCompare(x.date ?? ""));

@@ -9,6 +9,7 @@ import { People } from "@/components/People";
 import { TitleCredits } from "@/components/TitleCredits";
 import { TitleActions } from "@/components/TitleActions";
 import { ReviewsSection } from "@/components/TitleReviews";
+import { publicReviewsOfEpisode } from "@/lib/public-reads";
 import { YourReview } from "@/components/YourReview";
 import { EpisodesSection, HeaderCard, TitleBento, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { optionalLibrary } from "@/lib/library";
@@ -137,7 +138,7 @@ export default async function EpisodePage({ params }: Params) {
             take beside them, as the keys sit beside About. */}
         <div className="mt-8 grid gap-8 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start">
           <div className="grid gap-8 min-w-0">
-            <ReviewsSection reviews={[]} />
+            <ReviewsSection reviews={await publicReviewsOfEpisode(showID, ep.season, ep.episode)} />
           </div>
           <div className="lg:pl-2 min-w-0">
             <Section title="Your take" small>

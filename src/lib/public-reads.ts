@@ -59,6 +59,38 @@ export async function publicReviewsOfTitle(kind: "movie" | "show", id: number): 
   });
 }
 
+/** Members' reviews of one episode, for its page. */
+export async function publicReviewsOfEpisode(showID: number, season: number, episode: number): Promise<{ review: ReviewEntry; username: string; avatar: string | null }[]> {
+  if (!accountsOpen) return [];
+  const { data } = await (await createClient())
+    .from("public_entries")
+    .select("user_id, title, poster_path, backdrop_path, year, rating, reaction, review, spoilers, watched_on, rewatch, updated_at")
+    .eq("kind", "episode")
+    .eq("tmdb_id", showID)
+    .eq("episode", `${season}-${episode}`)
+    .not("review", "is", null)
+    .order("updated_at", { ascending: false })
+    .limit(50);
+  const who = await members((data ?? []).map((r) => r.user_id));
+  return (data ?? []).flatMap((r) => {
+    const w = who.get(r.user_id);
+    if (!w || !r.review) return [];
+    const review: ReviewEntry = {
+      ...titleOf("show", showID, r),
+      key: `e${showID}-${season}-${episode}`,
+      href: `/show/${showID}/season/${season}/episode/${episode}`,
+      episode: `S${season} E${episode}`,
+      text: r.review,
+      date: r.watched_on ?? r.updated_at.slice(0, 10),
+      rating: r.rating == null ? null : Number(r.rating),
+      spoilers: r.spoilers,
+      rewatch: r.rewatch,
+      loved: r.reaction === "loved",
+    };
+    return [{ review, username: w.username, avatar: w.avatar }];
+  });
+}
+
 type ListRow = { user_id: string; id: string; name: string; detail: string | null; titles: { kind: "show" | "movie"; id: number; title: string; poster_path: string | null; backdrop_path: string | null; year: string | null }[] };
 
 function toList(r: ListRow, w: Who): ListView {
