@@ -92,11 +92,11 @@ export function GoogleButton({ clientID, onSignedIn, onError, onHeight }: { clie
   useEffect(() => {
     const el = box.current;
     if (!el || !onHeight) return;
-    // Google puts its button in an iframe inside the box; the box's height is
-    // the button's once that iframe has its size.
+    // The box holds Google's button and nothing else, so once Google has
+    // drawn into it the box's own height is the button's.
     const report = () => {
-      const frame = el.querySelector("iframe");
-      const h = frame?.getBoundingClientRect().height ?? 0;
+      if (!el.querySelector("iframe, div")) return;
+      const h = el.getBoundingClientRect().height;
       if (h > 24) onHeight(Math.round(h));
     };
     const watch = new ResizeObserver(report);
@@ -115,5 +115,5 @@ export function GoogleButton({ clientID, onSignedIn, onError, onHeight }: { clie
 
   // A blocker that stops Google's script leaves the email way in, said so.
   if (failed) return <p className="m-0 text-[12.5px] text-dim text-center">Google sign-in couldn&apos;t load here. Use your email below.</p>;
-  return <div ref={box} className="w-full min-h-11 flex justify-center [color-scheme:light]" />;
+  return <div ref={box} className="w-full flex justify-center items-start [color-scheme:light]" />;
 }
