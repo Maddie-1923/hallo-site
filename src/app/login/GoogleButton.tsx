@@ -46,7 +46,10 @@ async function sha256(text: string) {
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export function GoogleButton({ clientID, onSignedIn, onError }: { clientID: string; onSignedIn: () => void; onError: (message: string) => void }) {
+// Our own button, drawn like Apple's, with Google's sign-in button laid over
+// it invisibly: Google's is drawn at its own size, which never matched, and a
+// click anywhere on ours lands on Google's, so the sign-in is Google's own.
+export function GoogleButton({ clientID, onSignedIn, onError, children }: { clientID: string; onSignedIn: () => void; onError: (message: string) => void; children: React.ReactNode }) {
   const box = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
 
@@ -74,7 +77,6 @@ export function GoogleButton({ clientID, onSignedIn, onError }: { clientID: stri
           size: "large",
           shape: "pill",
           text: "continue_with",
-          logo_alignment: "center",
           width: Math.min(400, box.current.offsetWidth || 320),
         });
       } catch {
@@ -88,5 +90,10 @@ export function GoogleButton({ clientID, onSignedIn, onError }: { clientID: stri
 
   // A blocker that stops Google's script leaves the email way in, said so.
   if (failed) return <p className="m-0 text-[12.5px] text-dim text-center">Google sign-in couldn&apos;t load here. Use your email below.</p>;
-  return <div ref={box} className="w-full min-h-11 flex justify-center [color-scheme:light]" />;
+  return (
+    <div className="relative w-full h-11 rounded-full overflow-hidden hover:brightness-95">
+      <div aria-hidden className="pointer-events-none">{children}</div>
+      <div ref={box} className="absolute inset-0 flex items-center justify-center opacity-0 [color-scheme:light]" />
+    </div>
+  );
 }

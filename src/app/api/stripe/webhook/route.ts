@@ -10,7 +10,7 @@ import { stripe } from "@/lib/stripe";
 // nobody else can grant Pro.
 export async function POST(req: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceKey = (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY);
   if (!stripe || !secret || !serviceKey) return new NextResponse("Not configured.", { status: 503 });
 
   let event: Stripe.Event;

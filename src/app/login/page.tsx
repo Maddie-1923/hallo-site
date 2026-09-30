@@ -25,7 +25,7 @@ export default async function Login({ searchParams }: PageProps<"/login">) {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-10 pb-20 flex-1">
-        <div className="max-w-[320px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-3">
+        <div className="max-w-[288px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-3">
           <div className={SHELL}>
             <div className="rounded-shell bg-piece p-4">
               <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">Sign in</h1>
@@ -65,7 +65,7 @@ function NotOpen() {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-10 pb-20 flex-1">
-        <div className="max-w-[320px] mx-auto">
+        <div className="max-w-[288px] mx-auto">
           <div className={SHELL}>
             <div className="rounded-shell bg-piece p-4 grid gap-3">
               <h1 className="!text-[clamp(32px,4.4vw,48px)] !leading-[.95] tracking-[.02em] uppercase">Not open yet</h1>

@@ -9,6 +9,7 @@ import { loadProfile } from "@/lib/profile";
 import { image } from "@/lib/tmdb";
 import { createClient } from "@/lib/supabase/server";
 import { NavLinks } from "./NavLinks";
+import { LogButton } from "./LogButton";
 import { accountsOpen } from "@/lib/accounts";
 import { NotificationsBell } from "./Notifications";
 import { myNotifications } from "@/lib/my-notifications";
@@ -37,6 +38,7 @@ const menuLinks = [
   ["/watchlist", "Watchlist"],
   ["/stats", "Stats"],
   ["/settings", "Settings"],
+  ["/settings#appearance", "Appearance"],
   ["/settings#data", "Import & export"],
   ["/about#themes", "Themes"],
   ["/about", "The app"],
@@ -153,14 +155,20 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
     // Centred on the k, as the signed-out buttons are (7px above the row's
     // middle); only the buttons move, never the logo.
     <div className="ml-auto flex items-center gap-2 sm:gap-4 shrink-0 -translate-y-[7px]">
+      {/* "+ Log", Letterboxd's way in: something watched, logged from any page. */}
+      <LogButton framed={framed} />
       <SearchBoundary />
 
       {/* Their notifications: follows, requests, likes and comments. What's
           airing next is the Calendar's job now. */}
       <NotificationsBell items={notes} framed={framed} />
 
-      <DayNightToggle onPicture={framed} />
-      <ThemeMenu onPicture={framed} />
+      {/* On a phone the bar holds the logo and four buttons at most; day or
+          night and the theme are in the menu's Appearance (Settings). */}
+      <div className="hidden sm:flex items-center gap-4">
+        <DayNightToggle onPicture={framed} />
+        <ThemeMenu onPicture={framed} />
+      </div>
 
       <Menu
         label="Account menu"
@@ -222,7 +230,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
   return (
     <Menu
       label="Profile"
-      width={260}
+      width={240}
       button={
         <span className={`w-9 h-9 rounded-full border flex items-center justify-center ${shell}`}>
           <PersonIcon />
@@ -232,7 +240,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
       {accountsOpen ? (
         <div className="p-4 grid gap-3">
           <p className="m-0 text-sm text-dim">Sign in to keep your diary, ratings, reviews and lists here and on your phone.</p>
-          <Link href="/login" className="btn !py-2 !px-4 text-sm justify-center">
+          <Link href="/login" className="justify-self-start inline-flex items-center h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold no-underline hover:brightness-110">
             Sign in
           </Link>
         </div>
@@ -241,7 +249,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
           <p className="m-0 text-sm text-dim">
             Kodigo accounts on the web are coming soon. Your profile, diary, reviews and lists will live here.
           </p>
-          <Link href="/about" className="btn ghost !py-2 !px-4 text-sm justify-center">
+          <Link href="/about" className="justify-self-start inline-flex items-center h-9 px-5 rounded-full bg-card border border-hair text-ink text-[13px] font-semibold no-underline hover:text-accent">
             Get the app meanwhile
           </Link>
         </div>

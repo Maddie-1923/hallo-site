@@ -13,6 +13,6 @@ export function GET() {
     supabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     tmdbKey: !!process.env.TMDB_API_KEY,
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? null,
-    serviceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    serviceRoleKey: !!(process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY),
   });
 }

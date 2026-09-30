@@ -19,7 +19,8 @@ export async function POST(req: Request) {
   const price = plan && PRICES[plan];
   if (!price) return new NextResponse("Choose monthly or yearly.", { status: 400 });
 
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(req.url).origin;
+  // The address the request came to, so a preview returns to the preview.
+  const site = new URL(req.url).origin;
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [{ price, quantity: 1 }],

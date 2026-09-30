@@ -5,9 +5,9 @@ import { createClient } from "@/lib/supabase/client";
 import { GoogleButton } from "./GoogleButton";
 
 const input = "w-full h-11 px-4 rounded-full bg-card border border-hair text-[13px] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
-const primary = "w-full h-11 rounded-full bg-accent-fill text-on-accent text-[14px] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-default";
+const primary = "w-full h-11 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-default";
 // Each provider's button in its own colours, as their sign-in guidelines ask,
-// 44px tall with 14px type: the size of Google's own button beside them.
+// 44px tall with 13px type: the size of Google's own button beside them.
 const BRAND: Record<Provider, { label: string; className: string; logo: React.ReactNode }> = {
   apple: { label: "Continue with Apple", className: "bg-black text-white border border-white/20", logo: <AppleLogo /> },
   google: { label: "Continue with Google", className: "bg-white text-[#1f1f1f] border border-[#747775]", logo: <GoogleLogo /> },
@@ -26,7 +26,9 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
   const [code, setCode] = useState("");
   const [checking, setChecking] = useState(false);
 
-  const callback = () => `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+  // Back to the address this page is on: kodigo.pro, a Vercel preview or a
+  // laptop, each its own.
+  const callback = () => `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
   async function sendLink(e: React.FormEvent) {
     e.preventDefault();
@@ -138,9 +140,14 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
     <div className="mt-4 grid gap-2">
       {providers.map((p) =>
         p === "google" && googleID ? (
-          <GoogleButton key={p} clientID={googleID} onSignedIn={afterGoogle} onError={googleError} />
+          <GoogleButton key={p} clientID={googleID} onSignedIn={afterGoogle} onError={googleError}>
+            <span className={`w-full h-11 rounded-full text-[13px] font-medium flex items-center justify-center gap-2.5 ${BRAND.google.className}`}>
+              {BRAND.google.logo}
+              {BRAND.google.label}
+            </span>
+          </GoogleButton>
         ) : (
-          <button key={p} type="button" onClick={() => continueWith(p)} className={`w-full h-11 rounded-full text-[14px] font-medium cursor-pointer flex items-center justify-center gap-2.5 hover:brightness-95 ${BRAND[p].className}`}>
+          <button key={p} type="button" onClick={() => continueWith(p)} className={`w-full h-11 rounded-full text-[13px] font-medium cursor-pointer flex items-center justify-center gap-2.5 hover:brightness-95 ${BRAND[p].className}`}>
             {BRAND[p].logo}
             {BRAND[p].label}
           </button>

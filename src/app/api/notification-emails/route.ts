@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   const db = adminClient();
   if (!key || !db) return NextResponse.json({ error: "Email isn't set up here (RESEND_API_KEY and SUPABASE_SERVICE_ROLE_KEY)." }, { status: 503 });
 
-  const site = (process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin).replace(/\/$/, "");
+  const site = new URL(request.url).origin;
   const { data, error } = await db.rpc("claim_notification_emails", { max_people: 200 });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
