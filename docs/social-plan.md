@@ -677,6 +677,18 @@ sync in `npm run test:rules`). Episodes are Pro like ticking; films free.
 Not yet: rewatching a whole series as a run (start, tick through, finish,
 `rewatchRuns` / `rewatchCounts`), as the app has.
 
+## Speed for many members (30 Sep 2026)
+
+- Likes and comment counts under reviews: every card on a page asks
+  together (`lib/like-batch.ts` → `likeInfoMany`), one request and three
+  queries however many reviews, instead of four queries a card.
+- Members page: each member's numbers kept in `member_stats`, refreshed
+  every ten minutes by pg_cron (`private.refresh_member_stats`,
+  `20260930150000_member_stats.sql`), instead of opening every public
+  library on every visit; the reader's follow state stays live.
+- The database advisor finds no missing indexes; the unused ones are for
+  scale. Later, if needed: cache the Lists page's topics the same way.
+
 ## Email alerts (planned 30 Sep 2026)
 
 Beside the weekly digest (Sunday 9am, the person's own time zone, off by

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { likeInfo, setLike } from "@/lib/social-actions";
+import { setLike } from "@/lib/social-actions";
+import { likeInfoBatched } from "@/lib/like-batch";
 import { TightHeart } from "./marks";
 import { MoreButton, type ReportTarget } from "./SafetySheets";
 
@@ -19,7 +20,7 @@ export function ReviewActions({ likes = 0, comments = 0, title, shareHref, what,
   useEffect(() => {
     if (!owner || !reviewKey) return;
     let stale = false;
-    likeInfo("review", owner, reviewKey)
+    likeInfoBatched("review", owner, reviewKey)
       .then((r) => !stale && r && setLive(r))
       .catch(() => {});
     return () => {

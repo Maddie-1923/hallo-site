@@ -143,6 +143,43 @@ export async function likeInfo(kind: TargetKind, owner: string, target: string):
   return { count: count.count ?? 0, liked: !!mine.data, comments: comments.count ?? 0 };
 }
 
+/**
+ * likeInfo for many at once: everything on a page asks together (lib/
+ * like-batch.ts), so fifty reviews cost one request and three queries rather
+ * than fifty and two hundred. Same answers, in the order asked.
+ */
+export async function likeInfoMany(items: { kind: TargetKind; owner: string; target: string }[]): Promise<({ count: number; liked: boolean; comments: number } | null)[]> {
+  const m = await me();
+  if (!m || !items.length) return items.map(() => null);
+  const list = items.slice(0, 200);
+  const names = [...new Set(list.map((i) => i.owner.toLowerCase()))];
+  const { data: people } = await m.supabase.from("profiles").select("user_id, username").in("username", names);
+  const idOfName = new Map((people ?? []).map((p) => [p.username as string, p.user_id as string]));
+  const ids = [...new Set([...idOfName.values()])];
+  const targets = [...new Set(list.map((i) => i.target))];
+  if (!ids.length) return items.map(() => null);
+  const [likes, comments] = await Promise.all([
+    m.supabase.from("likes").select("kind, owner, target, user_id").in("owner", ids).in("target", targets).limit(20000),
+    m.supabase.from("comments").select("kind, owner, target").in("owner", ids).in("target", targets).limit(20000),
+  ]);
+  const key = (kind: string, owner: string, target: string) => `${kind}|${owner}|${target}`;
+  const count = new Map<string, number>();
+  const mine = new Set<string>();
+  for (const l of likes.data ?? []) {
+    const k = key(l.kind, l.owner, l.target);
+    count.set(k, (count.get(k) ?? 0) + 1);
+    if (m.user && l.user_id === m.user.id) mine.add(k);
+  }
+  const said = new Map<string, number>();
+  for (const c of comments.data ?? []) said.set(key(c.kind, c.owner, c.target), (said.get(key(c.kind, c.owner, c.target)) ?? 0) + 1);
+  return items.map((i, n) => {
+    const id = n < list.length ? idOfName.get(i.owner.toLowerCase()) : undefined;
+    if (!id) return null;
+    const k = key(i.kind, id, i.target);
+    return { count: count.get(k) ?? 0, liked: mine.has(k), comments: said.get(k) ?? 0 };
+  });
+}
+
 export async function setLike(kind: TargetKind, owner: string, target: string, on: boolean): Promise<{ ok: boolean; error?: string; preview?: boolean }> {
   const m = await me();
   if (!m) return { ok: false, preview: true };
