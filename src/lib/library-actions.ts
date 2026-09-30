@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { hasPro } from "@/lib/pro";
-import { applyEpisodeSkipped, applyEpisodeWatched, applyMovieWatched, applyTake, clearTake, type TakeInput, type TakeTarget } from "@/lib/library-rules";
+import { applyDeleteList, applyEpisodeSkipped, applyEpisodeWatched, applyListCover, applyMovieWatched, applySaveList, applyTake, clearTake, type ListInput, type TakeInput, type TakeTarget } from "@/lib/library-rules";
 import { checkText } from "@/lib/word-filter";
 import { applyImportPlan, type ImportPlan } from "@/lib/imports";
 import { CURRENT_VERSION, isArchive, type LibraryArchive, type Movie, type MovieStatus, type Show, type WatchStatus } from "./archive";
@@ -445,4 +445,34 @@ export async function importIntoLibrary(plan: ImportPlan) {
     },
     { pro: true },
   );
+}
+
+// ---- Lists from the profile (lib/library-rules.ts) ----
+
+/** Makes or edits one of the person's lists: its name, description and
+    titles. Free, like the rest of the social side. The name and description
+    are public, so the word filter reads them first. */
+export async function saveList(input: ListInput): Promise<{ error?: string; id?: string }> {
+  const problem = checkText(`${input.name}\n${input.detail}`);
+  if (problem) return { error: problem };
+  let id: string | undefined;
+  const r = await withArchive((a, stamp) => {
+    id = applySaveList(a, input, stamp, () => crypto.randomUUID().toUpperCase());
+  });
+  if (!r.error) revalidatePath("/u", "layout");
+  return r.error ? r : { id };
+}
+
+/** Deletes a list; what was on it stays tracked. */
+export async function removeList(id: string) {
+  const r = await withArchive((a) => applyDeleteList(a, id));
+  if (!r.error) revalidatePath("/u", "layout");
+  return r;
+}
+
+/** A list's picture: a poster from one of its titles, or null for the default. */
+export async function setListPicture(id: string, posterPath: string | null) {
+  const r = await withArchive((a) => applyListCover(a, id, posterPath));
+  if (!r.error) revalidatePath("/u", "layout");
+  return r;
 }

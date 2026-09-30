@@ -127,7 +127,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                 id: "categories",
                 label: "Categories",
                 count: v.categories.length,
-                content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} library={v.owner ? [...v.owner.shows, ...v.owner.films] : []} accountPrivacy={v.categoryPrivacy} /> : <Empty>Nothing in any category yet.</Empty>,
+                content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} library={v.owner ? [...v.owner.shows, ...v.owner.films] : []} accountPrivacy={v.categoryPrivacy} live={v.viewerFollow === "self"} /> : <Empty>Nothing in any category yet.</Empty>,
               },
               // No Favourites tab: the loved titles are the Favorites category.
               { id: "stats", label: "Stats", content: <Dashboard v={v} /> },

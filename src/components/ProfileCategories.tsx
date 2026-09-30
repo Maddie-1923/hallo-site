@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { saveCategoryPrivacy } from "@/lib/account-settings";
+import { useRouter } from "next/navigation";
+import { removeList, saveList, setListPicture } from "@/lib/library-actions";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CategoryEntry, ProfileTitle } from "@/lib/public-profile";
@@ -41,7 +43,24 @@ import { Menu } from "./Menu";
 // choice of order is kept in theirs.
 // `accountPrivacy`: signed in, each category's eye as the account keeps it,
 // which is where changes are saved too.
-export function ProfileCategories({ categories: given, owner = false, username = "", library = [], accountPrivacy }: { categories: CategoryEntry[]; owner?: boolean; username?: string; library?: ProfileTitle[]; accountPrivacy?: Record<string, boolean> }) {
+// `live`: the owner's own real profile, where their lists are the library's
+// (the app's custom lists): making one, editing its name, description and
+// titles, its picture and deleting it all save there (saveList, removeList,
+// setListPicture), so the app has them too. The built-in categories' pictures
+// and the grid's order stay in the browser, as the app keeps them on the phone.
+export function ProfileCategories({ categories: given, owner = false, username = "", library = [], accountPrivacy, live = false }: { categories: CategoryEntry[]; owner?: boolean; username?: string; library?: ProfileTitle[]; accountPrivacy?: Record<string, boolean>; live?: boolean }) {
+  const router = useRouter();
+  const [problem, setProblem] = useState<string | null>(null);
+  const [editing, setEditing] = useState<CategoryEntry | null>(null);
+  const listID = (c: CategoryEntry) => (c.id.startsWith("list:") ? c.id.slice(5) : null);
+  /** Runs a save; says why if it didn't, and redraws the page if it did. */
+  async function persist(save: () => Promise<{ error?: string }>) {
+    setProblem(null);
+    const r = await save().catch(() => ({ error: "That didn't save. Try again." }));
+    if (r.error) setProblem(r.error);
+    else router.refresh();
+    return !r.error;
+  }
   const [made, setMade] = useState<MadeCategory[]>([]);
   const [creating, setCreating] = useState(false);
   const madeKey = `kodigo.made-categories.${username}`;
@@ -84,7 +103,8 @@ export function ProfileCategories({ categories: given, owner = false, username =
   // live, so nothing tracked is lost.
   function remove(c: CategoryEntry) {
     if (!confirm(`Delete ${c.name}? Everything in it stays tracked.`)) return;
-    if (made.some((m) => m.id === c.id)) saveMade(made.filter((m) => m.id !== c.id));
+    if (live && listID(c)) void persist(() => removeList(listID(c)!));
+    else if (made.some((m) => m.id === c.id)) saveMade(made.filter((m) => m.id !== c.id));
     else {
       const next = [...deleted, c.id];
       setDeleted(next);
@@ -133,6 +153,14 @@ export function ProfileCategories({ categories: given, owner = false, username =
     } catch {}
   }, [owner, pictureKey]);
   function choosePicture(id: string, titleKey: string | null) {
+    // A real list's picture is the library's, so the app shows it too: the
+    // chosen title's poster path.
+    const cat = categories.find((c) => c.id === id);
+    if (live && cat && listID(cat)) {
+      const poster = titleKey ? cat.titles.find((t) => t.key === titleKey)?.poster : null;
+      const path = poster?.match(/\/t\/p\/[a-z0-9]+(\/[^/?#]+)$/)?.[1] ?? null;
+      void persist(() => setListPicture(listID(cat)!, path));
+    }
     const next = { ...pictures };
     if (titleKey) next[id] = titleKey;
     else delete next[id];
@@ -264,9 +292,22 @@ export function ProfileCategories({ categories: given, owner = false, username =
           c={open}
           onClose={() => setOpen(null)}
           onDelete={
-            made.some((m) => m.id === open.id)
+            live && listID(open)
               ? () => {
-                  saveMade(made.filter((m) => m.id !== open.id));
+                  void persist(() => removeList(listID(open)!));
+                  setOpen(null);
+                }
+              : made.some((m) => m.id === open.id)
+                ? () => {
+                    saveMade(made.filter((m) => m.id !== open.id));
+                    setOpen(null);
+                  }
+                : undefined
+          }
+          onEdit={
+            live && listID(open)
+              ? () => {
+                  setEditing(open);
                   setOpen(null);
                 }
               : undefined
@@ -276,12 +317,33 @@ export function ProfileCategories({ categories: given, owner = false, username =
       {creating && (
         <NewCategorySheet
           library={library}
-          onCreate={(m) => {
+          onCreate={async (m) => {
+            if (live) {
+              if (await persist(() => saveList({ name: m.name, detail: m.detail ?? "", keys: m.keys }))) setCreating(false);
+              return;
+            }
             saveMade([...made, m]);
             setCreating(false);
           }}
           onClose={() => setCreating(false)}
+          problem={problem}
         />
+      )}
+      {editing && (
+        <NewCategorySheet
+          library={library}
+          initial={{ id: editing.id, name: editing.name, detail: editing.detail ?? null, keys: editing.titles.map((t) => t.key) }}
+          onCreate={async (m) => {
+            if (await persist(() => saveList({ id: listID(editing)!, name: m.name, detail: m.detail ?? "", keys: m.keys }))) setEditing(null);
+          }}
+          onClose={() => setEditing(null)}
+          problem={problem}
+        />
+      )}
+      {problem && !creating && !editing && (
+        <p role="alert" className="m-0 mt-3 text-[12.5px] text-loved">
+          {problem}
+        </p>
       )}
       {choosing && <PicturePicker c={choosing} current={pictures[choosing.id] ?? null} onChoose={(key) => choosePicture(choosing.id, key)} onClose={() => setChoosing(null)} />}
     </div>
@@ -441,7 +503,7 @@ function PicturePicker({ c, current, onChoose, onClose }: { c: CategoryEntry; cu
 
 // A category opened: its posters in a grid, each going to its title page.
 // Laid out like the review sheet: one 16px inset, closing the same ways.
-function CategorySheet({ c, onClose, onDelete, username }: { c: CategoryEntry; onClose: () => void; onDelete?: () => void; username?: string }) {
+function CategorySheet({ c, onClose, onDelete, onEdit, username }: { c: CategoryEntry; onClose: () => void; onDelete?: () => void; onEdit?: () => void; username?: string }) {
   useEffect(() => {
     const onKey = (k: KeyboardEvent) => k.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -469,10 +531,19 @@ function CategorySheet({ c, onClose, onDelete, username }: { c: CategoryEntry; o
             )}
             {/* The app's wording: a category is a way of grouping titles, not
                 a place they live, so deleting one loses nothing tracked. */}
-            {onDelete && (
-              <button type="button" onClick={() => confirm(`Delete ${c.name}? Everything in it stays tracked.`) && onDelete()} className="mt-3 text-[12.5px] text-dim hover:text-loved cursor-pointer">
-                Delete category
-              </button>
+            {(onEdit || onDelete) && (
+              <div className="mt-3 flex flex-wrap gap-4">
+                {onEdit && (
+                  <button type="button" onClick={onEdit} className="text-[12.5px] font-semibold text-accent hover:underline cursor-pointer">
+                    Edit list
+                  </button>
+                )}
+                {onDelete && (
+                  <button type="button" onClick={() => confirm(`Delete ${c.name}? Everything in it stays tracked.`) && onDelete()} className="text-[12.5px] text-dim hover:text-loved cursor-pointer">
+                    Delete category
+                  </button>
+                )}
+              </div>
             )}
           </div>
           <button type="button" onClick={onClose} aria-label="Close" autoFocus className="shrink-0 w-9 h-9 rounded-full bg-card-hi hover:bg-hair text-ink flex items-center justify-center cursor-pointer">
@@ -604,11 +675,14 @@ function NewCategoryTile({ onClick }: { onClick: () => void }) {
 
 // Making a category: its name, a line about what it's for, and the titles
 // in it, picked from the owner's library with a search to narrow it.
-function NewCategorySheet({ library, onCreate, onClose }: { library: ProfileTitle[]; onCreate: (m: MadeCategory) => void; onClose: () => void }) {
-  const [name, setName] = useState("");
-  const [detail, setDetail] = useState("");
+// With `initial`, the same sheet edits a list: its name, description and
+// titles, already filled in.
+function NewCategorySheet({ library, onCreate, onClose, initial, problem }: { library: ProfileTitle[]; onCreate: (m: MadeCategory) => void | Promise<void>; onClose: () => void; initial?: MadeCategory; problem?: string | null }) {
+  const [name, setName] = useState(initial?.name ?? "");
+  const [detail, setDetail] = useState(initial?.detail ?? "");
   const [query, setQuery] = useState("");
-  const [keys, setKeys] = useState<string[]>([]);
+  const [keys, setKeys] = useState<string[]>(initial?.keys ?? []);
+  const [busy, setBusy] = useState(false);
   useEffect(() => {
     const onKey = (k: KeyboardEvent) => k.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -624,18 +698,20 @@ function NewCategorySheet({ library, onCreate, onClose }: { library: ProfileTitl
   const ready = name.trim().length > 0;
   const field = "w-full rounded-[12px] bg-card-hi border border-hair px-3 py-2 text-[12.5px] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
   return createPortal(
-    <div role="dialog" aria-modal="true" aria-label="New category" className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
+    <div role="dialog" aria-modal="true" aria-label={initial ? `Edit ${initial.name}` : "New category"} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <form
         className="w-full sm:max-w-[760px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl"
         onClick={(x) => x.stopPropagation()}
         onSubmit={(e) => {
           e.preventDefault();
-          if (ready) onCreate({ id: `list:web-${Date.now().toString(36)}`, name: name.trim(), detail: detail.trim() || null, keys });
+          if (!ready || busy) return;
+          setBusy(true);
+          void Promise.resolve(onCreate({ id: initial?.id ?? `list:web-${Date.now().toString(36)}`, name: name.trim(), detail: detail.trim() || null, keys })).finally(() => setBusy(false));
         }}
       >
         <div className="p-4 border-b border-hair grid gap-3">
           <div className="flex items-center justify-between gap-3">
-            <h3 className="!text-[clamp(26px,3vw,34px)] !leading-[.95]">New category</h3>
+            <h3 className="!text-[clamp(26px,3vw,34px)] !leading-[.95]">{initial ? "Edit list" : "New category"}</h3>
             <button type="button" onClick={onClose} aria-label="Close" className="shrink-0 w-9 h-9 rounded-full bg-card-hi hover:bg-hair text-ink flex items-center justify-center cursor-pointer">
               <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="block">
                 <path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -671,11 +747,11 @@ function NewCategorySheet({ library, onCreate, onClose }: { library: ProfileTitl
           {shown.length === 0 && <p className="col-span-full m-0 text-[12.5px] text-dim">Nothing in your library matches.</p>}
         </div>
         <div className="p-4 border-t border-hair flex items-center justify-between gap-3">
-          <span className="text-[12.5px] text-dim">
-            {keys.length} {keys.length === 1 ? "title" : "titles"} picked
+          <span className={`text-[12.5px] ${problem ? "text-loved" : "text-dim"}`} role={problem ? "alert" : undefined}>
+            {problem ?? `${keys.length} ${keys.length === 1 ? "title" : "titles"} picked`}
           </span>
-          <button type="submit" disabled={!ready} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
-            Create
+          <button type="submit" disabled={!ready || busy} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+            {busy ? "Saving…" : initial ? "Save" : "Create"}
           </button>
         </div>
       </form>

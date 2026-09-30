@@ -236,9 +236,17 @@ tables; entitlements and safety go there when accounts open.
    - visitors' profiles hide the tabs, Follow and categories the owner has
      turned off; the public copy drops watch dates when both Watchlog and
      Recent activity are off, and never copies a hidden list.
-   Still in the browser: made categories, category pictures and tile order
-   (they belong in the library so the app gets them), and Favourites (card
-   parked).
+   Lists made and edited on the web built 30 Sep (`saveList`, `removeList`,
+   `setListPicture` in `lib/library-actions.ts`, rules in
+   `lib/library-rules.ts`; free, not Pro): on your own profile, New category
+   creates a real list in the library, the list's sheet has Edit list (name,
+   description, titles) and Delete, and choosing a list's picture sets its
+   poster cover, so the app shows all of it. Up to 20 lists, names up to 60
+   characters, the word filter on name and description, only titles in the
+   library. Lists have no deletion record in the archive (the app's rule), so
+   a device that still has a deleted list can bring it back on its next sync.
+   Still in the browser: the built-in categories' pictures and tile order,
+   and Favourites (card parked).
 
 ### 2. The tracker on the web (Pro)
 

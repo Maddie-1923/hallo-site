@@ -191,3 +191,73 @@ export function applyTake(a: LibraryArchive, t: TakeTarget, input: TakeInput, st
     }
   }
 }
+
+// ---- Lists (the person's own categories) ----
+
+/** Library.customListLimit. */
+export const LIST_LIMIT = 20;
+
+export interface ListInput {
+  /** Absent to make a new list. */
+  id?: string;
+  name: string;
+  detail: string;
+  /** Title keys ("m123", "s456") in the order they were picked; only titles
+      in the library can be on a list, as in the app. */
+  keys: string[];
+}
+
+/** Makes or edits a list (the app's createList, renameList, setListDetail
+    and the list's contents): the name trimmed and required, an emptied
+    description removed rather than stored blank, the titles as picked.
+    Returns the list's id. New ids are uppercase UUIDs, as Swift writes them. */
+export function applySaveList(a: LibraryArchive, input: ListInput, stamp: string, newID: () => string): string {
+  const name = input.name.trim().slice(0, 60);
+  if (!name) throw new Error("Give the list a name.");
+  const detail = input.detail.trim().slice(0, 200);
+  const shows = new Set(a.shows.map((t) => t.show.id));
+  const movies = new Set(a.movies.map((t) => t.movie.id));
+  const showIDs: number[] = [];
+  const movieIDs: number[] = [];
+  for (const k of input.keys) {
+    const id = Number(k.slice(1));
+    if (k[0] === "s" && shows.has(id) && !showIDs.includes(id)) showIDs.push(id);
+    if (k[0] === "m" && movies.has(id) && !movieIDs.includes(id)) movieIDs.push(id);
+  }
+  a.customLists ??= [];
+  const found = input.id ? a.customLists.find((l) => l.id.toUpperCase() === input.id!.toUpperCase()) : undefined;
+  if (input.id && !found) throw new Error("That list is gone.");
+  if (found) {
+    found.name = name;
+    if (detail) found.detail = detail;
+    else delete found.detail;
+    found.showIDs = showIDs;
+    found.movieIDs = movieIDs;
+    return found.id;
+  }
+  if (a.customLists.length >= LIST_LIMIT) throw new Error(`Kodigo keeps to ${LIST_LIMIT} lists.`);
+  const id = newID();
+  a.customLists.push({ id, name, ...(detail ? { detail } : {}), showIDs, movieIDs, created: stamp });
+  a.customListOrder = [...(a.customListOrder ?? []), id];
+  return id;
+}
+
+/** The app's deleteList: the list and its place in the order. What was on it
+    stays tracked. (Lists carry no tombstone in the app either, so a device
+    that changed things before it synced can bring a deleted list back.) */
+export function applyDeleteList(a: LibraryArchive, id: string) {
+  const same = (x: string) => x.toUpperCase() === id.toUpperCase();
+  a.customLists = (a.customLists ?? []).filter((l) => !same(l.id));
+  a.customListOrder = (a.customListOrder ?? []).filter((x) => !same(x));
+}
+
+/** A list's picture: a poster from a title on it, or back to the default.
+    Stored as the app's CustomListCover.poster; a photo uploaded in the app is
+    only replaced when a poster is chosen instead. */
+export function applyListCover(a: LibraryArchive, id: string, posterPath: string | null) {
+  const list = (a.customLists ?? []).find((l) => l.id.toUpperCase() === id.toUpperCase());
+  if (!list) throw new Error("That list is gone.");
+  const l = list as typeof list & { cover?: unknown };
+  if (posterPath && /^\/[A-Za-z0-9_-]+\.(jpg|png|webp)$/.test(posterPath)) l.cover = { poster: { _0: posterPath } };
+  else delete l.cover;
+}
