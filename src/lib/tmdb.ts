@@ -161,30 +161,32 @@ async function moviePage(path: string, params: Record<string, string | number> =
 
 // ---- Rails, matching the app's Discover tab ----
 
+// Each takes a page (TMDB's twenty at a time), so a rail's own page on the
+// site can show more than the row does.
 export const showRails = {
-  trending: () => showPage("/trending/tv/week"),
-  popular: () => showPage("/tv/popular"),
-  topRated: () => showPage("/tv/top_rated"),
-  airingNow: () => showPage("/tv/on_the_air"),
-  upcoming: () =>
-    showPage("/discover/tv", { "first_air_date.gte": today(), sort_by: "popularity.desc", "vote_count.gte": 0 }),
+  trending: (page = 1) => showPage("/trending/tv/week", { page }),
+  popular: (page = 1) => showPage("/tv/popular", { page }),
+  topRated: (page = 1) => showPage("/tv/top_rated", { page }),
+  airingNow: (page = 1) => showPage("/tv/on_the_air", { page }),
+  upcoming: (page = 1) =>
+    showPage("/discover/tv", { "first_air_date.gte": today(), sort_by: "popularity.desc", "vote_count.gte": 0, page }),
   /** The most anticipated series still to come: not yet premiered, the most
       talked about first. */
-  anticipated: () => showPage("/discover/tv", { "first_air_date.gte": tomorrow(), sort_by: "popularity.desc" }),
+  anticipated: (page = 1) => showPage("/discover/tv", { "first_air_date.gte": tomorrow(), sort_by: "popularity.desc", page }),
 };
 
 export const movieRails = {
-  trending: () => moviePage("/trending/movie/week"),
-  popular: () => moviePage("/movie/popular"),
-  topRated: () => moviePage("/movie/top_rated"),
+  trending: (page = 1) => moviePage("/trending/movie/week", { page }),
+  popular: (page = 1) => moviePage("/movie/popular", { page }),
+  topRated: (page = 1) => moviePage("/movie/top_rated", { page }),
   // Both take the visitor's country (see region.ts): release dates differ by
   // country, and TMDB answers per region when asked.
-  nowPlaying: (region?: string) => moviePage("/movie/now_playing", region ? { region } : {}),
-  upcoming: (region?: string) => moviePage("/movie/upcoming", region ? { region } : {}),
+  nowPlaying: (region?: string, page = 1) => moviePage("/movie/now_playing", { ...(region ? { region } : {}), page }),
+  upcoming: (region?: string, page = 1) => moviePage("/movie/upcoming", { ...(region ? { region } : {}), page }),
   /** The most anticipated films still to come in the visitor's country: not
       yet out in cinemas there, the most talked about first. */
-  anticipated: (region?: string) =>
-    moviePage("/discover/movie", { "primary_release_date.gte": tomorrow(), sort_by: "popularity.desc", with_release_type: "2|3", ...(region ? { region } : {}) }),
+  anticipated: (region?: string, page = 1) =>
+    moviePage("/discover/movie", { "primary_release_date.gte": tomorrow(), sort_by: "popularity.desc", with_release_type: "2|3", ...(region ? { region } : {}), page }),
 };
 
 // ---- Search ----

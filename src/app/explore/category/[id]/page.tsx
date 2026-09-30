@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { CategoryMenu } from "@/components/CategoryMenu";
+import { PosterGrid } from "@/components/PosterGrid";
 import { accountsOpen } from "@/lib/accounts";
 import { optionalLibrary } from "@/lib/library";
 import { visitorRegion } from "@/lib/region";
@@ -75,27 +76,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
         {titles.length === 0 ? (
           <p className="mt-8 text-[13px] text-dim">Nothing matches this category right now.</p>
         ) : (
-          <ul className="m-0 mt-6 p-0 list-none grid gap-2 grid-cols-3 sm:grid-cols-4 lg:grid-cols-6">
-            {titles.map((t) => {
-              const src = poster(t.poster, "w342");
-              return (
-                <li key={t.key} className="min-w-0">
-                  <Link href={t.href} title={t.title} className="group block rounded-shell bg-piece p-1.5 no-underline text-ink">
-                    <span className="block aspect-[2/3] rounded-[10px] overflow-hidden bg-card border border-hair">
-                      {src ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={src} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-                      ) : (
-                        <span className="w-full h-full flex items-center justify-center p-3 text-center text-xs text-dim">{t.title}</span>
-                      )}
-                    </span>
-                    <span className="block px-1 pt-1.5 text-[12.5px] leading-[16px] font-semibold truncate group-hover:text-accent transition-colors">{t.title}</span>
-                    <span className="block px-1 pb-0.5 text-[12.5px] leading-[16px] text-dim">{t.sub || "—"}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          <PosterGrid titles={titles.map((t) => ({ ...t, poster: poster(t.poster, "w342") }))} />
         )}
 
         {want < Math.min(total, PAGE_CAP) && (

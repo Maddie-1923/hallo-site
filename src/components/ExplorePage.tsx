@@ -51,12 +51,12 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
     const shown = new Set(slides.map((s) => s.key));
     return (
       <Layout slides={slides} kind={kind} mine={await mine}>
-        <Row title="Trending this week" href="/shows" items={interleave(asMovies(trendingMovies), asShows(trendingShows)).filter((x) => !shown.has(x.key))} marks={marks} />
-        <Row title={`In cinemas · ${place}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
-        <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
+        <Row title="Trending this week" href="/explore/rail/trending" items={interleave(asMovies(trendingMovies), asShows(trendingShows)).filter((x) => !shown.has(x.key))} marks={marks} />
+        <Row title={`In cinemas · ${place}`} href="/explore/rail/in-cinemas" items={asMovies(inCinemas)} marks={marks} />
+        <Row title="New episodes this week" href="/explore/rail/new-episodes" items={asShows(airing)} marks={marks} />
         <AdSlot place="rows" className="mt-8" />
-        <Row title="Coming soon" href="/movies" items={interleave(asMovies(comingFilms), asShows(comingShows))} marks={marks} />
-        <Row title="Top rated" href="/browse/films/sort/rated" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
+        <Row title="Coming soon" href="/explore/rail/coming-soon" items={interleave(asMovies(comingFilms), asShows(comingShows))} marks={marks} />
+        <Row title="Top rated" href="/explore/rail/top-rated" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
       </Layout>
     );
   }
@@ -74,12 +74,12 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
     const shown = new Set(slides.map((s) => s.key));
     return (
       <Layout slides={slides} kind={kind} mine={await mine}>
-        <Row title="Trending this week" href="/shows" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} />
-        <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
+        <Row title="Trending this week" href="/explore/rail/trending-series" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} />
+        <Row title="New episodes this week" href="/explore/rail/new-episodes" items={asShows(airing)} marks={marks} />
         <AdSlot place="rows" className="mt-8" />
-        <Row title="New series coming" href="/shows" items={asShows(upcoming)} marks={marks} />
-        <Row title="Popular now" href="/browse/series" items={asShows(popular)} marks={marks} />
-        <Row title="Top rated" href="/browse/series/sort/rated" items={asShows(topRated)} marks={marks} />
+        <Row title="New series coming" href="/explore/rail/new-series" items={asShows(upcoming)} marks={marks} />
+        <Row title="Popular now" href="/explore/rail/popular-series" items={asShows(popular)} marks={marks} />
+        <Row title="Top rated" href="/explore/rail/top-rated-series" items={asShows(topRated)} marks={marks} />
       </Layout>
     );
   }
@@ -96,12 +96,12 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
   const shown = new Set(slides.map((s) => s.key));
   return (
     <Layout slides={slides} kind={kind} mine={await mine}>
-      <Row title="Trending this week" href="/movies" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} />
-      <Row title={`In cinemas · ${place}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
+      <Row title="Trending this week" href="/explore/rail/trending-films" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} />
+      <Row title={`In cinemas · ${place}`} href="/explore/rail/in-cinemas" items={asMovies(inCinemas)} marks={marks} />
       <AdSlot place="rows" className="mt-8" />
-      <Row title={`Coming soon · ${place}`} href="/movies" items={asMovies(upcoming)} marks={marks} />
-      <Row title="Popular now" href="/browse/films" items={asMovies(popular)} marks={marks} />
-      <Row title="Top rated" href="/browse/films/sort/rated" items={asMovies(topRated)} marks={marks} />
+      <Row title={`Coming soon · ${place}`} href="/explore/rail/coming-soon-films" items={asMovies(upcoming)} marks={marks} />
+      <Row title="Popular now" href="/explore/rail/popular-films" items={asMovies(popular)} marks={marks} />
+      <Row title="Top rated" href="/explore/rail/top-rated-films" items={asMovies(topRated)} marks={marks} />
     </Layout>
   );
 }

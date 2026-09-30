@@ -51,12 +51,12 @@ export default async function Home() {
         {/* The same gutters as the billboard, so the rows' edges line up with
             the card's. Not .wrap: its padding is unlayered and would win. */}
         <div className="w-full px-[clamp(16px,3.2vw,64px)] pb-16">
-          <Row title="Trending this week" href="/shows" items={trending} marks={marks} />
-          <Row title={`In cinemas · ${regionName(region)}`} href="/movies" items={asMovies(inCinemas)} marks={marks} />
+          <Row title="Trending this week" href="/explore/rail/trending" items={trending} marks={marks} />
+          <Row title={`In cinemas · ${regionName(region)}`} href="/explore/rail/in-cinemas" items={asMovies(inCinemas)} marks={marks} />
           <AdSlot place="rows" className="mt-8" />
-          <Row title="New episodes this week" href="/shows" items={asShows(airing)} marks={marks} />
-          <Row title={`Coming soon · ${regionName(region)}`} href="/movies" items={asMovies(comingFilms)} marks={marks} />
-          <Row title="Highest rated" href="/movies" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
+          <Row title="New episodes this week" href="/explore/rail/new-episodes" items={asShows(airing)} marks={marks} />
+          <Row title={`Coming soon · ${regionName(region)}`} href="/explore/rail/coming-soon-films" items={asMovies(comingFilms)} marks={marks} />
+          <Row title="Highest rated" href="/explore/rail/top-rated" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
         </div>
 
         {/* The app's pitch, last: the page opens on the posters, and whoever

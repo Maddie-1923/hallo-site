@@ -322,7 +322,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
           )}
           <Link
             href={s.href}
-            className="inline-flex items-center px-3 py-[4px] rounded-[3px] border-2 border-white/85 text-white text-[12px] font-bold uppercase tracking-[.04em] no-underline hover:bg-white hover:text-[#141312] transition-colors"
+            className="inline-flex items-center px-3.5 py-[6px] rounded-[3px] bg-[rgba(109,109,110,.7)] text-white text-[12px] font-bold uppercase tracking-[.04em] no-underline hover:bg-[rgba(109,109,110,.45)] transition-colors"
           >
             Details
           </Link>
@@ -386,8 +386,11 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
       router.push(s.href);
       return;
     }
+    // Set before the save rather than inside it: state set in a transition
+    // waits for the whole save and the page refresh, which held the key's
+    // confirmation back for seconds.
+    setOn(true);
     start(async () => {
-      setOn(true);
       const r = s.target.kind === "show" ? await trackShow(s.target.show) : await trackMovie(s.target.movie);
       if (r.error) {
         setOn(false);
@@ -399,8 +402,9 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
   }
 
   // The app's confirmed key: the offer is the accent-filled "+ Add"; once
-  // saved the key goes to the billboard's smoky glass and the bookmark takes
-  // the accent, after the stroke has run round it.
+  // saved the key goes to the quiet grey Details wears (Netflix's More Info)
+  // and the bookmark takes the accent, after the stroke has run round it.
+  // Trailer stays the one white button, the billboard's main act.
   return (
     <KeyConfirm active={on} tint={FILL} corner={3}>
       {(set) => (
@@ -408,7 +412,7 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
           type="button"
           onClick={add}
           disabled={pending}
-          className={`inline-flex items-center gap-1.5 px-3 py-[6px] rounded-[3px] text-[12px] font-semibold cursor-pointer transition-[filter] hover:brightness-110 ${set ? "bg-black/40 text-white backdrop-blur-md shadow-[inset_0_0_0_1px_rgba(255,255,255,.25)]" : ""}`}
+          className={`inline-flex items-center gap-1.5 px-3 py-[6px] rounded-[3px] text-[12px] font-semibold cursor-pointer transition-[filter] hover:brightness-110 ${set ? "bg-[rgba(109,109,110,.7)] text-white" : ""}`}
           style={set ? undefined : { background: FILL, color: ON_FILL }}
         >
           {/* The app's marks: a plus until it's on the watchlist, a bookmark once it is. */}
