@@ -116,7 +116,9 @@ A `SupabaseSync` next to `CloudSync.swift` that mirrors it:
    ID and key from the Apple Developer portal; the site works without it.
 3. Authentication → URL configuration: Site URL and a redirect of
    `<site>/auth/callback`.
-4. Copy `.env.example` to `.env.local` and fill it in. The service-role key is
+4. Copy `.env.example` to `.env.local` and fill it in. The service key is read as `SUPABASE_SECRET_KEY` first, then
+   `SUPABASE_SERVICE_ROLE_KEY`: on Vercel, production keeps the live project's
+   under the old name and previews carry kodigo-dev's under the new one. The service-role key is
    optional and only enables account deletion.
 5. `npm run dev`.
 

@@ -12,7 +12,7 @@ export async function DELETE() {
   } = await supabase.auth.getUser();
   if (!user) return new NextResponse("Not signed in", { status: 401 });
 
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceKey = (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY);
   if (!serviceKey) return new NextResponse("Account deletion isn't configured on this server.", { status: 500 });
 
   const admin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey, {

@@ -11,7 +11,7 @@ import { checkUsername } from "@/lib/word-filter";
 // (supabase/migrations/20260930020000_usernames.sql).
 
 function admin() {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY);
   if (!key) return null;
   return createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }

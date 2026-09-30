@@ -8,7 +8,7 @@ import { createClient as createAdminClient } from "@supabase/supabase-js";
 // EMAIL_LINK_SECRET, or the service role key where that isn't set.
 
 function secret(): string | null {
-  return process.env.EMAIL_LINK_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || null;
+  return process.env.EMAIL_LINK_SECRET || (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY) || null;
 }
 
 function sign(uid: string): string | null {
@@ -33,7 +33,7 @@ export function validUnsubscribe(uid: string | null, token: string | null): uid 
 
 /** The database with the service role: what the emails and the unsubscribe link need. */
 export function adminClient() {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY);
   if (!key || !process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
   return createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
