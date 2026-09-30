@@ -8,9 +8,11 @@ const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--li
 
 // The username form: the name, checked as it's typed; what a public profile
 // shows; public or private; save, then on to the profile.
-export function UsernameSetup({ current, initialPrivate, suggestion }: { current: string | null; initialPrivate: boolean; suggestion: string }) {
+// The box starts empty, "@username" in grey until they type (no guess from
+// the email: Apple's hidden addresses made nonsense of it).
+export function UsernameSetup({ current, initialPrivate }: { current: string | null; initialPrivate: boolean }) {
   const router = useRouter();
-  const [name, setName] = useState(current ?? suggestion);
+  const [name, setName] = useState(current ?? "");
   const [isPrivate, setPrivate] = useState(initialPrivate);
   const [check, setCheck] = useState<{ for: string; ok: boolean; message: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -75,6 +77,7 @@ export function UsernameSetup({ current, initialPrivate, suggestion }: { current
               <span className="text-[14px] text-dim select-none">@</span>
               <input
                 autoFocus
+                placeholder="username"
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value.replace(/\s/g, "").slice(0, 20));
@@ -85,7 +88,7 @@ export function UsernameSetup({ current, initialPrivate, suggestion }: { current
                 spellCheck={false}
                 aria-invalid={status ? !status.ok : undefined}
                 aria-describedby="username-status"
-                className="flex-1 min-w-0 bg-transparent py-2 text-[14px] text-ink focus:outline-none"
+                className="flex-1 min-w-0 bg-transparent py-2 text-[14px] text-ink placeholder:text-dim focus:outline-none"
               />
             </span>
             {/* The checker: as they type, whether the name is free. */}

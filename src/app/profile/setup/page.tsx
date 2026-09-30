@@ -15,14 +15,12 @@ export const metadata: Metadata = { title: "Choose your username — Kodigo", ro
 export default async function ProfileSetup() {
   let current: string | null = null;
   let isPrivate = false;
-  let suggestion = "";
   if (accountsOpen) {
     const { data: { user } } = await (await createClient()).auth.getUser();
     if (!user) redirect("/login?next=/profile/setup");
     const profile = await loadProfile();
     current = profile.username;
     isPrivate = profile.is_private;
-    suggestion = suggest(profile.display_name || user.email?.split("@")[0] || "");
   } else {
     redirect("/");
   }
@@ -30,22 +28,9 @@ export default async function ProfileSetup() {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <UsernameSetup current={current} initialPrivate={isPrivate} suggestion={suggestion} />
+        <UsernameSetup current={current} initialPrivate={isPrivate} />
       </main>
       <SiteFooter />
     </div>
   );
-}
-
-/** A starting point from their name or email: "Laura Dunlap" → "lauradunlap". */
-function suggest(from: string): string {
-  const s = from
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9._]/g, "")
-    .replace(/[._]{2,}/g, ".")
-    .replace(/^[._]+|[._]+$/g, "")
-    .slice(0, 20);
-  return s.length >= 3 ? s : "";
 }
