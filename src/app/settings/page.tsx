@@ -17,14 +17,14 @@ export default async function Settings() {
   // Signed in, Delete removes the real account; otherwise it clears this
   // browser's preview.
   // It also brings their Pro, for Account → Subscription.
-  const { signedIn, subscription } = await signedInSubscription();
+  const { signedIn, subscription, email } = await signedInSubscription();
   // Their username and public/private, when signed in; the preview's otherwise.
   const profile = signedIn ? await loadProfile() : null;
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <SettingsPage username={profile ? profile.username : "preview"} detected={region} regions={regions} initialServices={services} signedIn={signedIn} subscription={subscription} />
+        <SettingsPage username={profile ? profile.username : "preview"} detected={region} regions={regions} initialServices={services} signedIn={signedIn} subscription={subscription} email={email} />
       </main>
       <SiteFooter />
     </div>

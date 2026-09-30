@@ -70,7 +70,6 @@ async function withArchive(mutate: (a: LibraryArchive, stamp: string) => void, o
     device: DEVICE,
   });
   if (error) return { error: error.message };
-  revalidatePath("/app", "layout");
   revalidatePath("/calendar");
   return {};
 }

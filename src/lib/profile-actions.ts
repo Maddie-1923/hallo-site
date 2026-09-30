@@ -28,7 +28,7 @@ export async function saveProfile(input: { display_name?: string | null; banner_
 
   const { error } = await supabase.from("profiles").upsert({ user_id: user.id, ...row });
   if (error) return { error: error.message };
-  revalidatePath("/app", "layout");
+  revalidatePath("/u", "layout");
   return {};
 }
 

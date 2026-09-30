@@ -38,7 +38,7 @@ const SECTIONS = [
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 const ABOUT_KEY = "kodigo.profile-about.preview";
 
-export function SettingsPage({ username, detected, regions, initialServices, signedIn = false, subscription = null }: { /** Null: signed in without one yet. */ username: string | null; detected: string; regions: { code: string; name: string }[]; initialServices: Service[]; signedIn?: boolean; subscription?: Subscription | null }) {
+export function SettingsPage({ username, detected, regions, initialServices, signedIn = false, subscription = null, email }: { /** Null: signed in without one yet. */ username: string | null; detected: string; regions: { code: string; name: string }[]; initialServices: Service[]; signedIn?: boolean; subscription?: Subscription | null; email?: string }) {
   const [s, set] = useSettings();
   const [about, setAbout] = useState({ location: "", quote: "" });
   const [theme, setTheme] = useState(DEFAULT_THEME);
@@ -153,14 +153,22 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
         </Group>
 
         <Group id="account" title="Account">
-          <Field label="Email" hint="Where your sign-in code goes.">
-            <span className="text-[12.5px] text-dim">Opens with accounts</span>
+          <Field label="Email" hint="Where your sign-in link goes.">
+            <span className="text-[12.5px] text-dim truncate">{signedIn && email ? email : "Opens with accounts"}</span>
           </Field>
           <Field label="Subscription" hint={subscriptionHint(subscription, s.dateFormat)}>
             {subscription?.pro && subscription.source === "stripe" ? <ManageSubscription /> : subscription?.pro ? null : <LinkButton href="/pro">Kodigo Pro</LinkButton>}
           </Field>
           <Field label="Sign out" hint="On this browser only.">
-            <Button off>Sign out</Button>
+            {signedIn ? (
+              <form action="/auth/signout" method="post">
+                <button type="submit" className="h-8 px-4 rounded-full text-[12.5px] font-semibold cursor-pointer bg-card text-ink border border-hair hover:text-accent">
+                  Sign out
+                </button>
+              </form>
+            ) : (
+              <Button off>Sign out</Button>
+            )}
           </Field>
         </Group>
 

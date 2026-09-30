@@ -13,7 +13,7 @@ export interface Subscription {
   cancelAtEnd: boolean;
 }
 
-export async function signedInSubscription(): Promise<{ signedIn: boolean; subscription: Subscription | null }> {
+export async function signedInSubscription(): Promise<{ signedIn: boolean; subscription: Subscription | null; email?: string }> {
   if (!accountsOpen) return { signedIn: false, subscription: null };
   const supabase = await createClient();
   const {
@@ -23,6 +23,7 @@ export async function signedInSubscription(): Promise<{ signedIn: boolean; subsc
   const { data } = await supabase.from("entitlements").select("pro, source, plan, current_period_end, cancel_at_period_end").eq("user_id", user.id).maybeSingle();
   return {
     signedIn: true,
+    email: user.email,
     subscription: data ? { pro: data.pro, source: data.source, plan: data.plan, periodEnd: data.current_period_end, cancelAtEnd: data.cancel_at_period_end } : null,
   };
 }

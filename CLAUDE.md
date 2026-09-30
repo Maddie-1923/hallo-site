@@ -22,12 +22,18 @@ nothing else.
   development previews exist yet; they load through `lib/profile-previews.ts`.
 - `docs/social-plan.md` — the plan for the social side (public profiles,
   members' reviews, follows, likes, comments) and its build order.
-- `src/app/login/` — magic-link email sign-in plus a Sign in with Apple button.
-  `src/app/auth/callback/route.ts` exchanges the code; `auth/signout` clears it.
+- `src/app/login/` — magic-link email sign-in (it also signs up); Sign in with
+  Apple shows once `NEXT_PUBLIC_APPLE_SIGNIN=on`. It draws in development even
+  while accounts are closed. `src/app/auth/callback/route.ts` exchanges the
+  code and sends a first sign-in (no username yet) to `/profile/setup`;
+  `auth/signout` clears it.
 - `src/proxy.ts` — refreshes the Supabase session cookie on every request and
   keeps `/app/*` behind sign-in. Next 16 renamed `middleware` to `proxy`.
-- `src/app/app/` — the signed-in library: `shows`, `movies`, `profile`,
-  `account` (sign out, remove library, delete account). Import moved to
+- `src/app/app/` — retired: one catch-all that sends old addresses on
+  (profile and history to `/u/<username>`, account to Settings, the rest to
+  `/library`). The signed-in pages are `/library`, `/watchlist`, `/calendar`,
+  `/stats`, `/settings` and the profile, where the owner picks their photo
+  and banner (`ProfilePictures`). Import is in
   Settings → Import & export (`components/ImportPanel.tsx`): the app's
   importers ported to `src/lib/imports/` (TV Time, Letterboxd, Trakt, Simkl,
   IMDb and any CSV/JSON, plus the archive merge) run in the browser against

@@ -6,15 +6,20 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/app";
+  const next = searchParams.get("next") ?? "/library";
   // Only ever send people somewhere on this site — an open redirect is the
   // classic way a sign-in link gets abused.
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/app";
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/library";
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${origin}${safeNext}`);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      // A first sign-in has no username yet, and nothing of theirs shows
+      // publicly until they choose one, so that comes first.
+      const { data: profile } = await supabase.from("profiles").select("username").eq("user_id", data.user.id).maybeSingle();
+      return NextResponse.redirect(`${origin}${profile?.username ? safeNext : "/profile/setup"}`);
+    }
   }
 
   return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent("That sign-in link didn't work. Ask for a new one.")}`);

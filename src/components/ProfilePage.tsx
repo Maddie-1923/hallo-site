@@ -17,6 +17,7 @@ import { FavouritesCard } from "./FavouritesCard";
 import { MonthCalendar } from "./MonthCalendar";
 import { MiniTracker } from "./MiniTracker";
 import { AdSlot } from "./AdSlot";
+import { ProfilePictures } from "./ProfilePictures";
 
 // A public profile, laid out as a bento board after the reference the user
 // chose: one big rounded banner left to its picture, then the person's card
@@ -161,6 +162,12 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
             is. The page's heading is still the handle, for screen readers
             and search. */}
         <h1 className="sr-only">@{v.username}</h1>
+        {/* The owner changes the photo and banner from the banner itself. */}
+        {v.viewerFollow === "self" && v.owner && (
+          <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+            <ProfilePictures library={[...v.owner.shows, ...v.owner.films]} avatar={v.avatar} banner={v.banner ?? null} />
+          </div>
+        )}
       </div>
 
 

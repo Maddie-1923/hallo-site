@@ -15,7 +15,10 @@ export async function proxy(request: NextRequest) {
   // the sign-in link is rescued and before Supabase is touched at all: a closed
   // door should not be exchanging auth codes behind itself, and the public side
   // of the site has no business paying for a session lookup it will not use.
-  if (!accountsOpen && needsAccount(path)) {
+  // In development the sign-in page still draws, so its design can be worked
+  // on; nothing past it opens.
+  const devLogin = process.env.NODE_ENV === "development" && path === "/login";
+  if (!accountsOpen && needsAccount(path) && !devLogin) {
     const home = request.nextUrl.clone();
     home.pathname = "/";
     home.search = "";
@@ -72,7 +75,7 @@ export async function proxy(request: NextRequest) {
   }
   if (user && path === "/login") {
     const url = request.nextUrl.clone();
-    url.pathname = "/app";
+    url.pathname = "/library";
     url.search = "";
     return NextResponse.redirect(url);
   }
