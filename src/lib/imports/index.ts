@@ -10,5 +10,6 @@ export * from "./types";
 export { runUniversalImport, showStatus, movieStatus, describeImportFile } from "./universal";
 export { runTvTimeImport, tvTimeRatingScore } from "./tvtime";
 export { applyImportPlan } from "./apply";
+export { chooseImportRoute, type ImportRoute } from "./route";
 export { mergeArchives, pruneArchive, MERGED_VERSION } from "./merge";
 export { diagnosticsReport, readTvTimeFiles } from "./tvtime-reader";

@@ -3,6 +3,7 @@
 import { isArchive, type LibraryArchive } from "@/lib/archive";
 import { importEpisodes, importFind, importMovie, importSearchMovies, importSearchMulti, importSearchShows, importShow, importSnapshot } from "@/lib/import-actions";
 import {
+  chooseImportRoute,
   NothingReadable,
   runTvTimeImport,
   runUniversalImport,
@@ -81,45 +82,34 @@ export class ImportRefused extends Error {}
 export async function runImport(picked: File[], onProgress: (p: ImportProgress) => void, signal: AbortSignal): Promise<ImportOutcome> {
   const files: ImportFile[] = await Promise.all(picked.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
 
-  const backup = await backupIn(files);
-  if (backup) {
-    return {
-      kind: "backup",
-      plan: { archive: backup, ratings: {}, loved: [] },
-      counts: { shows: backup.shows.length, movies: backup.movies.length, episodes: backup.watched.length },
-    };
+  // Which reader, from what's in the files (lib/imports/route.ts, the same
+  // rule as the apps'), whatever the person picked them as.
+  const route = chooseImportRoute(files);
+  if (route.kind === "backup") {
+    const backup = await backupIn(files);
+    if (backup) {
+      return {
+        kind: "backup",
+        plan: { archive: backup, ratings: {}, loved: [] },
+        counts: { shows: backup.shows.length, movies: backup.movies.length, episodes: backup.watched.length },
+      };
+    }
   }
+  if (route.kind === "unreadable" && route.tvTime) throw route.tvTime;
 
   const snap = await importSnapshot();
   if (!snap.ok) throw new ImportRefused(snap.reason ?? "Importing isn't open.");
   const library: LibraryArchive = snap.library ?? { version: 12, exported: "", device: "", shows: [], movies: [], watched: [] };
   const deps = { catalog, episodes: episodeLoader(), library, now: () => new Date(), onProgress, signal };
 
-  // TV Time's export (the zip it emails) has its own importer; anything
-  // else goes to the universal one, which knows Letterboxd, Trakt, Simkl,
-  // Refract, Sofa Time and the rest by their files and columns. On the
-  // phone you say which app it came from; here a zip is offered to TV
-  // Time's reader first, and whatever it can't use goes on to the rest —
-  // its guesses at TV Time's rarer formats caught Simkl's and Refract's
-  // backups otherwise. Only when nothing else can read the files either is
-  // TV Time's own answer the one given.
-  let tvTimeFailure: TvTimeReadFailure | null = null;
-  if (files.some((f) => /\.zip$/i.test(f.name) || /tv.?time/i.test(f.name))) {
-    try {
-      const run = await runTvTimeImport(files, deps);
-      return { kind: "tvtime", plan: run.plan, result: run.result };
-    } catch (e) {
-      if (!(e instanceof TvTimeReadFailure)) throw e;
-      tvTimeFailure = e;
-    }
+  if (route.kind === "tvtime") {
+    const run = await runTvTimeImport(files, deps);
+    return { kind: "tvtime", plan: run.plan, result: run.result };
   }
-  try {
-    const run = await runUniversalImport(files, deps);
-    return { kind: "universal", plan: run.plan, result: run.result };
-  } catch (e) {
-    if (e instanceof NothingReadable && tvTimeFailure?.reason.kind === "notSupportedYet") throw tvTimeFailure;
-    throw e;
-  }
+  // The universal importer, which also gives the "nothing readable" answer,
+  // with what it made of each file, when that's where the route ended.
+  const run = await runUniversalImport(files, deps);
+  return { kind: "universal", plan: run.plan, result: run.result };
 }
 
 export { NothingReadable, TvTimeReadFailure };
