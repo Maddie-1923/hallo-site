@@ -1,11 +1,11 @@
-import { WideRow, type WideItem } from "@/components/WideRow";
+import { PosterRow, type PosterRowItem } from "@/components/PosterRow";
 import type { CinemaSlide } from "@/components/CinemaHero";
-import { cardBackdrop, image, movieBillboard, showBillboard, titleLogo } from "@/lib/tmdb";
-import { year, type LibraryArchive, type Movie, type Show } from "@/lib/archive";
+import { image, movieBillboard, showBillboard, titleLogo } from "@/lib/tmdb";
+import { poster, year, type LibraryArchive, type Movie, type Show } from "@/lib/archive";
 import type { markLookup } from "@/lib/marks";
 
 // The pieces the home page and Explore share: the billboard's slides built
-// from a list of trending titles, and rows of wide cards. Explore is the home
+// from a list of trending titles, and rows of poster cards. Explore is the home
 // page's layout with one catalogue at a time.
 
 export async function billboard(
@@ -89,36 +89,33 @@ export interface PosterItem {
   key: string;
   href: string;
   title: string;
-  backdrop: string | null | undefined;
+  poster: string | null | undefined;
+  sub: string;
   target: { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 }
 
-export const asShows = (xs: Show[]): PosterItem[] => xs.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, backdrop: s.backdrop_path, target: { kind: "show" as const, show: s } }));
-export const asMovies = (xs: Movie[]): PosterItem[] => xs.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, backdrop: m.backdrop_path, target: { kind: "movie" as const, movie: m } }));
-
-// Landscape cards need a backdrop, and look like a streaming service's with
-// the title's logo on them. Logos are one request a title, cached for a day,
-// so a row asks only for the cards it draws.
-async function asWide(items: PosterItem[], marks: Marks, limit = 16): Promise<WideItem[]> {
-  const withArt = items.filter((it) => it.backdrop).slice(0, limit);
-  const logos = await Promise.all(withArt.map((it) => titleLogo(it.target.kind, it.target.kind === "show" ? it.target.show.id : it.target.movie.id)));
-  return withArt.map((it, i) => ({
-    key: it.key,
-    href: it.href,
-    title: it.title,
-    backdrop: cardBackdrop(it.backdrop)!,
-    logo: logos[i],
-    target: it.target,
-    marks: it.target.kind === "show" ? marks.show(it.target.show.id) : marks.movie(it.target.movie.id),
-  }));
-}
+export const asShows = (xs: Show[]): PosterItem[] => xs.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, poster: s.poster_path, sub: year(s.first_air_date), target: { kind: "show" as const, show: s } }));
+export const asMovies = (xs: Movie[]): PosterItem[] => xs.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, poster: m.poster_path, sub: year(m.release_date), target: { kind: "movie" as const, movie: m } }));
 
 type Marks = ReturnType<typeof markLookup>;
 
-/** A row of wide cards. `marks` is the visitor's library read into what each
-    card's hover buttons should show (all off when nobody is signed in). */
-export async function Row({ title, href, items, marks }: { title: string; href: string; items: PosterItem[]; marks: Marks }) {
-  return <WideRow title={title} href={href} items={await asWide(items, marks)} lists={marks.lists} />;
+/** A row of poster cards, the app's Explore rail. `marks` is the visitor's
+    library read into what each card's keys should show (all off when nobody
+    is signed in). Titles without a poster are left out. */
+export function Row({ title, href, items, marks }: { title: string; href: string; items: PosterItem[]; marks: Marks }) {
+  const cards: PosterRowItem[] = items
+    .filter((it) => it.poster)
+    .slice(0, 20)
+    .map((it) => ({
+      key: it.key,
+      href: it.href,
+      title: it.title,
+      poster: poster(it.poster, "w342"),
+      sub: it.sub,
+      target: it.target,
+      marks: it.target.kind === "show" ? marks.show(it.target.show.id) : marks.movie(it.target.movie.id),
+    }));
+  return <PosterRow title={title} href={href} items={cards} lists={marks.lists} />;
 }
 
 export function interleave<T>(a: T[], b: T[]) {

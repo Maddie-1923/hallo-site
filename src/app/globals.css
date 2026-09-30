@@ -22,6 +22,11 @@
   /* The logo's k and wordmark: cream by night as the page's ink; by day the
      app icon's navy, never black. */
   --logo-ink: var(--ink);
+  /* The app's Add key once a title is saved (KodigoConfirmedKey): by night
+     the key keeps its plate and the glyph takes the list blue; by day the
+     key fills blue and the glyph goes bone. */
+  --key-on-plate: var(--piece);
+  --key-on-glyph: var(--list-fill);
   --card: #2a2d32;
   --card-hi: #353a41;
   /* The app's list-row pieces (Theme.swift, night): the row's card
@@ -74,6 +79,8 @@
 
 :root[data-scheme="light"] {
   --logo-ink: #122042;
+  --key-on-plate: var(--list-fill);
+  --key-on-glyph: #f0efe9;
   --page: #e6e0d6;
   --ink: #1a1a19;
   --card: #f4f1ea;
@@ -111,6 +118,8 @@
    time this applies. */
 .scheme-dark {
   --logo-ink: #eeeff2;
+  --key-on-plate: var(--piece);
+  --key-on-glyph: var(--list-fill);
   --page: #17191c;
   --ink: #eeeff2;
   --card: #2a2d32;

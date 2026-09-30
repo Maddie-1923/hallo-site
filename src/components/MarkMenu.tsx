@@ -23,6 +23,7 @@ export function MarkMenu({
   lists,
   onClose,
   onLog,
+  extra,
   anchor,
 }: {
   target: Target;
@@ -34,6 +35,9 @@ export function MarkMenu({
       portalled to the body is outside it, so a dialog owned here died on its
       own first click. */
   onLog: () => void;
+  /** Rows the caller adds under Review & catalogue: the app-style card puts
+      favourite and rewatch here, since it has no keys of its own for them. */
+  extra?: { label: string; onClick: () => void }[];
   /** The button the menu hangs off. Rendered in a portal, positioned from its rect, so no rail or card can clip it. */
   anchor: HTMLElement | null;
 }) {
@@ -149,6 +153,19 @@ export function MarkMenu({
       <button type="button" className={row} onClick={onLog}>
         Review &amp; catalogue
       </button>
+      {extra?.map((x) => (
+        <button
+          key={x.label}
+          type="button"
+          className={row}
+          onClick={() => {
+            x.onClick();
+            onClose();
+          }}
+        >
+          {x.label}
+        </button>
+      ))}
 
       {/* The watchlist for this kind: Watching for a show, To Watch for a
           film. Once it's there the row reads as a tick and clicking takes it

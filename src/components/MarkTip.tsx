@@ -19,7 +19,7 @@ import { createPortal } from "react-dom";
 const HOVER_DELAY = 300;
 const AFTER_TAP = 1400;
 
-export function MarkTip({ label, children }: { label: string; children: React.ReactNode }) {
+export function MarkTip({ label, children, className = "" }: { label: string; children: React.ReactNode; className?: string }) {
   const host = useRef<HTMLSpanElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [open, setOpen] = useState(false);
@@ -72,7 +72,7 @@ export function MarkTip({ label, children }: { label: string; children: React.Re
   return (
     <span
       ref={host}
-      className="relative inline-flex"
+      className={`relative inline-flex ${className}`}
       onMouseEnter={() => show(HOVER_DELAY)}
       onMouseLeave={hide}
       onFocusCapture={() => show(0)}

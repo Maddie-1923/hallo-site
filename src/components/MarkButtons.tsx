@@ -20,7 +20,10 @@ type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 // it's Watching, since a whole show isn't one tick. List opens the menu —
 // rate, save, put on a list, open, remove. Signed out, any mark sends you to
 // sign in and back to this page.
-export function MarkButtons({ target, state, lists = [], size = "sm" }: { target: Target; state: MarkState; lists?: ListOption[]; size?: "sm" | "lg" }) {
+// `variant="keys"` is the app's Explore card instead (KodigoDiscoverTray):
+// two rounded keys sharing the card's width, More and Add, with favourite
+// and rewatch moved into More's menu.
+export function MarkButtons({ target, state, lists = [], size = "sm", variant = "marks" }: { target: Target; state: MarkState; lists?: ListOption[]; size?: "sm" | "lg"; variant?: "marks" | "keys" }) {
   // The anchor is state rather than a ref so the menu can read it in render.
   const [listButton, setListButton] = useState<HTMLButtonElement | null>(null);
   const [menu, setMenu] = useState(false);
@@ -64,6 +67,83 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
   const heartTip = shown.loved ? "Loved" : "Add to favorites";
   const reviewTip = shown.review ? "Edit your review" : "Review & catalogue";
   const listTip = shown.listIDs.length > 0 ? "On your lists" : "Rate, list, and more";
+
+  function toggleWatch() {
+    const next = !shown.watched;
+    run({ watched: next }, () =>
+      target.kind === "movie" ? trackMovie(target.movie, next ? "Watched" : "To Watch") : trackShow(target.show, next ? "Watching" : "Stopped"),
+    );
+  }
+
+  const menuPanel = menu && (
+    <MarkMenu
+      target={target}
+      state={shown}
+      lists={lists}
+      anchor={listButton}
+      onClose={() => setMenu(false)}
+      onLog={() => {
+        setMenu(false);
+        setLogging(true);
+      }}
+      extra={
+        variant === "keys"
+          ? [
+              { label: shown.loved ? "♥ Favorite" : "♡ Add to favorites", onClick: () => run({ loved: !shown.loved }, () => setLoved(target, !shown.loved)) },
+              { label: shown.rewatch ? "✓ Rewatch" : "Mark as a rewatch", onClick: () => run({ rewatch: !shown.rewatch }, () => setRewatched(target, !shown.rewatch)) },
+            ]
+          : undefined
+      }
+    />
+  );
+  const logDialog = logging && <ReviewDialog target={target} review={shown.review} rating={shown.rating} moods={shown.moods} onClose={() => setLogging(false)} />;
+
+  if (variant === "keys") {
+    const key = "w-full h-10 rounded-[10px] flex items-center justify-center cursor-pointer transition-colors";
+    return (
+      <div className="relative flex gap-2">
+        <MarkTip label={listTip} className="flex-1">
+          <button
+            ref={setListButton}
+            type="button"
+            aria-label={`More for ${title}`}
+            aria-haspopup="menu"
+            aria-expanded={menu}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMenu((m) => !m);
+            }}
+            className={`${key} bg-piece text-dim hover:text-ink`}
+          >
+            <MarkList size={22} />
+          </button>
+        </MarkTip>
+        <MarkTip label={watchTip} className="flex-1">
+          <button
+            type="button"
+            aria-label={
+              target.kind === "movie"
+                ? shown.watched ? `Remove ${title} from your watchlist` : `Add ${title} to your watchlist`
+                : shown.watched ? `Stop watching ${title}` : `Start watching ${title}`
+            }
+            aria-pressed={shown.watched}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleWatch();
+            }}
+            className={`${key} ${shown.watched ? "" : "bg-piece text-dim hover:text-ink"}`}
+            style={shown.watched ? { background: "var(--key-on-plate)", color: "var(--key-on-glyph)" } : undefined}
+          >
+            {shown.watched ? <MarkBookmark size={22} /> : <MarkAdd size={22} />}
+          </button>
+        </MarkTip>
+        {menuPanel}
+        {logDialog}
+      </div>
+    );
+  }
 
   return (
     <div className={`flex items-center ${size === "lg" ? "gap-2" : "gap-1"}`}>
@@ -208,28 +288,8 @@ export function MarkButtons({ target, state, lists = [], size = "sm" }: { target
           <MarkList size={glyph} />
         </button>
         </MarkTip>
-        {menu && (
-          <MarkMenu
-            target={target}
-            state={shown}
-            lists={lists}
-            anchor={listButton}
-            onClose={() => setMenu(false)}
-            onLog={() => {
-              setMenu(false);
-              setLogging(true);
-            }}
-          />
-        )}
-        {logging && (
-          <ReviewDialog
-            target={target}
-            review={shown.review}
-            rating={shown.rating}
-            moods={shown.moods}
-            onClose={() => setLogging(false)}
-          />
-        )}
+        {menuPanel}
+        {logDialog}
       </div>
     </div>
   );
