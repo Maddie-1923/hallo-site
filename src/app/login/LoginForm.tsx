@@ -26,7 +26,9 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
   const [code, setCode] = useState("");
   const [checking, setChecking] = useState(false);
 
-  const callback = () => `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+  // Back to the address this page is on: kodigo.pro, a Vercel preview or a
+  // laptop, each its own.
+  const callback = () => `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
   async function sendLink(e: React.FormEvent) {
     e.preventDefault();
