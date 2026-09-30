@@ -12,7 +12,7 @@ import { TitleActions } from "@/components/TitleActions";
 import { SeasonBrowser } from "@/components/SeasonBrowser";
 import { SeriesPill, seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
-import { publicReviewsOfTitle } from "@/lib/public-reads";
+import { publicReviewsOfTitle, titleRatings } from "@/lib/public-reads";
 import { readTake } from "@/lib/library-rules";
 import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
@@ -40,7 +40,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   if (!Number.isInteger(showID)) notFound();
 
   const region = await visitorRegion();
-  const [page, lib, logo, reviews] = await Promise.all([seriesPage(showID, region), optionalLibrary(), titleLogo("show", showID), publicReviewsOfTitle("show", showID)]);
+  const [page, lib, logo, reviews, ratings] = await Promise.all([seriesPage(showID, region), optionalLibrary(), titleLogo("show", showID), publicReviewsOfTitle("show", showID), titleRatings("show", showID)]);
   if (!page) notFound();
   // The newest trailer, then each season's own, newest season first.
   const trailers = await showTrailers(showID, page.seasons.filter((x) => x.season_number > 0).map((x) => x.season_number));
@@ -147,7 +147,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             take beside them, as the keys sit beside About. */}
         <div className="mt-8 grid gap-8 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start">
           <div className="grid gap-8 min-w-0">
-          <ReviewsSection reviews={reviews} />
+          <ReviewsSection reviews={reviews} ratings={ratings} />
           </div>
           <div className="lg:pl-2 min-w-0">
             <Section title="Your take" small>

@@ -141,3 +141,40 @@ export async function searchReviews(query: string): Promise<{ review: ReviewEntr
     ];
   });
 }
+
+export interface TitleRatings {
+  /** Out of 10, one decimal; null when nobody has rated it. */
+  average: number | null;
+  count: number;
+  loved: number;
+  /** How many ratings fell in each of 1–10. */
+  spread: number[];
+  /** The people the reader follows who rated or loved it. */
+  friends: { username: string; avatar: string | null; rating: number | null; loved: boolean; href: string }[];
+}
+
+/** Members' ratings of a title, and the reader's friends' (title pages). */
+export async function titleRatings(kind: "movie" | "show", id: number): Promise<TitleRatings | null> {
+  if (!accountsOpen) return null;
+  const supabase = await createClient();
+  const [{ data: sum }, { data: auth }] = await Promise.all([supabase.rpc("title_ratings", { p_kind: kind, p_id: id }), supabase.auth.getUser()]);
+  const row = (sum as { average: number | null; ratings: number; loved: number; spread: number[] }[] | null)?.[0];
+  const friends: TitleRatings["friends"] = [];
+  const me = auth.user?.id;
+  if (me) {
+    const { data: f } = await supabase.from("follows").select("followee").eq("follower", me).eq("status", "accepted").limit(1000);
+    const ids = (f ?? []).map((x) => x.followee);
+    if (ids.length) {
+      const { data: rated } = await supabase.from("public_entries").select("user_id, rating, reaction, review").eq("kind", kind).eq("tmdb_id", id).in("user_id", ids).limit(200);
+      const who = await members((rated ?? []).map((r) => r.user_id));
+      for (const r of rated ?? []) {
+        const w = who.get(r.user_id);
+        if (!w || (r.rating == null && r.reaction !== "loved")) continue;
+        friends.push({ username: w.username, avatar: w.avatar, rating: r.rating == null ? null : Number(r.rating), loved: r.reaction === "loved", href: r.review ? `/u/${w.username}/review/${kind === "movie" ? "m" : "s"}${id}` : `/u/${w.username}` });
+      }
+      friends.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    }
+  }
+  if (!row?.ratings && !row?.loved && !friends.length) return null;
+  return { average: row?.average == null ? null : Number(row.average), count: row?.ratings ?? 0, loved: row?.loved ?? 0, spread: row?.spread ?? Array(10).fill(0), friends };
+}

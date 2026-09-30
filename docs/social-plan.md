@@ -632,6 +632,15 @@ redeploy. This is outward-facing, so ask first.
 comment, report and block, and Pro from a web purchase. It goes through App
 Review. Android picks the same up when it resumes.
 
+## Title page ratings (built 30 Sep 2026)
+
+Above each title's reviews: members' average out of 10, how many rated and
+loved it, the spread over 1–10 (`public.title_ratings`, security invoker,
+`20260930120000_title_ratings.sql`), and the people the reader follows who
+rated or loved it, each to their review or profile (`titleRatings` in
+`lib/public-reads.ts`, `RatingsSummary` in `components/TitleReviews.tsx`).
+Hidden when there's nothing to show.
+
 ## Email alerts (planned 30 Sep 2026)
 
 Beside the weekly digest (Sunday 9am, the person's own time zone, off by

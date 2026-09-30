@@ -10,7 +10,7 @@ import { TitleActivity } from "@/components/TitleActivity";
 import { HeaderCard, TitleBento, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { TitleActions } from "@/components/TitleActions";
 import { optionalLibrary } from "@/lib/library";
-import { publicReviewsOfTitle } from "@/lib/public-reads";
+import { publicReviewsOfTitle, titleRatings } from "@/lib/public-reads";
 import { readTake } from "@/lib/library-rules";
 import { ReviewsSection } from "@/components/TitleReviews";
 import { YourReview } from "@/components/YourReview";
@@ -36,7 +36,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
   if (!Number.isInteger(movieID)) notFound();
 
   const region = await visitorRegion();
-  const [page, lib, logo, reviews] = await Promise.all([filmPage(movieID, region), optionalLibrary(), titleLogo("movie", movieID), publicReviewsOfTitle("movie", movieID)]);
+  const [page, lib, logo, reviews, ratings] = await Promise.all([filmPage(movieID, region), optionalLibrary(), titleLogo("movie", movieID), publicReviewsOfTitle("movie", movieID), titleRatings("movie", movieID)]);
   if (!page) notFound();
   const { movie } = page;
 
@@ -107,7 +107,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
             take beside them, as the keys sit beside About. */}
         <div className="mt-8 grid gap-8 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start">
           <div className="grid gap-8 min-w-0">
-          <ReviewsSection reviews={reviews} />
+          <ReviewsSection reviews={reviews} ratings={ratings} />
           </div>
           <div className="lg:pl-2 min-w-0">
             <Section title="Your take" small>
