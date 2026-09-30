@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Movie, Show } from "@/lib/archive";
 import type { ListOption } from "@/lib/marks";
-import { nightTokens } from "@/lib/theme";
 import { MarkButtons, type MarkState } from "./MarkButtons";
 
 export interface WideItem {
@@ -83,41 +82,31 @@ export function WideRow({ title, href, items, lists = [] }: { title: string; hre
           className="flex gap-3 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {items.map((it) => (
-            // The card is a box with the link stretched over it, not a link
-            // wrapping everything: the hover buttons are buttons, and a button
-            // inside a link is both invalid and a click that also navigates.
-            <div
-              key={it.key}
-              className="group/card relative shrink-0 snap-start basis-[78%] sm:basis-[44%] lg:basis-[calc((100%-36px)/4.25)] aspect-video rounded-[8px] overflow-hidden bg-card"
-            >
-              <Link href={it.href} title={it.title} className="absolute inset-0 no-underline">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={it.backdrop} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.04]" />
-                <div aria-hidden className="absolute inset-0 bg-gradient-to-tr from-black/70 via-black/10 to-transparent" />
-                <div className="absolute left-[7%] right-[35%] bottom-[9%] top-[45%] flex items-end">
-                  {it.logo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={it.logo} alt={it.title} loading="lazy" className="max-w-full max-h-full object-contain object-left-bottom drop-shadow-[0_2px_8px_rgba(0,0,0,.6)]" />
-                  ) : (
-                    <span className="display text-white text-[clamp(18px,1.8vw,30px)] leading-[.9] drop-shadow-[0_2px_10px_rgba(0,0,0,.8)] line-clamp-3">{it.title}</span>
-                  )}
-                </div>
-              </Link>
-
-              {/* The marks, top right, as the pointer comes over the card, the
-                  way Netflix brings up its buttons: watchlist, rewatch, heart,
-                  review and the menu for the rest. Always there on a touch
-                  screen, which has no hover, and whenever one has keyboard
-                  focus. Drawn in Night's colours on a smoky plate, since they
-                  sit on a photograph. */}
-              <div
-                className="absolute top-2 right-2 z-10 p-1 rounded-full bg-black/45 backdrop-blur-md opacity-0 translate-y-[-4px] transition-[opacity,transform] duration-200 group-hover/card:opacity-100 group-hover/card:translate-y-0 focus-within:opacity-100 focus-within:translate-y-0 [@media(hover:none)]:opacity-100 [@media(hover:none)]:translate-y-0"
-                style={nightTokens}
-              >
+            // The picture is a box with the link stretched over it, and the
+            // marks sit under it rather than on it, as the app lays its cards
+            // out: always there, in the page's own colours.
+            <div key={it.key} className="shrink-0 snap-start basis-[78%] sm:basis-[44%] lg:basis-[calc((100%-36px)/4.25)]">
+              <div className="group/card relative aspect-video rounded-[8px] overflow-hidden bg-card">
+                <Link href={it.href} title={it.title} className="absolute inset-0 no-underline">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={it.backdrop} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.04]" />
+                  <div aria-hidden className="absolute inset-0 bg-gradient-to-tr from-black/70 via-black/10 to-transparent" />
+                  <div className="absolute left-[7%] right-[35%] bottom-[9%] top-[45%] flex items-end">
+                    {it.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={it.logo} alt={it.title} loading="lazy" className="max-w-full max-h-full object-contain object-left-bottom drop-shadow-[0_2px_8px_rgba(0,0,0,.6)]" />
+                    ) : (
+                      <span className="display text-white text-[clamp(18px,1.8vw,30px)] leading-[.9] drop-shadow-[0_2px_10px_rgba(0,0,0,.8)] line-clamp-3">{it.title}</span>
+                    )}
+                  </div>
+                </Link>
+                <span aria-hidden className="pointer-events-none absolute inset-0 rounded-[8px] ring-0 group-hover/card:ring-2 ring-accent-fill transition-[box-shadow] ring-inset" />
+              </div>
+              {/* The marks under the picture: watchlist, rewatch, heart,
+                  review and the menu for the rest. */}
+              <div className="mt-2 flex items-center">
                 <MarkButtons target={it.target} state={it.marks} lists={lists} />
               </div>
-
-              <span aria-hidden className="pointer-events-none absolute inset-0 rounded-[8px] ring-0 group-hover/card:ring-2 ring-accent-fill transition-[box-shadow] ring-inset" />
             </div>
           ))}
         </div>
