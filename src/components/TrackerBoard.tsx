@@ -500,7 +500,9 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
             gap above it once pinned, so titles scrolling up go under it rather
             than show through. Over the list only when the episode panel is
             beside it; across the page otherwise. */}
-        <div ref={header} className="sticky z-20 pt-3 -mt-3 pb-3" style={{ top: navH }}>
+        {/* The same width in every layout: over the list when the panel is
+            beside it, and the same half of the page in grid and rails. */}
+        <div ref={header} className={`sticky z-20 pt-3 -mt-3 pb-3 ${withPanel ? "" : "lg:w-[calc(50%-8px)]"}`} style={{ top: navH }}>
           {/* Frosted glass behind the bar rather than a solid band: whatever
               scrolls up under it blurs, barely tinted, and the blur fades out
               below the bar instead of stopping on a hard line. */}
@@ -704,7 +706,9 @@ function Empty({ title, message, action }: { title: string; message: string; act
 /** A header key: a square on the header's plate, outlined in the accent
     while it narrows the page. */
 function headerKey(on: boolean) {
-  return `inline-flex items-center justify-center w-11 h-11 rounded-[10px] bg-piece border transition-colors ${on ? "border-accent text-accent" : "border-transparent text-dim hover:text-ink"}`;
+  // Solid on the bar's glass, with a hairline and the ink colour, so the
+  // keys read clearly rather than fading into the bar.
+  return `inline-flex items-center justify-center w-11 h-11 rounded-[10px] bg-piece border transition-colors ${on ? "border-accent text-accent" : "border-hair text-ink hover:text-accent"}`;
 }
 
 function MenuHeading({ children }: { children: React.ReactNode }) {
