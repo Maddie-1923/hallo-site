@@ -101,5 +101,11 @@ export function episodeBefore(aired: number[] | null | undefined, next: string):
     for (let e = 1; e <= n; e++) all.push(`${i + 1}-${e}`);
   });
   const at = all.indexOf(next);
-  return at > 0 ? all[at - 1] : null;
+  if (at >= 0) return at > 0 ? all[at - 1] : null;
+  // An episode not out yet (Coming soon): the one before it in its season,
+  // or, for a season's first, the last of the season before.
+  const [sn, en] = next.split("-").map(Number);
+  if (en > 1) return `${sn}-${en - 1}`;
+  const last = aired?.[sn - 2];
+  return sn > 1 && last ? `${sn - 1}-${last}` : null;
 }

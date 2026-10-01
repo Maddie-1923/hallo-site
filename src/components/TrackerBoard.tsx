@@ -441,9 +441,11 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   // The Recap key for an episode: the one before it, on its own sheet. None
   // where there's nothing before it to recap.
   const recapFor = (t: ProfileTitle, episode: string | undefined): Key | null => {
+    if (t.kind === "movie" || !episode) return null;
     const s = known.get(t.key);
-    const before = s && episode ? episodeBefore(s.aired, episode) : null;
-    return s && before ? { icon: <RecapGlyph />, label: `Recap ${code(before)} of ${s.title}`, run: () => setSheet({ kind: "recap", t: s, episode: before, watched: seenOf(s).includes(before) }) } : null;
+    const before = episodeBefore(s?.aired, episode);
+    const watched = s ? seenOf(s).includes(before ?? "") : (seen[t.key] ?? []).includes(before ?? "");
+    return before ? { icon: <RecapGlyph />, label: `Recap ${code(before)} of ${t.title}`, run: () => setSheet({ kind: "recap", t: s ?? t, episode: before, watched }) } : null;
   };
 
   // A coming entry's keys, for the layouts with no panel to carry them.
