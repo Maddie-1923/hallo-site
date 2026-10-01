@@ -9,6 +9,8 @@ import { optionalLibrary } from "./library";
 export interface ListView {
   owner: string;
   ownerName: string;
+  /** The owner's photo, when they've set one. */
+  ownerAvatar?: string | null;
   /** The list's id, without the "list:" the categories carry. */
   id: string;
   name: string;

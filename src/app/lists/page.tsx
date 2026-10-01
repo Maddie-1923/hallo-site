@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -6,7 +7,9 @@ import { accountsOpen } from "@/lib/accounts";
 import { loadProfile } from "@/lib/profile";
 import { Unblocked } from "@/components/SafetySheets";
 import { allLists } from "@/lib/lists";
+import { listGroups } from "@/lib/list-groups";
 import { CommunitySwitch } from "@/components/CommunitySwitch";
+import { Chevron, H, SHELL } from "@/components/ListsChrome";
 
 export const metadata: Metadata = { title: "Lists — Kodigo" };
 
@@ -14,27 +17,12 @@ export const metadata: Metadata = { title: "Lists — Kodigo" };
 // and of all time, the recently updated, the ones with the most in them to
 // dig into, a row for each genre with a couple of lists in it (a list's
 // genre is the one most of its titles share: public.list_topics), and your
-// own. Each goes to the list's page.
-const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
-const H = "inline-flex items-center h-[2.8333rem] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink";
+// own (lib/list-groups.ts). Each goes to the list's page; a section with
+// more than it shows has a chevron to all of them.
 
 export default async function Lists() {
   const [lists, me] = await Promise.all([allLists(), accountsOpen ? loadProfile().then((p) => p.username) : Promise.resolve(null)]);
-  const others = lists.filter((l) => l.owner !== me);
-  const week = (l: (typeof lists)[number]) => l.likesWeek ?? l.likes;
-  // A topic row once a genre has two lists in it, the fullest topics first.
-  const byTopic = new Map<string, typeof lists>();
-  for (const l of others) if (l.topic) byTopic.set(l.topic, [...(byTopic.get(l.topic) ?? []), l]);
-  const topics = [...byTopic.entries()].filter(([, ls]) => ls.length >= 2).sort((a, b) => b[1].length - a[1].length).slice(0, 5);
-  const groups: [string, typeof lists][] = [
-    ["Featured", lists.filter((l) => l.featured)],
-    ["Popular this week", [...others].filter((l) => week(l) > 0).sort((a, b) => week(b) - week(a)).slice(0, 8)],
-    ["Most liked", [...others].filter((l) => l.likesWeek !== undefined && l.likes > 0).sort((a, b) => b.likes - a.likes).slice(0, 8)],
-    ["Recently updated", others.filter((l) => l.likesWeek !== undefined).slice(0, 8)],
-    ["Big lists to dig into", [...others].sort((a, b) => b.titles.length - a.titles.length).slice(0, 4)],
-    ...topics.map(([topic, ls]): [string, typeof lists] => [topic, ls.slice(0, 8)]),
-    ["Your lists", lists.filter((l) => l.owner === me)],
-  ];
+  const groups = listGroups(lists, me);
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
@@ -48,15 +36,22 @@ export default async function Lists() {
             </div>
           </div>
           {groups
-            .filter(([, ls]) => ls.length > 0)
-            .map(([title, ls]) => (
-              <section key={title} className="grid grid-cols-[minmax(0,1fr)] gap-2">
+            .filter((g) => g.lists.length > 0)
+            .map((g) => (
+              <section key={g.slug} className="grid grid-cols-[minmax(0,1fr)] gap-2">
                 <div>
-                  <h2 className={H}>{title}</h2>
+                  {g.lists.length > g.shown ? (
+                    <Link href={`/lists/${g.slug}`} aria-label={`All of ${g.title}`} className={`${H} no-underline hover:text-accent transition-colors`}>
+                      <h2 className="!m-0 ![font:inherit] ![letter-spacing:inherit] uppercase">{g.title}</h2>
+                      <Chevron />
+                    </Link>
+                  ) : (
+                    <h2 className={H}>{g.title}</h2>
+                  )}
                 </div>
                 <div className={SHELL}>
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                    {ls.map((l) => (
+                    {g.lists.slice(0, g.shown).map((l) => (
                       <Unblocked key={`${l.owner}/${l.id}`} username={l.owner}>
                         <ListCard l={l} />
                       </Unblocked>
@@ -72,3 +67,4 @@ export default async function Lists() {
     </div>
   );
 }
+

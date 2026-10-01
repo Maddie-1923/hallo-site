@@ -97,6 +97,7 @@ function toList(r: ListRow, w: Who): ListView {
   return {
     owner: w.username,
     ownerName: w.displayName,
+    ownerAvatar: w.avatar,
     id: r.id,
     name: r.name,
     detail: r.detail,
