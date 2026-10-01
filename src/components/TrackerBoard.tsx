@@ -442,8 +442,12 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
             gap above it once pinned, so titles scrolling up go under it rather
             than show through. Over the list only when the episode panel is
             beside it; across the page otherwise. */}
-        <div ref={header} className="sticky z-20 bg-page pt-3 -mt-3 pb-3" style={{ top: navH }}>
-          <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid grid-cols-[minmax(0,1fr)] gap-2">
+        <div ref={header} className="sticky z-20 pt-3 -mt-3 pb-3" style={{ top: navH }}>
+          {/* Frosted glass behind the bar rather than a solid band: whatever
+              scrolls up under it blurs, barely tinted, and the blur fades out
+              below the bar instead of stopping on a hard line. */}
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -bottom-6 backdrop-blur-xl [mask-image:linear-gradient(to_bottom,black_75%,transparent)]" style={{ background: "color-mix(in srgb, var(--page) 30%, transparent)" }} />
+          <div className="relative rounded-shell p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.25)] backdrop-blur-xl grid grid-cols-[minmax(0,1fr)] gap-2" style={{ background: "color-mix(in srgb, var(--card) 72%, transparent)" }}>
             <div className="flex flex-wrap items-center gap-2">
               <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
               <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
