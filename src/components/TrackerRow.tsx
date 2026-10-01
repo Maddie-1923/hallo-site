@@ -73,8 +73,9 @@ export function Row({ t, lines, bar, keys, onPick, picked = false }: { t: Profil
 }
 
 /** The row's picture and name: a link to the title, or, on a page that
-    shows the picked row beside the list, a button picking it. */
-function To({ href, onPick, picked, className, children }: { href: string; onPick?: () => void; picked?: boolean; className: string; children: React.ReactNode }) {
+    shows the picked row beside the list, a button picking it. The tracker's
+    cards and tiles open the same way. */
+export function To({ href, onPick, picked, className, children }: { href: string; onPick?: () => void; picked?: boolean; className: string; children: React.ReactNode }) {
   return onPick ? (
     <button type="button" onClick={onPick} aria-pressed={picked} className={`${className} text-left cursor-pointer`}>
       {children}
@@ -89,8 +90,9 @@ function To({ href, onPick, picked, className, children }: { href: string; onPic
 // A key in the strip, with the app's confirmation (ConfirmKey).
 /** One key, the same size wherever it sits (64 by 36), as the app keeps
     its keys a fixed size rather than stretching them across whatever room
-    there is. */
-export function KeyButton({ k }: { k: Key }) {
+    there is. `fill` is the exception, for a poster tile narrower than four
+    such keys: there they share its width instead. */
+export function KeyButton({ k, fill = false }: { k: Key; fill?: boolean }) {
   return (
     <ConfirmKey
       label={k.label}
@@ -101,7 +103,7 @@ export function KeyButton({ k }: { k: Key }) {
       off={k.off}
       radius={8}
       run={k.run}
-      className={`w-16 h-9 shrink-0 flex items-center justify-center ${k.on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
+      className={`${fill ? "flex-1 min-w-0" : "w-16 shrink-0"} h-9 flex items-center justify-center ${k.on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
     >
       {k.icon}
     </ConfirmKey>

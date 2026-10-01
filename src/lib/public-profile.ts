@@ -20,6 +20,10 @@ export interface ProfileTitle {
   poster: string | null;
   backdrop: string | null;
   year: string;
+  /** TMDB's genre ids as the library stored them (a series' TV ids, a
+      film's movie ids), for the tracker's genre filter; absent when the
+      library has none for it. */
+  genres?: number[];
 }
 
 export interface DiaryEntry extends ProfileTitle {
@@ -183,6 +187,7 @@ export function showTitle(s: Show): ProfileTitle {
     poster: image.poster(s.poster_path, "w780"),
     backdrop: image.backdrop(s.backdrop_path),
     year: (s.first_air_date ?? "").slice(0, 4),
+    ...(s.genre_ids?.length ? { genres: s.genre_ids } : {}),
   };
 }
 
@@ -195,6 +200,7 @@ export function movieTitle(m: Movie): ProfileTitle {
     poster: image.poster(m.poster_path, "w780"),
     backdrop: image.backdrop(m.backdrop_path),
     year: (m.release_date ?? "").slice(0, 4),
+    ...(m.genre_ids?.length ? { genres: m.genre_ids } : {}),
   };
 }
 

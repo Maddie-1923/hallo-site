@@ -46,6 +46,50 @@ export function PosterRow({
   extra?: React.ReactNode;
   empty?: string;
 }) {
+  if (items.length === 0 && !empty) return null;
+
+  const heading = (
+    <>
+      <span className="display text-[24px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px]">{title}</span>
+      {href && (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim shrink-0">
+          <path d="M4 12h15M13 5l7 7-7 7" />
+        </svg>
+      )}
+    </>
+  );
+
+  return (
+    <section className="mt-10 first:mt-2">
+      {/* The heading on its plate, the app's heading pill. The whole plate is
+          the link to the category. */}
+      <div className="mb-3 flex items-center gap-2">
+        {href ? (
+          <Link href={href} aria-label={`Show all ${title}`} className="inline-flex items-center gap-1.5 h-11 px-3.5 rounded-[10px] bg-piece no-underline hover:[&_svg]:text-ink">
+            {heading}
+          </Link>
+        ) : (
+          <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece !m-0">{heading}</h2>
+        )}
+        {extra}
+      </div>
+
+      {items.length === 0 && <p className="m-0 text-[13px] text-dim">{empty}</p>}
+
+      <ScrollStrip title={title}>
+        {items.map((it) => (
+          <PosterCard key={it.key} it={it} lists={lists} className="shrink-0 snap-start w-[clamp(150px,13.5vw,196px)]" />
+        ))}
+      </ScrollStrip>
+    </section>
+  );
+}
+
+/** The sideways strip under a row's heading, with the round chevrons that
+    page it; shared with the tracker's Rails layout, whose piles are strips
+    of the same width of card. `title` names the chevrons for a screen
+    reader. */
+export function ScrollStrip({ title, children }: { title: string; children: React.ReactNode }) {
   const strip = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: true, end: false, scrollable: false });
 
@@ -78,57 +122,25 @@ export function PosterRow({
     el.scrollBy({ left: dir * Math.max(1, Math.floor((el.clientWidth + gap) / card)) * card, behavior: "smooth" });
   }
 
-  if (items.length === 0 && !empty) return null;
-
-  const heading = (
-    <>
-      <span className="display text-[24px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px]">{title}</span>
-      {href && (
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim shrink-0">
-          <path d="M4 12h15M13 5l7 7-7 7" />
-        </svg>
-      )}
-    </>
-  );
-
   return (
-    <section className="mt-10 first:mt-2">
-      {/* The heading on its plate, the app's heading pill. The whole plate is
-          the link to the category. */}
-      <div className="mb-3 flex items-center gap-2">
-        {href ? (
-          <Link href={href} aria-label={`Show all ${title}`} className="inline-flex items-center gap-1.5 h-11 px-3.5 rounded-[10px] bg-piece no-underline hover:[&_svg]:text-ink">
-            {heading}
-          </Link>
-        ) : (
-          <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece !m-0">{heading}</h2>
-        )}
-        {extra}
+    <div className="group/row relative">
+      <div
+        ref={strip}
+        onScroll={update}
+        // Room above and below for the cards' shadows, which a scrolling
+        // box would otherwise cut off.
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory py-2 -my-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {children}
       </div>
 
-      {items.length === 0 && <p className="m-0 text-[13px] text-dim">{empty}</p>}
-
-      <div className="group/row relative">
-        <div
-          ref={strip}
-          onScroll={update}
-          // Room above and below for the cards' shadows, which a scrolling
-          // box would otherwise cut off.
-          className="flex gap-3 overflow-x-auto snap-x snap-mandatory py-2 -my-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {items.map((it) => (
-            <PosterCard key={it.key} it={it} lists={lists} className="shrink-0 snap-start w-[clamp(150px,13.5vw,196px)]" />
-          ))}
-        </div>
-
-        {edges.scrollable && (
-          <>
-            {!edges.start && <EdgeArrow dir={-1} onClick={() => page(-1)} label={`Scroll ${title} back`} />}
-            <EdgeArrow dir={1} onClick={() => page(1)} label={`Scroll ${title} forward`} />
-          </>
-        )}
-      </div>
-    </section>
+      {edges.scrollable && (
+        <>
+          {!edges.start && <EdgeArrow dir={-1} onClick={() => page(-1)} label={`Scroll ${title} back`} />}
+          <EdgeArrow dir={1} onClick={() => page(1)} label={`Scroll ${title} forward`} />
+        </>
+      )}
+    </div>
   );
 }
 

@@ -322,6 +322,9 @@ details.faq p { margin: 14px 0 0; color: var(--dim); font-size: 15px; max-width:
 @keyframes slide-out-left { from { transform: none; } to { transform: translateX(-100%); } }
 @keyframes slide-out-right { from { transform: none; } to { transform: translateX(100%); } }
 
+/* The tracker's docked pile name, rising into place when the pile changes. */
+@keyframes tracker-pill-in { from { transform: translateY(60%); opacity: 0; } to { transform: none; opacity: 1; } }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
   html { scroll-behavior: auto; }
