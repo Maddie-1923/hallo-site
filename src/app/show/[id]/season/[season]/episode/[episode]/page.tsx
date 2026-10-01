@@ -17,9 +17,9 @@ import { rewatchNights } from "@/lib/library-rules";
 import { HeaderCard, TitleBento, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { optionalLibrary } from "@/lib/library";
 import { readTake } from "@/lib/library-rules";
-import { episodePage, image, seriesPage, type EpisodeLink } from "@/lib/tmdb";
+import { episodeAirstamp, episodePage, image, seriesPage, type EpisodeLink } from "@/lib/tmdb";
+import { AiredAt } from "@/components/AiredAt";
 import { visitorRegion } from "@/lib/region";
-import { Day } from "@/components/Day";
 import { AdSlot } from "@/components/AdSlot";
 
 // An episode's page, laid out as its show's (the picture across the top, the
@@ -52,49 +52,35 @@ export default async function EpisodePage({ params }: Params) {
   const d = await load(params);
   if (!d) notFound();
   const { show, ep, showID } = d;
-  const lib = await optionalLibrary();
+  const [lib, airstamp] = await Promise.all([optionalLibrary(), ep.airDate ? episodeAirstamp(showID, ep.season, ep.episode) : Promise.resolve(null)]);
   const key = `${showID}-${ep.season}-${ep.episode}`;
   const watched = !!lib.archive?.watched.includes(key);
   const loved = lib.archive?.reactions?.[`episode:${key}`] === "loved";
 
   const badge = seriesBadge(show.show.status, show.type);
+  // As the app lays an episode out: what it's called, when it aired (to the
+  // minute where TVmaze knows), how long it runs, how it's rated, who made
+  // it, and where the show stands; the description closes the panel.
   const facts = [
-    { label: "", value: <SpoilerName name={ep.name} watched={watched} /> },
-    // Which episode, and its badge (FINALE and the rest) beside it.
-    {
-      label: "Episode",
-      value: (
-        <span className="inline-flex items-center gap-2">
-          <EpisodeBadgePill facts={ep.facts} />
-          {code(ep.season, ep.episode)}
-        </span>
-      ),
-    },
-    ep.airDate && { label: "Aired", value: <Day iso={ep.airDate} /> },
+    { label: "Episode name", value: <SpoilerName name={ep.name} watched={watched} /> },
+    ep.airDate && { label: "Aired", value: <AiredAt date={ep.airDate} stamp={airstamp} /> },
     ep.runtime && { label: "Runtime", value: `${ep.runtime}m` },
     ep.vote && { label: "TMDB", value: ep.vote.toFixed(1) },
     ep.directors.length > 0 && { label: ep.directors.length > 1 ? "Directors" : "Director", value: <People people={ep.directors} /> },
     ep.writers.length > 0 && { label: ep.writers.length > 1 ? "Writers" : "Writer", value: <People people={ep.writers} /> },
+    badge && { label: "Show status", value: <SeriesPill label={badge.label} returning={badge.label === "RETURNING"} small /> },
   ].filter(Boolean) as { label: string; value: React.ReactNode }[];
 
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
-        {/* The episode's own still, lettered with its code and name rather
-            than the show's logo, and arrows to the episodes either side. */}
+        {/* The episode's own still, clear of any lettering, with arrows to
+            the episodes either side. */}
         <TitleBanner
           art={ep.still ?? image.banner(show.show.backdrop_path)}
           title={show.show.name}
           watched={ep.still ? watched : undefined}
-          heading={
-            <>
-              <div className="text-[1.0833rem] font-bold uppercase tracking-[.12em] text-white/85">{code(ep.season, ep.episode)}</div>
-              <div className="display text-[clamp(36px,5vw,64px)] leading-[.95] tracking-[.02em] uppercase mt-1 max-w-[60%]">
-                <SpoilerName name={ep.name} watched={watched} />
-              </div>
-            </>
-          }
           prev={ep.previous ? { href: `/show/${showID}/season/${ep.previous.season}/episode/${ep.previous.episode}`, label: `Previous: ${code(ep.previous.season, ep.previous.episode)}` } : null}
           next={ep.next ? { href: `/show/${showID}/season/${ep.next.season}/episode/${ep.next.episode}`, label: `Next: ${code(ep.next.season, ep.next.episode)}` } : null}
         />
@@ -111,7 +97,7 @@ export default async function EpisodePage({ params }: Params) {
                 title={ep.name}
                 heading={
                   // As the app heads an episode: its show, going to the show's
-                  // page, and the show's seasons and episodes under it.
+                  // page, and under it which episode this is, with its badge.
                   <div>
                     <Link href={`/show/${showID}`} className="group no-underline text-ink">
                       <h1 className="inline !text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase group-hover:text-accent transition-colors">
@@ -119,23 +105,15 @@ export default async function EpisodePage({ params }: Params) {
                         <span aria-hidden className="ml-2 text-[.55em] align-[.25em] text-dim">→</span>
                       </h1>
                     </Link>
-                    <div className="mt-1 text-[1.0417rem] font-semibold text-mid-tone">
-                      {plural(show.seasonCount, "Season")} · {plural(show.episodeCount, "Episode")}
+                    <div className="mt-1.5 flex items-center gap-2 text-[1.0417rem] font-semibold tracking-[.06em] text-mid-tone">
+                      {code(ep.season, ep.episode)}
+                      <EpisodeBadgePill facts={ep.facts} />
                     </div>
                   </div>
                 }
                 facts={facts}
                 overview={ep.overview}
                 overviewWatched={watched}
-                factsFooter={
-                  // The show's status, as the show page closes its facts.
-                  (show.lastAired || badge) && (
-                    <div className="flex items-center justify-between gap-3 text-[1.0417rem] text-dim">
-                      <span>{show.lastAired ? <>Last aired <Day iso={show.lastAired} /></> : ""}</span>
-                      {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING"} small />}
-                    </div>
-                  )
-                }
               />
             </Section>
               {/* The trailers, one or two, under About. */}
@@ -194,4 +172,3 @@ function Step({ showID, to, dir }: { showID: number; to: EpisodeLink | null; dir
 }
 
 
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;

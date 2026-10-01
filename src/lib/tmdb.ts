@@ -1157,3 +1157,28 @@ export async function releasesOn(day: string, region: string): Promise<{ key: st
   ];
   return out;
 }
+
+// ---- Air times, from TVmaze (as the app's TVMaze.swift) ----
+
+/** When an episode airs, to the minute (ISO 8601 with its offset), from
+    TVmaze: the show found by its IMDb or TheTVDB id from TMDB, then the
+    episode by number. Only a real time counts: TVmaze stamps most streaming
+    episodes 12:00 UTC with no airtime, and those keep the date alone. Null on
+    any miss, so an outage costs the time and nothing else. A day's cache. */
+export async function episodeAirstamp(showID: number, season: number, episode: number): Promise<string | null> {
+  const ids = await tmdb<{ imdb_id?: string | null; tvdb_id?: number | null }>(`/tv/${showID}/external_ids`, {}, 86_400);
+  if (!ids) return null;
+  const tries = [ids.imdb_id && `imdb=${encodeURIComponent(ids.imdb_id)}`, ids.tvdb_id && `thetvdb=${ids.tvdb_id}`].filter(Boolean) as string[];
+  try {
+    for (const q of tries) {
+      const show = await fetch(`https://api.tvmaze.com/lookup/shows?${q}`, { next: { revalidate: 86_400 } });
+      if (!show.ok) continue;
+      const { id } = (await show.json()) as { id: number };
+      const ep = await fetch(`https://api.tvmaze.com/shows/${id}/episodebynumber?season=${season}&number=${episode}`, { next: { revalidate: 86_400 } });
+      if (!ep.ok) return null;
+      const e = (await ep.json()) as { airtime?: string; airstamp?: string };
+      return e.airtime && e.airstamp ? e.airstamp : null;
+    }
+  } catch {}
+  return null;
+}
