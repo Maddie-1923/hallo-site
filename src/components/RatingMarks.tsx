@@ -34,19 +34,11 @@ export function RatingMarks({ value, size = 10, rows = 1 }: { value: number; siz
 }
 
 export function Star({ size }: { size: number }) {
+  // A plain filled star drawn on whole pixels, without the soft outline it
+  // used to wear, so it stays crisp at the small sizes it's used at.
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden className="block shrink-0">
-      {/* The same star with a rounded outline in its own colour, which
-          softens every point the way Apple's rounded star does. Drawn a
-          touch smaller so the outline brings it back to the same size. */}
-      <path
-        fill="currentColor"
-        stroke="currentColor"
-        strokeWidth="2.4"
-        strokeLinejoin="round"
-        transform="translate(12 12) scale(.9) translate(-12 -12)"
-        d="M12 2.2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.1l-6.1 3.5 1.5-6.8-5.2-4.6 6.9-.7z"
-      />
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden className="block shrink-0" shapeRendering="geometricPrecision">
+      <path fill="currentColor" d="M12 1.8l3.1 6.5 7.1.9-5.2 4.9 1.3 7.1L12 17.8l-6.3 3.4 1.3-7.1-5.2-4.9 7.1-.9z" />
     </svg>
   );
 }

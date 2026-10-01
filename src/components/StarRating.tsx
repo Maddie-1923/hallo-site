@@ -25,7 +25,7 @@ export function StarRating({
   className?: string;
 }) {
   const [hover, setHover] = useState<number | null>(null);
-  const off = "color-mix(in srgb, var(--ink) 28%, transparent)";
+  const off = "color-mix(in srgb, var(--ink) 38%, transparent)";
   return (
     <div className={`flex justify-center ${className}`} onMouseLeave={() => setHover(null)} role="radiogroup" aria-label={label}>
       {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => {

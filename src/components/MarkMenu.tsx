@@ -158,26 +158,6 @@ export function MarkMenu({
 
       <GroupGap />
       <div className={GROUP}>
-      {onTrailer && (
-        <button
-          type="button"
-          className={row}
-          disabled={trailerState !== "idle"}
-          onClick={() => {
-            setTrailerState("finding");
-            trailerFor(target.kind, target.kind === "show" ? target.show.id : target.movie.id)
-              .then((id) => {
-                if (id) {
-                  onTrailer(id);
-                  onClose();
-                } else setTrailerState("none");
-              })
-              .catch(() => setTrailerState("none"));
-          }}
-        >
-          {trailerState === "finding" ? "Finding the trailer…" : trailerState === "none" ? "No trailer for this one" : "▶ Watch trailer"}
-        </button>
-      )}
       <Link href={`${href}#activity`} className={row} onClick={onClose}>
         Recent activity
       </Link>
@@ -290,6 +270,27 @@ export function MarkMenu({
       </span>
       </div>
       <GroupGap />
+      <div className={GROUP}>
+      {onTrailer && (
+        <button
+          type="button"
+          className={row}
+          disabled={trailerState !== "idle"}
+          onClick={() => {
+            setTrailerState("finding");
+            trailerFor(target.kind, target.kind === "show" ? target.show.id : target.movie.id)
+              .then((id) => {
+                if (id) {
+                  onTrailer(id);
+                  onClose();
+                } else setTrailerState("none");
+              })
+              .catch(() => setTrailerState("none"));
+          }}
+        >
+          {trailerState === "finding" ? "Finding the trailer…" : trailerState === "none" ? "No trailer for this one" : "▶ Watch trailer"}
+        </button>
+      )}
       <a
         href={target.kind === "movie" ? `https://www.themoviedb.org/movie/${target.movie.id}/watch` : `https://www.themoviedb.org/tv/${target.show.id}/watch`}
         target="_blank"
@@ -299,6 +300,7 @@ export function MarkMenu({
       >
         Where to watch ↗
       </a>
+      </div>
 
       {error && <p className="px-4 pb-3 text-xs m-0" style={{ color: "var(--movies)" }} role="alert">{error}</p>}
 
