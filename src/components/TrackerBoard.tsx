@@ -436,6 +436,14 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     window.scrollTo({ top: window.scrollY + target.getBoundingClientRect().top - (row ? navH + headerH : navH), behavior: reduce ? "auto" : "smooth" });
   };
 
+  // The Recap key for an episode: the one before it, on its own sheet. None
+  // where there's nothing before it to recap.
+  const recapFor = (t: ProfileTitle, episode: string | undefined): Key | null => {
+    const s = known.get(t.key);
+    const before = s && episode ? episodeBefore(s.aired, episode) : null;
+    return s && before ? { icon: <RecapGlyph />, label: `Recap ${code(before)} of ${s.title}`, run: () => setSheet({ kind: "recap", t: s, episode: before, watched: seenOf(s).includes(before) }) } : null;
+  };
+
   // A coming entry's keys, for the layouts with no panel to carry them.
   const tileKeys = (i: Item) => i.keys ?? (i.date ? keysFor({ date: i.date, t: i.t, label: "", episode: i.episode }) : null);
   const body = (g: Group) => {
@@ -461,9 +469,9 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       <ul className="m-0 p-0 list-none grid gap-2">
         {g.items.map((i) =>
           layout === "card" ? (
-            <BackdropCard key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? i.keys : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} band={i.band} countdown={i.countdown} />
+            <BackdropCard key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? null : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} band={i.band} countdown={i.countdown} />
           ) : (
-            <Row key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? i.keys : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} band={i.band} countdown={i.countdown} />
+            <Row key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? null : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} band={i.band} countdown={i.countdown} />
           ),
         )}
       </ul>
@@ -621,7 +629,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
           <aside className="sticky self-start min-w-0 lg:pl-2" style={{ top: navH + headerH + 4, marginTop: firstTop }}>
             {/* In a shell of its own, like the rows beside it. */}
             <div className="rounded-shell bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
-              <EpisodePanel item={picked} keysFor={keysFor} band={bandOf(picked.facts, picked.episode ?? picked.panelEpisode)} />
+              <EpisodePanel item={picked} keysFor={keysFor} recapFor={recapFor} band={bandOf(picked.facts, picked.episode ?? picked.panelEpisode)} />
             </div>
           </aside>
         )}
@@ -813,7 +821,7 @@ type Item = {
 // the still, the name, when it aired, how long it runs, its rating and what
 // happens, with the Skip and Watched keys; for a film, its picture and year.
 // The episode's details are fetched when first picked, a season at a time.
-function EpisodePanel({ item: given, keysFor, band }: { item: Item; keysFor: (e: CalendarEvent) => Key[] | null; band: EpisodeBadge | null }) {
+function EpisodePanel({ item: given, keysFor, recapFor, band }: { item: Item; keysFor: (e: CalendarEvent) => Key[] | null; recapFor: (t: ProfileTitle, episode: string | undefined) => Key | null; band: EpisodeBadge | null }) {
   const item = given.episode || !given.panelEpisode ? given : { ...given, episode: given.panelEpisode };
   const [seasons, setSeasons] = useState<Record<string, SeasonEpisode[]>>({});
   const id = Number(item.t.key.slice(1));
@@ -829,9 +837,12 @@ function EpisodePanel({ item: given, keysFor, band }: { item: Item; keysFor: (e:
   }, [seasonKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const ep = seasonKey ? seasons[seasonKey]?.find((e) => e.episode === en) ?? null : null;
 
-  // The keys for this very episode (or film), without More.
-  const keys = (keysFor({ date: ep?.airDate ?? item.date ?? "0000-00-00", t: item.t, label: "", episode: item.episode }) ?? [])
-    .filter((k) => !k.label.startsWith("More"));
+  // The keys for this very episode (or film): with the panel beside the
+  // list, the rows carry none and they all live here, More first, then
+  // Recap where there's an episode before this one.
+  const own = keysFor({ date: ep?.airDate ?? item.date ?? "0000-00-00", t: item.t, label: "", episode: item.episode }) ?? [];
+  const recap = recapFor(item.t, item.episode);
+  const keys = recap ? [own[0], recap, ...own.slice(1)] : own;
   const isFilm = item.t.kind === "movie";
   const status = item.series ? seriesBadge(item.series.status, item.series.type) : null;
   const spoilers = useSpoilers();
