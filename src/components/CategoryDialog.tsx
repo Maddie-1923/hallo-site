@@ -336,7 +336,7 @@ export function CategoryDialog({
     });
   }
 
-  const select = "field !w-auto !h-9 !py-0 !pl-3 !pr-8 !text-[13px] !text-ink";
+  const select = "pick";
   return (
     <Sheet
       label={browse ? "Browse" : edit ? `Edit ${edit.name}` : "New category"}
@@ -424,77 +424,89 @@ export function CategoryDialog({
             </MultiRow>
           )}
           <Row first={serviceList.length === 0} label="Made in">
-            <select className={select} aria-label="Made in" value={f.originCountry ?? ""} onChange={(e) => (e.target.value ? set({ originCountry: e.target.value }) : unset("originCountry"))}>
-              <option value="">Anywhere</option>
-              {COUNTRIES.map((c) => [c, countryName(c)] as const)
-                .sort((x, y) => x[1].localeCompare(y[1]))
-                .map(([c, n]) => (
-                  <option key={c} value={c}>
-                    {n}
-                  </option>
-                ))}
-            </select>
+            <span className="pick-wrap">
+              <select className={select} aria-label="Made in" value={f.originCountry ?? ""} onChange={(e) => (e.target.value ? set({ originCountry: e.target.value }) : unset("originCountry"))}>
+                <option value="">Anywhere</option>
+                {COUNTRIES.map((c) => [c, countryName(c)] as const)
+                  .sort((x, y) => x[1].localeCompare(y[1]))
+                  .map(([c, n]) => (
+                    <option key={c} value={c}>
+                      {n}
+                    </option>
+                  ))}
+              </select>
+            </span>
           </Row>
           <Row label="Original language">
-            <select className={select} aria-label="Original language" value={f.originalLanguage ?? ""} onChange={(e) => (e.target.value ? set({ originalLanguage: e.target.value }) : unset("originalLanguage"))}>
-              <option value="">Any language</option>
-              {LANGUAGES.map((c) => [c, languageName(c)] as const)
-                .sort((x, y) => x[1].localeCompare(y[1]))
-                .map(([c, n]) => (
-                  <option key={c} value={c}>
-                    {n}
-                  </option>
-                ))}
-            </select>
+            <span className="pick-wrap">
+              <select className={select} aria-label="Original language" value={f.originalLanguage ?? ""} onChange={(e) => (e.target.value ? set({ originalLanguage: e.target.value }) : unset("originalLanguage"))}>
+                <option value="">Any language</option>
+                {LANGUAGES.map((c) => [c, languageName(c)] as const)
+                  .sort((x, y) => x[1].localeCompare(y[1]))
+                  .map(([c, n]) => (
+                    <option key={c} value={c}>
+                      {n}
+                    </option>
+                  ))}
+              </select>
+            </span>
           </Row>
           <Row label={shows && f.kinds.length === 1 ? "Episode length" : "Length"}>
-            <select className={select} aria-label="Length" value={f.runtime ?? ""} onChange={(e) => (e.target.value ? set({ runtime: e.target.value as DiscoverFilter["runtime"] }) : unset("runtime"))}>
-              <option value="">Any length</option>
-              {RUNTIMES.map((r) => (
-                <option key={r.band} value={r.band}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
+            <span className="pick-wrap">
+              <select className={select} aria-label="Length" value={f.runtime ?? ""} onChange={(e) => (e.target.value ? set({ runtime: e.target.value as DiscoverFilter["runtime"] }) : unset("runtime"))}>
+                <option value="">Any length</option>
+                {RUNTIMES.map((r) => (
+                  <option key={r.band} value={r.band}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </span>
           </Row>
           <Row label="Years">
-            <select className={select} aria-label="From year" value={f.yearFrom ?? ""} onChange={(e) => (e.target.value ? set({ yearFrom: Number(e.target.value) }) : unset("yearFrom"))}>
-              <option value="">Any</option>
-              {YEARS.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
+            <span className="pick-wrap">
+              <select className={select} aria-label="From year" value={f.yearFrom ?? ""} onChange={(e) => (e.target.value ? set({ yearFrom: Number(e.target.value) }) : unset("yearFrom"))}>
+                <option value="">Any</option>
+                {YEARS.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </span>
             <span>to</span>
-            <select className={select} aria-label="To year" value={f.yearTo ?? ""} onChange={(e) => (e.target.value ? set({ yearTo: Number(e.target.value) }) : unset("yearTo"))}>
-              <option value="">Any</option>
-              {YEARS.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
+            <span className="pick-wrap">
+              <select className={select} aria-label="To year" value={f.yearTo ?? ""} onChange={(e) => (e.target.value ? set({ yearTo: Number(e.target.value) }) : unset("yearTo"))}>
+                <option value="">Any</option>
+                {YEARS.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </span>
           </Row>
           <Row label="Rating">
-            <select
-              className={select}
-              aria-label="Rating"
-              value={f.ratingTo === undefined ? (f.ratingFrom ?? "") : "custom"}
-              onChange={(e) => (e.target.value ? setRating(Number(e.target.value), undefined) : setRating(undefined, undefined))}
-            >
-              {f.ratingTo !== undefined && (
-                <option value="custom">
-                  {f.ratingFrom ?? 0}–{f.ratingTo} stars
-                </option>
-              )}
-              <option value="">Any rating</option>
-              {STAR_MINIMUMS.map((n) => (
-                <option key={n} value={n}>
-                  {starsLabel(n)}
-                </option>
-              ))}
-            </select>
+            <span className="pick-wrap">
+              <select
+                className={select}
+                aria-label="Rating"
+                value={f.ratingTo === undefined ? (f.ratingFrom ?? "") : "custom"}
+                onChange={(e) => (e.target.value ? setRating(Number(e.target.value), undefined) : setRating(undefined, undefined))}
+              >
+                {f.ratingTo !== undefined && (
+                  <option value="custom">
+                    {f.ratingFrom ?? 0}–{f.ratingTo} stars
+                  </option>
+                )}
+                <option value="">Any rating</option>
+                {STAR_MINIMUMS.map((n) => (
+                  <option key={n} value={n}>
+                    {starsLabel(n)}
+                  </option>
+                ))}
+              </select>
+            </span>
           </Row>
         </Card>
 

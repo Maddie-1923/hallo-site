@@ -55,43 +55,51 @@ export function InfiniteGrid({ source, first, empty, filterable = false }: { sou
   const narrowed = !!(genre || since || stars || sort);
 
   if (items.length === 0) return <p className="mt-8 text-[13px] text-dim">{empty}</p>;
-  const select = "field !w-auto !h-9 !py-0 !pl-3 !pr-8 !text-[13px] !text-ink";
+  const select = "pick";
   return (
     <>
       {filterable && (
-        <div className="mt-5 flex flex-wrap items-center gap-2">
-          <select className={select} aria-label="Genre" value={genre} onChange={(e) => setGenre(e.target.value)}>
-            <option value="">Any genre</option>
-            {GENRES.map((g) => (
-              <option key={g.key} value={g.key}>
-                {g.label}
-              </option>
-            ))}
-          </select>
-          <select className={select} aria-label="From year" value={since} onChange={(e) => setSince(e.target.value)}>
-            <option value="">Any year</option>
-            {[2026, 2025, 2024, 2023, 2020, 2015, 2010, 2000, 1990, 1980].map((y) => (
-              <option key={y} value={y}>
-                {y} and later
-              </option>
-            ))}
-          </select>
-          <select className={select} aria-label="Rating" value={stars} onChange={(e) => setStars(e.target.value)}>
-            <option value="">Any rating</option>
-            {[5, 6, 7, 8, 9].map((n) => (
-              <option key={n} value={n}>
-                {n}+ stars
-              </option>
-            ))}
-          </select>
-          <select className={select} aria-label="Order" value={sort} onChange={(e) => setSort(e.target.value)}>
-            <option value="">As listed</option>
-            <option value="newest">Newest</option>
-            <option value="rated">Highest rated</option>
-            <option value="az">A–Z</option>
-          </select>
+        <div className="mt-5 flex flex-wrap items-center gap-1.5">
+          <span className="pick-wrap">
+            <select className={select} aria-label="Genre" value={genre} onChange={(e) => setGenre(e.target.value)}>
+              <option value="">Any genre</option>
+              {GENRES.map((g) => (
+                <option key={g.key} value={g.key}>
+                  {g.label}
+                </option>
+              ))}
+            </select>
+          </span>
+          <span className="pick-wrap">
+            <select className={select} aria-label="From year" value={since} onChange={(e) => setSince(e.target.value)}>
+              <option value="">Any year</option>
+              {[2026, 2025, 2024, 2023, 2020, 2015, 2010, 2000, 1990, 1980].map((y) => (
+                <option key={y} value={y}>
+                  {y}+
+                </option>
+              ))}
+            </select>
+          </span>
+          <span className="pick-wrap">
+            <select className={select} aria-label="Rating" value={stars} onChange={(e) => setStars(e.target.value)}>
+              <option value="">Any rating</option>
+              {[5, 6, 7, 8, 9].map((n) => (
+                <option key={n} value={n}>
+                  {n}+ stars
+                </option>
+              ))}
+            </select>
+          </span>
+          <span className="pick-wrap">
+            <select className={select} aria-label="Order" value={sort} onChange={(e) => setSort(e.target.value)}>
+              <option value="">Default</option>
+              <option value="newest">Newest</option>
+              <option value="rated">Highest rated</option>
+              <option value="az">A–Z</option>
+            </select>
+          </span>
           {narrowed && (
-            <button type="button" className="h-9 px-2 text-[13px] font-semibold text-accent hover:underline cursor-pointer" onClick={() => (setGenre(""), setSince(""), setStars(""), setSort(""))}>
+            <button type="button" className="h-8 px-2 text-[13px] font-semibold text-accent hover:underline cursor-pointer" onClick={() => (setGenre(""), setSince(""), setStars(""), setSort(""))}>
               Clear
             </button>
           )}
