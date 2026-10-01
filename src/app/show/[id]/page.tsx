@@ -120,7 +120,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
                 (page.lastAired || badge) && (
                   <div className="flex items-center justify-between gap-3 text-[1.0417rem] text-dim">
                     <span>{page.lastAired ? <>Last aired <Day iso={page.lastAired} /></> : ""}</span>
-                    {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING"} />}
+                    {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING"} small />}
                   </div>
                 )
               }
@@ -140,7 +140,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
             at the About card's width. */}
         {seasons.length > 0 && (
           <div className="mt-8">
-            <SeasonBrowser showID={showID} seasons={seasons} watched={watched} open={openSeason} start={start} />
+            <SeasonBrowser showID={showID} seasons={seasons} watched={watched} skipped={lib.archive?.skipped?.filter((k) => k.startsWith(`${showID}-`)) ?? []} live={lib.signedIn} open={openSeason} start={start} />
           </div>
         )}
         {/* Under it, the reviews at the About card's width, and their own

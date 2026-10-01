@@ -15,7 +15,7 @@ import { Day } from "./Day";
 // to its own page. It opens on the episode they watched last, or the
 // first. It stays at the top beside the list, where it starts. On a phone
 // it comes under the list.
-export function SeasonBrowser({ showID, seasons, watched, open, start }: { showID: number; seasons: { number: number; name: string; count: number }[]; watched: string[]; open: number; start: { season: number; episode: number } }) {
+export function SeasonBrowser({ showID, seasons, watched, skipped, live, open, start }: { showID: number; seasons: { number: number; name: string; count: number }[]; watched: string[]; skipped?: string[]; live?: boolean; open: number; start: { season: number; episode: number } }) {
   const [ep, setEp] = useState<SeasonEpisode | null>(null);
   const key = ep ? `${showID}-${ep.season}-${ep.episode}` : null;
   const seen = !!key && watched.includes(key);
@@ -28,7 +28,7 @@ export function SeasonBrowser({ showID, seasons, watched, open, start }: { showI
           <HeadingPill small>All episodes</HeadingPill>
         </div>
         <SectionCard className="relative flex-1 max-lg:h-[43.3333rem] lg:min-h-[26.6667rem]">
-          <SeasonList showID={showID} seasons={seasons} watched={watched} open={open} picked={key} onPick={setEp} start={start} scroll />
+          <SeasonList showID={showID} seasons={seasons} watched={watched} skipped={skipped} live={live} open={open} picked={key} onPick={setEp} start={start} scroll />
         </SectionCard>
       </section>
       {/* The notch's 8px from the list, as the keys are from About above. */}

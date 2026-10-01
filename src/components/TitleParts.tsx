@@ -18,14 +18,15 @@ import { TrailerCard, TrailerRail } from "./TrailerPlayer";
 export function HeadingPill({ children, small = false }: { children: React.ReactNode; small?: boolean }) {
   // Small: lettered as the credits' tab bar beside it (bold capitals, widely
   // spaced), on a pill of the bar's height, for the headings in the bento.
+  // Both wear the hairline the Tracker's headings and keys do.
   if (small)
     return (
-      <h2 className="inline-flex items-center h-[2.8333rem] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink">
+      <h2 className="inline-flex items-center h-[2.8333rem] px-4 rounded-full bg-piece border border-hair ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink">
         {children}
       </h2>
     );
   return (
-    <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece !text-[2rem] !leading-none tracking-[.02em] uppercase pt-1">
+    <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece border border-hair !text-[2rem] !leading-none tracking-[.02em] uppercase pt-1">
       {children}
     </h2>
   );

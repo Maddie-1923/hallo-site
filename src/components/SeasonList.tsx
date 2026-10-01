@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { loadSeason, type SeasonEpisode } from "@/lib/title-actions";
-import { Glyph } from "./Glyph";
+import { setEpisodeSkipped, setEpisodeWatched } from "@/lib/library-actions";
+import { CheckGlyph, HOLD, KeyButton, SkipGlyph } from "./TrackerRow";
 import { SpoilerName } from "./Spoiler";
 import { Day } from "./Day";
 
@@ -17,22 +19,89 @@ type Episode = SeasonEpisode;
 // its code and air date over its name, and the skip and watched keys on the
 // right. An episode not yet aired shows how many days to go instead.
 //
-// A season's episodes are fetched when it is opened. Checking off from the
-// website comes with accounts; until then the keys show the library's state
-// and the page says so when pressed.
+// A season's episodes are fetched when it is opened. The keys are the
+// Tracker's (KeyButton): hairline-outlined, and the stroke runs round one
+// before it takes. Signed in (`live`), they check episodes off, set them
+// aside, or check off a whole season's aired episodes, saved as they're
+// pressed and put back if the save fails; signed out, a press says to sign in.
 // With `onPick`, a row shows its episode beside the list (the small episode
 // page) rather than going to the episode's own page; the one shown is marked,
 // and when a season opens with nothing shown yet, its first episode not yet
 // watched is.
 // `start` is the episode to show first; `scroll` lays the list over the
 // space its card has, so it scrolls inside rather than setting the height.
-export function SeasonList({ showID, seasons, watched, open: initial, picked, onPick, start: first, scroll = false }: { showID: number; seasons: Season[]; watched: string[]; open: number; picked?: string | null; onPick?: (e: Episode) => void; start?: { season: number; episode: number }; scroll?: boolean }) {
+export function SeasonList({ showID, seasons, watched, skipped = [], live = false, open: initial, picked, onPick, start: first, scroll = false }: { showID: number; seasons: Season[]; watched: string[]; skipped?: string[]; live?: boolean; open: number; picked?: string | null; onPick?: (e: Episode) => void; start?: { season: number; episode: number }; scroll?: boolean }) {
+  const router = useRouter();
   const [open, setOpen] = useState<number | null>(initial);
   const [episodes, setEpisodes] = useState<Record<number, Episode[]>>({});
   const [pending, start] = useTransition();
-  const [note, setNote] = useState(false);
-  const seen = new Set(watched);
+  const [note, setNote] = useState<string | null>(null);
+  const [seenList, setSeen] = useState(watched);
+  const [asideList, setAside] = useState(skipped);
+  const seen = new Set(seenList);
+  const aside = new Set(asideList);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // A change shows at once and is saved behind it; if the save fails (signed
+  // out, or no Pro), it's put back and the reason shows over the list.
+  function say(text: string) {
+    setNote(text);
+    setTimeout(() => setNote(null), 5000);
+  }
+  function change(apply: () => void, undo: () => void, save: () => Promise<{ error?: string }>) {
+    if (!live) return say("Sign in to check off episodes.");
+    apply();
+    void save().then((r) => {
+      if (r.error) {
+        undo();
+        say(r.error);
+      } else router.refresh();
+    });
+  }
+  const without = (list: string[], k: string) => list.filter((x) => x !== k);
+  function toggleSeen(season: number, episode: number) {
+    const k = `${showID}-${season}-${episode}`;
+    const was = seen.has(k);
+    const wasAside = aside.has(k);
+    change(
+      () => {
+        setSeen((l) => (was ? without(l, k) : [...l, k]));
+        if (!was) setAside((l) => without(l, k));
+      },
+      () => {
+        setSeen((l) => (was ? [...l, k] : without(l, k)));
+        if (wasAside) setAside((l) => [...without(l, k), k]);
+      },
+      () => setEpisodeWatched(showID, season, episode, !was),
+    );
+  }
+  function toggleAside(season: number, episode: number) {
+    const k = `${showID}-${season}-${episode}`;
+    const was = aside.has(k);
+    change(
+      () => setAside((l) => (was ? without(l, k) : [...l, k])),
+      () => setAside((l) => (was ? [...l, k] : without(l, k))),
+      () => setEpisodeSkipped(showID, season, episode, !was),
+    );
+  }
+  // A season's key checks off every aired episode in it not yet watched,
+  // one save after another so each lands on the last.
+  async function checkSeason(n: number) {
+    if (!live) return say("Sign in to check off episodes.");
+    const eps = episodes[n] ?? (await loadSeason(showID, n));
+    const todo = eps.filter((e) => e.airDate && e.airDate <= today && !seen.has(`${showID}-${e.season}-${e.episode}`));
+    if (!todo.length) return;
+    const keys = todo.map((e) => `${showID}-${e.season}-${e.episode}`);
+    setSeen((l) => [...l, ...keys]);
+    for (const e of todo) {
+      const r = await setEpisodeWatched(showID, e.season, e.episode, true);
+      if (r.error) {
+        setSeen((l) => l.filter((x) => !keys.includes(x)));
+        return say(r.error);
+      }
+    }
+    router.refresh();
+  }
 
   useEffect(() => {
     if (open == null || episodes[open]) return;
@@ -59,7 +128,17 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
 
   return (
     <div ref={listRef} className={`grid gap-2 content-start ${scroll ? "soft-scroll absolute inset-2 overflow-y-auto overscroll-contain pr-1" : ""}`}>
-      {note && <p className="m-0 px-1 text-[1.0417rem] text-dim">Checking off episodes on the website opens with accounts. Until then, check them off in the app.</p>}
+      {note && (
+        <p className="m-0 px-1 text-[1.0417rem] text-dim" role="status">
+          {note === "Sign in to check off episodes." ? (
+            <>
+              <Link href="/login" className="text-accent no-underline hover:underline">Sign in</Link> to check off episodes.
+            </>
+          ) : (
+            note
+          )}
+        </p>
+      )}
       {seasons.map((s) => {
         const done = Array.from({ length: s.count }, (_, i) => `${showID}-${s.number}-${i + 1}`).filter((k) => seen.has(k)).length;
         const isOpen = open === s.number;
@@ -76,9 +155,17 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
               <span className="ml-auto text-[1.0417rem] text-dim tabular-nums">
                 {done}/{s.count}
               </span>
-              <button type="button" onClick={() => setNote(true)} aria-label={`Mark ${s.name} watched`} className={`w-[2.8333rem] h-7 rounded-[9px] flex items-center justify-center cursor-pointer ${done === s.count && s.count > 0 ? "bg-accent-fill text-on-accent" : "bg-hair text-ink"}`}>
-                <Glyph name="check" size={14} />
-              </button>
+              <KeyButton
+                k={{
+                  icon: <CheckGlyph />,
+                  label: done === s.count && s.count > 0 ? `${s.name} watched` : `Mark ${s.name} watched`,
+                  on: done === s.count && s.count > 0,
+                  onFill: "var(--accent-fill)",
+                  onInk: "var(--on-accent)",
+                  confirm: done === s.count ? undefined : "var(--accent-fill)",
+                  run: done === s.count ? undefined : () => void checkSeason(s.number),
+                }}
+              />
             </div>
             <div className="mt-2 h-1 rounded-full bg-track overflow-hidden">
               <div className="h-full bg-accent-fill" style={{ width: s.count ? `${(done / s.count) * 100}%` : 0 }} />
@@ -117,21 +204,27 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
                       )}
                       {aired ? (
                         <div className="flex gap-1.5">
-                          <button type="button" onClick={() => setNote(true)} aria-label={`Skip ${code(e.season, e.episode)}`} className="w-[2.8333rem] h-7 rounded-[9px] bg-hair text-dim flex items-center justify-center cursor-pointer">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" aria-hidden>
-                              <path d="M5 5.5v13l10-6.5z" />
-                              <path d="M18.5 5.5v13" strokeLinecap="round" />
-                            </svg>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setNote(true)}
-                            aria-label={`Mark ${code(e.season, e.episode)} watched`}
-                            aria-pressed={seen.has(key)}
-                            className={`w-[2.8333rem] h-7 rounded-[9px] flex items-center justify-center cursor-pointer ${seen.has(key) ? "bg-accent-fill text-on-accent" : "bg-hair text-ink"}`}
-                          >
-                            <Glyph name="check" size={14} />
-                          </button>
+                          <KeyButton
+                            k={{
+                              icon: <SkipGlyph />,
+                              label: aside.has(key) ? `${code(e.season, e.episode)} set aside` : `Watch ${code(e.season, e.episode)} later`,
+                              on: aside.has(key),
+                              off: seen.has(key),
+                              confirm: aside.has(key) ? undefined : HOLD,
+                              run: () => toggleAside(e.season, e.episode),
+                            }}
+                          />
+                          <KeyButton
+                            k={{
+                              icon: <CheckGlyph />,
+                              label: seen.has(key) ? `${code(e.season, e.episode)} watched` : `Mark ${code(e.season, e.episode)} watched`,
+                              on: seen.has(key),
+                              onFill: "var(--accent-fill)",
+                              onInk: "var(--on-accent)",
+                              confirm: seen.has(key) ? undefined : "var(--accent-fill)",
+                              run: () => toggleSeen(e.season, e.episode),
+                            }}
+                          />
                         </div>
                       ) : (
                         <div className="min-w-[1.8333rem] text-center leading-none">
