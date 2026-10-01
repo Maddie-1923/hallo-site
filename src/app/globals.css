@@ -147,14 +147,14 @@
   color: var(--ink);
 }
 
-/* The breakpoints on the same footing as the 12px rem: Tailwind's own
-   widths at three quarters, which is where the layouts were drawn. */
+/* The breakpoints in pixels, where the layouts were drawn, so a browser's
+   font size setting can't move them either. */
 @theme {
-  --breakpoint-sm: 30rem;
-  --breakpoint-md: 36rem;
-  --breakpoint-lg: 48rem;
-  --breakpoint-xl: 60rem;
-  --breakpoint-2xl: 72rem;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 576px;
+  --breakpoint-lg: 768px;
+  --breakpoint-xl: 960px;
+  --breakpoint-2xl: 1152px;
 }
 
 @theme inline {
@@ -185,14 +185,13 @@
   --font-body: var(--font-runde), ui-rounded, -apple-system, system-ui, sans-serif;
 }
 
-/* The page's sizes are set in rem against a 12px rem, three quarters of the
-   browser's font size, so with the usual 16px the page reads as it was
-   designed, and a visitor who sets their browser's font size bigger or
-   smaller gets the whole page scaled evenly, writing and spacing together.
-   Write new sizes in rem as px / 12 (13px is 1.0833rem). Hairlines of 2px
-   and under, and the vw-based clamps, stay in px. */
+/* The page's sizes are set in rem against a fixed 12px rem, so the page is
+   the same size whatever font size the browser is set to, and every part
+   stays in step (browser zoom still scales it all evenly). Write new sizes
+   in rem as px / 12 (13px is 1.0833rem). Hairlines of 2px and under, and the
+   vw-based clamps, stay in px. */
 html {
-  font-size: 75%;
+  font-size: 12px;
   scroll-behavior: smooth;
 }
 
