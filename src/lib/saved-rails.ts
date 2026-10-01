@@ -517,3 +517,16 @@ export function readFilterParam(param: string | undefined): DiscoverFilter | nul
     return null;
   }
 }
+
+/** Explore's Arrange: the categories it moved, in their new order. The
+    app's savedRailOrder is one list across both catalogues, so the moved
+    ones take the places they held between them and every other id stays
+    where it was. */
+export function applyReorderRails(a: LibraryArchive, ids: string[]) {
+  const all = orderedRails(a).map((r) => r.id);
+  const moving = ids.map((id) => all.find((x) => sameID(x, id))).filter((x): x is string => !!x);
+  const slots = all.map((id, i) => (moving.some((m) => sameID(m, id)) ? i : -1)).filter((i) => i >= 0);
+  const next = [...all];
+  slots.forEach((slot, k) => (next[slot] = moving[k]));
+  a.savedRailOrder = next;
+}

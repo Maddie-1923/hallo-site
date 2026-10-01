@@ -10,6 +10,9 @@ import { accountsOpen } from "@/lib/accounts";
 import { regionName, visitorRegion } from "@/lib/region";
 import { AdSlot } from "@/components/AdSlot";
 import { FilterButton } from "@/components/CategoryDialog";
+import { ArrangeButton } from "@/components/ArrangeButton";
+import { loadExploreOrder } from "@/lib/account-settings";
+import { Fragment } from "react";
 import { CategoryMenu } from "@/components/CategoryMenu";
 import { CATALOGUES, orderedRails, railCounts, type Catalogue } from "@/lib/saved-rails";
 import type { LibraryArchive } from "@/lib/archive";
@@ -35,6 +38,8 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
   const mine = customCategories(lib.archive, kind, region);
   // The Filter sheet's services, for everyone (the category rows fetch their own).
   const services = regionServices(region, 60);
+  // This tab's row order, as the visitor arranged it (signed in only).
+  const order = accountsOpen && lib.archive ? loadExploreOrder(kind) : Promise.resolve([] as string[]);
 
   if (kind === "all") {
     const [trendingShows, trendingMovies, inCinemas, airing, comingFilms, comingShows, topFilms, topShows, soonShows, soonFilms] = await Promise.all([
@@ -52,14 +57,13 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
     const slides = await billboard(trendingShows, trendingMovies, lib.archive, region, { shows: soonShows, movies: soonFilms });
     const shown = new Set(slides.map((s) => s.key));
     return (
-      <Layout slides={slides} kind={kind} mine={await mine} services={await services}>
-        <Row title="Trending this week" href="/explore/rail/trending" items={interleave(asMovies(trendingMovies), asShows(trendingShows)).filter((x) => !shown.has(x.key))} marks={marks} />
-        <Row title={`In cinemas · ${place}`} href="/explore/rail/in-cinemas" items={asMovies(inCinemas)} marks={marks} />
-        <Row title="New episodes this week" href="/explore/rail/new-episodes" items={asShows(airing)} marks={marks} />
-        <AdSlot place="rows" className="mt-8" />
-        <Row title="Coming soon" href="/explore/rail/coming-soon" items={interleave(asMovies(comingFilms), asShows(comingShows))} marks={marks} />
-        <Row title="Top rated" href="/explore/rail/top-rated" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
-      </Layout>
+      <Layout slides={slides} kind={kind} mine={await mine} services={await services} order={await order} built={[
+        { key: "b:trending", title: "Trending this week", node: <Row title="Trending this week" href="/explore/rail/trending" items={interleave(asMovies(trendingMovies), asShows(trendingShows)).filter((x) => !shown.has(x.key))} marks={marks} /> },
+        { key: "b:in-cinemas", title: `In cinemas · ${place}`, node: <Row title={`In cinemas · ${place}`} href="/explore/rail/in-cinemas" items={asMovies(inCinemas)} marks={marks} /> },
+        { key: "b:new-episodes", title: "New episodes this week", node: <Row title="New episodes this week" href="/explore/rail/new-episodes" items={asShows(airing)} marks={marks} /> },
+        { key: "b:coming-soon", title: "Coming soon", node: <Row title="Coming soon" href="/explore/rail/coming-soon" items={interleave(asMovies(comingFilms), asShows(comingShows))} marks={marks} /> },
+        { key: "b:top-rated", title: "Top rated", node: <Row title="Top rated" href="/explore/rail/top-rated" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} /> },
+      ]} />
     );
   }
 
@@ -75,14 +79,13 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
     const slides = await billboard(trending, [], lib.archive, region, { shows: soon });
     const shown = new Set(slides.map((s) => s.key));
     return (
-      <Layout slides={slides} kind={kind} mine={await mine} services={await services}>
-        <Row title="Trending this week" href="/explore/rail/trending-series" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} />
-        <Row title="New episodes this week" href="/explore/rail/new-episodes" items={asShows(airing)} marks={marks} />
-        <AdSlot place="rows" className="mt-8" />
-        <Row title="New series coming" href="/explore/rail/new-series" items={asShows(upcoming)} marks={marks} />
-        <Row title="Popular now" href="/explore/rail/popular-series" items={asShows(popular)} marks={marks} />
-        <Row title="Top rated" href="/explore/rail/top-rated-series" items={asShows(topRated)} marks={marks} />
-      </Layout>
+      <Layout slides={slides} kind={kind} mine={await mine} services={await services} order={await order} built={[
+        { key: "b:trending-series", title: "Trending this week", node: <Row title="Trending this week" href="/explore/rail/trending-series" items={asShows(trending).filter((x) => !shown.has(x.key))} marks={marks} /> },
+        { key: "b:new-episodes", title: "New episodes this week", node: <Row title="New episodes this week" href="/explore/rail/new-episodes" items={asShows(airing)} marks={marks} /> },
+        { key: "b:new-series", title: "New series coming", node: <Row title="New series coming" href="/explore/rail/new-series" items={asShows(upcoming)} marks={marks} /> },
+        { key: "b:popular-series", title: "Popular now", node: <Row title="Popular now" href="/explore/rail/popular-series" items={asShows(popular)} marks={marks} /> },
+        { key: "b:top-rated-series", title: "Top rated", node: <Row title="Top rated" href="/explore/rail/top-rated-series" items={asShows(topRated)} marks={marks} /> },
+      ]} />
     );
   }
 
@@ -97,18 +100,28 @@ export async function ExplorePage({ kind }: { kind: Kind }) {
   const slides = await billboard([], trending, lib.archive, region, { movies: soon });
   const shown = new Set(slides.map((s) => s.key));
   return (
-    <Layout slides={slides} kind={kind} mine={await mine} services={await services}>
-      <Row title="Trending this week" href="/explore/rail/trending-films" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} />
-      <Row title={`In cinemas · ${place}`} href="/explore/rail/in-cinemas" items={asMovies(inCinemas)} marks={marks} />
-      <AdSlot place="rows" className="mt-8" />
-      <Row title={`Coming soon · ${place}`} href="/explore/rail/coming-soon-films" items={asMovies(upcoming)} marks={marks} />
-      <Row title="Popular now" href="/explore/rail/popular-films" items={asMovies(popular)} marks={marks} />
-      <Row title="Top rated" href="/explore/rail/top-rated-films" items={asMovies(topRated)} marks={marks} />
-    </Layout>
+    <Layout slides={slides} kind={kind} mine={await mine} services={await services} order={await order} built={[
+      { key: "b:trending-films", title: "Trending this week", node: <Row title="Trending this week" href="/explore/rail/trending-films" items={asMovies(trending).filter((x) => !shown.has(x.key))} marks={marks} /> },
+      { key: "b:in-cinemas", title: `In cinemas · ${place}`, node: <Row title={`In cinemas · ${place}`} href="/explore/rail/in-cinemas" items={asMovies(inCinemas)} marks={marks} /> },
+      { key: "b:coming-soon-films", title: `Coming soon · ${place}`, node: <Row title={`Coming soon · ${place}`} href="/explore/rail/coming-soon-films" items={asMovies(upcoming)} marks={marks} /> },
+      { key: "b:popular-films", title: "Popular now", node: <Row title="Popular now" href="/explore/rail/popular-films" items={asMovies(popular)} marks={marks} /> },
+      { key: "b:top-rated-films", title: "Top rated", node: <Row title="Top rated" href="/explore/rail/top-rated-films" items={asMovies(topRated)} marks={marks} /> },
+    ]} />
   );
 }
 
-function Layout({ slides, kind, mine, services, children }: { slides: Awaited<ReturnType<typeof billboard>>; kind: Kind; mine: Categories | null; services: Service[]; children: React.ReactNode }) {
+type Entry = { key: string; title: string; node: React.ReactNode };
+
+/** The rows in the visitor's order: the ones they placed first, in the
+    order they placed them, then any they haven't (a new category, a new
+    built-in row) where they naturally fall. */
+function arranged(entries: Entry[], order: string[]): Entry[] {
+  const placed = order.map((k) => entries.find((e) => e.key === k)).filter((e): e is Entry => !!e);
+  return [...placed, ...entries.filter((e) => !order.includes(e.key))];
+}
+
+function Layout({ slides, kind, mine, services, order, built }: { slides: Awaited<ReturnType<typeof billboard>>; kind: Kind; mine: Categories | null; services: Service[]; order: string[]; built: Entry[] }) {
+  const rows = arranged([...built, ...(mine?.entries ?? [])], order);
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
@@ -116,15 +129,21 @@ function Layout({ slides, kind, mine, services, children }: { slides: Awaited<Re
         <CinemaHero slides={slides} />
       </header>
       <main className="flex-1 w-full px-[clamp(16px,3.2vw,64px)] pb-16 [&>section:first-of-type]:!mt-5">
-        {/* The switch on the left; Browse, which also makes categories, on the right. */}
+        {/* The switch on the left; Arrange and Browse (which also makes
+            categories) on the right. */}
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <KindSwitch kind={kind} />
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-3">
+            {mine && <ArrangeButton tab={kind} rows={rows.map((r) => ({ key: r.key, title: r.title }))} />}
             <FilterButton services={services} kinds={kindCatalogues(kind)} counts={mine?.counts} />
           </div>
         </div>
-        {children}
-        {mine?.rows}
+        {rows.map((r, i) => (
+          <Fragment key={r.key}>
+            {r.node}
+            {i === 1 && <AdSlot place="rows" className="mt-8" />}
+          </Fragment>
+        ))}
       </main>
       <SiteFooter />
     </div>
@@ -160,7 +179,7 @@ function KindSwitch({ kind }: { kind: Kind }) {
 
 const kindCatalogues = (kind: Kind): Catalogue[] => (kind === "show" ? ["Shows"] : kind === "movie" ? ["Movies"] : [...CATALOGUES]);
 
-type Categories = { services: Service[]; counts: Record<Catalogue, number>; rows: React.ReactNode };
+type Categories = { services: Service[]; counts: Record<Catalogue, number>; entries: Entry[] };
 
 /** The signed-in visitor's custom categories for this tab, as rows, and what
     the New category dialog needs. Null when there's nobody to make them for
@@ -171,9 +190,12 @@ async function customCategories(archive: LibraryArchive | null, kind: Kind, regi
   const [services, pages] = await Promise.all([regionServices(region, 60), Promise.all(rails.map((r) => savedRailTitles(r, region)))]);
   const counts = railCounts(archive);
   const marks = markLookup(archive);
-  const rows = rails.map((rail, i) => {
+  const entries: Entry[] = rails.map((rail, i) => {
     const p = pages[i];
-    return (
+    return {
+      key: `c:${rail.id}`,
+      title: rail.name,
+      node: (
       <Row
         key={rail.id}
         title={rail.name}
@@ -183,7 +205,8 @@ async function customCategories(archive: LibraryArchive | null, kind: Kind, regi
         empty="Nothing matches this category right now."
         extra={<CategoryMenu rail={rail} services={services} counts={counts} />}
       />
-    );
+      ),
+    };
   });
-  return { services, counts, rows };
+  return { services, counts, entries };
 }

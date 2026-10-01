@@ -2,7 +2,7 @@
 
 import { withArchive } from "@/lib/archive-write";
 import { accountsOpen } from "@/lib/accounts";
-import { applyCreateRails, applyDeleteRail, applyRenameRail, applySetRailFilter, cleanFilter, RAIL_LIMIT, type Catalogue } from "@/lib/saved-rails";
+import { applyCreateRails, applyDeleteRail, applyRenameRail, applyReorderRails, applySetRailFilter, cleanFilter, RAIL_LIMIT, type Catalogue } from "@/lib/saved-rails";
 
 // Custom categories from the web: the app's createRail, renameRail,
 // setRailFilter and deleteRail (Library.swift), written into the synced
@@ -38,4 +38,12 @@ export async function setRailFilter(id: string, filter: unknown): Promise<{ erro
 export async function deleteRail(id: string): Promise<{ error?: string }> {
   if (!accountsOpen) return closed;
   return withArchive((a) => applyDeleteRail(a, String(id)));
+}
+
+/** Explore's Arrange: the order of the visitor's own categories, kept in
+    the synced archive so the phone shows them in the same order. */
+export async function reorderRails(ids: string[]): Promise<{ error?: string }> {
+  if (!accountsOpen) return closed;
+  const clean = (Array.isArray(ids) ? ids : []).filter((x): x is string => typeof x === "string").slice(0, 40);
+  return withArchive((a) => applyReorderRails(a, clean));
 }

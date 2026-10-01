@@ -119,3 +119,31 @@ async function mergeOwn(me: NonNullable<Awaited<ReturnType<typeof signedIn>>>, p
   const { error } = await me.supabase.from("user_settings").upsert({ user_id: me.user.id, settings: { ...((data?.settings as object) ?? {}), ...patch } }, { onConflict: "user_id" });
   return !error;
 }
+
+// ---- The order of Explore's rows ----
+//
+// Each tab (All, Shows, Movies) keeps its own order: a list of row keys,
+// "b:<slug>" for a built-in row and "c:<ID>" for a custom category. Kept in
+// user_settings beside the theme. Rows not named (new ones) keep their
+// natural place after the named ones.
+export type ExploreTab = "all" | "show" | "movie";
+const TABS: ExploreTab[] = ["all", "show", "movie"];
+const cleanKeys = (keys: unknown) =>
+  Array.isArray(keys) ? [...new Set(keys.filter((k): k is string => typeof k === "string" && /^[bc]:[A-Za-z0-9-]{1,60}$/.test(k)))].slice(0, 60) : [];
+
+export async function loadExploreOrder(tab: ExploreTab): Promise<string[]> {
+  const me = await signedIn();
+  if (!me) return [];
+  const { data } = await me.supabase.from("user_settings").select("settings").eq("user_id", me.user.id).maybeSingle();
+  const all = (data?.settings as Record<string, unknown> | undefined)?.exploreOrder as Record<string, unknown> | undefined;
+  return cleanKeys(all?.[tab]);
+}
+
+export async function saveExploreOrder(tab: ExploreTab, keys: string[]): Promise<boolean> {
+  if (!TABS.includes(tab)) return false;
+  const me = await signedIn();
+  if (!me) return false;
+  const { data } = await me.supabase.from("user_settings").select("settings").eq("user_id", me.user.id).maybeSingle();
+  const had = ((data?.settings as Record<string, unknown> | undefined)?.exploreOrder ?? {}) as Record<string, unknown>;
+  return mergeOwn(me, { exploreOrder: { ...had, [tab]: cleanKeys(keys) } });
+}
