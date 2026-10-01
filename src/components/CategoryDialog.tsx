@@ -17,7 +17,8 @@ import {
   languageName,
   RAIL_LIMIT,
   RAIL_NAME_LIMIT,
-  RATING_BANDS,
+  STAR_MINIMUMS,
+  starsLabel,
   RUNTIMES,
   SORTS,
   STATUSES,
@@ -475,24 +476,22 @@ export function CategoryDialog({
               ))}
             </select>
           </Row>
-          <Row label="Rating on TMDB">
+          <Row label="Rating">
             <select
               className={select}
               aria-label="Rating"
-              value={RATING_BANDS.findIndex((b) => b.from === f.ratingFrom && b.to === f.ratingTo)}
-              onChange={(e) => {
-                const band = RATING_BANDS[Number(e.target.value)];
-                if (band) setRating(band.from, band.to);
-              }}
+              value={f.ratingTo === undefined ? (f.ratingFrom ?? "") : "custom"}
+              onChange={(e) => (e.target.value ? setRating(Number(e.target.value), undefined) : setRating(undefined, undefined))}
             >
-              {RATING_BANDS.findIndex((b) => b.from === f.ratingFrom && b.to === f.ratingTo) < 0 && (
-                <option value={-1}>
-                  {f.ratingFrom ?? 0}–{f.ratingTo ?? 10} out of 10
+              {f.ratingTo !== undefined && (
+                <option value="custom">
+                  {f.ratingFrom ?? 0}–{f.ratingTo} stars
                 </option>
               )}
-              {RATING_BANDS.map((b, i) => (
-                <option key={b.label} value={i}>
-                  {b.label === "Any" ? "Any rating" : b.label}
+              <option value="">Any rating</option>
+              {STAR_MINIMUMS.map((n) => (
+                <option key={n} value={n}>
+                  {starsLabel(n)}
                 </option>
               ))}
             </select>
@@ -500,7 +499,7 @@ export function CategoryDialog({
         </Card>
 
         {shows && (
-          <Card title="Series" note={f.kinds.length > 1 ? "Status and show type narrow series only. Movies aren't affected by them." : undefined}>
+          <Card title="Shows" note={f.kinds.length > 1 ? "Status and type narrow shows only. Movies aren't affected by them." : undefined}>
             <MultiRow first label="Status" summary={f.statuses.length ? STATUSES.filter(([n]) => f.statuses.includes(n)).map(([, l]) => l).join(", ") : "Any status"}>
               {STATUSES.map(([n, label]) => (
                 <Chip key={n} on={f.statuses.includes(n)} onClick={() => set({ statuses: toggle(f.statuses, n).sort((x, y) => x - y) })}>
@@ -508,7 +507,7 @@ export function CategoryDialog({
                 </Chip>
               ))}
             </MultiRow>
-            <MultiRow label="Show type" summary={f.types.length ? TYPES.filter(([n]) => f.types.includes(n)).map(([, l]) => l).join(", ") : "Any type"}>
+            <MultiRow label="Type" summary={f.types.length ? TYPES.filter(([n]) => f.types.includes(n)).map(([, l]) => l).join(", ") : "Any type"}>
               {TYPES.map(([n, label]) => (
                 <Chip key={n} on={f.types.includes(n)} onClick={() => set({ types: toggle(f.types, n).sort((x, y) => x - y) })}>
                   {label}

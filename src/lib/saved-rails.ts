@@ -108,14 +108,11 @@ export const RUNTIMES: { band: RuntimeBand; label: string; low?: number; high?: 
   { band: "long", label: "Over 60 min", low: 61 },
 ];
 
-/** RatingBand, the five words the app offers instead of two numbers. */
-export const RATING_BANDS: { label: string; from?: number; to?: number }[] = [
-  { label: "Any" },
-  { label: "So bad it's good", to: 4 },
-  { label: "Middling", from: 4, to: 6.5 },
-  { label: "Well liked", from: 6.5, to: 8 },
-  { label: "Acclaimed", from: 8 },
-];
+/** The rating choices: a least number of stars out of ten, read against
+    TMDB's own 0–10 average (which its site shows as a percentage). The
+    word bands the app used to offer are gone. */
+export const STAR_MINIMUMS = [5, 6, 7, 8, 9];
+export const starsLabel = (n: number) => `${score(n)}+ stars`;
 
 /** ShowStatusFilter and ShowTypeFilter, by the integers TMDB wants. TV only. */
 export const STATUSES: [number, string][] = [
@@ -380,11 +377,9 @@ export function criteriaLine(f: DiscoverFilter): string {
   if (f.statuses.length) parts.push(f.statuses.map((s) => STATUSES.find(([n]) => n === s)?.[1]).join(", "));
   if (f.types.length) parts.push(f.types.map((s) => TYPES.find(([n]) => n === s)?.[1]).join(", "));
   if (f.ratingFrom !== undefined || f.ratingTo !== undefined) {
-    const band = RATING_BANDS.find((b) => b.label !== "Any" && b.from === f.ratingFrom && b.to === f.ratingTo);
-    if (band) parts.push(band.label);
-    else if (f.ratingFrom !== undefined && f.ratingTo !== undefined) parts.push(`Rated ${score(f.ratingFrom)}–${score(f.ratingTo)}`);
-    else if (f.ratingFrom !== undefined) parts.push(`Rated ${score(f.ratingFrom)} and up`);
-    else parts.push(`Rated up to ${score(f.ratingTo!)}`);
+    if (f.ratingFrom !== undefined && f.ratingTo !== undefined) parts.push(`${score(f.ratingFrom)}–${score(f.ratingTo)} stars`);
+    else if (f.ratingFrom !== undefined) parts.push(starsLabel(f.ratingFrom));
+    else parts.push(`Up to ${score(f.ratingTo!)} stars`);
   }
   if (f.sort !== "popular") parts.push(SORTS.find(([s]) => s === f.sort)![1]);
   return parts.join(" · ");
