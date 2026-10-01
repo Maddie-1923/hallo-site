@@ -256,6 +256,14 @@ export default function Privacy() {
           to provide the service you signed up for, your email preferences and any ad cookies with your
           consent, and the rest (keeping Kodigo secure, stopping abuse) because we have a legitimate need to.
         </p>
+        <p>
+          If you live in a US state with its own privacy law, such as California: we don&apos;t sell your
+          information, and we don&apos;t use it to build a profile of you.
+          {ADS
+            ? " The ads on the website may count as \u201csharing\u201d under those laws, because Google uses cookies to choose them. You can opt out with Privacy and cookie settings at the foot of any page."
+            : ""}{" "}
+          You also have the rights listed above, and we won&apos;t treat you differently for using them.
+        </p>
 
         <h2>Security</h2>
         <p>
@@ -283,7 +291,7 @@ export default function Privacy() {
           Questions about privacy: <strong>hello@kodigo.pro</strong>
         </p>
         <p className="text-dim">
-          <em>Last updated: 29 September 2026</em>
+          <em>Last updated: 2 October 2026</em>
         </p>
       </main>
       <SiteFooter />
