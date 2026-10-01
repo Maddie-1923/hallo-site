@@ -56,7 +56,7 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
         <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,.85),rgba(0,0,0,.35)_45%,transparent_70%)]" />
         <ArtworkBand badge={band} />
         {/* Lifted clear of the band when there is one. */}
-        <span className={`absolute inset-x-0 flex items-end gap-3 p-3 ${band ? "bottom-[15px]" : "bottom-0"}`}>
+        <span className={`absolute inset-x-0 flex items-end gap-3 p-3 ${band ? "bottom-[20px]" : "bottom-0"}`}>
           {t.poster &&
             (onPick ? (
               // Picking the card shows its episode; the poster on it opens

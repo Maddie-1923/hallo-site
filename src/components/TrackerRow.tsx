@@ -107,7 +107,7 @@ export function ArtworkBand({ badge }: { badge: EpisodeBadge | null }) {
         <span
           key={text}
           aria-hidden
-          className="flex-1 min-w-0 px-1 py-[2px] text-center text-[10px] leading-[11px] font-bold uppercase tracking-[.04em]"
+          className="flex-1 min-w-0 px-1 py-[4px] text-center text-[10px] leading-[12px] font-bold uppercase tracking-[.04em]"
           style={{ background: `var(--band-${tone})`, color: `var(--band-${tone}-ink)` }}
         >
           {text}
