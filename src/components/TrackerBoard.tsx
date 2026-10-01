@@ -300,6 +300,20 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   // The site's bar, which the header pins under: measured, since its height
   // depends on the window (a fixed guess left a gap the titles showed in).
   const [navH, setNavH] = useState(81);
+  // Whether the bar is pinned (scrolled up to the site's bar). Its glass
+  // only shows then; at rest under the carousel there's nothing to blur, and
+  // a band of glass there drew a hard line across the carousel's glow.
+  const [pinned, setPinned] = useState(false);
+  useEffect(() => {
+    const check = () => setPinned((header.current?.getBoundingClientRect().top ?? 1e9) <= navH + 1);
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, [navH]);
   useEffect(() => {
     const nav = document.querySelector("nav");
     if (!nav) return;
@@ -492,7 +506,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
               below the bar instead of stopping on a hard line. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -inset-x-4 top-0 -bottom-6 backdrop-blur-xl"
+            className={`pointer-events-none absolute -inset-x-4 top-0 -bottom-6 backdrop-blur-xl transition-opacity duration-200 ${pinned ? "opacity-100" : "opacity-0"}`}
             style={{
               background: "color-mix(in srgb, var(--page) 30%, transparent)",
               // Solid glass along the top, right up to the site's bar, so
