@@ -5,7 +5,7 @@ import { HeadingPill } from "./TitleParts";
 import { useState } from "react";
 import { addWatch, today } from "@/lib/live-watches";
 import { MASKED_NAME, useSpoilers } from "./Spoiler";
-import { CheckGlyph, code, HOLD, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph } from "./TrackerRow";
+import { CheckGlyph, code, HOLD, MoreGlyph, progress, Row, SkipGlyph } from "./TrackerRow";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 
 // The profile's mini tracker: what they're watching now, at a glance. Series
@@ -78,7 +78,6 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
                       owner
                         ? [
                             { icon: <MoreGlyph />, label: `More for ${s.title}` },
-                            { icon: <RecapGlyph />, label: "Recap", off: true },
                             {
                               icon: <SkipGlyph />,
                               label: p.next ? `Watch ${code(p.next.key)} later` : "Skip",

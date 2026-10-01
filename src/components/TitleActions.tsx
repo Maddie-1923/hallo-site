@@ -60,7 +60,6 @@ export function TitleActions({ kind, title, tracked, watched = false, loved, sto
           { id: "like", icon: "heart", iconOn: "heart-fill", label: "Like", labelOn: "Liked", fill: LIKE, toggle: true },
           { id: "rewatch", icon: "repeat", label: "Rewatch", fill: "var(--accent-fill)", ink: "var(--on-accent)", off: !state.watched },
           { id: "skip", icon: "skip", label: "Skip", labelOn: "Skipped", fill: "#D9BC52", ink: "#5A4200", toggle: true },
-          { id: "recap", icon: "recap", label: "Recap", off: true },
           { id: "share", icon: "share", label: "Share" },
         ]
       : kind === "movie"
