@@ -67,7 +67,7 @@ export function TrackerRecap({ t, episode, watched, onClose }: { t: ProfileTitle
   }, [t.key, sn, en]);
   return (
     <Sheet label={`Recap of ${t.title}`} title={`${t.title} · Recap`} width={520} onClose={onClose} footer={<button type="button" className="text-[14px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>Close</button>}>
-      <div className="text-[12px] font-semibold text-dim">{watched ? "Last time" : "The episode before"} · {code(episode)}</div>
+      <div className="text-[12px] font-semibold text-dim">{watched ? `Previously on ${code(episode)}` : `The episode before · ${code(episode)}`}</div>
       {ep === undefined ? (
         <p className="m-0 mt-2 text-[14px] text-dim">Loading…</p>
       ) : !ep || !ep.overview ? (
