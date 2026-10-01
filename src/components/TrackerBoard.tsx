@@ -559,7 +559,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
                     type="button"
                     onClick={jump}
                     aria-label={`Go to the start of ${active.title.toUpperCase()}`}
-                    className="group/pill inline-flex items-center h-11 max-w-full px-3.5 rounded-[10px] bg-piece border border-hair overflow-hidden cursor-pointer"
+                    className="group/pill inline-flex items-center h-[44px] max-w-full px-[14px] rounded-[10px] bg-piece border border-hair overflow-hidden cursor-pointer"
                   >
                     {/* Keyed on the pile, so a new name slides up into place. */}
                     <span key={active.id} className="block truncate display text-[20px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px] group-hover/pill:text-accent transition-colors animate-[tracker-pill-in_250ms_ease-out]">
@@ -622,7 +622,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
             <section key={g.id} className={i > 0 ? "mt-8" : ""}>
               {i > 0 && (
                 <div data-pile-heading={g.id} className="mb-3">
-                  <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece border border-hair !m-0">
+                  <h2 className="inline-flex items-center h-[44px] px-[14px] rounded-[10px] bg-piece border border-hair !m-0">
                     <span className="display text-[20px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px]">{g.title}</span>
                   </h2>
                 </div>
@@ -737,7 +737,7 @@ function Empty({ title, message, action }: { title: string; message: string; act
 function headerKey(on: boolean) {
   // Solid on the bar's glass, with a hairline and the ink colour, so the
   // keys read clearly rather than fading into the bar.
-  return `inline-flex items-center justify-center w-11 h-11 rounded-[10px] bg-piece border transition-colors ${on ? "border-accent text-accent" : "border-hair text-ink hover:text-accent"}`;
+  return `inline-flex items-center justify-center w-[44px] h-[44px] rounded-[10px] bg-piece border transition-colors ${on ? "border-accent text-accent" : "border-hair text-ink hover:text-accent"}`;
 }
 
 function MenuHeading({ children }: { children: React.ReactNode }) {
@@ -937,7 +937,7 @@ function EpisodePanel({ item: given, keysFor, recapFor, band }: { item: Item; ke
 // with the same hairline as the bar's keys.
 function Switch<T extends string>({ value, onChange, options, label }: { value: T; onChange: (v: T) => void; options: [T, string][]; label: string }) {
   return (
-    <div role="tablist" aria-label={label} className="inline-flex items-center gap-0.5 p-1 rounded-[12px] bg-piece border border-hair">
+    <div role="tablist" aria-label={label} className="inline-flex items-center gap-[2px] p-[4px] rounded-[12px] bg-piece border border-hair">
       {options.map(([v, text]) => (
         <button
           key={v}
@@ -945,7 +945,7 @@ function Switch<T extends string>({ value, onChange, options, label }: { value: 
           role="tab"
           aria-selected={value === v}
           onClick={() => onChange(v)}
-          className={`h-10 px-3.5 rounded-[9px] display text-[27px] leading-none tracking-[.02em] uppercase cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}
+          className={`h-[40px] px-[14px] rounded-[9px] display text-[27px] leading-none tracking-[.02em] uppercase cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}
         >
           <span className="block translate-y-[1px]">{text}</span>
         </button>
