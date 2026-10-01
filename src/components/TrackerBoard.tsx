@@ -186,7 +186,15 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     if (s.focus && !seenOf(s).includes(s.focus)) {
       return { key: `${s.key}:${s.focus}`, t: s, show: s, episode: s.focus, lines: [code(s.focus), epName(s.episodeNames?.[s.focus] ?? "Skipped")], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
     }
-    return { key: s.key, t: s, show: s, episode: p.next?.key, lines: p.next ? [code(p.next.key), epName(s.episodeNames?.[p.next.key] ?? "")] : [p.total ? "All caught up" : "Not started", ""], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
+    // The panel always shows an episode, never the show's name again: the
+    // next one, or the first if they haven't started, or the last aired if
+    // they're caught up.
+    const lastAired = (() => {
+      const i = (s.aired ?? []).map((n, k) => (n > 0 ? k : -1)).filter((k) => k >= 0).pop();
+      return i === undefined ? undefined : `${i + 1}-${s.aired![i]}`;
+    })();
+    const panelEpisode = p.next?.key ?? (p.total ? (p.done === 0 ? "1-1" : lastAired) : undefined);
+    return { key: s.key, t: s, show: s, episode: p.next?.key, panelEpisode, lines: p.next ? [code(p.next.key), epName(s.episodeNames?.[p.next.key] ?? "")] : [p.total ? "All caught up" : "Not started", ""], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
   };
   const filmItem = (f: ProfileTitle): Item => ({ key: f.key, t: f, lines: [f.year, "On the watch list"], bar: null, keys: filmKeys(f) });
 
@@ -302,14 +310,15 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   );
 }
 
-type Item = { key: string; t: ProfileTitle; show?: TrackerShow; episode?: string; date?: string; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null };
+type Item = { key: string; t: ProfileTitle; show?: TrackerShow; episode?: string; /** The episode the panel shows when there's no next one. */ panelEpisode?: string; date?: string; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null };
 
 // The picked title beside the list: for a series, its next episode (or the
 // dated one under Coming soon) as the show page's small episode page has it,
 // the still, the name, when it aired, how long it runs, its rating and what
 // happens, with the Skip and Watched keys; for a film, its picture and year.
 // The episode's details are fetched when first picked, a season at a time.
-function EpisodePanel({ item, keysFor }: { item: Item; keysFor: (e: CalendarEvent) => Key[] | null }) {
+function EpisodePanel({ item: given, keysFor }: { item: Item; keysFor: (e: CalendarEvent) => Key[] | null }) {
+  const item = given.episode || !given.panelEpisode ? given : { ...given, episode: given.panelEpisode };
   const [seasons, setSeasons] = useState<Record<string, SeasonEpisode[]>>({});
   const id = Number(item.t.key.slice(1));
   const [sn, en] = (item.episode ?? "").split("-").map(Number);
