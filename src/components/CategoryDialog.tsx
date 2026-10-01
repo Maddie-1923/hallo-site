@@ -93,18 +93,24 @@ export function Sheet({ label, title, onClose, footer, children, width = 720 }: 
 // case, no letter-spacing, 15px type with room between lines, everything
 // left-aligned, and a chosen pill marked with a tick as well as a colour.
 
-/** A choice that is on or off. */
-function Chip({ on, onClick, children, disabled = false }: { on: boolean; onClick: () => void; children: React.ReactNode; disabled?: boolean }) {
+/** A choice that is on or off: one cell of a list laid out in rows and
+    columns, with no outline until the pointer is over it. A service shows
+    its logo before its name. */
+function Chip({ on, onClick, children, logo, disabled = false }: { on: boolean; onClick: () => void; children: React.ReactNode; logo?: string | null; disabled?: boolean }) {
   return (
     <button
       type="button"
       aria-pressed={on}
       disabled={disabled}
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full border text-[14px] font-semibold cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default ${
-        on ? "border-transparent bg-accent-fill text-on-accent" : "border-hair text-ink hover:border-ink"
+      className={`w-full flex items-center gap-2 min-h-10 px-3 rounded-[10px] border text-left text-[14px] font-semibold leading-tight cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default ${
+        on ? "border-transparent bg-accent-fill text-on-accent" : "border-transparent text-ink hover:border-hair hover:bg-card"
       }`}
     >
+      {logo !== undefined && (
+        // eslint-disable-next-line @next/next/no-img-element
+        logo ? <img src={logo} alt="" loading="lazy" className="w-6 h-6 rounded-[6px] shrink-0 object-cover" /> : <span aria-hidden className="w-6 h-6 rounded-[6px] shrink-0 bg-piece" />
+      )}
       {on && (
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M5 12.5l4.5 4.5L19 7.5" />
@@ -149,8 +155,8 @@ function Segments<T extends string>({ label, value, options, onChange }: { label
 }
 
 /** A "Narrow by" row: what it narrows on the left, the choice on the right.
-    A menu of one value is a native select; a set of several opens a list of
-    ticks under the row. */
+    A menu of one value is a native select; a set of several opens a list
+    under the row. */
 function Row({ label, first, children }: { label: string; first?: boolean; children: React.ReactNode }) {
   return (
     <div className={`flex items-center justify-between gap-4 min-h-12 py-1.5 ${first ? "" : "border-t border-hair/70"}`}>
@@ -173,7 +179,7 @@ function MultiRow({ label, summary, first, children }: { label: string; summary:
           </svg>
         </span>
       </button>
-      {open && <div className="pb-3 flex flex-wrap gap-2">{children}</div>}
+      {open && <div className="pb-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">{children}</div>}
     </div>
   );
 }
@@ -363,7 +369,7 @@ export function CategoryDialog({
         </Card>
 
         <Card title="Genres" note="Pick any number. Titles in any of them are shown.">
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
             {GENRES.map((g) => (
               <Chip key={g.key} on={f.genreKeys.includes(g.key)} onClick={() => set({ genreKeys: GENRES.map((x) => x.key).filter((k) => (k === g.key ? !f.genreKeys.includes(k) : f.genreKeys.includes(k))) })}>
                 {g.label}
@@ -376,12 +382,12 @@ export function CategoryDialog({
           {serviceList.length > 0 && (
             <MultiRow first label="Streaming on" summary={f.providerIDs.length ? f.providerIDs.map((id) => serviceList.find((s) => s.id === id)?.name ?? f.providerNames[String(id)]).join(", ") : "Any service"}>
               {shown.map((s) => (
-                <Chip key={s.id} on={f.providerIDs.includes(s.id)} onClick={() => toggleService(s)}>
+                <Chip key={s.id} logo={s.logo} on={f.providerIDs.includes(s.id)} onClick={() => toggleService(s)}>
                   {s.name}
                 </Chip>
               ))}
               {serviceList.length > shown.length && (
-                <button type="button" onClick={() => setAllServices(true)} className="h-9 px-2 text-[14px] font-semibold text-accent hover:underline cursor-pointer">
+                <button type="button" onClick={() => setAllServices(true)} className="min-h-10 px-3 text-left text-[14px] font-semibold text-accent hover:underline cursor-pointer">
                   Show all {serviceList.length}
                 </button>
               )}
