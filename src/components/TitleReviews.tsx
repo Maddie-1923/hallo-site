@@ -3,6 +3,7 @@ import type { ReviewEntry } from "@/lib/public-profile";
 import type { TitleRatings } from "@/lib/public-reads";
 import { ReviewCard } from "./ReviewCard";
 import { Unblocked } from "./SafetySheets";
+import { Star } from "./RatingMarks";
 import { Section, SectionCard } from "./TitleParts";
 
 // Members' reviews of the title, above the cast: each as the profile's review
@@ -40,7 +41,9 @@ function RatingsSummary({ r }: { r: TitleRatings }) {
         <div className="flex items-end justify-between gap-4">
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span aria-hidden className="text-loved text-[1.5rem] leading-none">♥</span>
+              <span aria-hidden className="self-center text-accent-fill">
+                <Star size={20} />
+              </span>
               <span className="display text-[2.8333rem] leading-[.85] text-ink">{r.average?.toFixed(1)}</span>
               <span className="text-[1.0417rem] text-dim">/10</span>
             </div>
