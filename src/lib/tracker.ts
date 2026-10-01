@@ -3,13 +3,25 @@ import type { LibraryArchive, Movie, Show } from "./archive";
 import { moviePiles, showPiles } from "./piles";
 import { fillAired, movieTitle, showTitle, type ProfileTitle, type TrackerShow } from "./public-profile";
 import { seasonEpisodes, showDetail } from "./tmdb";
+import { latestSeason, seasonFacts, type EpisodeFacts } from "./episode-badge";
 
 // The full tracker, as the app's Shows and Movies tabs lay it out: a watch
 // list of piles (Up next, Ready to start, On hold, Entering the void) and
 // Coming soon by day (Today, Tomorrow, This week, Later). Built from a
 // library alone plus TMDB for what has aired and what airs next.
 
-export type ComingShow = { t: ProfileTitle; episode: string; name: string; date: string; inDays: number };
+export type ComingShow = {
+  t: ProfileTitle;
+  episode: string;
+  name: string;
+  date: string;
+  inDays: number;
+  /** What TMDB says about the episode, for its badge; absent where its
+      season couldn't be had. */
+  facts?: EpisodeFacts;
+  /** TMDB's series status and type, for the panel's Status line. */
+  series: { status: string | null; type: string | null };
+};
 export type ComingFilm = { t: ProfileTitle; date: string; inDays: number };
 /** A poster for the banner: a tracked show with an episode just out (its
     show's poster, never the episode's still), or a tracked film now out. */
@@ -82,8 +94,8 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
   const coming: ComingShow[] = [];
   details.forEach((d, i) => {
     const ep = d?.nextEpisode;
-    if (!ep?.air_date || days(ep.air_date) < 0) return;
-    coming.push({ t: showTitle(watching[i].show), episode: `${ep.season_number}-${ep.episode_number}`, name: ep.name, date: ep.air_date, inDays: days(ep.air_date) });
+    if (!d || !ep?.air_date || days(ep.air_date) < 0) return;
+    coming.push({ t: showTitle(watching[i].show), episode: `${ep.season_number}-${ep.episode_number}`, name: ep.name, date: ep.air_date, inDays: days(ep.air_date), series: { status: d.show.status ?? null, type: d.type } });
   });
   coming.sort((x, y) => x.inDays - y.inDays || x.t.title.localeCompare(y.t.title));
 
@@ -113,7 +125,14 @@ export async function trackerFromArchive(a: LibraryArchive, now = new Date()): P
       if (!d) return;
       const seasons = [...new Set([d.lastEpisode?.season_number, d.nextEpisode?.season_number].filter((n): n is number => !!n))];
       for (const n of seasons) {
-        for (const e of await seasonEpisodes(watching[i].show.id, n)) {
+        const eps = await seasonEpisodes(watching[i].show.id, n);
+        // The coming episode's badge, from the season already asked for here.
+        if (n === d.nextEpisode?.season_number) {
+          const key = `${n}-${d.nextEpisode.episode_number}`;
+          const c = coming.find((x) => x.t.key === `s${watching[i].show.id}` && x.episode === key);
+          if (c) c.facts = seasonFacts(eps, latestSeason(d.seasons), today.toISOString().slice(0, 10))[key];
+        }
+        for (const e of eps) {
           if (e.air_date) calendar.push({ date: e.air_date, t: showTitle(watching[i].show), label: `${code(e.season_number, e.episode_number)}${e.name ? ` · ${e.name}` : ""}`, episode: `${e.season_number}-${e.episode_number}` });
         }
       }

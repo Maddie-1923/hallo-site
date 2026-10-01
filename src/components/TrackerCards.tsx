@@ -1,14 +1,24 @@
 "use client";
 
+import type { EpisodeBadge } from "@/lib/episode-badge";
 import type { ProfileTitle } from "@/lib/public-profile";
-import { KeyButton, To, type Key } from "./TrackerRow";
+import { ArtworkBand, Countdown, KeyButton, To, type Key } from "./TrackerRow";
 
 // The tracker's two other ways of drawing an entry, beside the list's Row:
 // the wide card (the app's card layout) and the poster tile (its grid and
 // rails). They take what a Row takes, so the board builds an entry once and
 // draws it whichever way the layout asks.
 
-type Entry = { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null };
+type Entry = {
+  t: ProfileTitle;
+  lines: [string, string];
+  bar: { done: number; total: number } | null;
+  keys: Key[] | null;
+  /** The episode's badge, along the foot of the picture. */
+  band?: EpisodeBadge | null;
+  /** A Coming soon entry's days to go; absent on the watch list. */
+  countdown?: number;
+};
 
 /** The progress line under an entry: the bar, and how far along it is. */
 function Progress({ bar, count }: { bar: { done: number; total: number }; count: string }) {
@@ -33,7 +43,7 @@ export function countLine(bar: { done: number; total: number }) {
 // poster, name, episode and progress laid over the foot of it on a shade,
 // and the keys in a strip under it, as the list's rows carry them. A title
 // with no wide picture falls back to its poster, cropped.
-export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowKey }: Entry & { onPick?: () => void; picked?: boolean; rowKey?: string }) {
+export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowKey, band = null, countdown }: Entry & { onPick?: () => void; picked?: boolean; rowKey?: string }) {
   const wide = t.backdrop ?? t.poster;
   return (
     <li data-picked={picked || undefined} data-row={rowKey} className={`rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "border-transparent ring-2 ring-accent-fill" : "border-t-[color:var(--lit-edge)] border-x-piece border-b-well"}`}>
@@ -43,17 +53,31 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
           <img src={wide} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.03]" />
         )}
         <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,.85),rgba(0,0,0,.35)_45%,transparent_70%)]" />
-        <span className="absolute inset-x-0 bottom-0 flex items-end gap-3 p-3">
+        <ArtworkBand badge={band} />
+        {/* Lifted clear of the band when there is one. */}
+        <span className={`absolute inset-x-0 flex items-end gap-3 p-3 ${band ? "bottom-[15px]" : "bottom-0"}`}>
           {t.poster && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={t.poster} alt="" loading="lazy" className="w-[56px] sm:w-[68px] aspect-[2/3] shrink-0 rounded-[8px] object-cover border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,.5)]" />
           )}
           <span className="min-w-0 flex-1 grid gap-1">
-            <span className="display text-[24px] leading-none tracking-[.03em] uppercase text-white truncate">{t.title}</span>
-            <span className="text-[12.5px] leading-[16px] text-white/85 truncate">
-              {lines[0]}
-              {lines[1] && <span className="text-white/65"> · {lines[1]}</span>}
+            <span className="flex items-start gap-2">
+              <span className="min-w-0 flex-1 display text-[24px] leading-none tracking-[.03em] uppercase text-white truncate">{t.title}</span>
+              <Countdown days={countdown} film={t.kind === "movie"} light />
             </span>
+            {countdown !== undefined ? (
+              // Coming soon's three lines, as its list rows have them: the
+              // code on its own, the episode's name under it.
+              <>
+                <span className="text-[12.5px] leading-[16px] text-white/85 truncate">{lines[0]}</span>
+                {lines[1] && <span className="text-[12.5px] leading-[16px] text-white/65 truncate">{lines[1]}</span>}
+              </>
+            ) : (
+              <span className="text-[12.5px] leading-[16px] text-white/85 truncate">
+                {lines[0]}
+                {lines[1] && <span className="text-white/65"> · {lines[1]}</span>}
+              </span>
+            )}
             {bar && (
               <span className="block mt-0.5 [&_.text-dim]:text-white/70">
                 <Progress bar={bar} count={`${bar.done}/${bar.total}`} />
@@ -77,7 +101,7 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
 // the episode it's on, how far along, and the bar, then the keys sharing the
 // tile's width. With no panel beside these layouts, the poster opens the
 // title's page.
-export function PosterTile({ t, lines, bar, keys, className = "", as: Tag = "li" }: Entry & { className?: string; /** "div" inside a rail, which isn't a list. */ as?: "li" | "div" }) {
+export function PosterTile({ t, lines, bar, keys, className = "", as: Tag = "li", band = null, countdown }: Entry & { className?: string; /** "div" inside a rail, which isn't a list. */ as?: "li" | "div" }) {
   return (
     <Tag className={`p-2 rounded-[16px] bg-well flex flex-col gap-2 border border-hair/40 shadow-[0_4px_9px_rgba(0,0,0,.35)] ${className}`}>
       <To href={t.href} className="group/card block rounded-[12px] bg-piece no-underline overflow-hidden">
@@ -88,12 +112,16 @@ export function PosterTile({ t, lines, bar, keys, className = "", as: Tag = "li"
           ) : (
             <div className="absolute inset-0 flex items-center justify-center p-3 text-center text-xs text-dim">{t.title}</div>
           )}
-          <span aria-hidden className="pointer-events-none absolute inset-0 rounded-t-[12px] rounded-b-[8px] ring-0 group-hover/card:ring-2 ring-accent-fill ring-inset transition-[box-shadow]" />
+          <ArtworkBand badge={band} />
+          <span aria-hidden className="pointer-events-none absolute inset-0 z-[3] rounded-t-[12px] rounded-b-[8px] ring-0 group-hover/card:ring-2 ring-accent-fill ring-inset transition-[box-shadow]" />
         </div>
         <div className="px-2.5 pt-2.5 pb-2 grid gap-0.5">
           <div className="text-[12.5px] font-semibold leading-tight text-ink truncate">{t.title}</div>
           <div className="text-[12px] leading-tight text-mid-tone truncate">{lines[0] || " "}</div>
-          <div className="text-[12px] leading-tight text-dim truncate">{bar ? countLine(bar) : lines[1] || " "}</div>
+          {/* Under a Coming soon poster, the wait rather than the name, as
+              the app's tiles have it: "5 days", or nothing under two days,
+              where the heading has said Today or Tomorrow. */}
+          <div className="text-[12px] leading-tight text-dim truncate">{bar ? countLine(bar) : countdown !== undefined ? (countdown >= 2 ? `${countdown} days` : " ") : lines[1] || " "}</div>
           {bar && (
             <span className="mt-1 block h-[2px] rounded-full bg-track overflow-hidden">
               <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />

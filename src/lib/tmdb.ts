@@ -97,6 +97,9 @@ export interface RawEpisode {
   still_path?: string | null;
   vote_average?: number;
   crew?: { id: number; name: string; job?: string }[];
+  /** "standard", "finale" or "mid_season", as an editor marked it; absent on
+      older entries nobody has described. */
+  episode_type?: string | null;
 }
 
 export interface RawPerson {

@@ -68,6 +68,14 @@
   --chip-done-ink: #3a3833;
   --chip-cut: #f2b4a2;
   --chip-cut-ink: #6a2314;
+  /* The episode badges' band (EpisodeBadge, KodigoStatusChip in Models.swift),
+     from the logo's stripes: yellow for what is starting (PREMIERE, NEW, AIRS
+     TODAY), pink for what is pausing (MID-SEASON FINALE, FINALE). Muted by
+     night so a row of them doesn't glare off the page; the logo's own by day. */
+  --band-starting: #d9bc52;
+  --band-starting-ink: #3d2f00;
+  --band-pausing: #cf8db5;
+  --band-pausing-ink: #46122f;
   --pad: clamp(20px, 5vw, 64px);
   color-scheme: dark;
 }
@@ -96,6 +104,11 @@
   --chip-going-ink: #2a4453;
   --chip-cut: #e2c3bc;
   --chip-cut-ink: #6b2a22;
+  /* The logo's yellow a step deeper, which would slip into the day card. */
+  --band-starting: #f8c906;
+  --band-starting-ink: #5a4200;
+  --band-pausing: #ff82cf;
+  --band-pausing-ink: #5e1843;
   color-scheme: light;
 }
 
@@ -125,6 +138,10 @@
   --loved-plate: #d9485c;
   --seen: #32e75b;
   --seen-plate: #2fa34a;
+  --band-starting: #d9bc52;
+  --band-starting-ink: #3d2f00;
+  --band-pausing: #cf8db5;
+  --band-pausing-ink: #46122f;
   color-scheme: dark;
   background: var(--page);
   color: var(--ink);

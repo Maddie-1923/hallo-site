@@ -9,7 +9,9 @@ import { ExpandableText } from "./ExpandableText";
 import { addWatch, today } from "@/lib/live-watches";
 import type { CalendarEvent, ComingFilm, ComingShow, TrackerPage } from "@/lib/tracker";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
-import { CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, type Key } from "./TrackerRow";
+import { ArtworkBand, CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, useToday, type Key } from "./TrackerRow";
+import { episodeBadge, type EpisodeBadge, type EpisodeFacts } from "@/lib/episode-badge";
+import { SeriesPill, seriesBadge } from "./SeriesBadge";
 import { episodeBefore, TrackerMore, TrackerRecap } from "./TrackerSheets";
 import { useDateFormat } from "./Day";
 import { MASKED_NAME, SpoilerCover, useSpoilers } from "./Spoiler";
@@ -78,6 +80,10 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   const spoilers = useSpoilers();
   const fmt = useDateFormat();
   const epName = (n: string) => (spoilers.names && n ? MASKED_NAME : n);
+  // The badge on an episode's picture, once the browser has said what day it
+  // is (see lib/episode-badge.ts).
+  const dayNow = useToday();
+  const bandOf = (facts: Record<string, EpisodeFacts> | undefined, episode: string | undefined) => (dayNow && episode ? episodeBadge(facts?.[episode], dayNow) : null);
 
   // The calendar's keys: an aired episode can be set aside or checked off,
   // a film out already checked off, each the same state as the rows below.
@@ -203,7 +209,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     const p = progress(s, seenOf(s));
     // A skipped episode's row is about that episode, not the next one.
     if (s.focus && !seenOf(s).includes(s.focus)) {
-      return { key: `${s.key}:${s.focus}`, t: s, show: s, episode: s.focus, lines: [code(s.focus), epName(s.episodeNames?.[s.focus] ?? "Skipped")], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
+      return { key: `${s.key}:${s.focus}`, t: s, show: s, episode: s.focus, lines: [code(s.focus), epName(s.episodeNames?.[s.focus] ?? "Skipped")], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s), facts: s.episodeFacts, band: bandOf(s.episodeFacts, s.focus), series: s.series };
     }
     // The panel always shows an episode, never the show's name again: the
     // next one, or the first if they haven't started, or the last aired if
@@ -213,18 +219,20 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       return i === undefined ? undefined : `${i + 1}-${s.aired![i]}`;
     })();
     const panelEpisode = p.next?.key ?? (p.total ? (p.done === 0 ? "1-1" : lastAired) : undefined);
-    return { key: s.key, t: s, show: s, episode: p.next?.key, panelEpisode, lines: p.next ? [code(p.next.key), epName(s.episodeNames?.[p.next.key] ?? "")] : [p.total ? "All caught up" : "Not started", ""], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s) };
+    return { key: s.key, t: s, show: s, episode: p.next?.key, panelEpisode, lines: p.next ? [code(p.next.key), epName(s.episodeNames?.[p.next.key] ?? "")] : [p.total ? "All caught up" : "Not started", ""], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s), facts: s.episodeFacts, band: bandOf(s.episodeFacts, p.next?.key), series: s.series };
   };
   const filmItem = (f: ProfileTitle): Item => ({ key: f.key, t: f, lines: [f.year, "On the watch list"], bar: null, keys: filmKeys(f) });
 
   // The piles as they stand, before the header's filters: the watch list's
   // in the app's order, or Coming soon's Today, Tomorrow and then a run per
-  // day after that.
-  const coming = ((kind === "show" ? data.shows.coming : data.films.coming) as (ComingShow | ComingFilm)[]).map((c): Item & { inDays: number } =>
-    "episode" in c
-      ? { inDays: c.inDays, key: `${c.t.key}${c.episode}`, t: c.t, episode: c.episode, date: c.date, lines: [when(c, fmt), `${code(c.episode)}${c.name ? ` · ${epName(c.name)}` : ""}`], bar: null, keys: null }
-      : { inDays: c.inDays, key: c.t.key, t: c.t, date: c.date, lines: [when(c, fmt), "Release"], bar: null, keys: null },
-  );
+  // day after that. A Coming soon entry reads as the app's EpisodeRow: the
+  // show's name with the days to go at the right, the code on its own line,
+  // the episode's name under it. The date is the heading's to say.
+  const coming = ((kind === "show" ? data.shows.coming : data.films.coming) as (ComingShow | ComingFilm)[]).map((c): Item & { inDays: number } => {
+    if (!("episode" in c)) return { inDays: c.inDays, countdown: c.inDays, key: c.t.key, t: c.t, date: c.date, lines: [c.t.year, ""], bar: null, keys: null };
+    const facts = c.facts ? { [c.episode]: c.facts } : undefined;
+    return { inDays: c.inDays, countdown: c.inDays, key: `${c.t.key}${c.episode}`, t: c.t, episode: c.episode, date: c.date, lines: [code(c.episode), epName(c.name)], bar: null, keys: null, facts, band: bandOf(facts, c.episode), series: c.series };
+  });
   const piles: Group[] =
     view === "list"
       ? kind === "show"
@@ -435,7 +443,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       return (
         <ScrollStrip key={`${g.id}-${g.items.length}`} title={g.title}>
           {g.items.map((i) => (
-            <PosterTile key={i.key} as="div" t={i.t} lines={i.lines} bar={i.bar} keys={tileKeys(i)} className="shrink-0 snap-start w-[clamp(150px,13.5vw,196px)]" />
+            <PosterTile key={i.key} as="div" t={i.t} lines={i.lines} bar={i.bar} keys={tileKeys(i)} band={i.band} countdown={i.countdown} className="shrink-0 snap-start w-[clamp(150px,13.5vw,196px)]" />
           ))}
         </ScrollStrip>
       );
@@ -444,7 +452,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       return (
         <ul className="m-0 p-0 list-none grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6">
           {g.items.map((i) => (
-            <PosterTile key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={tileKeys(i)} />
+            <PosterTile key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={tileKeys(i)} band={i.band} countdown={i.countdown} />
           ))}
         </ul>
       );
@@ -453,9 +461,9 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       <ul className="m-0 p-0 list-none grid gap-2">
         {g.items.map((i) =>
           layout === "card" ? (
-            <BackdropCard key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? i.keys : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} />
+            <BackdropCard key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? i.keys : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} band={i.band} countdown={i.countdown} />
           ) : (
-            <Row key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? i.keys : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} />
+            <Row key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? i.keys : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} band={i.band} countdown={i.countdown} />
           ),
         )}
       </ul>
@@ -613,7 +621,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
           <aside className="sticky self-start min-w-0 lg:pl-2" style={{ top: navH + headerH + 4, marginTop: firstTop }}>
             {/* In a shell of its own, like the rows beside it. */}
             <div className="rounded-shell bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
-              <EpisodePanel item={picked} keysFor={keysFor} />
+              <EpisodePanel item={picked} keysFor={keysFor} band={bandOf(picked.facts, picked.episode ?? picked.panelEpisode)} />
             </div>
           </aside>
         )}
@@ -779,14 +787,33 @@ function LayoutGlyph({ layout }: { layout: Layout }) {
   );
 }
 
-type Item = { key: string; t: ProfileTitle; show?: TrackerShow; episode?: string; /** The episode the panel shows when there's no next one. */ panelEpisode?: string; date?: string; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null };
+type Item = {
+  key: string;
+  t: ProfileTitle;
+  show?: TrackerShow;
+  episode?: string;
+  /** The episode the panel shows when there's no next one. */
+  panelEpisode?: string;
+  date?: string;
+  lines: [string, string];
+  bar: { done: number; total: number } | null;
+  keys: Key[] | null;
+  /** What TMDB says about the show's nearby episodes, for the panel's badge. */
+  facts?: Record<string, EpisodeFacts>;
+  /** The badge on the entry's own episode. */
+  band?: EpisodeBadge | null;
+  /** A Coming soon entry's days to go. */
+  countdown?: number;
+  /** TMDB's series status and type, for the panel's Status line. */
+  series?: { status: string | null; type: string | null };
+};
 
 // The picked title beside the list: for a series, its next episode (or the
 // dated one under Coming soon) as the show page's small episode page has it,
 // the still, the name, when it aired, how long it runs, its rating and what
 // happens, with the Skip and Watched keys; for a film, its picture and year.
 // The episode's details are fetched when first picked, a season at a time.
-function EpisodePanel({ item: given, keysFor }: { item: Item; keysFor: (e: CalendarEvent) => Key[] | null }) {
+function EpisodePanel({ item: given, keysFor, band }: { item: Item; keysFor: (e: CalendarEvent) => Key[] | null; band: EpisodeBadge | null }) {
   const item = given.episode || !given.panelEpisode ? given : { ...given, episode: given.panelEpisode };
   const [seasons, setSeasons] = useState<Record<string, SeasonEpisode[]>>({});
   const id = Number(item.t.key.slice(1));
@@ -806,6 +833,7 @@ function EpisodePanel({ item: given, keysFor }: { item: Item; keysFor: (e: Calen
   const keys = (keysFor({ date: ep?.airDate ?? item.date ?? "0000-00-00", t: item.t, label: "", episode: item.episode }) ?? [])
     .filter((k) => !k.label.startsWith("More"));
   const isFilm = item.t.kind === "movie";
+  const status = item.series ? seriesBadge(item.series.status, item.series.type) : null;
   const spoilers = useSpoilers();
   const fmt = useDateFormat();
   // The panel's episode is one they haven't watched (the next, a skipped or
@@ -817,6 +845,10 @@ function EpisodePanel({ item: given, keysFor }: { item: Item; keysFor: (e: Calen
     ep?.airDate && ["Aired", fmt(ep.airDate)],
     ep?.runtime && ["Runtime", `${ep.runtime}m`],
     ep?.vote && ["TMDB", ep.vote.toFixed(1)],
+    // Where the show stands, in the app's pill (SeriesBadge): RETURNING in
+    // its blue, the rest in stone, and no line where TMDB's status is one
+    // the app doesn't draw.
+    !isFilm && status && ["Status", <SeriesPill key="st" label={status.label} returning={status.label === "RETURNING"} />],
     isFilm && item.t.year && ["Year", item.t.year],
     isFilm && item.date && ["Release", fmt(item.date)],
   ].filter(Boolean) as [string, React.ReactNode][];
@@ -829,6 +861,7 @@ function EpisodePanel({ item: given, keysFor }: { item: Item; keysFor: (e: Calen
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={(ep?.still ?? item.t.backdrop)!} alt="" className="block w-full aspect-video object-cover bg-piece" />
             {ep?.still && <SpoilerCover watched={seenHere} />}
+            <ArtworkBand badge={band} />
           </div>
         )}
         <div className="rounded-shell bg-piece p-3">
@@ -889,10 +922,4 @@ function Switch<T extends string>({ value, onChange, options, label }: { value: 
       ))}
     </div>
   );
-}
-
-function when(c: { date: string; inDays: number }, fmt: ReturnType<typeof useDateFormat>) {
-  if (c.inDays === 0) return "Today";
-  if (c.inDays === 1) return "Tomorrow";
-  return fmt(c.date, c.inDays > 300 ? "short" : "weekday");
 }

@@ -1,6 +1,7 @@
 import "server-only";
 import type { LibraryArchive, Movie, Show } from "./archive";
 import { genreNames, image, seasonEpisodes, showDetail } from "./tmdb";
+import { latestSeason, seasonFacts, type EpisodeFacts } from "./episode-badge";
 import type { SheetReview } from "@/components/ReviewSheet";
 
 // What a public profile page draws, worked out from a library. The page never
@@ -119,6 +120,12 @@ export interface TrackerShow extends ProfileTitle {
   /** The episode the row is about when it isn't the next one (a skipped
       one, on the tracker's Skipped pile), as "season-episode". */
   focus?: string;
+  /** What TMDB says about the episodes in those seasons (and the focus's),
+      for the badge on the picture, by "season-episode"; only the ones that
+      could wear one. */
+  episodeFacts?: Record<string, EpisodeFacts>;
+  /** TMDB's series status and type, for the tracker's Status line. */
+  series?: { status: string | null; type: string | null };
 }
 
 export interface PublicProfileView {
@@ -428,10 +435,19 @@ export async function fillAired(list: TrackerShow[]): Promise<TrackerShow[]> {
       let season = aired.findIndex((n, i) => i + 1 >= lastSeen && Array.from({ length: n }, (_, e) => `${i + 1}-${e + 1}`).some((k) => !seen.has(k))) + 1;
       if (season < 1) season = Math.max(1, lastSeen);
       const episodeNames: Record<string, string> = {};
-      for (const n of [season, season + 1].filter((x) => x <= aired.length)) {
-        for (const e of await seasonEpisodes(Number(t.key.slice(1)), n)) episodeNames[`${n}-${e.episode_number}`] = e.name;
+      // The same season answers carry what the badges need, so they cost no
+      // more asks; a skipped episode's season is the one extra, and only on
+      // the Skipped pile (where it names the row's episode as well).
+      const episodeFacts: Record<string, EpisodeFacts> = {};
+      const latest = latestSeason(d.seasons);
+      const today = new Date().toISOString().slice(0, 10);
+      const focusSeason = t.focus ? Number(t.focus.split("-")[0]) : 0;
+      for (const n of [...new Set([season, season + 1, focusSeason])].filter((x) => x > 0 && x <= aired.length)) {
+        const eps = await seasonEpisodes(Number(t.key.slice(1)), n);
+        for (const e of eps) episodeNames[`${n}-${e.episode_number}`] = e.name;
+        Object.assign(episodeFacts, seasonFacts(eps, latest, today));
       }
-      return { ...t, aired, episodeNames };
+      return { ...t, aired, episodeNames, episodeFacts, series: { status: d.show.status ?? null, type: d.type } };
     }),
   );
 }
