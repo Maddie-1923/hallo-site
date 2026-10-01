@@ -532,7 +532,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
                     type="button"
                     onClick={jump}
                     aria-label={`Go to the start of ${active.title.toUpperCase()}`}
-                    className="group/pill inline-flex items-center h-11 max-w-full px-3.5 rounded-[10px] bg-piece overflow-hidden cursor-pointer"
+                    className="group/pill inline-flex items-center h-11 max-w-full px-3.5 rounded-[10px] bg-piece border border-hair overflow-hidden cursor-pointer"
                   >
                     {/* Keyed on the pile, so a new name slides up into place. */}
                     <span key={active.id} className="block truncate display text-[24px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px] group-hover/pill:text-accent transition-colors animate-[tracker-pill-in_250ms_ease-out]">
@@ -869,9 +869,12 @@ function EpisodePanel({ item: given, keysFor }: { item: Item; keysFor: (e: Calen
 
 
 /** A switch lettered as the tab bars: two choices on a pill. */
+// The bar's two choices as the app draws its page tabs: the words in the
+// display face, the live one on an accent pill, the other muted, on a plate
+// with the same hairline as the bar's keys.
 function Switch<T extends string>({ value, onChange, options, label }: { value: T; onChange: (v: T) => void; options: [T, string][]; label: string }) {
   return (
-    <div role="tablist" aria-label={label} className="inline-flex items-center gap-1 p-1 rounded-full bg-piece">
+    <div role="tablist" aria-label={label} className="inline-flex items-center gap-0.5 p-1 rounded-[12px] bg-piece border border-hair">
       {options.map(([v, text]) => (
         <button
           key={v}
@@ -879,9 +882,9 @@ function Switch<T extends string>({ value, onChange, options, label }: { value: 
           role="tab"
           aria-selected={value === v}
           onClick={() => onChange(v)}
-          className={`px-4 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${value === v ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+          className={`h-9 px-3 rounded-[9px] display text-[22px] leading-none tracking-[.02em] uppercase cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}
         >
-          {text}
+          <span className="block translate-y-[1px]">{text}</span>
         </button>
       ))}
     </div>
