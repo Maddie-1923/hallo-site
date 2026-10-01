@@ -175,18 +175,25 @@ export function CinemaHero({ slides, corner, banner = false }: { slides: CinemaS
                 out; it fades before the middle, leaving the faces alone. */}
             <div aria-hidden className="absolute inset-0 z-[2] pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 90% at 0% 100%, rgba(12,10,9,.78) 0%, rgba(12,10,9,.55) 40%, rgba(12,10,9,.2) 64%, transparent 80%)" }} />
 
+            {/* The whole picture opens the title, under the words and their
+                buttons, which keep their own jobs. Not on a title page's own
+                banner, where it would lead back to the page it's on. */}
+            {!banner && slides[at] && (
+              <Link href={slides[at].href} aria-label={`Open ${slides[at].title}`} tabIndex={-1} className="absolute inset-0 z-[5]" />
+            )}
+
             {/* The words ride with their picture: each slide's words are a
                 layer that slides in and out with the same timing as the image,
                 so a change reads as the whole poster moving past rather than
                 a picture moving under words that swap in place. Only the
                 arriving and leaving layers exist at any moment. */}
-            <div className="relative z-10 flex-1">
+            <div className="relative z-10 flex-1 pointer-events-none">
               {[at, ...(leaving && leaving.from !== at ? [leaving.from] : [])].map((i) => (
                 <div
                   key={slides[i].key}
                   aria-hidden={i !== at}
                   inert={i !== at}
-                  className="absolute inset-0 flex flex-col justify-end"
+                  className="absolute inset-0 flex flex-col justify-end [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
                   style={slideStyle(i, at, leaving)}
                 >
                   <SlideWords slide={slides[i]} onTrailer={setTrailer} />
@@ -196,7 +203,7 @@ export function CinemaHero({ slides, corner, banner = false }: { slides: CinemaS
               {/* Where you are. It stays put while the words slide, sitting
                   where the words leave room for it under the title. */}
               <div
-                className="absolute left-[clamp(20px,5vw,80px)] sm:left-[clamp(84px,7vw,108px)] bottom-[clamp(24px,3vw,44px)] flex gap-1.5"
+                className="absolute left-[clamp(20px,5vw,80px)] sm:left-[clamp(84px,7vw,108px)] bottom-[clamp(24px,3vw,44px)] flex gap-1.5 pointer-events-auto"
                 role="tablist"
                 aria-label="Featured titles"
               >
