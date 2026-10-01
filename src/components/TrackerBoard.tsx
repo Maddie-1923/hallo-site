@@ -307,23 +307,55 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     ro.observe(nav);
     return () => ro.disconnect();
   }, []);
-  // The episode panel sits level with the title it's about: its top lines
-  // up with the picked row's, and it moves when another row is picked, so
-  // it's always plainly beside its own episode.
+  // The episode panel stays in view beside the list, just under the bar,
+  // and shows the episode at the top of the list: once scrolling stops for
+  // a moment (so the picture doesn't flicker through every row on the way),
+  // the row nearest the bar's foot becomes the picked one. Clicking a row
+  // picks it and glides it up to that spot. Its first position is level
+  // with the first title.
   const leftCol = useRef<HTMLDivElement>(null);
-  const [pickedTop, setPickedTop] = useState(0);
+  const [firstTop, setFirstTop] = useState(0);
   useEffect(() => {
     const col = leftCol.current;
     if (!col) return;
     const place = () => {
-      const row = col.querySelector("[data-picked]");
-      setPickedTop(row ? row.getBoundingClientRect().top - col.getBoundingClientRect().top : 0);
+      const row = col.querySelector("[data-row]");
+      setFirstTop(row ? row.getBoundingClientRect().top - col.getBoundingClientRect().top : 0);
     };
     place();
     const ro = new ResizeObserver(place);
     ro.observe(col);
     return () => ro.disconnect();
   });
+  useEffect(() => {
+    if (!withPanel) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const settle = () => {
+      const line = navH + headerH;
+      const rows = [...(leftCol.current?.querySelectorAll<HTMLElement>("[data-row]") ?? [])];
+      // The first row whose bottom is still below the bar's foot.
+      const row = rows.find((r) => r.getBoundingClientRect().bottom > line + 24);
+      const key = row?.dataset.row;
+      if (key) setPickKey(key);
+    };
+    const onScroll = () => {
+      clearTimeout(timer);
+      timer = setTimeout(settle, 220);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [withPanel, navH, headerH]);
+  // Picking a row by clicking: show it, and glide it up under the bar.
+  const pickRow = (key: string) => {
+    setPickKey(key);
+    const row = leftCol.current?.querySelector<HTMLElement>(`[data-row="${CSS.escape(key)}"]`);
+    if (!row) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: window.scrollY + row.getBoundingClientRect().top - (navH + headerH) - 4, behavior: reduce ? "auto" : "smooth" });
+  };
   const [activeID, setActiveID] = useState<string | null>(null);
   useEffect(() => {
     const el = header.current;
@@ -395,9 +427,9 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       <ul className="m-0 p-0 list-none grid gap-2">
         {g.items.map((i) =>
           layout === "card" ? (
-            <BackdropCard key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? i.keys : tileKeys(i)} onPick={withPanel ? () => setPickKey(i.key) : undefined} picked={withPanel && picked?.key === i.key} />
+            <BackdropCard key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? i.keys : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} />
           ) : (
-            <Row key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? i.keys : tileKeys(i)} onPick={withPanel ? () => setPickKey(i.key) : undefined} picked={withPanel && picked?.key === i.key} />
+            <Row key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? i.keys : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} />
           ),
         )}
       </ul>
@@ -546,7 +578,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
           </div>
         </div>
         {withPanel && picked && (
-          <aside className="self-start min-w-0 lg:pl-2 transition-[margin] duration-300" style={{ marginTop: pickedTop }}>
+          <aside className="sticky self-start min-w-0 lg:pl-2 overflow-y-auto soft-scroll" style={{ top: navH + headerH + 4, marginTop: firstTop, maxHeight: `calc(100vh - ${navH + headerH + 20}px)` }}>
             {/* In a shell of its own, like the rows beside it. */}
             <div className="rounded-shell bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
               <EpisodePanel item={picked} keysFor={keysFor} />
