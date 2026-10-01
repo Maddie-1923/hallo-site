@@ -5,6 +5,7 @@ import type { ProfileTitle } from "@/lib/public-profile";
 import { readTakes, saveTake as keepInBrowser } from "@/lib/local-takes";
 import { ConfirmKey } from "./ConfirmKey";
 import { WatchedOn } from "./WatchedOn";
+import { MarkRewatched } from "./marks";
 import { useRouter } from "next/navigation";
 import { removeTake, saveTake } from "@/lib/library-actions";
 import { MOOD_IDS, type TakeInput, type TakeTarget } from "@/lib/library-rules";
@@ -217,10 +218,16 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
             <input type="checkbox" checked={spoilers} onChange={(e) => setSpoilers(e.target.checked)} className="accent-[var(--accent-fill)]" />
             Contains spoilers
           </label>
-          <label className="inline-flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={rewatch} onChange={(e) => setRewatch(e.target.checked)} className="accent-[var(--accent-fill)]" />
-            I&apos;ve watched this before
-          </label>
+<button
+            type="button"
+            aria-pressed={rewatch}
+            onClick={() => setRewatch((r) => !r)}
+            className={`inline-flex items-center gap-2 h-9 rounded-full border pl-1.5 pr-3.5 text-[1.0417rem] cursor-pointer transition-colors ${rewatch ? "border-transparent" : "border-hair text-dim hover:text-ink"}`}
+            style={rewatch ? { background: "var(--accent-fill)", color: "var(--on-accent)" } : undefined}
+          >
+            <MarkRewatched size={22} />
+            Rewatched
+          </button>
           <span className="inline-flex items-center gap-2">
             <span className="text-dim">Watched on</span>
             <WatchedOn value={watchedOn} onChange={setWatchedOn} out={out ? { label: kind === "movie" ? "Release day" : kind === "episode" ? "Air date" : "First aired", date: out } : null} />

@@ -7,6 +7,7 @@ import type { Movie, Review, Show } from "@/lib/archive";
 import { deleteReview, saveReview } from "@/lib/library-actions";
 import { StarRating } from "./StarRating";
 import { WatchedOn } from "./WatchedOn";
+import { MarkRewatched } from "./marks";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 
@@ -110,10 +111,18 @@ export function ReviewPanel({
               out={(target.kind === "show" ? target.show.first_air_date : target.movie.release_date) ? { label: target.kind === "show" ? "First aired" : "Release day", date: (target.kind === "show" ? target.show.first_air_date : target.movie.release_date)! } : null}
             />
           </div>
-          <label className="flex items-center gap-2 text-xs text-dim mt-2 cursor-pointer">
-            <input type="checkbox" className="accent-[var(--accent-fill)]" checked={rewatch} onChange={(e) => setRewatch(e.target.checked)} />
-            I&rsquo;ve watched this before
-          </label>
+          {/* The rewatch mark the Log dialog and the Diary use, rather than a
+              tickbox. */}
+          <button
+            type="button"
+            aria-pressed={rewatch}
+            onClick={() => setRewatch((r) => !r)}
+            className={`mt-2 inline-flex items-center gap-2 h-9 rounded-full border pl-1.5 pr-3.5 text-[1.0417rem] cursor-pointer transition-colors ${rewatch ? "border-transparent" : "border-hair text-dim hover:text-ink"}`}
+            style={rewatch ? { background: "var(--accent-fill)", color: "var(--on-accent)" } : undefined}
+          >
+            <MarkRewatched size={22} />
+            Rewatched
+          </button>
         </div>
 
         <div className={tile}>

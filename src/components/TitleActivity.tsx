@@ -1,14 +1,12 @@
 import Link from "next/link";
 import { HeadingPill } from "./TitleParts";
 import type { LibraryArchive, Movie, Show } from "@/lib/archive";
-import { ReviewPanel } from "./ReviewPanel";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 
 // The person's side of a title page: what they've done with it (the
-// "Recent activity" row in the list menu lands on #activity) and the review
-// tiles under it. Signed out, the activity tile is a sign-in nudge and the
-// review tiles still draw so the page reads the same either way.
+// "Recent activity" row in the list menu lands on #activity). Writing it up
+// is Your take's job, beside the reviews. Signed out, a sign-in nudge.
 export function TitleActivity({ target, archive, signedIn }: { target: Target; archive: LibraryArchive | null; signedIn: boolean }) {
   const id = target.kind === "show" ? target.show.id : target.movie.id;
   const key = `${target.kind}:${id}`;
@@ -48,7 +46,7 @@ export function TitleActivity({ target, archive, signedIn }: { target: Target; a
             to see what you&rsquo;ve done with this title.
           </p>
         ) : facts.length === 0 ? (
-          <p className="text-[1.0417rem] text-dim m-0">Nothing yet. Mark it, rate it, or write it up below.</p>
+          <p className="text-[1.0417rem] text-dim m-0">Nothing yet. Mark it, rate it, or write it up in Your take.</p>
         ) : (
           <dl className="grid gap-2 grid-cols-2 sm:grid-cols-4 m-0">
             {facts.map((f) => (
@@ -68,7 +66,6 @@ export function TitleActivity({ target, archive, signedIn }: { target: Target; a
           </dl>
         )}
       </section>
-      <ReviewPanel target={target} review={review} rating={rating} loved={loved} signedIn={signedIn} />
     </div>
   );
 }
