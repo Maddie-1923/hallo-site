@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -58,7 +57,6 @@ export function MarkMenu({
   const [rating, setRatingShown] = useState<number | null>(state.rating);
   const [onLists, setOnLists] = useState<Set<string>>(new Set(state.listIDs));
   const title = target.kind === "show" ? target.show.name : target.movie.title;
-  const href = target.kind === "show" ? `/show/${target.show.id}` : `/movie/${target.movie.id}`;
   const [pos, setPos] = useState<{ top?: number; bottom?: number; right: number } | null>(null);
 
   // Above the button when there's room, below when there isn't; right-aligned
@@ -158,9 +156,6 @@ export function MarkMenu({
 
       <GroupGap />
       <div className={GROUP}>
-      <Link href={`${href}#activity`} className={row} onClick={onClose}>
-        Recent activity
-      </Link>
       {/* Opens over whatever you were looking at rather than jumping to a
           section further down the title page — writing two sentences should
           not cost you your place. */}

@@ -6,7 +6,6 @@ import { genreHref } from "@/lib/browse";
 import { SiteFooter } from "@/components/SiteFooter";
 import { People } from "@/components/People";
 import { TitleCredits } from "@/components/TitleCredits";
-import { TitleActivity } from "@/components/TitleActivity";
 import { HeaderCard, TitleBento, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { TitleActions } from "@/components/TitleActions";
 import { SeasonBrowser } from "@/components/SeasonBrowser";
@@ -160,7 +159,6 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
         <AdSlot place="title" className="mt-8" />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
           {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" />}
-          {lib.signedIn && <TitleActivity target={{ kind: "show", show }} archive={lib.archive} signedIn={lib.signedIn} />}
         </div>
       </main>
       <SiteFooter />
