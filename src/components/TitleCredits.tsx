@@ -93,9 +93,11 @@ function Rows({ children }: { children: React.ReactNode }) {
 /** A label on the left, what it holds on the right. */
 export function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid gap-2 @[520px]:grid-cols-[170px_minmax(0,1fr)] @[520px]:gap-4 py-3 first:pt-0 last:pb-0">
-      <div className="pt-[0.3333rem] text-[1.0417rem] text-dim">{label}</div>
-      <div className="flex flex-wrap gap-1.5 min-w-0">{children}</div>
+    // One line: the role on the left, the names set to the right (wrapping
+    // under each other, still to the right, only when there are many).
+    <div className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0">
+      <div className="shrink-0 pt-[0.3333rem] text-[1.0417rem] text-dim">{label}</div>
+      <div className="flex flex-wrap justify-end gap-1.5 min-w-0">{children}</div>
     </div>
   );
 }
