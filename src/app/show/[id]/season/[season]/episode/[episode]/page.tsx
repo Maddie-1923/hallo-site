@@ -19,6 +19,7 @@ import { optionalLibrary } from "@/lib/library";
 import { readTake } from "@/lib/library-rules";
 import { episodeAirstamp, episodePage, image, seriesPage, type EpisodeLink } from "@/lib/tmdb";
 import { AiredAt } from "@/components/AiredAt";
+import { EpisodeJump } from "@/components/EpisodeJump";
 import { visitorRegion } from "@/lib/region";
 import { AdSlot } from "@/components/AdSlot";
 
@@ -105,8 +106,14 @@ export default async function EpisodePage({ params }: Params) {
                         <span aria-hidden className="ml-2 text-[.55em] align-[.25em] text-dim">→</span>
                       </h1>
                     </Link>
-                    <div className="mt-1.5 flex items-center gap-2 text-[1.0417rem] font-semibold tracking-[.06em] text-mid-tone">
-                      {code(ep.season, ep.episode)}
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <EpisodeJump
+                        showID={showID}
+                        season={ep.season}
+                        episode={ep.episode}
+                        seasons={show.seasons.map((x) => ({ number: x.season_number, name: x.name, count: x.episode_count }))}
+                        watched={lib.archive?.watched.filter((k) => k.startsWith(`${showID}-`)) ?? []}
+                      />
                       <EpisodeBadgePill facts={ep.facts} />
                     </div>
                   </div>
