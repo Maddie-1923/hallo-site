@@ -588,9 +588,13 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
             </section>
           ))}
           </div>
+          {/* Room under the last title, so even the last few can come up
+              level with the panel, and the panel, pinned beside them, is
+              never squeezed or cut off at the foot of the list. */}
+          {withPanel && <div aria-hidden style={{ height: `max(0px, calc(100vh - ${navH + headerH + 260}px))` }} />}
         </div>
         {withPanel && picked && (
-          <aside className="sticky self-start min-w-0 lg:pl-2 overflow-y-auto soft-scroll" style={{ top: navH + headerH + 4, marginTop: firstTop, maxHeight: `calc(100vh - ${navH + headerH + 20}px)` }}>
+          <aside className="sticky self-start min-w-0 lg:pl-2" style={{ top: navH + headerH + 4, marginTop: firstTop }}>
             {/* In a shell of its own, like the rows beside it. */}
             <div className="rounded-shell bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
               <EpisodePanel item={picked} keysFor={keysFor} />
