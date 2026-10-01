@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { LogoMark } from "./Logo";
 import { CookieSettingsLink } from "./CookieSettingsLink";
 
 export function SiteFooter() {
@@ -9,7 +8,9 @@ export function SiteFooter() {
         <div className="flex flex-wrap gap-8 justify-between items-start">
           <div>
             <Link href="/" className="flex items-center gap-2.5 no-underline mb-3.5">
-              <LogoMark size={18} />
+              {/* The app's own icon, as in the top bar. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/kodigo-icon.png" alt="" width={32} height={32} className="rounded-[23%] shadow-[0_1px_3px_rgba(0,0,0,.25)]" />
               <span className="display text-[22px] text-[color:var(--logo-ink)]">Kodigo</span>
             </Link>
             <div>© 2026 Kodigo</div>
@@ -30,7 +31,7 @@ export function SiteFooter() {
           </div>
         </div>
         <p className="max-w-[52ch] mt-9 text-xs leading-7">
-          This product uses the TMDB API but is not endorsed or certified by TMDB. Episode air times
+          This product uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB. Episode air times
           provided by TVmaze. Apple, iPhone, iPad and App Store are trademarks of Apple Inc.
         </p>
       </div>
