@@ -613,7 +613,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
             <section key={g.id} className={i > 0 ? "mt-8" : ""}>
               {i > 0 && (
                 <div data-pile-heading={g.id} className="mb-3">
-                  <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece !m-0">
+                  <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece border border-hair !m-0">
                     <span className="display text-[20px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px]">{g.title}</span>
                   </h2>
                 </div>
