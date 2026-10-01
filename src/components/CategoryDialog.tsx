@@ -103,7 +103,7 @@ function Chip({ on, onClick, children, logo, disabled = false }: { on: boolean; 
       aria-pressed={on}
       disabled={disabled}
       onClick={onClick}
-      className={`w-full flex items-center gap-2.5 min-h-9 px-2.5 py-1 rounded-[10px] border text-left text-[13px] font-semibold leading-tight cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default ${
+      className={`w-full flex items-center gap-2.5 ${logo !== undefined ? "min-h-9 py-1" : "min-h-7 py-0.5"} px-2.5 rounded-[8px] border text-left text-[13px] font-semibold leading-tight cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default ${
         on ? "border-transparent bg-accent-fill text-on-accent" : "border-transparent text-ink hover:border-hair hover:bg-card"
       }`}
     >
