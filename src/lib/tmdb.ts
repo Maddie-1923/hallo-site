@@ -1,6 +1,7 @@
 import "server-only";
 import type { Movie, Show } from "./archive";
 import { discoverQuery, type Catalogue, type DiscoverFilter } from "./saved-rails";
+import { seasonFacts, type EpisodeFacts } from "./episode-badge";
 
 // Server-side TMDB client. The key never reaches the browser; every page that
 // draws TMDB data is a Server Component or a route handler. Responses are
@@ -883,6 +884,9 @@ export interface EpisodeLink {
 export interface EpisodePage {
   season: number;
   episode: number;
+  /** What TMDB says that a badge hangs on (FINALE and the rest); the badge
+      itself is worked out in the browser, on the viewer's own day. */
+  facts?: EpisodeFacts;
   name: string;
   overview: string | null;
   airDate: string | null;
@@ -953,6 +957,7 @@ export async function episodePage(showID: number, season: number, episode: numbe
     seasonEpisodes: list,
     previous,
     next,
+    facts: seasonFacts(eps, seasonCount, new Date().toISOString().slice(0, 10))[`${season}-${episode}`],
   };
 }
 

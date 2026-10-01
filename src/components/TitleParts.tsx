@@ -372,7 +372,9 @@ export function EpisodesSection({ showID, episodes, current, title, watched = []
   const code = (s: number, e: number) => `S${String(s).padStart(2, "0")} | E${String(e).padStart(2, "0")}`;
   return (
     <Section title={title} small>
-      <Rail>
+      {/* Opens on the episode this page is about, outlined, rather than the
+          season's first. */}
+      <Rail start={Math.max(0, episodes.findIndex((e) => e.episode === current))}>
         {episodes.map((e) => (
           <RowCard key={e.episode} width={240}>
             <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className={`block rounded-[12px] bg-piece overflow-hidden no-underline text-ink group ${e.episode === current ? "ring-2 ring-accent-fill" : ""}`}>

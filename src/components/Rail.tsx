@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 // goes to it. The row still scrolls by trackpad and touch.
 const fade = (start: boolean, end: boolean) => `linear-gradient(to right, ${start ? "black" : "transparent"}, black 36px, black calc(100% - 36px), ${end ? "black" : "transparent"})`;
 
-export function Rail({ children }: { children: React.ReactNode }) {
+export function Rail({ children, start }: { children: React.ReactNode; /** A card to open on (its index): the row starts with it in view rather than at the first. */ start?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const stepRef = useRef(0);
   const [atStart, setAtStart] = useState(true);
@@ -62,6 +62,17 @@ export function Rail({ children }: { children: React.ReactNode }) {
       ro.disconnect();
     };
   }, []);
+
+  // Opening on a card further along: once the cards have their width, the
+  // row scrolls (at once, not smoothly) so that card leads the view.
+  const started = useRef(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !card || started.current || !start) return;
+    started.current = true;
+    const target = el.children[start] as HTMLElement | undefined;
+    if (target) el.scrollLeft = target.offsetLeft - el.offsetLeft - parseFloat(getComputedStyle(el).paddingLeft);
+  }, [card, start]);
 
   function go(dir: 1 | -1) {
     const el = ref.current;

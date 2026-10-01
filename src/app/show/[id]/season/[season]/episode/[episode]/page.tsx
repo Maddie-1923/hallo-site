@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SeriesPill, seriesBadge } from "@/components/SeriesBadge";
 import { SpoilerName } from "@/components/Spoiler";
+import { EpisodeBadgePill } from "@/components/EpisodeBadgePill";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
@@ -59,7 +60,16 @@ export default async function EpisodePage({ params }: Params) {
   const badge = seriesBadge(show.show.status, show.type);
   const facts = [
     { label: "", value: <SpoilerName name={ep.name} watched={watched} /> },
-    { label: "Episode", value: code(ep.season, ep.episode) },
+    // Which episode, and its badge (FINALE and the rest) beside it.
+    {
+      label: "Episode",
+      value: (
+        <span className="inline-flex items-center gap-2">
+          <EpisodeBadgePill facts={ep.facts} />
+          {code(ep.season, ep.episode)}
+        </span>
+      ),
+    },
     ep.airDate && { label: "Aired", value: <Day iso={ep.airDate} /> },
     ep.runtime && { label: "Runtime", value: `${ep.runtime}m` },
     ep.vote && { label: "TMDB", value: ep.vote.toFixed(1) },
