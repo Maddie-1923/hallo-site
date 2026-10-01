@@ -9,6 +9,7 @@ import { MarkMenu } from "./MarkMenu";
 import { ReviewDialog } from "./ReviewDialog";
 import { MarkTip } from "./MarkTip";
 import { KeyConfirm } from "./KeyConfirm";
+import { TrailerModal } from "./TrailerPlayer";
 import type { ListOption } from "@/lib/marks";
 
 export type MarkState = { loved: boolean; watched: boolean; tracked: boolean; rating: number | null; listIDs: string[]; review: Review | null; moods: string[]; rewatch: boolean };
@@ -29,6 +30,7 @@ export function MarkButtons({ target, state, lists = [], size = "sm", variant = 
   const [listButton, setListButton] = useState<HTMLButtonElement | null>(null);
   const [menu, setMenu] = useState(false);
   const [logging, setLogging] = useState(false);
+  const [trailer, setTrailer] = useState<string | null>(null);
   const router = useRouter();
   const [, start] = useTransition();
   const [shown, setShown] = useOptimistic(state, (s: MarkState, patch: Partial<MarkState>) => ({ ...s, ...patch }));
@@ -87,6 +89,7 @@ export function MarkButtons({ target, state, lists = [], size = "sm", variant = 
         setMenu(false);
         setLogging(true);
       }}
+      onTrailer={setTrailer}
       extra={
         variant === "keys"
           ? [
@@ -97,7 +100,12 @@ export function MarkButtons({ target, state, lists = [], size = "sm", variant = 
       }
     />
   );
-  const logDialog = logging && <ReviewDialog target={target} review={shown.review} rating={shown.rating} moods={shown.moods} onClose={() => setLogging(false)} />;
+  const logDialog = (
+    <>
+      {logging && <ReviewDialog target={target} review={shown.review} rating={shown.rating} moods={shown.moods} onClose={() => setLogging(false)} />}
+      {trailer && <TrailerModal id={trailer} onClose={() => setTrailer(null)} />}
+    </>
+  );
 
   if (variant === "keys") {
     const key = "w-full h-10 rounded-[10px] flex items-center justify-center cursor-pointer transition-colors";

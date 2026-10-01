@@ -8,6 +8,7 @@ import type { Movie, Show } from "@/lib/archive";
 import type { ListOption } from "@/lib/marks";
 import { createList, setOnList, setRating, trackMovie, trackShow, untrackMovie, untrackShow } from "@/lib/library-actions";
 import type { MarkState } from "./MarkButtons";
+import { trailerFor } from "@/lib/trailer-actions";
 import { StarRating } from "./StarRating";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
@@ -26,6 +27,7 @@ export function MarkMenu({
   onClose,
   onLog,
   extra,
+  onTrailer,
   anchor,
 }: {
   target: Target;
@@ -40,6 +42,9 @@ export function MarkMenu({
   /** Rows the caller adds under Review & catalogue: the app-style card puts
       favourite and rewatch here, since it has no keys of its own for them. */
   extra?: { label: string; onClick: () => void }[];
+  /** Plays a trailer over the page. Owned by MarkButtons for the same
+      reason as `onLog`: the menu closes before the player opens. */
+  onTrailer?: (youtubeID: string) => void;
   /** The button the menu hangs off. Rendered in a portal, positioned from its rect, so no rail or card can clip it. */
   anchor: HTMLElement | null;
 }) {
@@ -48,6 +53,7 @@ export function MarkMenu({
   const [pending, start] = useTransition();
   const [error, setError] = useState<string>();
   const [showLists, setShowLists] = useState(false);
+  const [trailerState, setTrailerState] = useState<"idle" | "finding" | "none">("idle");
   const [newName, setNewName] = useState("");
   const [rating, setRatingShown] = useState<number | null>(state.rating);
   const [onLists, setOnLists] = useState<Set<string>>(new Set(state.listIDs));
@@ -152,6 +158,26 @@ export function MarkMenu({
 
       <GroupGap />
       <div className={GROUP}>
+      {onTrailer && (
+        <button
+          type="button"
+          className={row}
+          disabled={trailerState !== "idle"}
+          onClick={() => {
+            setTrailerState("finding");
+            trailerFor(target.kind, target.kind === "show" ? target.show.id : target.movie.id)
+              .then((id) => {
+                if (id) {
+                  onTrailer(id);
+                  onClose();
+                } else setTrailerState("none");
+              })
+              .catch(() => setTrailerState("none"));
+          }}
+        >
+          {trailerState === "finding" ? "Finding the trailer…" : trailerState === "none" ? "No trailer for this one" : "▶ Watch trailer"}
+        </button>
+      )}
       <Link href={`${href}#activity`} className={row} onClick={onClose}>
         Recent activity
       </Link>
