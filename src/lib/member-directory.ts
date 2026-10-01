@@ -24,6 +24,9 @@ export interface Member {
   avatar?: string | null;
   follow?: "none" | "pending" | "following" | "self";
   isPrivate?: boolean;
+  /** Their three highest-rated films and shows, best first, as poster
+      pictures: the hand of cards fanned behind their picture. */
+  favourites?: string[];
 }
 
 // Real members for the Members page, through public.member_directory
@@ -54,7 +57,28 @@ export async function memberDirectory(): Promise<Member[] | null> {
   const supabase = await createClient();
   const [{ data }, { data: auth }] = await Promise.all([supabase.rpc("member_directory", { max_rows: 500 }), supabase.auth.getUser()]);
   const me = auth.user?.id;
-  return ((data ?? []) as Row[]).map((r) => ({
+  const rows = (data ?? []) as Row[];
+  // Each member's favourites: their best-rated films and shows from the
+  // public projection, three each, in one read for the whole page.
+  const favourites = new Map<string, string[]>();
+  if (rows.length) {
+    const { data: rated } = await supabase
+      .from("public_entries")
+      .select("user_id, poster_path")
+      .in("user_id", rows.map((r) => r.user_id))
+      .in("kind", ["movie", "show"])
+      .not("rating", "is", null)
+      .not("poster_path", "is", null)
+      .order("rating", { ascending: false })
+      .order("updated_at", { ascending: false })
+      .limit(2000);
+    for (const e of rated ?? []) {
+      const list = favourites.get(e.user_id) ?? [];
+      const url = image.poster(e.poster_path, "w342");
+      if (list.length < 3 && url) favourites.set(e.user_id, [...list, url]);
+    }
+  }
+  return rows.map((r) => ({
     username: r.username,
     displayName: r.display_name || r.username,
     location: r.location ?? "",
@@ -68,6 +92,7 @@ export async function memberDirectory(): Promise<Member[] | null> {
     likesThisWeek: Number(r.likes_this_week),
     avatar: image.poster(r.avatar_path, "w342"),
     follow: r.user_id === me ? "self" : r.my_follow === "accepted" ? "following" : r.my_follow === "pending" ? "pending" : "none",
+    favourites: favourites.get(r.user_id) ?? [],
   }));
 }
 

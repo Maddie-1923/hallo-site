@@ -49,7 +49,7 @@ export function MembersPage({ members: everyone, live = false }: { members: Memb
           <div>
             <CommunitySwitch on="members" />
             <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">Members</h1>
-            <p className="m-0 mt-2 text-[1.0417rem] leading-[1.6] text-mid-tone">Find people who watch what you watch, and follow their reviews and lists.</p>
+            <p className="m-0 mt-2 text-[1.0417rem] leading-[1.6] text-mid-tone">Find people who love what you love.</p>
           </div>
           <input
             value={q}
@@ -72,7 +72,7 @@ export function MembersPage({ members: everyone, live = false }: { members: Memb
             <div className={`grid gap-2 sm:grid-cols-2 lg:grid-cols-4 ${popular.length ? "" : "hidden"}`}>
               {popular.map((m) => (
                 <div key={m.username} className="rounded-shell bg-piece p-3 grid justify-items-center text-center gap-2">
-                  <Avatar m={m} size={64} />
+                  <Hand m={m} />
                   <div className="min-w-0 w-full">
                     <Link href={`/u/${m.username}`} className="block text-[1.0417rem] font-semibold text-ink truncate no-underline hover:text-accent">
                       @{m.username}
@@ -152,6 +152,40 @@ function Ranked({ list, numbered = false, stats = true }: { list: Member[]; numb
         </li>
       ))}
     </ul>
+  );
+}
+
+/** Their favourites fanned like a hand of cards, the best in the middle and
+    raised, their picture in front at the foot of the fan. With fewer than
+    three rated, the hand holds what there is; with none, the picture alone. */
+function Hand({ m }: { m: Member }) {
+  const cards = m.favourites ?? [];
+  if (!cards.length) return <Avatar m={m} size={64} />;
+  // Best in the middle: second on the left, third on the right.
+  const order = [cards[1], cards[0], cards[2]];
+  const place = [
+    { x: -42, y: 10, r: -13, z: 1 },
+    { x: 0, y: 0, r: 0, z: 2 },
+    { x: 42, y: 10, r: 13, z: 1 },
+  ];
+  return (
+    <div className="relative w-[12.5rem] h-[10.5rem]" aria-hidden>
+      {order.map((src, i) =>
+        src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={i}
+            src={src}
+            alt=""
+            className="absolute left-1/2 top-0 w-[5.5rem] aspect-[2/3] rounded-[8px] object-cover border border-hair shadow-[0_4px_12px_rgba(0,0,0,.3)]"
+            style={{ transform: `translateX(calc(-50% + ${place[i].x}px)) translateY(${place[i].y}px) rotate(${place[i].r}deg)`, zIndex: place[i].z }}
+          />
+        ) : null,
+      )}
+      <span className="absolute left-1/2 bottom-0 -translate-x-1/2 z-[3] rounded-full border-[3px] border-[color:var(--piece)]">
+        <Avatar m={m} size={56} />
+      </span>
+    </div>
   );
 }
 
