@@ -31,43 +31,46 @@ export const HOLD = "#D9BC52";
 // under the panel, the owner's keys in a strip, sharing the width. Visitors
 // get the panel alone. The app's night colours: the card `kodigoWell`, the
 // panel and keys `kodigoRowPiece`, a lit top edge and a soft shadow.
-// With `onPick`, the picture and the name pick the row (the calendar page's
-// list shows the picked one beside it) instead of going to the title's page;
-// `picked` outlines it.
+// The picture always opens the title's page, as tapping the artwork does in
+// the app. With `onPick`, the rest of the row (name and episode lines) picks
+// it, and the tracker shows the picked one's episode beside the list;
+// without, it opens the title's page too. `picked` outlines it.
 // `band` is the episode's badge along the foot of the picture; `countdown`,
 // on a Coming soon row, the days until it airs, level with the name at the
 // row's right edge as the app's EpisodeRow sits it.
 export function Row({ t, lines, bar, keys, onPick, picked = false, rowKey, band = null, countdown = null }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null; onPick?: () => void; picked?: boolean; /** Marks the row so the tracker can find it on the page. */ rowKey?: string; band?: EpisodeBadge | null; countdown?: number | null }) {
   return (
-    <li data-picked={picked || undefined} data-row={rowKey} className={`rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "border-transparent ring-2 ring-accent-fill" : "border-t-[color:var(--lit-edge)] border-x-piece border-b-well"}`}>
+    <li data-picked={picked || undefined} data-row={rowKey} onClick={onPick && pickFromShell(onPick)} className={`${onPick ? "cursor-pointer " : ""}rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "border-transparent ring-2 ring-accent-fill" : "border-t-[color:var(--lit-edge)] border-x-piece border-b-well"}`}>
       <div className="h-[80px] rounded-[10px] bg-piece flex gap-2.5 overflow-hidden">
-        <To href={t.href} onPick={onPick} picked={picked} className="relative w-[142px] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
+        <Link href={t.href} aria-label={`Open ${t.title}`} className="relative w-[142px] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
           {(t.backdrop ?? t.poster) && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={(t.backdrop ?? t.poster)!} alt="" className="w-full h-full object-cover" />
           )}
           <ArtworkBand badge={band} />
+        </Link>
+        <To href={t.href} onPick={onPick} picked={picked} className="group/info min-w-0 flex-1 flex no-underline">
+          <span className="min-w-0 flex-1 flex flex-col py-1.5 pr-2.5">
+            <span className="block w-full text-[12.5px] leading-[16px] font-semibold text-ink truncate group-hover/info:text-accent">
+              {t.title}
+            </span>
+            {/* As the app's row: the code on its own line in the mid tone,
+                the episode's name under it, quieter. */}
+            <span className="block mt-0.5 text-[12.5px] leading-[16px] text-mid-tone truncate">{lines[0]}</span>
+            {lines[1] && <span className="block text-[12.5px] leading-[16px] text-dim truncate">{lines[1]}</span>}
+            {bar && (
+              <span className="mt-auto flex items-center gap-2">
+                <span className="flex-1 h-[2px] rounded-full bg-track overflow-hidden">
+                  <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
+                </span>
+                <span className="text-[11px] leading-none text-dim whitespace-nowrap tabular-nums">
+                  {bar.done}/{bar.total}
+                </span>
+              </span>
+            )}
+          </span>
+          <Countdown days={countdown} film={t.kind === "movie"} className="pt-1.5 pr-2.5 -ml-1" />
         </To>
-        <div className="min-w-0 flex-1 flex flex-col py-1.5 pr-2.5">
-          <To href={t.href} onPick={onPick} picked={picked} className="block w-full text-[12.5px] leading-[16px] font-semibold text-ink truncate no-underline hover:text-accent">
-            {t.title}
-          </To>
-          {/* As the app's row: the code on its own line in the mid tone,
-              the episode's name under it, quieter. */}
-          <div className="mt-0.5 text-[12.5px] leading-[16px] text-mid-tone truncate">{lines[0]}</div>
-          {lines[1] && <div className="text-[12.5px] leading-[16px] text-dim truncate">{lines[1]}</div>}
-          {bar && (
-            <div className="mt-auto flex items-center gap-2">
-              <span className="flex-1 h-[2px] rounded-full bg-track overflow-hidden">
-                <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
-              </span>
-              <span className="text-[11px] leading-none text-dim whitespace-nowrap tabular-nums">
-                {bar.done}/{bar.total}
-              </span>
-            </div>
-          )}
-        </div>
-        <Countdown days={countdown} film={t.kind === "movie"} className="pt-1.5 pr-2.5 -ml-1" />
       </div>
       {keys && (
         <div className="flex justify-end gap-1.5">
@@ -125,6 +128,19 @@ export function Countdown({ days, film = false, light = false, className = "" }:
       <span aria-hidden className={`text-[9px] leading-[11px] font-semibold ${light ? "text-white/70" : "text-dim"}`}>DAYS</span>
     </span>
   );
+}
+
+/** Beside the episode panel, a click anywhere on a row's shell that isn't
+    one of its keys or its picture (the strip around the keys, the edges)
+    picks it too. The keys and the picture keep their own jobs. */
+export function pickFromShell(onPick: () => void) {
+  return (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    // A sheet a key opened is drawn elsewhere on the page but still passes
+    // its clicks up through the row; those aren't clicks on the row.
+    if (!e.currentTarget.contains(target) || target.closest("a, button, [role=button]")) return;
+    onPick();
+  };
 }
 
 /** The row's picture and name: a link to the title, or, on a page that

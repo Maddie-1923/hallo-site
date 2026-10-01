@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Menu } from "./Menu";
 import { NavSearch } from "./NavSearch";
 import { DayNightToggle } from "./DayNightToggle";
-import { ThemeMenu } from "./ThemeMenu";
+import { ThemeSwatches } from "./ThemeMenu";
 import { loadProfile } from "@/lib/profile";
 import { image } from "@/lib/tmdb";
 import { createClient } from "@/lib/supabase/server";
@@ -131,7 +131,6 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
           <div className="ml-auto flex items-center gap-2 sm:gap-4 shrink-0 -translate-y-[7px]">
             <SearchBoundary />
             <DayNightToggle onPicture={framed} />
-            <ThemeMenu onPicture={framed} />
             <GuestProfile framed={framed} />
           </div>
         )}
@@ -175,19 +174,19 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
     // Centred on the k, as the signed-out buttons are (7px above the row's
     // middle); only the buttons move, never the logo.
     <div className="ml-auto flex items-center gap-2 sm:gap-4 shrink-0 -translate-y-[7px]">
+      <SearchBoundary />
       {/* "+ Log", Letterboxd's way in: something watched, logged from any page. */}
       <LogButton framed={framed} />
-      <SearchBoundary />
 
       {/* Their notifications: follows, requests, likes and comments. What's
           airing next is the Tracker's job now. */}
       <NotificationsBell items={notes} framed={framed} />
 
       {/* On a phone the bar holds the logo and four buttons at most; day or
-          night and the theme are in the menu's Appearance (Settings). */}
+          night is then in the menu's Appearance (Settings). The theme colour
+          is in the profile menu. */}
       <div className="hidden sm:flex items-center gap-4">
         <DayNightToggle onPicture={framed} />
-        <ThemeMenu onPicture={framed} />
       </div>
 
       <Menu
@@ -229,6 +228,12 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
         {menuGroups.slice(1).map((group, i) => (
           <div key={i}>
             <div aria-hidden className={BAND} />
+            {/* The theme colours open the settings group. */}
+            {i === 1 && (
+              <div className="border-b border-[color:color-mix(in_srgb,var(--ink)_12%,transparent)]">
+                <ThemeSwatches />
+              </div>
+            )}
             <ul className={`m-0 p-0 list-none ${HAIRLINE}`}>
               {group.map(([href, label]) => (
                 <li key={href}>
@@ -292,6 +297,9 @@ function GuestProfile({ framed }: { framed: boolean }) {
       )}
       {/* The app, the subscription and the news live here, as Letterboxd
           keeps them in its account menu, rather than on the bar. */}
+      <div className="border-t border-hair">
+        <ThemeSwatches />
+      </div>
       <div className="border-t border-hair py-1">
         <Link href="/about" className={item}>
           The app

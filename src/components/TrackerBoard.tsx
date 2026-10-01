@@ -543,7 +543,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
                     className="group/pill inline-flex items-center h-11 max-w-full px-3.5 rounded-[10px] bg-piece border border-hair overflow-hidden cursor-pointer"
                   >
                     {/* Keyed on the pile, so a new name slides up into place. */}
-                    <span key={active.id} className="block truncate display text-[24px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px] group-hover/pill:text-accent transition-colors animate-[tracker-pill-in_250ms_ease-out]">
+                    <span key={active.id} className="block truncate display text-[20px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px] group-hover/pill:text-accent transition-colors animate-[tracker-pill-in_250ms_ease-out]">
                       {active.title}
                     </span>
                   </button>
@@ -604,7 +604,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
               {i > 0 && (
                 <div data-pile-heading={g.id} className="mb-3">
                   <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece !m-0">
-                    <span className="display text-[24px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px]">{g.title}</span>
+                    <span className="display text-[20px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px]">{g.title}</span>
                   </h2>
                 </div>
               )}
@@ -915,7 +915,7 @@ function Switch<T extends string>({ value, onChange, options, label }: { value: 
           role="tab"
           aria-selected={value === v}
           onClick={() => onChange(v)}
-          className={`h-9 px-3 rounded-[9px] display text-[22px] leading-none tracking-[.02em] uppercase cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}
+          className={`h-10 px-3.5 rounded-[9px] display text-[27px] leading-none tracking-[.02em] uppercase cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}
         >
           <span className="block translate-y-[1px]">{text}</span>
         </button>

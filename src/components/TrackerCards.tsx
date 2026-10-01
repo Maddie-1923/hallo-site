@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import type { EpisodeBadge } from "@/lib/episode-badge";
 import type { ProfileTitle } from "@/lib/public-profile";
-import { ArtworkBand, Countdown, KeyButton, To, type Key } from "./TrackerRow";
+import { ArtworkBand, Countdown, KeyButton, To, pickFromShell, type Key } from "./TrackerRow";
 
 // The tracker's two other ways of drawing an entry, beside the list's Row:
 // the wide card (the app's card layout) and the poster tile (its grid and
@@ -46,8 +47,8 @@ export function countLine(bar: { done: number; total: number }) {
 export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowKey, band = null, countdown }: Entry & { onPick?: () => void; picked?: boolean; rowKey?: string }) {
   const wide = t.backdrop ?? t.poster;
   return (
-    <li data-picked={picked || undefined} data-row={rowKey} className={`rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "border-transparent ring-2 ring-accent-fill" : "border-t-[color:var(--lit-edge)] border-x-piece border-b-well"}`}>
-      <To href={t.href} onPick={onPick} picked={picked} className="group/card relative block w-full aspect-[16/9] rounded-[10px] overflow-hidden bg-piece no-underline">
+    <li data-picked={picked || undefined} data-row={rowKey} onClick={onPick && pickFromShell(onPick)} className={`${onPick ? "cursor-pointer " : ""}rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "border-transparent ring-2 ring-accent-fill" : "border-t-[color:var(--lit-edge)] border-x-piece border-b-well"}`}>
+      <CardFace href={t.href} onPick={onPick} picked={picked} className="group/card relative block w-full aspect-[16/9] rounded-[10px] overflow-hidden bg-piece no-underline">
         {wide && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={wide} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.03]" />
@@ -56,10 +57,18 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
         <ArtworkBand badge={band} />
         {/* Lifted clear of the band when there is one. */}
         <span className={`absolute inset-x-0 flex items-end gap-3 p-3 ${band ? "bottom-[15px]" : "bottom-0"}`}>
-          {t.poster && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={t.poster} alt="" loading="lazy" className="w-[56px] sm:w-[68px] aspect-[2/3] shrink-0 rounded-[8px] object-cover border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,.5)]" />
-          )}
+          {t.poster &&
+            (onPick ? (
+              // Picking the card shows its episode; the poster on it opens
+              // the title's page, as the artwork does in the app.
+              <Link href={t.href} aria-label={`Open ${t.title}`} onClick={(e) => e.stopPropagation()} className="shrink-0 rounded-[8px] hover:ring-2 hover:ring-white/70">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={t.poster} alt="" loading="lazy" className="block w-[56px] sm:w-[68px] aspect-[2/3] rounded-[8px] object-cover border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,.5)]" />
+              </Link>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={t.poster} alt="" loading="lazy" className="w-[56px] sm:w-[68px] aspect-[2/3] shrink-0 rounded-[8px] object-cover border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,.5)]" />
+            ))}
           <span className="min-w-0 flex-1 grid gap-1">
             <span className="flex items-start gap-2">
               <span className="min-w-0 flex-1 display text-[24px] leading-none tracking-[.03em] uppercase text-white truncate">{t.title}</span>
@@ -85,7 +94,7 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
             )}
           </span>
         </span>
-      </To>
+      </CardFace>
       {keys && (
         <div className="flex justify-end gap-1.5">
           {keys.map((k) => (
@@ -94,6 +103,29 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
         </div>
       )}
     </li>
+  );
+}
+
+// The card's face: a link to the title, or, beside the episode panel, a
+// face that picks the card. Not a button there, as it holds the poster's
+// own link, and a link can't sit inside a button.
+function CardFace({ href, onPick, picked, className, children }: { href: string; onPick?: () => void; picked?: boolean; className: string; children: React.ReactNode }) {
+  if (!onPick) return <To href={href} className={className}>{children}</To>;
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-pressed={picked}
+      onClick={onPick}
+      onKeyDown={(e) => {
+        if (e.target !== e.currentTarget || (e.key !== "Enter" && e.key !== " ")) return;
+        e.preventDefault();
+        onPick();
+      }}
+      className={`${className} text-left cursor-pointer`}
+    >
+      {children}
+    </div>
   );
 }
 
