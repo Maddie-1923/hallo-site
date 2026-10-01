@@ -310,7 +310,8 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   // The episode panel stays in view beside the list, just under the bar,
   // and shows the episode at the top of the list: once scrolling stops for
   // a moment (so the picture doesn't flicker through every row on the way),
-  // the row nearest the bar's foot becomes the picked one. Clicking a row
+  // the row nearest the bar's foot becomes the picked one and is eased into
+  // line with the panel's top. Clicking a row
   // picks it and glides it up to that spot. Its first position is level
   // with the first title.
   const leftCol = useRef<HTMLDivElement>(null);
@@ -331,16 +332,27 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     if (!withPanel) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const settle = () => {
-      const line = navH + headerH;
+      const line = navH + headerH + 4;
       const rows = [...(leftCol.current?.querySelectorAll<HTMLElement>("[data-row]") ?? [])];
-      // The first row whose bottom is still below the bar's foot.
-      const row = rows.find((r) => r.getBoundingClientRect().bottom > line + 24);
-      const key = row?.dataset.row;
+      if (!rows.length) return;
+      // Above the list (the carousel still in view), leave the page alone.
+      if (rows[0].getBoundingClientRect().top > line + 2) return;
+      // A magnet: the row whose top is nearest the bar's foot is the one
+      // shown, and the page eases it up (or down) so its top sits exactly
+      // there, level with the panel, rather than half under the bar.
+      const row = rows.reduce((a, b) => (Math.abs(b.getBoundingClientRect().top - line) < Math.abs(a.getBoundingClientRect().top - line) ? b : a));
+      const key = row.dataset.row;
       if (key) setPickKey(key);
+      const off = row.getBoundingClientRect().top - line;
+      // Not past the page's foot, and not for the first row above the list's start.
+      if (Math.abs(off) > 2 && window.scrollY + off >= 0) {
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollTo({ top: window.scrollY + off, behavior: reduce ? "auto" : "smooth" });
+      }
     };
     const onScroll = () => {
       clearTimeout(timer);
-      timer = setTimeout(settle, 220);
+      timer = setTimeout(settle, 160);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
@@ -354,7 +366,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     const row = leftCol.current?.querySelector<HTMLElement>(`[data-row="${CSS.escape(key)}"]`);
     if (!row) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: window.scrollY + row.getBoundingClientRect().top - (navH + headerH) - 4, behavior: reduce ? "auto" : "smooth" });
+    window.scrollTo({ top: window.scrollY + row.getBoundingClientRect().top - (navH + headerH + 4), behavior: reduce ? "auto" : "smooth" });
   };
   const [activeID, setActiveID] = useState<string | null>(null);
   useEffect(() => {
