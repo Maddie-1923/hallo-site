@@ -251,48 +251,51 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       {sheet?.kind === "more" && <TrackerMore t={sheet.t} onClose={() => setSheet(null)} />}
       {sheet?.kind === "recap" && <TrackerRecap t={sheet.t} episode={sheet.episode} watched={sheet.watched} onClose={() => setSheet(null)} />}
       {/* One bento. Across the top, the two choices side by side from the
-          left (Shows or Movies, Watch list or Coming soon), then the piles
-          on one line under them; below, the list on the left and the picked
-          title's episode beside it, as a show page lays out its seasons and
-          the small episode page. */}
+          left (Shows or Movies, Watch list or Coming soon); below, the piles
+          over the list on the left and the picked title's episode beside it,
+          as a show page lays out its seasons and the small episode page. */}
       <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid grid-cols-[minmax(0,1fr)] gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
           <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
         </div>
-        {/* The piles on one line, so they read as one row of tabs; on a
-            narrow screen the line scrolls sideways rather than wrapping. */}
-        <div role="tablist" aria-label="Piles" className="flex flex-nowrap gap-1 p-1 rounded-[18px] bg-piece self-start max-w-full w-fit overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {shown.map((g) => {
-            const on = g.id === group?.id;
-            return (
-              <button
-                key={g.id}
-                type="button"
-                role="tab"
-                aria-selected={on}
-                onClick={() => setGroupId(g.id)}
-                className={`shrink-0 whitespace-nowrap inline-flex items-center px-3.5 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
-              >
-                {g.title}
-              </button>
-            );
-          })}
-        </div>
         <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          {/* Tall enough for five rows (each about 101px with its keys, 8px
-              apart, and room under the last); the rest scroll. */}
-          <div className="relative h-[548px] min-w-0">
-            <ul className="absolute inset-0 soft-scroll overflow-y-auto overscroll-contain pr-1 m-0 p-0 pb-3 list-none grid gap-2 content-start">
-              {all.length === 0 && (
-                <li className="rounded-shell bg-piece p-3 text-[12.5px] text-dim">
-                  {view === "coming" ? "Nothing on these days from what you track." : "Nothing here right now."}
-                </li>
-              )}
-              {all.map((i) => (
-                <Row key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={i.keys} onPick={() => setPickKey(i.key)} picked={picked?.key === i.key} />
-              ))}
-            </ul>
+          <div className="flex flex-col gap-2 min-w-0">
+            {/* The piles on one line over the list, as wide as it, so they
+                read as one row of tabs; where even the smaller type won't fit,
+                the line scrolls sideways rather than wrapping. */}
+            <div role="tablist" aria-label="Piles" className="flex flex-nowrap gap-0.5 p-1 rounded-[18px] bg-piece max-w-full w-fit overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {shown.map((g) => {
+                const on = g.id === group?.id;
+                return (
+                  <button
+                    key={g.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={on}
+                    onClick={() => setGroupId(g.id)}
+                    className={`shrink-0 whitespace-nowrap inline-flex items-center px-2.5 py-2 rounded-full text-[9.5px] leading-none font-bold uppercase tracking-[.08em] cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+                  >
+                    {g.title}
+                  </button>
+                );
+              })}
+            </div>
+            {/* The list runs as tall as the episode panel beside it (at least
+                five rows), scrolls inside, and fades out at the foot rather
+                than cutting the last row off with a hard edge. */}
+            <div className="relative h-[548px] lg:h-auto lg:min-h-[548px] lg:flex-1">
+              <ul className="absolute inset-0 soft-scroll overflow-y-auto overscroll-contain pr-1 m-0 p-0 pb-6 list-none grid gap-2 content-start [mask-image:linear-gradient(to_bottom,black_calc(100%-28px),transparent)]">
+                {all.length === 0 && (
+                  <li className="rounded-shell bg-piece p-3 text-[12.5px] text-dim">
+                    {view === "coming" ? "Nothing on these days from what you track." : "Nothing here right now."}
+                  </li>
+                )}
+                {all.map((i) => (
+                  <Row key={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={i.keys} onPick={() => setPickKey(i.key)} picked={picked?.key === i.key} />
+                ))}
+              </ul>
+            </div>
           </div>
           <div className="lg:pl-2 min-w-0">{picked && <EpisodePanel item={picked} keysFor={keysFor} />}</div>
         </div>
