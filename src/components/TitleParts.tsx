@@ -301,11 +301,12 @@ function CastTile({ p, fill = "bg-piece" }: { p: CastMember; fill?: string }) {
           </svg>
         )}
       </div>
-      <div className="p-2.5">
+      <div className="px-2 pt-1.5 pb-2">
         {/* One line each, cut short with an ellipsis, as the app's grids and
-            rails do: a two-line name would leave a gap under the short ones. */}
-        <div className="text-[1.0417rem] leading-[1.3333rem] font-semibold text-ink truncate group-hover:text-accent transition-colors">{p.name}</div>
-        <div className="text-[1.0417rem] leading-[1.3333rem] text-dim truncate">{p.character}</div>
+            rails do: a two-line name would leave a gap under the short ones.
+            Set small so more of a name fits before the cut. */}
+        <div className="text-[0.9167rem] leading-[1.1667rem] font-semibold text-ink truncate group-hover:text-accent transition-colors">{p.name}</div>
+        <div className="text-[0.875rem] leading-[1.1667rem] text-dim truncate">{p.character}</div>
       </div>
     </Link>
   );
