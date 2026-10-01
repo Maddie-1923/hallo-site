@@ -12,7 +12,6 @@ import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 import { CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, type Key } from "./TrackerRow";
 import { episodeBefore, TrackerMore, TrackerRecap } from "./TrackerSheets";
 import { HeadingPill } from "./TitleParts";
-import { TrackerCalendar } from "./TrackerCalendar";
 import { useDateFormat } from "./Day";
 import { MASKED_NAME, SpoilerCover, useSpoilers } from "./Spoiler";
 
@@ -65,8 +64,6 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   const spoilers = useSpoilers();
   const fmt = useDateFormat();
   const epName = (n: string) => (spoilers.names && n ? MASKED_NAME : n);
-  // Whether a dated episode on the calendar has been watched.
-  const watchedEp = (e: CalendarEvent) => !!e.episode && [...(known.get(e.t.key)?.seen ?? []), ...(seen[e.t.key] ?? [])].includes(e.episode);
 
   // The calendar's keys: an aired episode can be set aside or checked off,
   // a film out already checked off, each the same state as the rows below.
@@ -246,9 +243,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   const picked = all.find((i) => i.key === pickKey) ?? all[0] ?? null;
 
   return (
-    // The calendar on the left and the tracker beside it; under 1024px the
-    // tracker goes under the calendar.
-    <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[auto_minmax(0,1fr)] gap-4 items-start">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
       {problem && (
         <div role="alert" className="fixed z-50 bottom-6 left-1/2 -translate-x-1/2 max-w-[90vw] rounded-full bg-card-hi border border-hair px-4 py-2 text-[12.5px] text-ink shadow-lg">
           {problem}
@@ -256,8 +251,6 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       )}
       {sheet?.kind === "more" && <TrackerMore t={sheet.t} onClose={() => setSheet(null)} />}
       {sheet?.kind === "recap" && <TrackerRecap t={sheet.t} episode={sheet.episode} watched={sheet.watched} onClose={() => setSheet(null)} />}
-      {/* The calendar first, on the left. */}
-      <TrackerCalendar events={data.calendar} keysFor={keysFor} watched={watchedEp} />
       {/* One bento: the switches, then the list on the left and, beside it,
           the picked title's next episode, as a show page lays out its
           seasons and the small episode page. */}
