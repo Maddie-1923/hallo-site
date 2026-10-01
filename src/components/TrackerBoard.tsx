@@ -11,7 +11,6 @@ import type { CalendarEvent, ComingFilm, ComingShow, TrackerPage } from "@/lib/t
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 import { CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, type Key } from "./TrackerRow";
 import { episodeBefore, TrackerMore, TrackerRecap } from "./TrackerSheets";
-import { HeadingPill } from "./TitleParts";
 import { useDateFormat } from "./Day";
 import { MASKED_NAME, SpoilerCover, useSpoilers } from "./Spoiler";
 
@@ -346,9 +345,6 @@ function EpisodePanel({ item: given, keysFor }: { item: Item; keysFor: (e: Calen
 
   return (
     <section className="grid grid-cols-[minmax(0,1fr)] gap-2 content-start min-w-0">
-      <div>
-        <HeadingPill small>{item.episode ? code(item.episode) : isFilm ? "Film" : item.t.title}</HeadingPill>
-      </div>
       <div className="grid gap-2">
         {(ep?.still ?? item.t.backdrop) && (
           <div className="relative rounded-[8px] overflow-hidden">
@@ -359,6 +355,8 @@ function EpisodePanel({ item: given, keysFor }: { item: Item; keysFor: (e: Calen
         )}
         <div className="rounded-shell bg-piece p-3">
           <div className="display text-[22px] leading-none tracking-[.03em] uppercase">{ep ? (spoilers.names && !seenHere ? MASKED_NAME : ep.name) : item.t.title}</div>
+          {/* Under the name, which episode it is. */}
+          {item.episode && <div className="mt-1.5 text-[12.5px] font-semibold tracking-[.06em] text-dim">{code(item.episode)}</div>}
           {facts.length > 0 && (
             <div className="mt-2.5 border-t border-hair">
               {facts.map(([label, value], i) => (
