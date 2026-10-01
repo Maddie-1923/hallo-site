@@ -10,7 +10,8 @@ export function seriesBadge(status: string | null | undefined, type?: string | n
   if (s === "canceled" || s === "cancelled") return { label: "CANCELED", tone: "cut" as const };
   if (s === "ended") return { label: "ENDED", tone: "done" as const };
   if ((type ?? "").toLowerCase() === "miniseries") return { label: "MINISERIES", tone: "done" as const };
-  if (s === "pilot") return { label: "PILOT", tone: "going" as const };
+  // A pilot that never became a series: an ending, grey like ENDED.
+  if (s === "pilot") return { label: "PILOT", tone: "done" as const };
   if (s === "returning series") return { label: "RETURNING", tone: "going" as const };
   return null;
 }
