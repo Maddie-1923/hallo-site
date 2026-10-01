@@ -126,7 +126,7 @@ export default async function EpisodePage({ params }: Params) {
               </>
             }
             actions={<TitleActions kind="episode" title={`${show.show.name} ${code(ep.season, ep.episode)}`} tracked={!!lib.archive?.shows.some((s) => s.show.id === showID)} watched={watched} loved={loved} />}
-            beside={show.watch && <WhereToWatchTile watch={show.watch} />}
+            beside={<WhereToWatchTile watch={show.watch} />}
             side={(ep.cast.length > 0 || ep.crew.length > 0) && <TitleCredits flat cast={ep.cast} crew={ep.crew} />}
           />
         </div>

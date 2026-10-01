@@ -120,7 +120,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
                 (page.lastAired || badge) && (
                   <div className="flex items-center justify-between gap-3 text-[1.0417rem] text-dim">
                     <span>{page.lastAired ? <>Last aired <Day iso={page.lastAired} /></> : ""}</span>
-                    {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING" || badge.label === "PILOT"} />}
+                    {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING"} />}
                   </div>
                 )
               }
@@ -132,7 +132,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
               </>
             }
             actions={<TitleActions kind="show" title={show.name} tracked={!!tracked} loved={loved} stopped={tracked?.status === "Dropped"} />}
-            beside={page.watch && <WhereToWatchTile watch={page.watch} />}
+            beside={<WhereToWatchTile watch={page.watch} />}
             side={<TitleCredits flat kind="show" cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} airing={page.airing} />}
           />
         </div>

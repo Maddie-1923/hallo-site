@@ -12,7 +12,12 @@ import { ElsewhereSheet } from "./ElsewhereSheet";
     elsewhere), the second a "+N" when there are more, and the arrow level
     with them. Always the same size: the whole square opens the full list,
     every service anywhere, theirs first. */
-export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
+// A title TMDB has no services for anywhere (a film still in cinemas) still
+// gets the tile, saying so, so the top of every title page keeps one shape.
+const NOWHERE: WhereToWatch = { subscription: [], free: [], link: null, elsewhere: [] };
+
+export function WhereToWatchTile({ watch = NOWHERE }: { watch?: WhereToWatch | null }) {
+  watch ??= NOWHERE;
   // The services they pay for (Settings, Where you watch) come first and
   // wear the accent; with "Only what's on my services" on, only theirs show.
   const [settings] = useSettings();
@@ -29,7 +34,7 @@ export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
   return (
     <div className="relative shrink-0 w-[15.6667rem] max-sm:w-auto max-sm:h-[10rem] self-stretch rounded-shell bg-card border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
       <div className="absolute inset-0 p-2 flex flex-col gap-2">
-        <h2 className="shrink-0 h-[2.8333rem] px-1 rounded-[12px] bg-piece flex items-center justify-center text-center ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink">{here.length || notOnYours ? "Where to watch" : "Elsewhere"}</h2>
+        <h2 className="shrink-0 h-[2.8333rem] px-1 rounded-[12px] bg-piece flex items-center justify-center text-center ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink">Where to watch</h2>
         <div className="flex-1 min-h-0 rounded-[12px] bg-piece p-3 flex items-stretch gap-1.5">
           {shown.map((p) => (
             <span key={p.id} title={mine.has(p.id) ? `${p.name} · yours` : p.name} className={`${tile} ${here.length ? "" : "opacity-60"} ${mine.has(p.id) ? "!border-transparent ring-2 ring-accent-fill" : ""}`}>

@@ -35,6 +35,10 @@
   --track: #2c3035;
   /* `kodigoQuietFill`: an episode's band in a season list. */
   --quiet: #3c4148;
+  /* An episode's row in a season list: a step lighter than the season's
+     panel it sits on, the band by night and the card's cream by day (the
+     band's tan read too dark on the day panel). */
+  --episode-row: var(--quiet);
   /* `kodigoListFill`: a title set on a list or the watchlist. */
   --list-fill: #6faecf;
   --dim: #8c9097;
@@ -92,6 +96,7 @@
   --mid-tone: color-mix(in srgb, #1a1a19 78%, transparent);
   --track: #cfc8bb;
   --quiet: #cfc8bb;
+  --episode-row: #f4f1ea;
   --list-fill: #43a5df;
   --dim: #6b665d;
   --hair: #b4aea2;

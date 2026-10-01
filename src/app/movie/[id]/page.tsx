@@ -101,7 +101,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
               </>
             }
             actions={<TitleActions kind="movie" title={movie.title} tracked={!!tracked} watched={watched} loved={loved} />}
-            beside={page.watch && <WhereToWatchTile watch={page.watch} />}
+            beside={<WhereToWatchTile watch={page.watch} />}
             side={<TitleCredits flat kind="movie" cast={page.cast} crew={page.crew} details={page.details} genres={page.genres} keywords={page.keywords} releases={page.releases} />}
           />
         </div>
