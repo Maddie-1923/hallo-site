@@ -221,6 +221,13 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     const panelEpisode = p.next?.key ?? (p.total ? (p.done === 0 ? "1-1" : lastAired) : undefined);
     return { key: s.key, t: s, show: s, episode: p.next?.key, panelEpisode, lines: p.next ? [code(p.next.key), epName(s.episodeNames?.[p.next.key] ?? "")] : [p.total ? "All caught up" : "Not started", ""], bar: p.total ? { done: p.done, total: p.total } : null, keys: showKeys(s), facts: s.episodeFacts, band: bandOf(s.episodeFacts, p.next?.key), series: s.series };
   };
+  // Caught up is the app's Up to Date, which isn't on the watch list: Up
+  // next, On hold, Entering the void and Hidden only hold shows with an
+  // aired episode still to watch, as the app's piles do.
+  const waiting = (s: TrackerShow) => {
+    const p = progress(s, seenOf(s));
+    return !(p.total > 0 && !p.next);
+  };
   const filmItem = (f: ProfileTitle): Item => ({ key: f.key, t: f, lines: [f.year, "On the watch list"], bar: null, keys: filmKeys(f) });
 
   // The piles as they stand, before the header's filters: the watch list's
@@ -237,14 +244,12 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     view === "list"
       ? kind === "show"
         ? [
-            // Caught up is the app's Up to Date, which isn't on the watch list:
-            // only shows with an aired episode still to watch are Up next.
-            { id: "up-next", title: "Up next", items: data.shows.upNext.filter((s) => { const p = progress(s, seenOf(s)); return !(p.total > 0 && !p.next); }).map(showItem) },
+            { id: "up-next", title: "Up next", items: data.shows.upNext.filter(waiting).map(showItem) },
             { id: "ready", title: "Ready to start", items: data.shows.readyToStart.map(showItem) },
             { id: "skipped", title: "Skipped", items: data.shows.skipped.map(showItem) },
-            { id: "on-hold", title: "On hold", items: data.shows.onHold.map(showItem) },
-            { id: "void", title: "Entering the void", items: data.shows.theVoid.map(showItem) },
-            { id: "hidden", title: "Hidden from watchlist", items: data.shows.hidden.map(showItem) },
+            { id: "on-hold", title: "On hold", items: data.shows.onHold.filter(waiting).map(showItem) },
+            { id: "void", title: "Entering the void", items: data.shows.theVoid.filter(waiting).map(showItem) },
+            { id: "hidden", title: "Hidden from watchlist", items: data.shows.hidden.filter(waiting).map(showItem) },
           ]
         : [
             { id: "ready", title: "Ready to start", items: films(data.films.toWatch).map(filmItem) },
