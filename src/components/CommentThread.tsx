@@ -57,11 +57,11 @@ export function CommentThread({ kind, owner, target, href }: { kind: TargetKind;
 
   return (
     <div id="comments" className="rounded-shell bg-piece divide-y divide-hair scroll-mt-24">
-      {rows.length === 0 && <p className="m-0 p-3 text-[12.5px] text-dim">No comments yet.</p>}
+      {rows.length === 0 && <p className="m-0 p-3 text-[1.0417rem] text-dim">No comments yet.</p>}
       {rows.map((c) => (
         <div key={c.id} className="flex items-start gap-3 p-3">
-          <span className="shrink-0 w-8 h-8 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[15px] leading-none pt-[2px]">{c.who[0]?.toUpperCase()}</span>
-          <div className="min-w-0 flex-1 text-[12.5px] leading-[1.5]">
+          <span className="shrink-0 w-8 h-8 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[1.25rem] leading-none pt-[2px]">{c.who[0]?.toUpperCase()}</span>
+          <div className="min-w-0 flex-1 text-[1.0417rem] leading-[1.5]">
             <Link href={`/u/${c.who}`} className="font-semibold text-ink no-underline hover:text-accent">
               @{c.who}
             </Link>
@@ -69,7 +69,7 @@ export function CommentThread({ kind, owner, target, href }: { kind: TargetKind;
             <p className="m-0 mt-0.5 text-mid-tone whitespace-pre-wrap break-words">{c.text}</p>
           </div>
           {c.canDelete && (
-            <button type="button" onClick={() => remove(c.id)} className="shrink-0 text-[12px] text-dim hover:text-loved cursor-pointer">
+            <button type="button" onClick={() => remove(c.id)} className="shrink-0 text-[1rem] text-dim hover:text-loved cursor-pointer">
               Delete
             </button>
           )}
@@ -77,7 +77,7 @@ export function CommentThread({ kind, owner, target, href }: { kind: TargetKind;
         </div>
       ))}
       {!live ? (
-        <p className="m-0 p-3 text-[12.5px] text-dim">
+        <p className="m-0 p-3 text-[1.0417rem] text-dim">
           <Link href={`/login?next=${encodeURIComponent(href)}`} className="text-accent font-semibold no-underline hover:underline">
             Sign in
           </Link>{" "}
@@ -102,14 +102,14 @@ export function CommentThread({ kind, owner, target, href }: { kind: TargetKind;
             aria-invalid={!!problem}
             aria-label="Add a comment"
             placeholder="Add a comment"
-            className={`flex-1 min-w-0 rounded-[18px] bg-card border px-4 py-2 text-[12.5px] leading-[1.5] text-ink placeholder:text-dim resize-y min-h-[38px] max-h-[200px] focus:outline-none ${problem ? "border-loved" : "border-hair focus:border-accent"}`}
+            className={`flex-1 min-w-0 rounded-[18px] bg-card border px-4 py-2 text-[1.0417rem] leading-[1.5] text-ink placeholder:text-dim resize-y min-h-[3.1667rem] max-h-[16.6667rem] focus:outline-none ${problem ? "border-loved" : "border-hair focus:border-accent"}`}
           />
-          <button type="submit" disabled={!draft.trim() || busy} className="h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default">
+          <button type="submit" disabled={!draft.trim() || busy} className="h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default">
             {busy ? "Posting…" : "Post"}
           </button>
         </div>
         {problem && (
-          <p role="alert" className="m-0 px-4 text-[12.5px] text-loved">
+          <p role="alert" className="m-0 px-4 text-[1.0417rem] text-loved">
             {problem}
           </p>
         )}

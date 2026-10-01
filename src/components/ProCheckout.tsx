@@ -54,7 +54,7 @@ export function ProCheckout({ ready, signedIn, subscription }: { ready: boolean;
   };
 
   const pro = subscription?.pro;
-  const primary = "inline-flex items-center justify-center gap-2 min-h-10 py-2 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold no-underline cursor-pointer disabled:cursor-default disabled:opacity-60";
+  const primary = "inline-flex items-center justify-center gap-2 min-h-10 py-2 px-5 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold no-underline cursor-pointer disabled:cursor-default disabled:opacity-60";
 
   return (
     <div className="grid gap-2 content-start">
@@ -77,10 +77,10 @@ export function ProCheckout({ ready, signedIn, subscription }: { ready: boolean;
                 </span>
                 <span>
                   <span className="block display text-[clamp(40px,4.4vw,52px)] leading-none text-ink">{p.price}</span>
-                  <span className="block mt-1 text-[12.5px] text-dim">{p.per}</span>
+                  <span className="block mt-1 text-[1.0417rem] text-dim">{p.per}</span>
                 </span>
               </span>
-              {p.note && <span className="inline-flex items-center h-[26px] px-3 rounded-full bg-accent-fill text-on-accent text-[10.5px] font-bold uppercase tracking-[.12em]">{p.note}</span>}
+              {p.note && <span className="inline-flex items-center h-[2.1667rem] px-3 rounded-full bg-accent-fill text-on-accent text-[0.875rem] font-bold uppercase tracking-[.12em]">{p.note}</span>}
             </button>
           );
         })}
@@ -89,13 +89,13 @@ export function ProCheckout({ ready, signedIn, subscription }: { ready: boolean;
       <div className="rounded-shell bg-piece p-3 grid gap-2">
         {pro ? (
           <>
-            <p className="m-0 text-[12.5px] leading-[1.6] text-ink font-semibold">You have Kodigo Pro.</p>
+            <p className="m-0 text-[1.0417rem] leading-[1.6] text-ink font-semibold">You have Kodigo Pro.</p>
             {subscription?.source === "stripe" ? (
               <button type="button" onClick={manage} disabled={busy} className={primary}>
                 {busy ? "Opening…" : "Manage subscription"}
               </button>
             ) : (
-              <p className="m-0 text-[12.5px] leading-[1.6] text-dim">You subscribed in the app, so it&apos;s managed in your {subscription?.source === "google_play" ? "Google Play" : "Apple Account"} subscriptions.</p>
+              <p className="m-0 text-[1.0417rem] leading-[1.6] text-dim">You subscribed in the app, so it&apos;s managed in your {subscription?.source === "google_play" ? "Google Play" : "Apple Account"} subscriptions.</p>
             )}
           </>
         ) : !ready ? (
@@ -112,11 +112,11 @@ export function ProCheckout({ ready, signedIn, subscription }: { ready: boolean;
           </button>
         )}
         {error && (
-          <p role="alert" className="m-0 text-[12.5px] leading-[1.6] text-loved">
+          <p role="alert" className="m-0 text-[1.0417rem] leading-[1.6] text-loved">
             {error}
           </p>
         )}
-        <p className="m-0 text-[12.5px] leading-[1.6] text-dim">
+        <p className="m-0 text-[1.0417rem] leading-[1.6] text-dim">
           In US dollars, charged today and renewing until you cancel. Payment is handled by Stripe; Kodigo never sees your card. Subscribing means you agree to the{" "}
           <Link href="/terms" className="text-accent no-underline hover:underline">
             Terms of use
@@ -125,7 +125,7 @@ export function ProCheckout({ ready, signedIn, subscription }: { ready: boolean;
         </p>
       </div>
 
-      <span aria-disabled className="inline-flex items-center justify-center gap-2 min-h-10 py-2 px-4 rounded-full bg-[color:var(--quiet)] text-dim text-[12.5px] font-semibold">
+      <span aria-disabled className="inline-flex items-center justify-center gap-2 min-h-10 py-2 px-4 rounded-full bg-[color:var(--quiet)] text-dim text-[1.0417rem] font-semibold">
         <AppleMark />
         Or try 7 days free in the app
       </span>
@@ -151,7 +151,7 @@ export function ManageSubscription() {
           setBusy(false);
         }
       }}
-      className="h-8 px-4 rounded-full text-[12.5px] font-semibold cursor-pointer disabled:cursor-default disabled:opacity-45 bg-card text-ink border border-hair"
+      className="h-8 px-4 rounded-full text-[1.0417rem] font-semibold cursor-pointer disabled:cursor-default disabled:opacity-45 bg-card text-ink border border-hair"
     >
       {error ? "Try again" : busy ? "Opening…" : "Manage"}
     </button>

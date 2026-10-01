@@ -22,8 +22,8 @@ export function ListCard({ l }: { l: ListView }) {
           </span>
         ))}
       </span>
-      <span className="block mt-2.5 text-[12.5px] font-semibold truncate group-hover:text-accent transition-colors">{l.name}</span>
-      <span className="block text-[12.5px] text-dim truncate">
+      <span className="block mt-2.5 text-[1.0417rem] font-semibold truncate group-hover:text-accent transition-colors">{l.name}</span>
+      <span className="block text-[1.0417rem] text-dim truncate">
         @{l.owner} · {l.titles.length} {l.titles.length === 1 ? "title" : "titles"}
         {l.likes > 0 && <> · ♥ {l.likes}</>}
       </span>

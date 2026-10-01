@@ -160,13 +160,13 @@ function KindSwitch({ kind }: { kind: Kind }) {
     ["/movies", "Movies", kind === "movie"],
   ];
   return (
-    <nav aria-label="Explore" className="inline-flex gap-1 p-[3px] rounded-full bg-card border border-hair">
+    <nav aria-label="Explore" className="inline-flex gap-1 p-[0.25rem] rounded-full bg-card border border-hair">
       {tabs.map(([href, label, on]) => (
         <Link
           key={label}
           href={href}
           aria-current={on ? "page" : undefined}
-          className={`px-4 py-1.5 rounded-full text-[13px] font-bold no-underline transition-colors ${
+          className={`px-4 py-1.5 rounded-full text-[1.0833rem] font-bold no-underline transition-colors ${
             on ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"
           }`}
         >

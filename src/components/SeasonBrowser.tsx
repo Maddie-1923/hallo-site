@@ -27,7 +27,7 @@ export function SeasonBrowser({ showID, seasons, watched, open, start }: { showI
         <div>
           <HeadingPill small>All episodes</HeadingPill>
         </div>
-        <SectionCard className="relative flex-1 max-lg:h-[520px] lg:min-h-[320px]">
+        <SectionCard className="relative flex-1 max-lg:h-[43.3333rem] lg:min-h-[26.6667rem]">
           <SeasonList showID={showID} seasons={seasons} watched={watched} open={open} picked={key} onPick={setEp} start={start} scroll />
         </SectionCard>
       </section>
@@ -47,7 +47,7 @@ export function SeasonBrowser({ showID, seasons, watched, open, start }: { showI
                 </div>
               )}
               <div className="rounded-shell bg-piece p-3">
-                <div className="display text-[22px] leading-none tracking-[.03em] uppercase">
+                <div className="display text-[1.8333rem] leading-none tracking-[.03em] uppercase">
                   <SpoilerName name={ep.name} watched={seen} />
                 </div>
                 <div className="mt-2.5 border-t border-hair">
@@ -58,13 +58,13 @@ export function SeasonBrowser({ showID, seasons, watched, open, start }: { showI
                   ]
                     .filter(Boolean)
                     .map((f, i, all) => (
-                      <div key={(f as string[])[0]} className={`flex items-baseline justify-between gap-4 py-[8px] text-[12.5px] ${i < all.length - 1 || ep.directors.length ? "border-b border-hair" : ""}`}>
+                      <div key={(f as string[])[0]} className={`flex items-baseline justify-between gap-4 py-[0.6667rem] text-[1.0417rem] ${i < all.length - 1 || ep.directors.length ? "border-b border-hair" : ""}`}>
                         <span className="text-dim">{(f as string[])[0]}</span>
                         <span className="text-ink">{(f as string[])[1]}</span>
                       </div>
                     ))}
                   {ep.directors.length > 0 && (
-                    <div className="flex items-baseline justify-between gap-4 py-[8px] text-[12.5px]">
+                    <div className="flex items-baseline justify-between gap-4 py-[0.6667rem] text-[1.0417rem]">
                       <span className="text-dim">{ep.directors.length > 1 ? "Directors" : "Director"}</span>
                       <span className="text-right">
                         {ep.directors.map((d, i) => (
@@ -80,18 +80,18 @@ export function SeasonBrowser({ showID, seasons, watched, open, start }: { showI
                   )}
                 </div>
                 {ep.overview && (
-                  <div className="mt-[1px] pt-[9px] border-t border-hair">
+                  <div className="mt-[1px] pt-[0.75rem] border-t border-hair">
                     <ExpandableText text={ep.overview} watched={seen} />
                   </div>
                 )}
               </div>
-              <Link href={`/show/${showID}/season/${ep.season}/episode/${ep.episode}`} className="rounded-shell bg-piece p-3 flex items-center justify-between text-[12.5px] font-semibold text-ink no-underline hover:text-accent transition-colors">
+              <Link href={`/show/${showID}/season/${ep.season}/episode/${ep.episode}`} className="rounded-shell bg-piece p-3 flex items-center justify-between text-[1.0417rem] font-semibold text-ink no-underline hover:text-accent transition-colors">
                 Open the episode&apos;s page
                 <span aria-hidden className="text-accent">→</span>
               </Link>
             </div>
           ) : (
-            <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">Pick an episode in the list to see it here.</p>
+            <p className="m-0 rounded-shell bg-piece p-3 text-[1.0417rem] text-dim">Pick an episode in the list to see it here.</p>
           )}
         </SectionCard>
       </section>

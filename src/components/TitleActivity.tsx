@@ -41,20 +41,20 @@ export function TitleActivity({ target, archive, signedIn }: { target: Target; a
           <HeadingPill small>Your activity</HeadingPill>
         </div>
         {!signedIn ? (
-          <p className="text-[12.5px] text-dim m-0">
+          <p className="text-[1.0417rem] text-dim m-0">
             <Link href={`/login?next=/${target.kind}/${id}`} className="text-ink">
               Sign in
             </Link>{" "}
             to see what you&rsquo;ve done with this title.
           </p>
         ) : facts.length === 0 ? (
-          <p className="text-[12.5px] text-dim m-0">Nothing yet. Mark it, rate it, or write it up below.</p>
+          <p className="text-[1.0417rem] text-dim m-0">Nothing yet. Mark it, rate it, or write it up below.</p>
         ) : (
           <dl className="grid gap-2 grid-cols-2 sm:grid-cols-4 m-0">
             {facts.map((f) => (
               <div key={f.label} className="rounded-shell bg-piece p-3">
                 <dt className="eyebrow">{f.label}</dt>
-                <dd className="m-0 mt-1 text-[12.5px] font-semibold text-ink truncate" title={f.value}>
+                <dd className="m-0 mt-1 text-[1.0417rem] font-semibold text-ink truncate" title={f.value}>
                   {f.value}
                 </dd>
               </div>
@@ -62,7 +62,7 @@ export function TitleActivity({ target, archive, signedIn }: { target: Target; a
             {review?.text && (
               <div className="rounded-shell bg-piece p-3 col-span-2 sm:col-span-4">
                 <dt className="eyebrow">Review{review.spoilers ? " · spoilers" : ""}</dt>
-                <dd className="m-0 mt-1 text-[12.5px] text-bone whitespace-pre-wrap">{review.text}</dd>
+                <dd className="m-0 mt-1 text-[1.0417rem] text-bone whitespace-pre-wrap">{review.text}</dd>
               </div>
             )}
           </dl>

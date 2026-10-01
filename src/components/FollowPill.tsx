@@ -40,7 +40,7 @@ export function FollowPill({ initial = false, owner = false, username, state }: 
   };
   if (now === "pending")
     return (
-      <button type="button" onClick={press} title="Waiting for them to accept. Press to withdraw." className="inline-flex items-center justify-center rounded-full px-3 bg-card border border-hair text-dim text-[13px] font-semibold cursor-pointer" style={{ height: LINE, marginTop: `calc(${HANDLE} * -0.1)` }}>
+      <button type="button" onClick={press} title="Waiting for them to accept. Press to withdraw." className="inline-flex items-center justify-center rounded-full px-3 bg-card border border-hair text-dim text-[1.0833rem] font-semibold cursor-pointer" style={{ height: LINE, marginTop: `calc(${HANDLE} * -0.1)` }}>
         Requested
       </button>
     );
@@ -55,7 +55,7 @@ export function FollowPill({ initial = false, owner = false, username, state }: 
       // all, only the mark itself in the accent. Inside a filled circle the
       // mark's own disc read as a second, slightly off-centre ring.
       className={`relative inline-flex items-center justify-center rounded-full cursor-pointer transition-[filter] hover:brightness-110 ${
-        following ? "text-accent-fill" : "px-3 bg-accent-fill text-on-accent text-[13px] font-semibold"
+        following ? "text-accent-fill" : "px-3 bg-accent-fill text-on-accent text-[1.0833rem] font-semibold"
       }`}
       // Both states stand as tall as the handle's line and are centred on its
       // capitals: the line is 0.9 of the handle's size and the capitals 0.7,
@@ -64,7 +64,7 @@ export function FollowPill({ initial = false, owner = false, username, state }: 
     >
       {following ? <FollowingGlyph /> : "+ Follow"}
       {said && (
-        <span role="alert" className="absolute right-0 top-[calc(100%+8px)] z-50 whitespace-nowrap rounded-full bg-card-hi border border-hair px-3 py-1 text-[12px] text-ink shadow-lg">
+        <span role="alert" className="absolute right-0 top-[calc(100%+8px)] z-50 whitespace-nowrap rounded-full bg-card-hi border border-hair px-3 py-1 text-[1rem] text-ink shadow-lg">
           {said}
         </span>
       )}

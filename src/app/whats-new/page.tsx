@@ -20,11 +20,11 @@ export default function WhatsNewPage() {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
-        <div className="max-w-[760px] mx-auto">
+        <div className="max-w-[63.3333rem] mx-auto">
           <div className="rounded-shell bg-card p-2">
             <div className="rounded-shell bg-piece p-3">
               <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">What&apos;s new</h1>
-              <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">
+              <p className="m-0 mt-2 text-[1.0417rem] leading-[1.6] text-mid-tone">
                 New features and fixes in the Kodigo app and on this website, newest first. For what Pro unlocks, see{" "}
                 <Link href="/pro" className="text-accent no-underline hover:underline">
                   Kodigo Pro
@@ -55,11 +55,11 @@ function Entry({ u }: { u: Update }) {
       </div>
       <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
         <div className="rounded-shell bg-piece p-3">
-          <h2 className="display !text-[22px] !leading-none tracking-[.03em] uppercase">{u.title}</h2>
-          <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">{u.summary}</p>
+          <h2 className="display !text-[1.8333rem] !leading-none tracking-[.03em] uppercase">{u.title}</h2>
+          <p className="m-0 mt-2 text-[1.0417rem] leading-[1.6] text-mid-tone">{u.summary}</p>
           <ul className="m-0 mt-2.5 p-0 list-none border-t border-hair">
             {u.points.map((p) => (
-              <li key={p} className="flex gap-2.5 py-[8px] border-b border-hair last:border-b-0 last:pb-0 text-[12.5px] leading-[1.6] text-ink">
+              <li key={p} className="flex gap-2.5 py-[0.6667rem] border-b border-hair last:border-b-0 last:pb-0 text-[1.0417rem] leading-[1.6] text-ink">
                 <span aria-hidden className="text-accent">•</span>
                 <span>{p}</span>
               </li>
@@ -74,6 +74,6 @@ function Entry({ u }: { u: Update }) {
 /** A small label beside the date, lettered as the tab bar. */
 function Chip({ children, tone }: { children: React.ReactNode; tone?: Update["status"] }) {
   const fill = tone === "live" ? "bg-accent-fill text-on-accent" : tone ? "bg-[color:var(--quiet)] text-ink" : "bg-piece text-dim";
-  return <span className={`inline-flex items-center h-[26px] px-3 rounded-full text-[10.5px] font-bold uppercase tracking-[.12em] ${fill}`}>{children}</span>;
+  return <span className={`inline-flex items-center h-[2.1667rem] px-3 rounded-full text-[0.875rem] font-bold uppercase tracking-[.12em] ${fill}`}>{children}</span>;
 }
 

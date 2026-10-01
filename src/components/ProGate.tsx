@@ -11,12 +11,12 @@ export function ProGate({ why, page = "calendar" }: { why: "signin" | "pro" | "e
     closed: ["Your tracker, on the web", "Everything you're watching, what's up next and what's coming, checked off on a computer and in step with the app. It opens with accounts, as part of Kodigo Pro.", "/pro", "See Kodigo Pro"],
   }[why];
   return (
-    <div className="max-w-[640px] rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+    <div className="max-w-[53.3333rem] rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
       <div className="rounded-shell bg-piece p-4 grid gap-3">
         <h1 className="!text-[clamp(28px,3.4vw,40px)] !leading-[.95] uppercase">{copy[0]}</h1>
-        <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">{copy[1]}</p>
+        <p className="m-0 text-[1.0417rem] leading-[1.6] text-mid-tone">{copy[1]}</p>
         <div>
-          <Link href={copy[2]} className="inline-flex items-center h-10 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold no-underline">
+          <Link href={copy[2]} className="inline-flex items-center h-10 px-5 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold no-underline">
             {copy[3]}
           </Link>
         </div>

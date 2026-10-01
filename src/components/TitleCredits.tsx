@@ -94,14 +94,14 @@ function Rows({ children }: { children: React.ReactNode }) {
 export function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid gap-2 @[520px]:grid-cols-[170px_minmax(0,1fr)] @[520px]:gap-4 py-3 first:pt-0 last:pb-0">
-      <div className="pt-[4px] text-[12.5px] text-dim">{label}</div>
+      <div className="pt-[0.3333rem] text-[1.0417rem] text-dim">{label}</div>
       <div className="flex flex-wrap gap-1.5 min-w-0">{children}</div>
     </div>
   );
 }
 
 export function Chip({ href, children }: { href?: string; children: React.ReactNode }) {
-  const cls = "inline-flex items-center rounded-[8px] bg-[color:var(--quiet)] px-2 py-[4px] text-[12.5px] leading-[1.2] text-ink no-underline";
+  const cls = "inline-flex items-center rounded-[8px] bg-[color:var(--quiet)] px-2 py-[0.3333rem] text-[1.0417rem] leading-[1.2] text-ink no-underline";
   return href ? (
     <Link href={href} className={`${cls} hover:text-accent transition-colors`}>
       {children}
@@ -144,16 +144,16 @@ function Details({ d }: { d: TitleDetails }) {
       )}
       {d.alternativeTitles.length > 0 && (
         <Row label="Also known as">
-          <p className="m-0 pt-[3px] text-[12.5px] leading-[1.6] text-mid-tone">{d.alternativeTitles.join(", ")}</p>
+          <p className="m-0 pt-[0.25rem] text-[1.0417rem] leading-[1.6] text-mid-tone">{d.alternativeTitles.join(", ")}</p>
         </Row>
       )}
       <Row label="More at">
         {d.imdb && (
-          <a href={d.imdb} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[8px] border border-hair px-2 py-[4px] text-[12.5px] font-semibold text-ink no-underline hover:text-accent">
+          <a href={d.imdb} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[8px] border border-hair px-2 py-[0.3333rem] text-[1.0417rem] font-semibold text-ink no-underline hover:text-accent">
             IMDb
           </a>
         )}
-        <a href={d.tmdb} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[8px] border border-hair px-2 py-[4px] text-[12.5px] font-semibold text-ink no-underline hover:text-accent">
+        <a href={d.tmdb} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[8px] border border-hair px-2 py-[0.3333rem] text-[1.0417rem] font-semibold text-ink no-underline hover:text-accent">
           TMDB
         </a>
       </Row>
@@ -186,17 +186,17 @@ function Releases({ groups }: { groups: ReleaseGroup[] }) {
         for (const r of g.releases) days.set(r.date, [...(days.get(r.date) ?? []), r]);
         return (
           <div key={g.label}>
-            <div className="pb-2 text-[12.5px] font-semibold text-ink border-b border-hair">{g.label}</div>
+            <div className="pb-2 text-[1.0417rem] font-semibold text-ink border-b border-hair">{g.label}</div>
             <div className="divide-y divide-hair">
               {[...days.entries()].map(([date, rs]) => (
-                <div key={date} className="grid grid-cols-[100px_minmax(0,1fr)] gap-3 py-2.5 text-[12.5px]">
+                <div key={date} className="grid grid-cols-[100px_minmax(0,1fr)] gap-3 py-2.5 text-[1.0417rem]">
                   <span className="text-dim tabular-nums pt-[1px]"><Day iso={date} style="short" /></span>
                   <span className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
                     {rs.map((r, i) => (
                       <span key={`${r.country}${i}`} className="inline-flex items-center gap-1.5">
                         <span aria-hidden>{flag(r.country)}</span>
                         <b className="font-semibold text-ink">{country(r.country)}</b>
-                        {r.certification && <span className="rounded-[4px] border border-hair px-1 text-[12.5px] font-semibold text-ink leading-[1.3]">{r.certification}</span>}
+                        {r.certification && <span className="rounded-[4px] border border-hair px-1 text-[1.0417rem] font-semibold text-ink leading-[1.3]">{r.certification}</span>}
                         {r.note && <span className="text-dim">{r.note}</span>}
                       </span>
                     ))}
@@ -220,7 +220,7 @@ function AirDates({ airing }: { airing: { networks: { name: string; logo: string
         <Row label="Seasons">
           <div className="w-full divide-y divide-hair">
             {airing.seasons.map((s) => (
-              <div key={s.name} className="grid grid-cols-[100px_minmax(0,1fr)_auto] gap-3 py-2 first:pt-[3px] text-[12.5px]">
+              <div key={s.name} className="grid grid-cols-[100px_minmax(0,1fr)_auto] gap-3 py-2 first:pt-[0.25rem] text-[1.0417rem]">
                 <span className="text-dim tabular-nums">{s.date ? <Day iso={s.date} style="short" /> : "To come"}</span>
                 <b className="font-semibold text-ink">{s.name}</b>
                 <span className="text-dim">{s.episodes} episodes</span>
@@ -232,7 +232,7 @@ function AirDates({ airing }: { airing: { networks: { name: string; logo: string
       {airing.ratings.length > 0 && (
         <Row label="Rated">
           {airing.ratings.map((r) => (
-            <span key={r.country} className="inline-flex items-center gap-1.5 rounded-[8px] bg-[color:var(--quiet)] px-2 py-[4px] text-[12.5px] leading-[1.2] text-ink" title={country(r.country)}>
+            <span key={r.country} className="inline-flex items-center gap-1.5 rounded-[8px] bg-[color:var(--quiet)] px-2 py-[0.3333rem] text-[1.0417rem] leading-[1.2] text-ink" title={country(r.country)}>
               <span aria-hidden>{flag(r.country)}</span>
               {r.rating}
             </span>

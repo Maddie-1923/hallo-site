@@ -44,19 +44,19 @@ export default async function Search({ searchParams }: PageProps<"/search">) {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <div className="max-w-[1100px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-6">
+        <div className="max-w-[91.6667rem] mx-auto grid grid-cols-[minmax(0,1fr)] gap-6">
           <div className={SHELL}>
             <form action="/search" className="rounded-shell bg-piece p-3 flex flex-wrap items-center gap-2">
               <h1 className="!text-[clamp(32px,4.4vw,48px)] !leading-[.9] tracking-[.02em] uppercase mr-auto">Search</h1>
-              <label className="flex items-center gap-2 h-10 px-4 rounded-full bg-card border border-hair focus-within:border-accent flex-1 min-w-[220px] max-w-[520px]">
+              <label className="flex items-center gap-2 h-10 px-4 rounded-full bg-card border border-hair focus-within:border-accent flex-1 min-w-[18.3333rem] max-w-[43.3333rem]">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden className="text-dim shrink-0">
                   <circle cx="11" cy="11" r="7" />
                   <path d="M20 20l-3.5-3.5" />
                 </svg>
-                <input name="q" type="search" defaultValue={q} autoFocus={!q} autoComplete="off" placeholder="Titles, people, members, lists, reviews" aria-label="Search" className="flex-1 min-w-0 bg-transparent text-[13px] text-ink placeholder:text-dim focus:outline-none" />
+                <input name="q" type="search" defaultValue={q} autoFocus={!q} autoComplete="off" placeholder="Titles, people, members, lists, reviews" aria-label="Search" className="flex-1 min-w-0 bg-transparent text-[1.0833rem] text-ink placeholder:text-dim focus:outline-none" />
               </label>
               {tab !== "titles" && <input type="hidden" name="tab" value={tab} />}
-              <button type="submit" className="h-10 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer">
+              <button type="submit" className="h-10 px-5 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold cursor-pointer">
                 Search
               </button>
             </form>
@@ -70,7 +70,7 @@ export default async function Search({ searchParams }: PageProps<"/search">) {
                     key={id}
                     href={to(id)}
                     aria-current={tab === id ? "page" : undefined}
-                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] no-underline transition-colors ${tab === id ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[0.875rem] leading-none font-bold uppercase tracking-[.12em] no-underline transition-colors ${tab === id ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
                   >
                     {label}
                     <span className="tabular-nums opacity-70">{counts[id]}</span>
@@ -79,9 +79,9 @@ export default async function Search({ searchParams }: PageProps<"/search">) {
               </nav>
 
               <div className={SHELL}>
-                <div className="rounded-shell bg-piece p-2 min-h-[200px]">
+                <div className="rounded-shell bg-piece p-2 min-h-[16.6667rem]">
                   {counts[tab] === 0 ? (
-                    <p className="m-0 p-3 text-[12.5px] text-dim">
+                    <p className="m-0 p-3 text-[1.0417rem] text-dim">
                       No {TABS.find((t) => t[0] === tab)![1].toLowerCase()} match &ldquo;{q}&rdquo;.{tab === "titles" ? " Try fewer words, or the original title." : ""}
                     </p>
                   ) : tab === "titles" ? (
@@ -100,7 +100,7 @@ export default async function Search({ searchParams }: PageProps<"/search">) {
                         <li key={m.username}>
                           <Unblocked username={m.username}>
                             <Link href={`/u/${m.username}`} className="group flex items-center gap-3 p-2 no-underline text-ink">
-                              <span className="w-10 h-10 shrink-0 rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display text-[18px]">
+                              <span className="w-10 h-10 shrink-0 rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display text-[1.5rem]">
                                 {m.avatar ? (
                                   // eslint-disable-next-line @next/next/no-img-element
                                   <img src={m.avatar} alt="" className="w-full h-full object-cover object-top" />
@@ -109,8 +109,8 @@ export default async function Search({ searchParams }: PageProps<"/search">) {
                                 )}
                               </span>
                               <span className="min-w-0">
-                                <span className="block text-[12.5px] font-semibold truncate group-hover:text-accent">@{m.username}</span>
-                                <span className="block text-[12.5px] text-dim truncate">{[m.displayName, m.location, m.isPrivate ? "Private profile" : ""].filter(Boolean).join(" · ")}</span>
+                                <span className="block text-[1.0417rem] font-semibold truncate group-hover:text-accent">@{m.username}</span>
+                                <span className="block text-[1.0417rem] text-dim truncate">{[m.displayName, m.location, m.isPrivate ? "Private profile" : ""].filter(Boolean).join(" · ")}</span>
                               </span>
                             </Link>
                           </Unblocked>
@@ -158,8 +158,8 @@ function Posters({ items }: { items: { key: string; href: string; poster: string
                 <img src={i.poster} alt="" className="w-full h-full object-cover" loading="lazy" />
               )}
             </span>
-            <span className="block mt-1.5 text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{i.title}</span>
-            <span className="block text-[12.5px] leading-[16px] text-dim truncate">{i.sub}</span>
+            <span className="block mt-1.5 text-[1.0417rem] leading-[1.3333rem] truncate group-hover:text-accent transition-colors">{i.title}</span>
+            <span className="block text-[1.0417rem] leading-[1.3333rem] text-dim truncate">{i.sub}</span>
           </Link>
         </li>
       ))}

@@ -50,7 +50,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
               type="button"
               aria-pressed={tab === k}
               onClick={() => setTab(k)}
-              className={`px-4 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${tab === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+              className={`px-4 py-2 rounded-full text-[0.875rem] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${tab === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
             >
               {label}
             </button>
@@ -58,16 +58,16 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
         </div>
       </div>
 
-      <div className="mt-3 mb-2 px-1 text-[10.5px] font-bold tracking-[.12em] uppercase text-dim">Up next</div>
+      <div className="mt-3 mb-2 px-1 text-[0.875rem] font-bold tracking-[.12em] uppercase text-dim">Up next</div>
 
       {/* The list scrolls inside the card rather than making it taller: it is
           laid over the space the card has, so its length never counts toward
           the card's height, which Favourites beside it sets. */}
-      <div className="relative flex-1 min-h-[240px] -mx-1">
+      <div className="relative flex-1 min-h-[20rem] -mx-1">
         <ul className="soft-scroll absolute inset-0 overflow-y-auto overscroll-contain m-0 px-1 pb-1 list-none grid gap-2 content-start rounded-shell">
           {tab === "show" &&
             (shows.length === 0 ? (
-              <li className="text-[12.5px] text-dim py-3">Not in the middle of anything.</li>
+              <li className="text-[1.0417rem] text-dim py-3">Not in the middle of anything.</li>
             ) : (
               shows.map((s) => {
                 const p = progress(s, seen[s.key] ?? []);
@@ -115,7 +115,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
             ))}
           {tab === "movie" &&
             (filmsLeft.length === 0 ? (
-              <li className="text-[12.5px] text-dim py-3">Nothing on the watchlist.</li>
+              <li className="text-[1.0417rem] text-dim py-3">Nothing on the watchlist.</li>
             ) : (
               filmsLeft.map((f) => (
                 <Row
@@ -147,7 +147,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
 
       {owner && (
         <div className="mt-2 pt-1.5 border-t border-hair text-right">
-          <Link href="/calendar" className="text-[12.5px] font-semibold text-accent no-underline hover:underline">
+          <Link href="/calendar" className="text-[1.0417rem] font-semibold text-accent no-underline hover:underline">
             Open calendar →
           </Link>
         </div>

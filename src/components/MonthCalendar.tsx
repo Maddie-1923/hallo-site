@@ -32,7 +32,7 @@ export function MonthCalendar({ activity }: { activity: Record<string, number> }
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between gap-2 mb-1.5">
-        <span className="text-[12px] min-w-0 truncate">
+        <span className="text-[1rem] min-w-0 truncate">
           <b className="font-semibold text-ink">{label}</b>
           <span className="text-dim"> · {watchedDays} {watchedDays === 1 ? "day" : "days"}</span>
         </span>
@@ -43,9 +43,9 @@ export function MonthCalendar({ activity }: { activity: Record<string, number> }
       </div>
       {/* Small coloured squares, one a day, a week to a row. The date is in
           each square's tooltip rather than printed on it. */}
-      <div className="self-center grid grid-cols-7 gap-[3px]" style={{ gridAutoRows: "16px", gridTemplateColumns: "repeat(7, 16px)" }}>
+      <div className="self-center grid grid-cols-7 gap-[0.25rem]" style={{ gridAutoRows: "16px", gridTemplateColumns: "repeat(7, 16px)" }}>
         {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-          <span key={`w${i}`} aria-hidden className="text-center text-[9px] font-bold text-dim leading-[16px]">
+          <span key={`w${i}`} aria-hidden className="text-center text-[0.75rem] font-bold text-dim leading-[1.3333rem]">
             {d}
           </span>
         ))}

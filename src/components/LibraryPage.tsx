@@ -200,12 +200,12 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
   }
 
   const count = (t: [string, string, string[]]) => ofKind.filter((i) => (t[2].length === 0 || t[2].includes(i.status)) && !(s.hideWatched && t[0] === "all" && done(i))).length;
-  const chip = (on: boolean) => `inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12.5px] font-semibold cursor-pointer transition-colors ${on ? "bg-accent-fill text-on-accent" : "bg-piece text-ink hover:text-accent"}`;
+  const chip = (on: boolean) => `inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[1.0417rem] font-semibold cursor-pointer transition-colors ${on ? "bg-accent-fill text-on-accent" : "bg-piece text-ink hover:text-accent"}`;
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
       {problem && (
-        <div role="alert" className="fixed z-50 bottom-6 left-1/2 -translate-x-1/2 max-w-[90vw] rounded-full bg-card-hi border border-hair px-4 py-2 text-[12.5px] text-ink shadow-lg">
+        <div role="alert" className="fixed z-50 bottom-6 left-1/2 -translate-x-1/2 max-w-[90vw] rounded-full bg-card-hi border border-hair px-4 py-2 text-[1.0417rem] text-ink shadow-lg">
           {problem}
         </div>
       )}
@@ -237,7 +237,7 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
             />
             {watchlist ? (
               <>
-                <span className="text-[12.5px] text-dim">
+                <span className="text-[1.0417rem] text-dim">
                   {shown.length} {shown.length === 1 ? "title" : "titles"} waiting
                 </span>
                 <button
@@ -247,7 +247,7 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                     const pool = shown.length > 1 && picked ? shown.filter((i) => i.key !== picked.key) : shown;
                     setPicked(pool[Math.floor(Math.random() * pool.length)] ?? null);
                   }}
-                  className="ml-auto inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default"
+                  className="ml-auto inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     <rect x="3.5" y="3.5" width="17" height="17" rx="4" />
@@ -267,7 +267,7 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                   role="tab"
                   aria-selected={t[0] === current[0]}
                   onClick={() => setTab(t[0])}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${t[0] === current[0] ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[0.875rem] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${t[0] === current[0] ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
                 >
                   {t[1]}
                   <span className="tabular-nums opacity-70">{count(t)}</span>
@@ -287,11 +287,11 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                 )}
               </Link>
               <div className="min-w-0 flex-1">
-                <div className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">Tonight, why not</div>
+                <div className="text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim">Tonight, why not</div>
                 <Link href={picked.href} className="block text-[clamp(18px,2vw,22px)] font-semibold text-ink no-underline hover:text-accent truncate">
                   {picked.title}
                 </Link>
-                <div className="text-[12.5px] text-dim">{[picked.year, picked.kind === "show" ? "Series" : "Film", picked.genres.slice(0, 2).join(", ")].filter(Boolean).join(" · ")}</div>
+                <div className="text-[1.0417rem] text-dim">{[picked.year, picked.kind === "show" ? "Series" : "Film", picked.genres.slice(0, 2).join(", ")].filter(Boolean).join(" · ")}</div>
               </div>
               <button type="button" onClick={() => setPicked(null)} aria-label="Close the pick" className="w-8 h-8 rounded-full text-dim hover:text-ink hover:bg-card cursor-pointer">
                 ✕
@@ -301,12 +301,12 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
 
           {/* The tools. */}
           <div className="flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-2 h-8 px-3 rounded-full bg-piece min-w-[180px] flex-1 max-w-[320px]">
+            <label className="flex items-center gap-2 h-8 px-3 rounded-full bg-piece min-w-[15rem] flex-1 max-w-[26.6667rem]">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden className="text-dim shrink-0">
                 <circle cx="11" cy="11" r="7" />
                 <path d="M20 20l-3.5-3.5" />
               </svg>
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={watchlist ? "Search your watchlist" : `Search your ${kind === "show" ? "shows" : "movies"}`} aria-label="Search your library" className="flex-1 min-w-0 bg-transparent text-[12.5px] text-ink placeholder:text-dim focus:outline-none" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={watchlist ? "Search your watchlist" : `Search your ${kind === "show" ? "shows" : "movies"}`} aria-label="Search your library" className="flex-1 min-w-0 bg-transparent text-[1.0417rem] text-ink placeholder:text-dim focus:outline-none" />
             </label>
 
             <Menu
@@ -320,9 +320,9 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                 </span>
               }
             >
-              <div className="py-1.5 max-h-[320px] overflow-y-auto">
+              <div className="py-1.5 max-h-[26.6667rem] overflow-y-auto">
                 {[null, ...genres].map((g) => (
-                  <button key={g ?? "all"} type="button" data-menu-close onClick={() => setGenre(g)} aria-pressed={genre === g} className={`w-full text-left px-4 py-2 text-[12.5px] cursor-pointer hover:bg-card-hi ${genre === g ? "text-accent font-semibold" : "text-ink"}`}>
+                  <button key={g ?? "all"} type="button" data-menu-close onClick={() => setGenre(g)} aria-pressed={genre === g} className={`w-full text-left px-4 py-2 text-[1.0417rem] cursor-pointer hover:bg-card-hi ${genre === g ? "text-accent font-semibold" : "text-ink"}`}>
                     {g ?? "Every genre"}
                   </button>
                 ))}
@@ -343,8 +343,8 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
               <div className="py-1.5">
                 {sorts.map(([v, label, detail]) => (
                   <button key={v} type="button" data-menu-close onClick={() => setSort(v)} aria-pressed={sort === v} className="w-full text-left px-4 py-2 cursor-pointer hover:bg-card-hi">
-                    <span className={`block text-[12.5px] ${sort === v ? "text-accent font-semibold" : "text-ink"}`}>{label}</span>
-                    <span className="block text-[12px] text-dim">{detail}</span>
+                    <span className={`block text-[1.0417rem] ${sort === v ? "text-accent font-semibold" : "text-ink"}`}>{label}</span>
+                    <span className="block text-[1rem] text-dim">{detail}</span>
                   </button>
                 ))}
               </div>
@@ -374,7 +374,7 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
 
           {/* What the tools are doing, when it isn't obvious. */}
           {s.onlyMyServices && (
-            <p className="m-0 px-1 text-[12.5px] text-dim">
+            <p className="m-0 px-1 text-[1.0417rem] text-dim">
               {mine.size === 0 ? (
                 <>
                   Choose your services in{" "}
@@ -391,15 +391,15 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
             </p>
           )}
           {!watchlist && sort === "mine" && (
-            <p className="m-0 px-1 text-[12.5px] text-dim">
+            <p className="m-0 px-1 text-[1.0417rem] text-dim">
               {canDrag ? "Drag a title to where it goes. The app gets the same order." : "Drag to reorder in All, with no search, genre or filter on."}
             </p>
           )}
 
           {/* The titles. */}
-          <div className="rounded-shell bg-piece p-2 min-h-[240px]">
+          <div className="rounded-shell bg-piece p-2 min-h-[20rem]">
             {visible.length === 0 ? (
-              <p className="m-0 p-3 text-[12.5px] text-dim">{ofKind.length === 0 ? (watchlist ? "Nothing waiting. Add a series or a film from its page and it shows here until you start it." : `No ${kind === "show" ? "series" : "films"} in your library yet.`) : "Nothing matches."}</p>
+              <p className="m-0 p-3 text-[1.0417rem] text-dim">{ofKind.length === 0 ? (watchlist ? "Nothing waiting. Add a series or a film from its page and it shows here until you start it." : `No ${kind === "show" ? "series" : "films"} in your library yet.`) : "Nothing matches."}</p>
             ) : s.libraryLayout === "grid" ? (
               <ol ref={gridRef} className="m-0 p-0 list-none grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
                 {visible.map((i) => (
@@ -423,8 +423,8 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                           <img src={i.poster} alt="" draggable={false} className="w-full h-full object-cover" loading="lazy" />
                         )}
                       </span>
-                      <span className="block mt-1.5 text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{i.title}</span>
-                      <span className="block text-[12.5px] leading-[16px] text-dim truncate">{watchlist ? [i.year, i.kind === "show" ? "Series" : "Film"].filter(Boolean).join(" · ") : subline(i)}</span>
+                      <span className="block mt-1.5 text-[1.0417rem] leading-[1.3333rem] truncate group-hover:text-accent transition-colors">{i.title}</span>
+                      <span className="block text-[1.0417rem] leading-[1.3333rem] text-dim truncate">{watchlist ? [i.year, i.kind === "show" ? "Series" : "Film"].filter(Boolean).join(" · ") : subline(i)}</span>
                     </Link>
                   </li>
                 ))}
@@ -441,10 +441,10 @@ export function LibraryPage({ items, order: savedOrder, live, region, initialKin
                         )}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[12.5px] font-semibold truncate group-hover:text-accent transition-colors">{i.title}</span>
-                        <span className="block text-[12.5px] text-dim truncate">{[i.year, i.genres.slice(0, 2).join(", ")].filter(Boolean).join(" · ")}</span>
+                        <span className="block text-[1.0417rem] font-semibold truncate group-hover:text-accent transition-colors">{i.title}</span>
+                        <span className="block text-[1.0417rem] text-dim truncate">{[i.year, i.genres.slice(0, 2).join(", ")].filter(Boolean).join(" · ")}</span>
                       </span>
-                      <span className="hidden sm:block text-[12.5px] text-dim text-right shrink-0">{subline(i)}</span>
+                      <span className="hidden sm:block text-[1.0417rem] text-dim text-right shrink-0">{subline(i)}</span>
                     </Link>
                   </li>
                 ))}
@@ -482,7 +482,7 @@ function Switch<T extends string>({ value, onChange, options, label }: { value: 
           role="tab"
           aria-selected={value === v}
           onClick={() => onChange(v)}
-          className={`px-4 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${value === v ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+          className={`px-4 py-2 rounded-full text-[0.875rem] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${value === v ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
         >
           {text}
         </button>

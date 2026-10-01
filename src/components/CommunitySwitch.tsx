@@ -9,13 +9,13 @@ export function CommunitySwitch({ on }: { on: "members" | "lists" }) {
     ["/lists", "Lists", on === "lists"],
   ];
   return (
-    <nav aria-label="Community" className="inline-flex gap-1 p-[3px] mb-3 rounded-full bg-card border border-hair">
+    <nav aria-label="Community" className="inline-flex gap-1 p-[0.25rem] mb-3 rounded-full bg-card border border-hair">
       {tabs.map(([href, label, active]) => (
         <Link
           key={href}
           href={href}
           aria-current={active ? "page" : undefined}
-          className={`px-4 py-1.5 rounded-full text-[12.5px] font-bold no-underline transition-colors ${active ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}
+          className={`px-4 py-1.5 rounded-full text-[1.0417rem] font-bold no-underline transition-colors ${active ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}
         >
           {label}
         </Link>

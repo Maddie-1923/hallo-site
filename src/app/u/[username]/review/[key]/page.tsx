@@ -41,7 +41,7 @@ export default async function ReviewPage({ params }: PageProps<"/u/[username]/re
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
-      <main className="flex-1 w-full max-w-[600px] mx-auto px-4 py-8">
+      <main className="flex-1 w-full max-w-[50rem] mx-auto px-4 py-8">
         <BlockGate username={view.username} bare>
         <Link href={`/u/${view.username}`} className="flex items-center gap-3 mb-4 no-underline text-ink group">
           <span className="w-11 h-11 rounded-full overflow-hidden bg-card-hi border border-hair shrink-0">
@@ -52,7 +52,7 @@ export default async function ReviewPage({ params }: PageProps<"/u/[username]/re
           </span>
           <span className="min-w-0">
             <span className="block font-semibold group-hover:text-accent transition-colors">{view.displayName}</span>
-            <span className="block text-[13px] text-dim">@{view.username}</span>
+            <span className="block text-[1.0833rem] text-dim">@{view.username}</span>
           </span>
         </Link>
         <article className="rounded-shell bg-card border border-hair overflow-hidden">

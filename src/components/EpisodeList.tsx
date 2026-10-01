@@ -54,7 +54,7 @@ export function EpisodeList({
               }}
             />
             <div className="min-w-0 flex-1">
-              <div className={`text-[15px] font-semibold leading-tight ${aired ? "" : "text-dim"}`}>
+              <div className={`text-[1.25rem] font-semibold leading-tight ${aired ? "" : "text-dim"}`}>
                 <span className="text-dim font-normal mr-2">{ep.episode_number}</span>
                 {ep.name}
               </div>

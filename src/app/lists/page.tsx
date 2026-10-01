@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: "Lists — Kodigo" };
 // genre is the one most of its titles share: public.list_topics), and your
 // own. Each goes to the list's page.
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
-const H = "inline-flex items-center h-[34px] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink";
+const H = "inline-flex items-center h-[2.8333rem] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink";
 
 export default async function Lists() {
   const [lists, me] = await Promise.all([allLists(), accountsOpen ? loadProfile().then((p) => p.username) : Promise.resolve(null)]);
@@ -39,12 +39,12 @@ export default async function Lists() {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <div className="max-w-[1040px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
+        <div className="max-w-[86.6667rem] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
           <div className={SHELL}>
             <div className="rounded-shell bg-piece p-3">
               <CommunitySwitch on="lists" />
               <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">Lists</h1>
-              <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">Collections people have made of what to watch, from comfort rewatches to the year&apos;s best.</p>
+              <p className="m-0 mt-2 text-[1.0417rem] leading-[1.6] text-mid-tone">Collections people have made of what to watch, from comfort rewatches to the year&apos;s best.</p>
             </div>
           </div>
           {groups
@@ -65,7 +65,7 @@ export default async function Lists() {
                 </div>
               </section>
             ))}
-          {lists.length === 0 && <p className="m-0 rounded-shell bg-card p-3 text-[12.5px] text-dim">Lists open with accounts.</p>}
+          {lists.length === 0 && <p className="m-0 rounded-shell bg-card p-3 text-[1.0417rem] text-dim">Lists open with accounts.</p>}
         </div>
       </main>
       <SiteFooter />

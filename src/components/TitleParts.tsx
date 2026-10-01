@@ -20,12 +20,12 @@ export function HeadingPill({ children, small = false }: { children: React.React
   // spaced), on a pill of the bar's height, for the headings in the bento.
   if (small)
     return (
-      <h2 className="inline-flex items-center h-[34px] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink">
+      <h2 className="inline-flex items-center h-[2.8333rem] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink">
         {children}
       </h2>
     );
   return (
-    <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece !text-[24px] !leading-none tracking-[.02em] uppercase pt-1">
+    <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece !text-[2rem] !leading-none tracking-[.02em] uppercase pt-1">
       {children}
     </h2>
   );
@@ -107,15 +107,15 @@ export function HeaderCard({
         {heading ?? (
           <>
             <h1 className={titleOnBanner ? "sr-only" : "!text-[clamp(30px,3vw,37px)] !leading-[.95] tracking-[.04em] uppercase"}>{title}</h1>
-            {subtitle && <div className={`display text-[22px] leading-none tracking-[.03em] uppercase ${titleOnBanner ? "" : "mt-0.5"}`}>{subtitle}</div>}
+            {subtitle && <div className={`display text-[1.8333rem] leading-none tracking-[.03em] uppercase ${titleOnBanner ? "" : "mt-0.5"}`}>{subtitle}</div>}
           </>
         )}
         {/* A hairline under the title, when there is one to sit under. */}
-        <div className={heading || subtitle || !titleOnBanner ? "mt-2.5 border-t border-hair" : "-mt-[8px]"}>
+        <div className={heading || subtitle || !titleOnBanner ? "mt-2.5 border-t border-hair" : "-mt-[0.6667rem]"}>
           {facts.map((f, i) => (
             // A fact with no label is a line of its own across the panel (an
             // episode's name, as the app sets it under the heading).
-            <div key={f.label || i} className={`flex items-baseline justify-between gap-4 py-[8px] text-[12.5px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
+            <div key={f.label || i} className={`flex items-baseline justify-between gap-4 py-[0.6667rem] text-[1.0417rem] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
               {f.label ? (
                 <>
                   <span className="text-dim shrink-0">{f.label}</span>
@@ -127,10 +127,10 @@ export function HeaderCard({
             </div>
           ))}
         </div>
-        {factsFooter && <div className="pt-[9px] border-t border-hair">{factsFooter}</div>}
+        {factsFooter && <div className="pt-[0.75rem] border-t border-hair">{factsFooter}</div>}
         {/* In the bento, the overview shares the facts' shell, under a hairline. */}
         {flat && overview && (
-          <div className="mt-[9px] pt-[9px] border-t border-hair">
+          <div className="mt-[0.75rem] pt-[0.75rem] border-t border-hair">
             <ExpandableText text={overview} watched={overviewWatched} />
           </div>
         )}
@@ -176,13 +176,13 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
           {watch.subscription.length > 0 && row(watch.subscription, true)}
           {watch.free.length > 0 && (
             <>
-              <div className="text-[12.5px] text-dim">Free</div>
+              <div className="text-[1.0417rem] text-dim">Free</div>
               {row(watch.free, watch.subscription.length === 0)}
             </>
           )}
           {!home && (
             <>
-              <div className="text-[12.5px] text-dim">Not streaming here. Elsewhere:</div>
+              <div className="text-[1.0417rem] text-dim">Not streaming here. Elsewhere:</div>
               <div className="flex items-center gap-2.5">
                 <div className="flex gap-2.5 min-w-0">
                   {abroad.map((p) => (
@@ -193,13 +193,13 @@ export function WhereToWatchSection({ watch, flat = false }: { watch: WhereToWat
                       )}
                     </span>
                   ))}
-                  {watch.elsewhere.length > 5 && <span className="self-center text-[12.5px] text-dim">+{watch.elsewhere.length - 5}</span>}
+                  {watch.elsewhere.length > 5 && <span className="self-center text-[1.0417rem] text-dim">+{watch.elsewhere.length - 5}</span>}
                 </div>
                 <span className="ml-auto"><ElsewhereSheet entries={watch.elsewhere} /></span>
               </div>
             </>
           )}
-          <div className="text-[12.5px] text-dim">Streaming data by JustWatch</div>
+          <div className="text-[1.0417rem] text-dim">Streaming data by JustWatch</div>
         </div>
       </SectionCard>
     </Section>
@@ -301,8 +301,8 @@ function CastTile({ p, fill = "bg-piece" }: { p: CastMember; fill?: string }) {
       <div className="p-2.5">
         {/* One line each, cut short with an ellipsis, as the app's grids and
             rails do: a two-line name would leave a gap under the short ones. */}
-        <div className="text-[12.5px] leading-[16px] font-semibold text-ink truncate group-hover:text-accent transition-colors">{p.name}</div>
-        <div className="text-[12.5px] leading-[16px] text-dim truncate">{p.character}</div>
+        <div className="text-[1.0417rem] leading-[1.3333rem] font-semibold text-ink truncate group-hover:text-accent transition-colors">{p.name}</div>
+        <div className="text-[1.0417rem] leading-[1.3333rem] text-dim truncate">{p.character}</div>
       </div>
     </Link>
   );
@@ -321,8 +321,8 @@ export function MoreLikeThisSection({ items, kind }: { items: RailTitle[]; kind:
                 {m.poster && <img src={m.poster} alt="" loading="lazy" className="w-full h-full object-cover" />}
               </div>
               <div className="px-2.5 pt-2.5 pb-1">
-                <div className="text-[12px] leading-[15px] font-semibold truncate group-hover:text-accent transition-colors">{m.title}</div>
-                <div className="text-[12px] leading-[15px] text-dim">{m.year}</div>
+                <div className="text-[1rem] leading-[1.25rem] font-semibold truncate group-hover:text-accent transition-colors">{m.title}</div>
+                <div className="text-[1rem] leading-[1.25rem] text-dim">{m.year}</div>
               </div>
             </Link>
             <div className="mt-2 flex gap-2">
@@ -383,8 +383,8 @@ export function EpisodesSection({ showID, episodes, current, title, watched = []
                 <SpoilerCover watched={watched.includes(`${showID}-${e.season}-${e.episode}`)} />
               </div>
               <div className="px-2.5 pt-2 pb-2.5">
-                <div className="text-[12.5px] leading-[16px] font-semibold text-mid-tone">{code(e.season, e.episode)}</div>
-                <div className="text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">
+                <div className="text-[1.0417rem] leading-[1.3333rem] font-semibold text-mid-tone">{code(e.season, e.episode)}</div>
+                <div className="text-[1.0417rem] leading-[1.3333rem] truncate group-hover:text-accent transition-colors">
                   <SpoilerName name={e.name} watched={watched.includes(`${showID}-${e.season}-${e.episode}`)} />
                 </div>
               </div>
@@ -419,7 +419,7 @@ export function TitleBento({ about, actions, beside, side }: { about: React.Reac
       {/* The short leg, joined to the long one along its left side. It is
           as tall as the long leg leaves it, and what it holds scrolls inside
           rather than stretching the bento. */}
-      <div className="relative lg:col-start-2 lg:row-start-2 min-w-0 bg-card rounded-shell lg:rounded-l-none lg:min-h-[420px]">
+      <div className="relative lg:col-start-2 lg:row-start-2 min-w-0 bg-card rounded-shell lg:rounded-l-none lg:min-h-[35rem]">
         {/* The inside corner, where the short leg's top meets the long leg. */}
         <span aria-hidden className="hidden lg:block absolute left-0 bottom-full" style={{ width: R, height: R, background: `radial-gradient(circle at 100% 0, transparent calc(${R} - 0.5px), var(--card) ${R})` }} />
         <div className="lg:absolute lg:inset-0 p-2 min-w-0 flex flex-col [&>*]:flex-1 [&>*]:min-h-0">{side}</div>

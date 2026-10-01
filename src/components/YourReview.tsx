@@ -112,8 +112,8 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
   }
 
   const card = "rounded-shell bg-piece p-3 grid gap-2.5";
-  const heading = "text-[13.5px] font-semibold text-ink";
-  const field = "w-full rounded-[12px] bg-card border border-hair px-3 py-2 text-[12.5px] leading-[1.6] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
+  const heading = "text-[1.125rem] font-semibold text-ink";
+  const field = "w-full rounded-[12px] bg-card border border-hair px-3 py-2 text-[1.0417rem] leading-[1.6] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
   const what = kind === "movie" ? "movie" : kind === "episode" ? "episode" : "show";
 
   return (
@@ -129,7 +129,7 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
         <div className="flex items-center justify-between">
           <span className={heading}>Rate this {what}</span>
           {rating != null && (
-            <button type="button" onClick={() => setRating(null)} className="text-[12.5px] font-semibold text-ink cursor-pointer">
+            <button type="button" onClick={() => setRating(null)} className="text-[1.0417rem] font-semibold text-ink cursor-pointer">
               Clear
             </button>
           )}
@@ -140,7 +140,7 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
           {Array.from({ length: 10 }, (_, i) => {
             const fill = rating == null ? 0 : Math.max(0, Math.min(1, rating - i));
             return (
-              <span key={i} className="relative h-9 w-[21px] flex items-center justify-center">
+              <span key={i} className="relative h-9 w-[1.75rem] flex items-center justify-center">
                 <Star fill={fill} />
                 <button type="button" aria-label={`${i + 0.5} out of 10`} onClick={() => setRating(i + 0.5)} className="absolute inset-y-0 left-0 w-1/2 cursor-pointer" />
                 <button type="button" aria-label={`${i + 1} out of 10`} onClick={() => setRating(i + 1)} className="absolute inset-y-0 right-0 w-1/2 cursor-pointer" />
@@ -148,13 +148,13 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
             );
           })}
         </div>
-        <div className="text-[12px] text-dim -mt-1">{rating != null ? `${rating} out of 10` : "Not rated yet"}</div>
+        <div className="text-[1rem] text-dim -mt-1">{rating != null ? `${rating} out of 10` : "Not rated yet"}</div>
       </div>
 
       {/* How it made them feel: the app's twelve moods, up to three. */}
       <div className={card + " take-moods"}>
         <div className={heading}>How did it make you feel?</div>
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-[6px]">
+        <div className="grid grid-cols-4 sm:grid-cols-6 gap-[0.5rem]">
           {MOODS.map(([emoji, label]) => {
             const on = moods.includes(label);
             const full = !on && moods.length >= 3;
@@ -170,10 +170,10 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
                 off={full}
                 radius={10}
                 run={() => setMoods((m) => (on ? m.filter((x) => x !== label) : m.length >= 3 ? m : [...m, label]))}
-                className={`h-[46px] px-1.5 flex flex-col items-center justify-center gap-1 disabled:!opacity-50 ${on ? "font-semibold" : "bg-[color:var(--quiet)] text-dim"}`}
+                className={`h-[3.8333rem] px-1.5 flex flex-col items-center justify-center gap-1 disabled:!opacity-50 ${on ? "font-semibold" : "bg-[color:var(--quiet)] text-dim"}`}
               >
-                <span className="text-[15px] leading-none">{emoji}</span>
-                <span className="text-[9.5px] leading-none">{label}</span>
+                <span className="text-[1.25rem] leading-none">{emoji}</span>
+                <span className="text-[0.7917rem] leading-none">{label}</span>
               </ConfirmKey>
             );
           })}
@@ -183,14 +183,14 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
       {/* Tags: chips, and a dashed one to add another. */}
       <div className={card + " content-start take-tags"}>
         <div className={heading}>Tags</div>
-        <div className="soft-scroll flex flex-wrap content-start gap-2 max-h-[96px] overflow-y-auto p-[2px] -m-[2px]">
+        <div className="soft-scroll flex flex-wrap content-start gap-2 max-h-[8rem] overflow-y-auto p-[2px] -m-[2px]">
           {tags.map((t) => (
-            <button key={t} type="button" onClick={() => setTags((ts) => ts.filter((x) => x !== t))} title="Remove" className="rounded-full border border-[color:color-mix(in_srgb,var(--ink)_18%,transparent)] px-[10px] py-[6px] text-[12px] font-semibold text-ink leading-none cursor-pointer">
+            <button key={t} type="button" onClick={() => setTags((ts) => ts.filter((x) => x !== t))} title="Remove" className="rounded-full border border-[color:color-mix(in_srgb,var(--ink)_18%,transparent)] px-[0.8333rem] py-[0.5rem] text-[1rem] font-semibold text-ink leading-none cursor-pointer">
               {t}
             </button>
           ))}
           {tagDraft == null ? (
-            <button type="button" onClick={() => setTagDraft("")} className="rounded-full border border-dashed border-[color:color-mix(in_srgb,var(--dim)_50%,transparent)] px-[10px] py-[6px] text-[12px] text-dim leading-none cursor-pointer inline-flex items-center gap-1">
+            <button type="button" onClick={() => setTagDraft("")} className="rounded-full border border-dashed border-[color:color-mix(in_srgb,var(--dim)_50%,transparent)] px-[0.8333rem] py-[0.5rem] text-[1rem] text-dim leading-none cursor-pointer inline-flex items-center gap-1">
               <span className="font-bold">+</span> {tags.length ? "Tag" : "Add a tag"}
             </button>
           ) : (
@@ -202,7 +202,7 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
                 setTagDraft(null);
               }}
             >
-              <input autoFocus value={tagDraft} onChange={(e) => setTagDraft(e.target.value)} onBlur={() => setTagDraft(null)} placeholder="New tag" maxLength={30} className="rounded-full bg-card border border-hair px-3 py-[5px] text-[12px] text-ink w-[140px] focus:outline-none focus:border-accent" />
+              <input autoFocus value={tagDraft} onChange={(e) => setTagDraft(e.target.value)} onBlur={() => setTagDraft(null)} placeholder="New tag" maxLength={30} className="rounded-full bg-card border border-hair px-3 py-[0.4167rem] text-[1rem] text-ink w-[11.6667rem] focus:outline-none focus:border-accent" />
             </form>
           )}
         </div>
@@ -211,8 +211,8 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
       {/* The review itself: what everyone else reads. */}
       <div className={card + " content-start take-review"}>
         <div className={heading}>Your review</div>
-        <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} placeholder={`What did you think of this ${what}?`} className={`${field} resize-y min-h-[96px]`} />
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink">
+        <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} placeholder={`What did you think of this ${what}?`} className={`${field} resize-y min-h-[8rem]`} />
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[1.0417rem] text-ink">
           <label className="inline-flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={spoilers} onChange={(e) => setSpoilers(e.target.checked)} className="accent-[var(--accent-fill)]" />
             Contains spoilers
@@ -231,11 +231,11 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
       {/* The note: the app's private one, never shown to anyone else. */}
       <div className="relative take-note">
       <div className="absolute inset-0 rounded-shell bg-piece p-3 flex items-start gap-2.5">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-[3px] shrink-0 text-dim">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-[0.25rem] shrink-0 text-dim">
           <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
         </svg>
         <div className="min-w-0 flex-1 h-full flex flex-col">
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder={`Note on this ${what}: only you can see it`} className="soft-scroll flex-1 min-h-0 w-full bg-transparent text-[12.5px] leading-[1.6] text-ink placeholder:text-dim resize-none focus:outline-none overflow-y-auto" />
+          <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder={`Note on this ${what}: only you can see it`} className="soft-scroll flex-1 min-h-0 w-full bg-transparent text-[1.0417rem] leading-[1.6] text-ink placeholder:text-dim resize-none focus:outline-none overflow-y-auto" />
         </div>
       </div>
       </div>
@@ -243,21 +243,21 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
 
       <div className="flex flex-wrap items-center justify-end gap-3 pt-1">
         {problem && (
-          <span role="alert" className="text-[12px] text-loved">
+          <span role="alert" className="text-[1rem] text-loved">
             {problem}
           </span>
         )}
         {said && !problem && (
-          <span role="status" className="text-[12px] text-dim">
+          <span role="status" className="text-[1rem] text-dim">
             {live ? (saved ? "Saved to your library. It's in your Watchlog and the app on your next sync." : "Removed.") : "Submitted in this browser: it shows in your Watchlog. Sending it to your account opens with accounts."}
           </span>
         )}
         {live && saved && (
-          <button type="button" onClick={remove} disabled={busy} className="h-9 px-4 rounded-full bg-card border border-hair text-[13px] font-semibold text-ink cursor-pointer hover:text-loved disabled:opacity-50">
+          <button type="button" onClick={remove} disabled={busy} className="h-9 px-4 rounded-full bg-card border border-hair text-[1.0833rem] font-semibold text-ink cursor-pointer hover:text-loved disabled:opacity-50">
             Remove
           </button>
         )}
-        <button type="button" onClick={save} disabled={busy} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold cursor-pointer hover:brightness-110 disabled:opacity-60">
+        <button type="button" onClick={save} disabled={busy} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[1.0833rem] font-semibold cursor-pointer hover:brightness-110 disabled:opacity-60">
           {busy ? "Saving…" : live ? "Save" : "Submit"}
         </button>
       </div>
@@ -268,7 +268,7 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
 function Star({ fill }: { fill: number }) {
   const path = "M12 2.2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.1l-6.1 3.5 1.5-6.8-5.2-4.6 6.9-.7z";
   return (
-    <span className="relative w-[18px] h-[18px] pointer-events-none">
+    <span className="relative w-[1.5rem] h-[1.5rem] pointer-events-none">
       <svg width="18" height="18" viewBox="0 0 24 24" className="absolute inset-0 text-dim" aria-hidden>
         <path d={path} fill="currentColor" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" transform="translate(1.2 1.2) scale(.9)" />
       </svg>

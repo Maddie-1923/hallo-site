@@ -93,7 +93,7 @@ export default async function EpisodePage({ params }: Params) {
                         <span aria-hidden className="ml-2 text-[.55em] align-[.25em] text-dim">→</span>
                       </h1>
                     </Link>
-                    <div className="mt-1 text-[12.5px] font-semibold text-mid-tone">
+                    <div className="mt-1 text-[1.0417rem] font-semibold text-mid-tone">
                       {plural(show.seasonCount, "Season")} · {plural(show.episodeCount, "Episode")}
                     </div>
                   </div>
@@ -104,7 +104,7 @@ export default async function EpisodePage({ params }: Params) {
                 factsFooter={
                   // The show's status, as the show page closes its facts.
                   (show.lastAired || badge) && (
-                    <div className="flex items-center justify-between gap-3 text-[12.5px] text-dim">
+                    <div className="flex items-center justify-between gap-3 text-[1.0417rem] text-dim">
                       <span>{show.lastAired ? <>Last aired <Day iso={show.lastAired} /></> : ""}</span>
                       {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING" || badge.label === "PILOT"} />}
                     </div>
@@ -166,9 +166,9 @@ function Step({ showID, to, dir }: { showID: number; to: EpisodeLink | null; dir
   if (!to) return <span className="rounded-[12px] bg-piece opacity-35" />;
   return (
     <Link href={`/show/${showID}/season/${to.season}/episode/${to.episode}`} className={`rounded-[12px] bg-piece px-3 py-2.5 no-underline text-ink hover:text-accent transition-colors grid gap-0.5 ${dir === 1 ? "text-right" : ""}`}>
-      <span className="text-[11px] font-bold uppercase tracking-[.08em] text-dim">{dir === 1 ? "Next ›" : "‹ Previous"}</span>
-      <span className="text-[12.5px] font-semibold">{code(to.season, to.episode)}</span>
-      <span className="text-[12px] text-dim truncate">{to.name}</span>
+      <span className="text-[0.9167rem] font-bold uppercase tracking-[.08em] text-dim">{dir === 1 ? "Next ›" : "‹ Previous"}</span>
+      <span className="text-[1.0417rem] font-semibold">{code(to.season, to.episode)}</span>
+      <span className="text-[1rem] text-dim truncate">{to.name}</span>
     </Link>
   );
 }

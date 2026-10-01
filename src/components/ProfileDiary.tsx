@@ -107,9 +107,9 @@ export function ProfileDiary({ entries: logged, owner = false, username = "", av
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3 mb-4">
-        <label className="inline-flex items-center gap-2 text-[12.5px] text-dim">
+        <label className="inline-flex items-center gap-2 text-[1.0417rem] text-dim">
           Year
-          <select value={year} onChange={(e) => setYear(e.target.value)} className="rounded-full bg-page border border-hair px-3 py-1 text-ink text-[12.5px] font-semibold cursor-pointer">
+          <select value={year} onChange={(e) => setYear(e.target.value)} className="rounded-full bg-page border border-hair px-3 py-1 text-ink text-[1.0417rem] font-semibold cursor-pointer">
             {years.map((y) => (
               <option key={y} value={y}>
                 {y}
@@ -117,7 +117,7 @@ export function ProfileDiary({ entries: logged, owner = false, username = "", av
             ))}
           </select>
         </label>
-        <span className="text-[12.5px] text-dim ml-auto">
+        <span className="text-[1.0417rem] text-dim ml-auto">
           {inYear.length} {inYear.length === 1 ? "entry" : "entries"} in {year}
         </span>
       </div>
@@ -144,11 +144,11 @@ export function ProfileDiary({ entries: logged, owner = false, username = "", av
           <h3 className="!text-[clamp(22px,2vw,28px)]">
             {MONTHS_LONG[month]} {year}
           </h3>
-          <span className="text-[12.5px] text-dim">
+          <span className="text-[1.0417rem] text-dim">
             {rows.length} {rows.length === 1 ? "entry" : "entries"}
           </span>
           <div className="ml-auto flex items-center gap-2">
-          <div className="inline-flex p-[3px] rounded-full bg-page border border-hair">
+          <div className="inline-flex p-[0.25rem] rounded-full bg-page border border-hair">
             {(
               [
                 ["all", "All"],
@@ -161,7 +161,7 @@ export function ProfileDiary({ entries: logged, owner = false, username = "", av
                 type="button"
                 aria-pressed={kind === k}
                 onClick={() => setKind(k)}
-                className={`px-3.5 py-1 rounded-full text-[12.5px] font-semibold cursor-pointer transition-colors ${kind === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+                className={`px-3.5 py-1 rounded-full text-[1.0417rem] font-semibold cursor-pointer transition-colors ${kind === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
               >
                 {label}
               </button>
@@ -236,12 +236,12 @@ function MonthCard({
             the card, and the height the scale frees is taken back below. */}
         <span className="block px-1 pt-1.5 pb-0.5 overflow-hidden">
           <span className="block origin-top-left" style={{ width: `${100 / TEXT_SCALE}%`, transform: `scale(${TEXT_SCALE})`, marginBottom: -TEXT_HEIGHT * (1 - TEXT_SCALE) }}>
-          <span className={`block text-[12px] leading-[16px] font-bold uppercase tracking-[.1em] ${selected ? "text-accent" : "text-ink"}`}>{MONTHS_LONG[month]}</span>
+          <span className={`block text-[1rem] leading-[1.3333rem] font-bold uppercase tracking-[.1em] ${selected ? "text-accent" : "text-ink"}`}>{MONTHS_LONG[month]}</span>
           {/* The month's numbers, one to a line: the label on the left, the
               figure on the right, so a figure under the month's name can't be
               read as a date. Every card carries all three lines, zeros
               included, so the cards stay the same height. */}
-          <span className="block mt-0.5 text-[11px] leading-[14px] text-dim">
+          <span className="block mt-0.5 text-[0.9167rem] leading-[1.1667rem] text-dim">
             {(
               [
                 ["Films", films],
@@ -286,11 +286,11 @@ function PicturePicker({ month, list, onChoose, onClose }: { month: string; list
   const titles = list.filter((e, i) => e.backdrop && list.findIndex((x) => x.key === e.key) === i);
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`Picture for ${month}`} className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-shell bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-[60rem] max-h-[82vh] flex flex-col rounded-shell bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b border-hair flex items-center justify-between gap-3">
-          <div className="display text-[24px] leading-none">Picture for {month}</div>
+          <div className="display text-[2rem] leading-none">Picture for {month}</div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => onChoose(null)} className="text-[12.5px] text-dim hover:text-ink cursor-pointer">
+            <button type="button" onClick={() => onChoose(null)} className="text-[1.0417rem] text-dim hover:text-ink cursor-pointer">
               Use automatic
             </button>
             <button type="button" onClick={onClose} aria-label="Close" className="w-9 h-9 rounded-full hover:bg-card-hi text-dim hover:text-ink text-xl cursor-pointer">
@@ -305,7 +305,7 @@ function PicturePicker({ month, list, onChoose, onClose }: { month: string; list
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={t.backdrop!} alt="" className="w-full h-full object-cover" />
               </span>
-              <span className="block mt-1 text-[12px] text-ink truncate">{t.title}</span>
+              <span className="block mt-1 text-[1rem] text-ink truncate">{t.title}</span>
             </button>
           ))}
         </div>
@@ -328,36 +328,36 @@ function EntryTable({ rows, username, avatar }: { rows: DiaryEntry[]; username: 
         672px the year and episodes fold under the title; below 576px the
         rewatch and review marks go too. */}
     <div className="@container">
-    <table className="w-full table-fixed border-separate border-spacing-y-[6px] -mb-[6px] text-[14px]">
+    <table className="w-full table-fixed border-separate border-spacing-y-[6px] -mb-[0.5rem] text-[1.1667rem]">
       {/* The column headings sit in a shell of their own, in the page tone,
           so they read as the table's heading bar rather than loose words.
           Fixed column widths with the same padding in every cell, so the
           gaps between columns are even and each heading sits squarely over
           what it heads; the title takes whatever is left. */}
       <thead>
-        <tr className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim text-left">
-          <th className={`${HEAD} rounded-l-shell py-2 pl-4 pr-2 font-bold w-[64px] text-left`}>Day</th>
+        <tr className="text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim text-left">
+          <th className={`${HEAD} rounded-l-shell py-2 pl-4 pr-2 font-bold w-[5.3333rem] text-left`}>Day</th>
           <th className={`${HEAD} py-2 px-4 font-bold`}>Title</th>
-          <th className={`${HEAD} py-2 px-2 font-bold text-center hidden @2xl:table-cell w-[68px]`}>Released</th>
-          <th className={`${HEAD} py-2 px-2 font-bold text-center hidden @2xl:table-cell w-[108px]`}>Episodes</th>
-          <th className={`${HEAD} py-2 px-2 font-bold text-center w-[72px] hidden @xl:table-cell`}>Rewatch</th>
-          <th className={`${HEAD} py-2 px-2 font-bold text-center w-[68px] hidden @xl:table-cell`}>Review</th>
-          <th className={`${HEAD} rounded-r-shell py-2 px-4 font-bold text-center w-[118px]`}>Rating</th>
+          <th className={`${HEAD} py-2 px-2 font-bold text-center hidden @2xl:table-cell w-[5.6667rem]`}>Released</th>
+          <th className={`${HEAD} py-2 px-2 font-bold text-center hidden @2xl:table-cell w-[9rem]`}>Episodes</th>
+          <th className={`${HEAD} py-2 px-2 font-bold text-center w-[6rem] hidden @xl:table-cell`}>Rewatch</th>
+          <th className={`${HEAD} py-2 px-2 font-bold text-center w-[5.6667rem] hidden @xl:table-cell`}>Review</th>
+          <th className={`${HEAD} rounded-r-shell py-2 px-4 font-bold text-center w-[9.8333rem]`}>Rating</th>
         </tr>
       </thead>
       <tbody>
         {rows.map((e) => (
           <tr key={`${e.key}${e.date}`} className="align-middle">
             <td className={`${SHELL} rounded-l-shell py-2 pl-4 pr-2 text-left`}>
-              <span className="block display text-[26px] leading-none text-dim">{Number(e.date.slice(8, 10))}</span>
-              <span className="block mt-0.5 text-[9.5px] leading-none font-bold uppercase tracking-[.1em] text-dim">{weekday(e.date)}</span>
+              <span className="block display text-[2.1667rem] leading-none text-dim">{Number(e.date.slice(8, 10))}</span>
+              <span className="block mt-0.5 text-[0.7917rem] leading-none font-bold uppercase tracking-[.1em] text-dim">{weekday(e.date)}</span>
             </td>
             <td className={`${SHELL} py-2 px-4`}>
               <Link href={e.href} className="flex items-center gap-3 no-underline text-ink hover:text-accent group">
                 {/* A wide still of the title rather than its poster, so the list
                     reads like the month cards above it; the poster stands in
                     only where there is no still. */}
-                <span className="w-[84px] aspect-video shrink-0 rounded-[6px] overflow-hidden bg-card">
+                <span className="w-[7rem] aspect-video shrink-0 rounded-[6px] overflow-hidden bg-card">
                   {(e.backdrop ?? e.poster) && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={(e.backdrop ?? e.poster)!} alt="" className="w-full h-full object-cover" />
@@ -369,7 +369,7 @@ function EntryTable({ rows, username, avatar }: { rows: DiaryEntry[]; username: 
                   </span>
                   {/* On a phone the Released and Episodes columns fold in under
                       the title. */}
-                  {(e.year || e.episodes) && <span className="block @2xl:hidden text-[12px] text-dim truncate">{[e.year, e.episodes].filter(Boolean).join(" · ")}</span>}
+                  {(e.year || e.episodes) && <span className="block @2xl:hidden text-[1rem] text-dim truncate">{[e.year, e.episodes].filter(Boolean).join(" · ")}</span>}
                 </span>
               </Link>
             </td>
@@ -490,7 +490,7 @@ function SortMenu({ sort, onChoose }: { sort: SortId; onChoose: (id: SortId) => 
       label={`Sort the list: ${current.short}`}
       width={220}
       button={
-        <span className="h-9 inline-flex items-center gap-2 pl-3 pr-3.5 rounded-full bg-page border border-hair text-[12.5px] font-semibold text-dim hover:text-ink transition-colors">
+        <span className="h-9 inline-flex items-center gap-2 pl-3 pr-3.5 rounded-full bg-page border border-hair text-[1.0417rem] font-semibold text-dim hover:text-ink transition-colors">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M4 6h16M7 12h10M10 18h4" />
           </svg>
@@ -501,7 +501,7 @@ function SortMenu({ sort, onChoose }: { sort: SortId; onChoose: (id: SortId) => 
       <div className="py-2">
         {groups.map((g) => (
           <div key={g}>
-            <div className="px-4 pt-2 pb-1 text-[10.5px] font-bold tracking-[.14em] uppercase text-dim">{g}</div>
+            <div className="px-4 pt-2 pb-1 text-[0.875rem] font-bold tracking-[.14em] uppercase text-dim">{g}</div>
             {SORTS.filter((s) => s.group === g).map((s) => (
               <button
                 key={s.id}
@@ -510,7 +510,7 @@ function SortMenu({ sort, onChoose }: { sort: SortId; onChoose: (id: SortId) => 
                 aria-checked={s.id === sort}
                 data-menu-close
                 onClick={() => onChoose(s.id)}
-                className="w-full flex items-center gap-3 px-4 py-1.5 text-[13px] hover:bg-card-hi cursor-pointer text-ink"
+                className="w-full flex items-center gap-3 px-4 py-1.5 text-[1.0833rem] hover:bg-card-hi cursor-pointer text-ink"
               >
                 <span className="flex-1 text-left">{s.label}</span>
                 {s.id === sort && (

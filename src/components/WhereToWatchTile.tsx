@@ -27,9 +27,9 @@ export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
   // As tall as the piece leaves them, 12px in from every side of it.
   const tile = "shrink-0 h-full aspect-square rounded-[9px] overflow-hidden border border-hair bg-card";
   return (
-    <div className="relative shrink-0 w-[188px] max-sm:w-auto max-sm:h-[120px] self-stretch rounded-shell bg-card border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+    <div className="relative shrink-0 w-[15.6667rem] max-sm:w-auto max-sm:h-[10rem] self-stretch rounded-shell bg-card border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
       <div className="absolute inset-0 p-2 flex flex-col gap-2">
-        <h2 className="shrink-0 h-[34px] px-1 rounded-[12px] bg-piece flex items-center justify-center text-center ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink">{here.length || notOnYours ? "Where to watch" : "Elsewhere"}</h2>
+        <h2 className="shrink-0 h-[2.8333rem] px-1 rounded-[12px] bg-piece flex items-center justify-center text-center ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink">{here.length || notOnYours ? "Where to watch" : "Elsewhere"}</h2>
         <div className="flex-1 min-h-0 rounded-[12px] bg-piece p-3 flex items-stretch gap-1.5">
           {shown.map((p) => (
             <span key={p.id} title={mine.has(p.id) ? `${p.name} · yours` : p.name} className={`${tile} ${here.length ? "" : "opacity-60"} ${mine.has(p.id) ? "!border-transparent ring-2 ring-accent-fill" : ""}`}>
@@ -39,8 +39,8 @@ export function WhereToWatchTile({ watch }: { watch: WhereToWatch }) {
               )}
             </span>
           ))}
-          {more > 0 && <span className={`${tile} flex items-center justify-center text-[12.5px] font-semibold text-dim`}>+{more}</span>}
-          {pool.length === 0 && <span className="self-center text-[12.5px] leading-[1.4] text-dim">{notOnYours ? "Not on your services" : "Nowhere yet"}</span>}
+          {more > 0 && <span className={`${tile} flex items-center justify-center text-[1.0417rem] font-semibold text-dim`}>+{more}</span>}
+          {pool.length === 0 && <span className="self-center text-[1.0417rem] leading-[1.4] text-dim">{notOnYours ? "Not on your services" : "Nowhere yet"}</span>}
           {watch.elsewhere.length > 0 && (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="ml-auto shrink-0 self-start text-accent">
               <path d="M4 12h15M13 6l6 6-6 6" />

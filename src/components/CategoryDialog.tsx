@@ -76,7 +76,7 @@ export function Sheet({ label, title, onClose, footer, children, width = 720 }: 
         style={{ maxWidth: width }}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-hair shrink-0">
-          <div className="text-[15px] font-semibold tracking-[.02em] text-ink">{title}</div>
+          <div className="text-[1.25rem] font-semibold tracking-[.02em] text-ink">{title}</div>
           <button type="button" onClick={onClose} aria-label="Close" className="text-dim hover:text-ink text-xl leading-none cursor-pointer px-2">
             ✕
           </button>
@@ -105,7 +105,7 @@ function Chip({ on, onClick, children, logo, disabled = false }: { on: boolean; 
       aria-pressed={on}
       disabled={disabled}
       onClick={onClick}
-      className={`w-full flex items-center gap-2.5 ${logo !== undefined ? "min-h-9 py-1" : "min-h-7 py-0.5"} px-2.5 rounded-[8px] border text-left text-[13px] font-semibold leading-tight cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default ${
+      className={`w-full flex items-center gap-2.5 ${logo !== undefined ? "min-h-9 py-1" : "min-h-7 py-0.5"} px-2.5 rounded-[8px] border text-left text-[1.0833rem] font-semibold leading-tight cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default ${
         on ? "border-transparent bg-accent-fill text-on-accent" : "border-transparent text-ink hover:border-hair hover:bg-card"
       }`}
     >
@@ -139,7 +139,7 @@ function LogoChip({ on, onClick, name, logo }: { on: boolean; onClick: () => voi
         // eslint-disable-next-line @next/next/no-img-element
         <img src={logo} alt="" loading="lazy" className="w-12 h-12 rounded-[12px] object-cover" />
       ) : (
-        <span className="w-12 h-12 rounded-[12px] bg-card border border-hair flex items-center justify-center p-1 text-[10px] leading-tight text-ink text-center">{name}</span>
+        <span className="w-12 h-12 rounded-[12px] bg-card border border-hair flex items-center justify-center p-1 text-[0.8333rem] leading-tight text-ink text-center">{name}</span>
       )}
       {on && (
         <span aria-hidden className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-accent-fill text-on-accent flex items-center justify-center shadow">
@@ -157,10 +157,10 @@ function LogoChip({ on, onClick, name, logo }: { on: boolean; onClick: () => voi
 function Card({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-[14px] bg-piece/60 border border-hair/70 px-4 pt-3 pb-3.5">
-      <div role="heading" aria-level={3} className="text-[14px] font-semibold text-ink">
+      <div role="heading" aria-level={3} className="text-[1.1667rem] font-semibold text-ink">
         {title}
       </div>
-      {note && <p className="m-0 mt-0.5 text-[12px] leading-[1.45] text-dim">{note}</p>}
+      {note && <p className="m-0 mt-0.5 text-[1rem] leading-[1.45] text-dim">{note}</p>}
       <div className="mt-2">{children}</div>
     </section>
   );
@@ -177,7 +177,7 @@ function Segments<T extends string>({ label, value, options, onChange }: { label
           role="radio"
           aria-checked={value === v}
           onClick={() => onChange(v)}
-          className={`h-8 px-3.5 rounded-full text-[13px] font-semibold cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-ink hover:bg-piece"}`}
+          className={`h-8 px-3.5 rounded-full text-[1.0833rem] font-semibold cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-ink hover:bg-piece"}`}
         >
           {text}
         </button>
@@ -192,8 +192,8 @@ function Segments<T extends string>({ label, value, options, onChange }: { label
 function Row({ label, first, children }: { label: string; first?: boolean; children: React.ReactNode }) {
   return (
     <div className={`flex items-center justify-between gap-4 min-h-11 py-1 ${first ? "" : "border-t border-hair/70"}`}>
-      <span className="text-[14px] text-ink">{label}</span>
-      <div className="flex items-center gap-2 text-[13px] text-dim">{children}</div>
+      <span className="text-[1.1667rem] text-ink">{label}</span>
+      <div className="flex items-center gap-2 text-[1.0833rem] text-dim">{children}</div>
     </div>
   );
 }
@@ -203,9 +203,9 @@ function MultiRow({ label, summary, first, logos = false, children }: { label: s
   return (
     <div className={first ? "" : "border-t border-hair/70"}>
       <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="w-full flex items-center justify-between gap-4 min-h-11 py-1 text-left cursor-pointer">
-        <span className="text-[14px] text-ink">{label}</span>
-        <span className="flex items-center gap-2 text-[13px] text-dim min-w-0">
-          <span className="truncate max-w-[260px]">{summary}</span>
+        <span className="text-[1.1667rem] text-ink">{label}</span>
+        <span className="flex items-center gap-2 text-[1.0833rem] text-dim min-w-0">
+          <span className="truncate max-w-[21.6667rem]">{summary}</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`}>
             <path d="M6 9l6 6 6-6" />
           </svg>
@@ -345,13 +345,13 @@ export function CategoryDialog({
       footer={
         browse ? (
           <>
-            <button type="button" className="text-[14px] font-semibold text-dim hover:text-ink cursor-pointer mr-auto" onClick={() => setF(emptyFilter(f.kinds))}>
+            <button type="button" className="text-[1.1667rem] font-semibold text-dim hover:text-ink cursor-pointer mr-auto" onClick={() => setF(emptyFilter(f.kinds))}>
               Clear
             </button>
-            <button type="button" className="text-[14px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
+            <button type="button" className="text-[1.1667rem] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
               Cancel
             </button>
-            <button type="button" className="btn !py-2 !px-5 !text-[14px]" disabled={pending || (keep && blocked)} onClick={show}>
+            <button type="button" className="btn !py-2 !px-5 !text-[1.1667rem]" disabled={pending || (keep && blocked)} onClick={show}>
               {pending ? "Saving…" : keep ? "Save and show results" : "Show results"}
             </button>
           </>
@@ -362,20 +362,20 @@ export function CategoryDialog({
               <span className={error ? "" : "text-dim"}>{error ?? note}</span>
             </span>
           )}
-          <button type="button" className="text-[14px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
+          <button type="button" className="text-[1.1667rem] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" className="btn !py-2 !px-5 !text-[14px]" disabled={pending || blocked} onClick={save}>
+          <button type="button" className="btn !py-2 !px-5 !text-[1.1667rem]" disabled={pending || blocked} onClick={save}>
             {pending ? "Saving…" : edit ? "Save" : "Save as category"}
           </button>
         </>
         )
       }
     >
-      <div className="flex flex-col gap-2.5 text-[14px] leading-[1.5]">
+      <div className="flex flex-col gap-2.5 text-[1.1667rem] leading-[1.5]">
         {!edit && !browse && (
           <Card title="Name" note={`${Array.from(name).length} of ${RAIL_NAME_LIMIT} letters`}>
-            <input className="field !text-[14px]" aria-label="Category name" value={name} maxLength={RAIL_NAME_LIMIT} placeholder={suggestedName(f)} onChange={(e) => setTyped(e.target.value)} />
+            <input className="field !text-[1.1667rem]" aria-label="Category name" value={name} maxLength={RAIL_NAME_LIMIT} placeholder={suggestedName(f)} onChange={(e) => setTyped(e.target.value)} />
           </Card>
         )}
 
@@ -417,7 +417,7 @@ export function CategoryDialog({
                 <LogoChip key={s.id} name={s.name} logo={s.logo} on={f.providerIDs.includes(s.id)} onClick={() => toggleService(s)} />
               ))}
               {serviceList.length > shown.length && (
-                <button type="button" onClick={() => setAllServices(true)} className="h-12 px-1 text-left text-[13px] font-semibold text-accent hover:underline cursor-pointer">
+                <button type="button" onClick={() => setAllServices(true)} className="h-12 px-1 text-left text-[1.0833rem] font-semibold text-accent hover:underline cursor-pointer">
                   Show all {serviceList.length}
                 </button>
               )}
@@ -533,19 +533,19 @@ export function CategoryDialog({
           <Card title="Save">
             <label className="flex items-center gap-3 min-h-10 cursor-pointer">
               <input type="checkbox" className="w-5 h-5 accent-[var(--accent-fill)] cursor-pointer" checked={keep} onChange={(e) => setKeep(e.target.checked)} />
-              <span className="text-[14px] text-ink">Save as a category on Explore</span>
+              <span className="text-[1.1667rem] text-ink">Save as a category on Explore</span>
             </label>
             {keep && (
               <div className="mt-3">
                 <label className="block">
-                  <span className="text-[12px] text-dim">
+                  <span className="text-[1rem] text-dim">
                     Name · {Array.from(name).length} of {RAIL_NAME_LIMIT} letters
                   </span>
-                  <input className="field !text-[14px] mt-1.5" aria-label="Category name" value={name} maxLength={RAIL_NAME_LIMIT} placeholder={suggestedName(f)} onChange={(e) => setTyped(e.target.value)} />
+                  <input className="field !text-[1.1667rem] mt-1.5" aria-label="Category name" value={name} maxLength={RAIL_NAME_LIMIT} placeholder={suggestedName(f)} onChange={(e) => setTyped(e.target.value)} />
                 </label>
-                {f.kinds.length > 1 && <p className="m-0 mt-2 text-[12px] text-dim">Saving makes one category for shows and one for movies.</p>}
+                {f.kinds.length > 1 && <p className="m-0 mt-2 text-[1rem] text-dim">Saving makes one category for shows and one for movies.</p>}
                 {(error || note) && (
-                  <p className="m-0 mt-2 text-[12px]" style={error ? { color: "var(--movies)" } : undefined} role={error ? "alert" : undefined}>
+                  <p className="m-0 mt-2 text-[1rem]" style={error ? { color: "var(--movies)" } : undefined} role={error ? "alert" : undefined}>
                     <span className={error ? "" : "text-dim"}>{error ?? note}</span>
                   </p>
                 )}
@@ -578,4 +578,4 @@ export function FilterButton({ services, kinds, initial, count = 0, counts }: { 
   );
 }
 
-const PILL = "inline-flex items-center gap-1.5 h-[38px] px-4 rounded-full bg-card border border-hair text-[13px] font-bold text-dim hover:text-ink cursor-pointer transition-colors";
+const PILL = "inline-flex items-center gap-1.5 h-[3.1667rem] px-4 rounded-full bg-card border border-hair text-[1.0833rem] font-bold text-dim hover:text-ink cursor-pointer transition-colors";

@@ -63,7 +63,7 @@ export function ReviewActions({ likes = 0, comments = 0, title, shareHref, what,
   const isLiked = live ? live.liked : liked;
   const commentCount = live ? live.comments : comments;
   return (
-    <div className={`flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] ${className}`}>
+    <div className={`flex flex-wrap items-center gap-x-5 gap-y-2 text-[1.0833rem] ${className}`}>
       <button
         type="button"
         aria-pressed={isLiked}
@@ -91,7 +91,7 @@ export function ReviewActions({ likes = 0, comments = 0, title, shareHref, what,
         {copied ? "Link copied" : "Share"}
       </button>
       {said && (
-        <span role="alert" className="text-[12px] text-loved">
+        <span role="alert" className="text-[1rem] text-loved">
           {said}
         </span>
       )}

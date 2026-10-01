@@ -93,7 +93,7 @@ export function ConfirmKey({
           <path d={path} pathLength={1} fill="none" stroke={confirm} strokeWidth="1.5" strokeDasharray="1" style={{ animation: `key-trace ${TRACE}ms linear forwards` }} />
         </svg>
       )}
-      {lit && <span aria-hidden className="absolute left-1/2 top-1/2 -ml-[9px] -mt-[9px] w-[18px] h-[18px] rounded-full border-2 pointer-events-none" style={{ borderColor: confirm, animation: "key-burst 710ms linear forwards" }} />}
+      {lit && <span aria-hidden className="absolute left-1/2 top-1/2 -ml-[0.75rem] -mt-[0.75rem] w-[1.5rem] h-[1.5rem] rounded-full border-2 pointer-events-none" style={{ borderColor: confirm, animation: "key-burst 710ms linear forwards" }} />}
       {children}
     </button>
   );

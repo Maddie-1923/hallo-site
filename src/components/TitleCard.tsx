@@ -48,8 +48,8 @@ function Card({
         {/* A fixed height so every card in a rail lines up; a long title
             truncates rather than growing the panel. The full title is on
             the tooltip and the title page. */}
-        <div className="relative px-3 pt-2.5 pb-3 h-[92px] flex flex-col">
-          <div className="text-[15px] font-semibold leading-tight text-ink truncate" title={title}>{title}</div>
+        <div className="relative px-3 pt-2.5 pb-3 h-[7.6667rem] flex flex-col">
+          <div className="text-[1.25rem] font-semibold leading-tight text-ink truncate" title={title}>{title}</div>
           <div className="text-xs text-ink/70 mt-0.5">{sub}</div>
           {/* Left, under the title, rather than pushed to the far edge — the
               row reads as part of the card's text block that way instead of as
@@ -99,7 +99,7 @@ export function Rail({ title, children, empty = "Nothing to show right now." }: 
       ) : (
         <RailScroller title={title}>
           {children.map((c, i) => (
-            <div key={i} className="w-[160px] sm:w-[180px] shrink-0 snap-start">
+            <div key={i} className="w-[13.3333rem] sm:w-[15rem] shrink-0 snap-start">
               {c}
             </div>
           ))}

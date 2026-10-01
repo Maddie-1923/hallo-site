@@ -52,7 +52,7 @@ export function ThemeRow() {
                 color: on ? "var(--on-accent)" : "var(--dim)",
               }}
             >
-              <i className="tone block w-[11px] h-[11px] rounded-full ring-1 ring-black/10" style={{ ["--tone-day" as string]: t.day, ["--tone-night" as string]: t.night }} />
+              <i className="tone block w-[0.9167rem] h-[0.9167rem] rounded-full ring-1 ring-black/10" style={{ ["--tone-day" as string]: t.day, ["--tone-night" as string]: t.night }} />
               {t.name}
             </button>
           );

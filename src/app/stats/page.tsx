@@ -67,8 +67,8 @@ function WatchTimeFigure({ value, note }: { value: string; note: string }) {
   return (
     <>
       <div className="display leading-none text-accent truncate text-[clamp(30px,3.4vw,40px)]">{value}</div>
-      <div className="mt-1 text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">Watch time</div>
-      <div className="mt-0.5 text-[12px] text-dim truncate" title={note}>
+      <div className="mt-1 text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim">Watch time</div>
+      <div className="mt-0.5 text-[1rem] text-dim truncate" title={note}>
         {note}
       </div>
     </>

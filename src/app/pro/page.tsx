@@ -54,13 +54,13 @@ export default async function ProPage() {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
-        <div className="max-w-[1040px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
+        <div className="max-w-[86.6667rem] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
           {/* The offer: what it is, the two plans side by side, and the way to get it. */}
           <div className={SHELL}>
             <div className="grid gap-2 grid-cols-[minmax(0,1fr)] md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
               <div className="rounded-shell bg-piece p-3 flex flex-col">
                 <h1 className="!text-[clamp(44px,6vw,72px)] !leading-[.9] tracking-[.02em] uppercase">Kodigo Pro</h1>
-                <p className="m-0 mt-3 text-[12.5px] leading-[1.6] text-mid-tone max-w-[46ch]">
+                <p className="m-0 mt-3 text-[1.0417rem] leading-[1.6] text-mid-tone max-w-[46ch]">
                   The tracker, on your phone and on the web. Everything you&apos;re watching, what&apos;s next, and when it lands, with one subscription for both.
                 </p>
               </div>
@@ -76,8 +76,8 @@ export default async function ProPage() {
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {adds.map(([t, d]) => (
                   <div key={t} className="rounded-shell bg-piece p-3">
-                    <div className="text-[12.5px] font-semibold text-ink">{t}</div>
-                    <p className="m-0 mt-1 text-[12.5px] leading-[1.6] text-mid-tone">{d}</p>
+                    <div className="text-[1.0417rem] font-semibold text-ink">{t}</div>
+                    <p className="m-0 mt-1 text-[1.0417rem] leading-[1.6] text-mid-tone">{d}</p>
                   </div>
                 ))}
               </div>
@@ -90,12 +90,12 @@ export default async function ProPage() {
             </div>
             <div className={SHELL}>
               <div className="rounded-shell bg-piece p-3 overflow-x-auto">
-                <table className="w-full min-w-[520px] border-collapse text-[12.5px]">
+                <table className="w-full min-w-[43.3333rem] border-collapse text-[1.0417rem]">
                   <thead>
                     <tr className="border-b border-hair">
-                      <th className="py-[8px] pr-3 text-left font-normal text-dim" />
+                      <th className="py-[0.6667rem] pr-3 text-left font-normal text-dim" />
                       {["Visitor", "Free account", "Pro"].map((h) => (
-                        <th key={h} className="py-[8px] px-3 w-[110px] text-center text-[10.5px] font-bold uppercase tracking-[.12em] text-ink">
+                        <th key={h} className="py-[0.6667rem] px-3 w-[9.1667rem] text-center text-[0.875rem] font-bold uppercase tracking-[.12em] text-ink">
                           {h}
                         </th>
                       ))}
@@ -104,9 +104,9 @@ export default async function ProPage() {
                   <tbody>
                     {table.map(([row, ...cols]) => (
                       <tr key={row} className="border-b border-hair last:border-b-0">
-                        <td className="py-[8px] pr-3 text-ink">{row}</td>
+                        <td className="py-[0.6667rem] pr-3 text-ink">{row}</td>
                         {cols.map((on, i) => (
-                          <td key={i} className="py-[8px] px-3 text-center">
+                          <td key={i} className="py-[0.6667rem] px-3 text-center">
                             {on ? <span className={i === 2 ? "text-accent font-bold" : "text-ink"}>✓</span> : <span className="text-dim">·</span>}
                           </td>
                         ))}
@@ -125,17 +125,17 @@ export default async function ProPage() {
             <div className={SHELL}>
               <div className="rounded-shell bg-piece p-3">
                 {faq.map(([q, a], i) => (
-                  <details key={q} className={`group py-[8px] ${i < faq.length - 1 ? "border-b border-hair" : ""}`} open={i === 0}>
-                    <summary className="list-none cursor-pointer flex items-center justify-between gap-3 text-[12.5px] font-semibold text-ink [&::-webkit-details-marker]:hidden">
+                  <details key={q} className={`group py-[0.6667rem] ${i < faq.length - 1 ? "border-b border-hair" : ""}`} open={i === 0}>
+                    <summary className="list-none cursor-pointer flex items-center justify-between gap-3 text-[1.0417rem] font-semibold text-ink [&::-webkit-details-marker]:hidden">
                       {q}
                       <span aria-hidden className="text-dim transition-transform group-open:rotate-45">+</span>
                     </summary>
-                    <p className="m-0 mt-1.5 text-[12.5px] leading-[1.6] text-mid-tone">{a}</p>
+                    <p className="m-0 mt-1.5 text-[1.0417rem] leading-[1.6] text-mid-tone">{a}</p>
                   </details>
                 ))}
               </div>
             </div>
-            <p className="m-0 px-1 text-[12.5px] text-dim">
+            <p className="m-0 px-1 text-[1.0417rem] text-dim">
               See what&apos;s changed lately on{" "}
               <Link href="/whats-new" className="text-accent no-underline hover:underline">
                 What&apos;s new

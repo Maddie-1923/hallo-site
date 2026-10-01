@@ -13,7 +13,7 @@ import { progressFraction, type ImportProgress } from "@/lib/imports";
 // app's importers, lib/imports) with its progress and a Stop; then the
 // result, what would be added and what couldn't be placed, and only then
 // Add to my library, which the server merges in without replacing anything.
-const button = "inline-flex items-center h-8 px-4 rounded-full text-[12.5px] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-default";
+const button = "inline-flex items-center h-8 px-4 rounded-full text-[1.0417rem] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-default";
 const quiet = `${button} bg-card border border-hair text-ink hover:text-accent transition-colors`;
 const strong = `${button} bg-accent-fill text-on-accent`;
 const STAGE: Record<ImportProgress["stage"], string> = { reading: "Reading the files", matching: "Finding each title", loadingEpisodes: "Fetching episode lists", saving: "Putting it together" };
@@ -67,11 +67,11 @@ export function ImportPanel() {
   }
 
   return (
-    <div className="py-[10px] grid gap-3">
+    <div className="py-[0.8333rem] grid gap-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-[12.5px] text-ink">Bring your history</div>
-          <div className="mt-0.5 text-[12.5px] leading-[1.5] text-dim">From TV Time, Letterboxd, Trakt, Simkl, IMDb or another app&apos;s export, or a Kodigo backup. Nothing you already have is replaced.</div>
+          <div className="text-[1.0417rem] text-ink">Bring your history</div>
+          <div className="mt-0.5 text-[1.0417rem] leading-[1.5] text-dim">From TV Time, Letterboxd, Trakt, Simkl, IMDb or another app&apos;s export, or a Kodigo backup. Nothing you already have is replaced.</div>
         </div>
         {(state.at === "idle" || state.at === "picked" || state.at === "failed" || state.at === "done") && (
           <label className={quiet}>
@@ -110,7 +110,7 @@ export function ImportPanel() {
 
       {state.at === "running" && (
         <div className="rounded-[10px] bg-card border border-hair p-3 grid gap-2" aria-live="polite">
-          <div className="flex items-baseline justify-between gap-3 text-[12.5px]">
+          <div className="flex items-baseline justify-between gap-3 text-[1.0417rem]">
             <span className="font-semibold text-ink">{state.progress ? STAGE[state.progress.stage] : "Starting"}</span>
             {state.progress && state.progress.toMatch > 0 && (
               <span className="text-dim tabular-nums">
@@ -118,11 +118,11 @@ export function ImportPanel() {
               </span>
             )}
           </div>
-          <div className="h-[5px] rounded-full bg-track overflow-hidden">
+          <div className="h-[0.4167rem] rounded-full bg-track overflow-hidden">
             <div className="h-full rounded-full bg-accent-fill transition-[width] duration-300" style={{ width: `${Math.round((state.progress ? (progressFraction(state.progress) ?? 0.03) : 0.03) * 100)}%` }} />
           </div>
-          {state.progress?.currentTitle && <div className="text-[12.5px] text-dim truncate">{state.progress.currentTitle}</div>}
-          <p className="m-0 text-[12px] text-dim">A big history takes a few minutes. Keep this page open.</p>
+          {state.progress?.currentTitle && <div className="text-[1.0417rem] text-dim truncate">{state.progress.currentTitle}</div>}
+          <p className="m-0 text-[1rem] text-dim">A big history takes a few minutes. Keep this page open.</p>
           <div className="flex justify-end">
             <button type="button" className={quiet} onClick={() => stop.current?.abort()}>
               Stop
@@ -135,7 +135,7 @@ export function ImportPanel() {
         <div className="rounded-[10px] bg-card border border-hair p-3 grid gap-2">
           <Result outcome={state.outcome} done={state.at === "done"} />
           {saveError && state.at === "review" && (
-            <p role="alert" className="m-0 text-[12.5px] text-loved">
+            <p role="alert" className="m-0 text-[1.0417rem] text-loved">
               {saveError}
             </p>
           )}
@@ -163,7 +163,7 @@ export function ImportPanel() {
 
       {state.at === "failed" && (
         <div className="rounded-[10px] bg-card border border-hair p-3 grid gap-2">
-          <p role="alert" className="m-0 text-[12.5px] text-loved">
+          <p role="alert" className="m-0 text-[1.0417rem] text-loved">
             {state.message}
           </p>
           <div className="flex justify-end">
@@ -182,11 +182,11 @@ function FileCard({ r }: { r: ImportSummary }) {
   return (
     <div className="rounded-[10px] bg-card border border-hair p-3">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[12.5px] font-semibold text-ink truncate">{r.source}</span>
-        <span className="text-[12.5px] text-dim truncate">{r.file}</span>
+        <span className="text-[1.0417rem] font-semibold text-ink truncate">{r.source}</span>
+        <span className="text-[1.0417rem] text-dim truncate">{r.file}</span>
       </div>
       {r.counts.length > 0 && (
-        <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px]">
+        <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[1.0417rem]">
           {r.counts
             .filter(([, n]) => n > 0)
             .map(([label, n]) => (
@@ -196,7 +196,7 @@ function FileCard({ r }: { r: ImportSummary }) {
             ))}
         </div>
       )}
-      {r.note && <p className="m-0 mt-1.5 text-[12.5px] text-dim">{r.note}</p>}
+      {r.note && <p className="m-0 mt-1.5 text-[1.0417rem] text-dim">{r.note}</p>}
     </div>
   );
 }
@@ -228,10 +228,10 @@ function Result({ outcome: o, done }: { outcome: ImportOutcome; done: boolean })
   const guessed = o.kind === "universal" ? o.result.ambiguous : o.kind === "tvtime" ? o.result.ambiguous.map((a) => (a.takenAs ? `${a.title} (taken as ${a.takenAs})` : a.title)) : [];
   return (
     <>
-      <div className="text-[12.5px] font-semibold text-ink">
+      <div className="text-[1.0417rem] font-semibold text-ink">
         {done ? "Added to your library" : o.kind === "backup" ? "A Kodigo backup, to add to your library" : "Ready to add"}
       </div>
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12.5px]">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[1.0417rem]">
         {lines
           .filter(([, n]) => n > 0)
           .map(([label, n]) => (
@@ -240,7 +240,7 @@ function Result({ outcome: o, done }: { outcome: ImportOutcome; done: boolean })
             </span>
           ))}
       </div>
-      {o.kind === "backup" && !done && <p className="m-0 text-[12.5px] leading-[1.5] text-dim">It&apos;s merged with what&apos;s here, record by record, the newer side winning, as the app&apos;s sync does. To replace your library with a backup, use Settings → Backup in the app.</p>}
+      {o.kind === "backup" && !done && <p className="m-0 text-[1.0417rem] leading-[1.5] text-dim">It&apos;s merged with what&apos;s here, record by record, the newer side winning, as the app&apos;s sync does. To replace your library with a backup, use Settings → Backup in the app.</p>}
       {unmatched.length > 0 && <Titles label={`Couldn't find ${unmatched.length}`} titles={unmatched} />}
       {guessed.length > 0 && <Titles label={`Matched by name, worth a look (${guessed.length})`} titles={guessed} />}
     </>
@@ -249,9 +249,9 @@ function Result({ outcome: o, done }: { outcome: ImportOutcome; done: boolean })
 
 function Titles({ label, titles }: { label: string; titles: string[] }) {
   return (
-    <details className="text-[12.5px]">
+    <details className="text-[1.0417rem]">
       <summary className="cursor-pointer text-dim hover:text-ink">{label}</summary>
-      <ul className="m-0 mt-1 pl-4 grid gap-0.5 text-mid-tone max-h-[180px] overflow-y-auto soft-scroll">
+      <ul className="m-0 mt-1 pl-4 grid gap-0.5 text-mid-tone max-h-[15rem] overflow-y-auto soft-scroll">
         {titles.slice(0, 300).map((t, i) => (
           <li key={`${t}${i}`}>{t}</li>
         ))}

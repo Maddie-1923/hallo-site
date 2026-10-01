@@ -26,7 +26,7 @@ export function WatchAgain({ target, nights }: { target: RewatchTarget; nights: 
     });
   const seen = nights.length + 1;
   return (
-    <div className="rounded-[10px] bg-piece p-3 grid gap-2 text-[12.5px]">
+    <div className="rounded-[10px] bg-piece p-3 grid gap-2 text-[1.0417rem]">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <button type="button" onClick={() => nights.length && setOpen((o) => !o)} className={`text-left ${nights.length ? "cursor-pointer hover:text-accent" : "cursor-default"} text-ink`}>
           {seen === 1 ? "Seen once" : `Seen ${seen} times`}
@@ -53,14 +53,14 @@ export function WatchAgain({ target, nights }: { target: RewatchTarget; nights: 
           {nights.map((n) => (
             <li key={n} className="flex items-center justify-between gap-2 text-dim">
               <span>Again on {fmt(n.slice(0, 10))}</span>
-              <button type="button" disabled={pending} onClick={() => run(() => takeBackRewatch(target, n))} className="text-[12px] text-dim hover:text-loved cursor-pointer disabled:opacity-50">
+              <button type="button" disabled={pending} onClick={() => run(() => takeBackRewatch(target, n))} className="text-[1rem] text-dim hover:text-loved cursor-pointer disabled:opacity-50">
                 Take back
               </button>
             </li>
           ))}
         </ul>
       )}
-      {problem && <p className="m-0 text-[12px] text-loved">{problem}</p>}
+      {problem && <p className="m-0 text-[1rem] text-loved">{problem}</p>}
     </div>
   );
 }

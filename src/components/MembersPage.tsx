@@ -13,7 +13,7 @@ import { CommunitySwitch } from "./CommunitySwitch";
 // their initial on the accent (their own picture with accounts), their
 // handle, name and place, what they've logged, and Follow.
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
-const H = "inline-flex items-center h-[34px] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink";
+const H = "inline-flex items-center h-[2.8333rem] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink";
 
 const k = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}K` : String(n));
 
@@ -43,43 +43,43 @@ export function MembersPage({ members: everyone, live = false }: { members: Memb
   const fresh = [...members].sort((a, b) => a.joined - b.joined).slice(0, 4);
 
   return (
-    <div className="max-w-[1040px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
+    <div className="max-w-[86.6667rem] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
       <div className={SHELL}>
         <div className="rounded-shell bg-piece p-3 flex flex-wrap items-end justify-between gap-3">
           <div>
             <CommunitySwitch on="members" />
             <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">Members</h1>
-            <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">Find people who watch what you watch, and follow their reviews and lists.</p>
+            <p className="m-0 mt-2 text-[1.0417rem] leading-[1.6] text-mid-tone">Find people who watch what you watch, and follow their reviews and lists.</p>
           </div>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search members"
             aria-label="Search members"
-            className="w-[240px] max-w-full rounded-full bg-card border border-hair px-4 py-2 text-[12.5px] text-ink placeholder:text-dim focus:outline-none focus:border-accent"
+            className="w-[20rem] max-w-full rounded-full bg-card border border-hair px-4 py-2 text-[1.0417rem] text-ink placeholder:text-dim focus:outline-none focus:border-accent"
           />
         </div>
       </div>
 
       {found ? (
         <Group title={`${found.length} found`}>
-          {found.length ? <Ranked list={found} stats={!live} /> : <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">Nobody by that name.</p>}
+          {found.length ? <Ranked list={found} stats={!live} /> : <p className="m-0 rounded-shell bg-piece p-3 text-[1.0417rem] text-dim">Nobody by that name.</p>}
         </Group>
       ) : (
         <>
           <Group title="Popular this week">
-            {popular.length === 0 && <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">Nobody&apos;s reviews or lists have been liked this week yet.</p>}
+            {popular.length === 0 && <p className="m-0 rounded-shell bg-piece p-3 text-[1.0417rem] text-dim">Nobody&apos;s reviews or lists have been liked this week yet.</p>}
             <div className={`grid gap-2 sm:grid-cols-2 lg:grid-cols-4 ${popular.length ? "" : "hidden"}`}>
               {popular.map((m) => (
                 <div key={m.username} className="rounded-shell bg-piece p-3 grid justify-items-center text-center gap-2">
                   <Avatar m={m} size={64} />
                   <div className="min-w-0 w-full">
-                    <Link href={`/u/${m.username}`} className="block text-[12.5px] font-semibold text-ink truncate no-underline hover:text-accent">
+                    <Link href={`/u/${m.username}`} className="block text-[1.0417rem] font-semibold text-ink truncate no-underline hover:text-accent">
                       @{m.username}
                     </Link>
-                    <div className="text-[12.5px] text-dim truncate">{[m.displayName, m.location].filter(Boolean).join(" · ")}</div>
+                    <div className="text-[1.0417rem] text-dim truncate">{[m.displayName, m.location].filter(Boolean).join(" · ")}</div>
                   </div>
-                  <div className="text-[12.5px] text-mid-tone">
+                  <div className="text-[1.0417rem] text-mid-tone">
                     <b className="font-semibold text-ink tabular-nums">{m.likesThisWeek}</b> likes this week
                   </div>
                   <FollowPill username={m.username} state={m.follow} />
@@ -93,14 +93,14 @@ export function MembersPage({ members: everyone, live = false }: { members: Memb
           </Group>
 
           <Group title="New members">
-            {fresh.length === 0 && <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">No members yet.</p>}
+            {fresh.length === 0 && <p className="m-0 rounded-shell bg-piece p-3 text-[1.0417rem] text-dim">No members yet.</p>}
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {fresh.map((m) => (
                 <Link key={m.username} href={`/u/${m.username}`} className="rounded-shell bg-piece p-3 flex items-center gap-3 no-underline text-ink hover:bg-card-hi transition-colors min-w-0">
                   <Avatar m={m} size={40} />
                   <span className="min-w-0">
-                    <span className="block text-[12.5px] font-semibold truncate">@{m.username}</span>
-                    <span className="block text-[12.5px] text-dim truncate">Joined {joined(m.joined)}</span>
+                    <span className="block text-[1.0417rem] font-semibold truncate">@{m.username}</span>
+                    <span className="block text-[1.0417rem] text-dim truncate">Joined {joined(m.joined)}</span>
                   </span>
                 </Link>
               ))}
@@ -131,13 +131,13 @@ function Ranked({ list, numbered = false, stats = true }: { list: Member[]; numb
     <ul className="m-0 p-0 list-none rounded-shell bg-piece divide-y divide-hair">
       {list.map((m, i) => (
         <li key={m.username} className="flex items-center gap-3 p-3 min-w-0">
-          {numbered && <span className="display text-[22px] leading-none w-6 text-center text-dim tabular-nums">{i + 1}</span>}
+          {numbered && <span className="display text-[1.8333rem] leading-none w-6 text-center text-dim tabular-nums">{i + 1}</span>}
           <Avatar m={m} size={44} />
           <Link href={`/u/${m.username}`} className="min-w-0 flex-1 no-underline text-ink group">
-            <span className="block text-[12.5px] font-semibold truncate group-hover:text-accent transition-colors">@{m.username}</span>
-            <span className="block text-[12.5px] text-dim truncate">{[m.displayName, m.location, m.isPrivate ? "Private profile" : ""].filter(Boolean).join(" · ")}</span>
+            <span className="block text-[1.0417rem] font-semibold truncate group-hover:text-accent transition-colors">@{m.username}</span>
+            <span className="block text-[1.0417rem] text-dim truncate">{[m.displayName, m.location, m.isPrivate ? "Private profile" : ""].filter(Boolean).join(" · ")}</span>
           </Link>
-          <span className={`${stats && !m.isPrivate ? "sm:flex" : ""} hidden gap-4 text-[12.5px] text-mid-tone shrink-0`}>
+          <span className={`${stats && !m.isPrivate ? "sm:flex" : ""} hidden gap-4 text-[1.0417rem] text-mid-tone shrink-0`}>
             <span>
               <b className="font-semibold text-ink tabular-nums">{k(m.followers)}</b> followers
             </span>

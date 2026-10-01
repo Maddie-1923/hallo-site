@@ -23,7 +23,7 @@ export function TrailerModal({ id, onClose }: { id: string; onClose: () => void 
 
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label="Trailer" className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
-      <div className="relative w-full max-w-[1100px] aspect-video rounded-shell overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="relative w-full max-w-[91.6667rem] aspect-video rounded-shell overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <iframe
           src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`}
           title="Trailer"
@@ -59,7 +59,7 @@ export function TrailerCard({ video }: { video: Video }) {
             </svg>
           </span>
         </span>
-        <span className="flex mt-2 px-1 pb-0.5 text-[12.5px] min-w-0">
+        <span className="flex mt-2 px-1 pb-0.5 text-[1.0417rem] min-w-0">
           <span className="font-semibold truncate group-hover:text-accent transition-colors">{video.name}</span>
           <span className="shrink-0 text-dim">&nbsp;· YouTube</span>
         </span>

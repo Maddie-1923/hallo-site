@@ -11,7 +11,7 @@ import type { ProfileTitle } from "@/lib/public-profile";
 
 // The tracker's More and Recap, which had keys and nothing behind them.
 
-const ROW = "flex items-center justify-between w-full min-h-11 px-1 text-left text-[14px] text-ink no-underline cursor-pointer hover:text-accent";
+const ROW = "flex items-center justify-between w-full min-h-11 px-1 text-left text-[1.1667rem] text-ink no-underline cursor-pointer hover:text-accent";
 const LIST = "[&>*+*]:border-t [&>*+*]:border-[color:color-mix(in_srgb,var(--ink)_12%,transparent)]";
 
 /** More: open the title's page, play its trailer over the page, or see
@@ -23,7 +23,7 @@ export function TrackerMore({ t, onClose }: { t: ProfileTitle; onClose: () => vo
   const kind = t.kind === "movie" ? "movie" : "show";
   if (trailer) return <TrailerModal id={trailer} onClose={onClose} />;
   return (
-    <Sheet label={t.title} title={t.title} width={420} onClose={onClose} footer={<button type="button" className="text-[14px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>Close</button>}>
+    <Sheet label={t.title} title={t.title} width={420} onClose={onClose} footer={<button type="button" className="text-[1.1667rem] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>Close</button>}>
       <div className={LIST}>
         <Link href={t.href} className={ROW} onClick={onClose}>
           Open the {kind === "movie" ? "film" : "show"}&apos;s page <span aria-hidden>→</span>
@@ -66,12 +66,12 @@ export function TrackerRecap({ t, episode, watched, onClose }: { t: ProfileTitle
     };
   }, [t.key, sn, en]);
   return (
-    <Sheet label={`Recap of ${t.title}`} title={`${t.title} · Recap`} width={520} onClose={onClose} footer={<button type="button" className="text-[14px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>Close</button>}>
-      <div className="text-[12px] font-semibold text-dim">{watched ? `Previously on ${code(episode)}` : `The episode before · ${code(episode)}`}</div>
+    <Sheet label={`Recap of ${t.title}`} title={`${t.title} · Recap`} width={520} onClose={onClose} footer={<button type="button" className="text-[1.1667rem] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>Close</button>}>
+      <div className="text-[1rem] font-semibold text-dim">{watched ? `Previously on ${code(episode)}` : `The episode before · ${code(episode)}`}</div>
       {ep === undefined ? (
-        <p className="m-0 mt-2 text-[14px] text-dim">Loading…</p>
+        <p className="m-0 mt-2 text-[1.1667rem] text-dim">Loading…</p>
       ) : !ep || !ep.overview ? (
-        <p className="m-0 mt-2 text-[14px] text-dim">TMDB has no summary for this episode.</p>
+        <p className="m-0 mt-2 text-[1.1667rem] text-dim">TMDB has no summary for this episode.</p>
       ) : reveal ? (
         <>
           {ep.still && (
@@ -79,13 +79,13 @@ export function TrackerRecap({ t, episode, watched, onClose }: { t: ProfileTitle
             // eslint-disable-next-line @next/next/no-img-element
             <img src={ep.still} alt="" className="mt-2 w-full aspect-video object-cover rounded-[12px] bg-piece" />
           )}
-          <div className="mt-3 text-[16px] font-semibold text-ink">{ep.name}</div>
-          <p className="m-0 mt-2 text-[14px] leading-[1.55] text-ink">{ep.overview}</p>
+          <div className="mt-3 text-[1.3333rem] font-semibold text-ink">{ep.name}</div>
+          <p className="m-0 mt-2 text-[1.1667rem] leading-[1.55] text-ink">{ep.overview}</p>
         </>
       ) : (
         <div className="mt-2">
-          <p className="m-0 text-[14px] leading-[1.55] text-ink">You haven&apos;t watched this one yet, so its summary may give things away.</p>
-          <button type="button" className="btn !py-2 !px-5 !text-[14px] mt-3" onClick={() => setReveal(true)}>
+          <p className="m-0 text-[1.1667rem] leading-[1.55] text-ink">You haven&apos;t watched this one yet, so its summary may give things away.</p>
+          <button type="button" className="btn !py-2 !px-5 !text-[1.1667rem] mt-3" onClick={() => setReveal(true)}>
             Show it anyway
           </button>
         </div>

@@ -27,7 +27,7 @@ export function ProfileMenu({ username, owner }: { username: string; owner: bool
       say("Couldn't copy the link");
     }
   }
-  const item = "w-full flex items-center gap-3 px-4 py-2.5 text-[13.5px] text-ink hover:bg-card-hi cursor-pointer text-left";
+  const item = "w-full flex items-center gap-3 px-4 py-2.5 text-[1.125rem] text-ink hover:bg-card-hi cursor-pointer text-left";
   return (
     <div className="relative" style={{ marginTop: `calc(${HANDLE} * -0.1)` }}>
       <Menu
@@ -79,7 +79,7 @@ export function ProfileMenu({ username, owner }: { username: string; owner: bool
       {sheet === "report" && <ReportSheet what={{ kind: "profile", target: username, author: username, href: `/u/${username}`, excerpt: "" }} onClose={() => setSheet(null)} />}
       {sheet === "block" && <BlockSheet username={username} onClose={() => setSheet(null)} />}
       {said && (
-        <span role="status" className="absolute right-0 top-[calc(100%+8px)] z-50 whitespace-nowrap rounded-full bg-card-hi border border-hair px-3 py-1 text-[12px] text-ink shadow-lg">
+        <span role="status" className="absolute right-0 top-[calc(100%+8px)] z-50 whitespace-nowrap rounded-full bg-card-hi border border-hair px-3 py-1 text-[1rem] text-ink shadow-lg">
           {said}
         </span>
       )}

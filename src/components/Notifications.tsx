@@ -64,18 +64,18 @@ export function NotificationsBell({ items, framed = false }: { items: Notificati
       button={
         <span className={`relative w-9 h-9 rounded-full border flex items-center justify-center ${shell}`} onClick={() => setTimeout(markRead, 400)}>
           <BellGlyph />
-          {fresh > 0 && <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-accent-fill text-on-accent text-[10.5px] font-bold leading-[18px] text-center">{fresh}</span>}
+          {fresh > 0 && <span className="absolute -top-1 -right-1 min-w-[1.5rem] h-[1.5rem] px-1 rounded-full bg-accent-fill text-on-accent text-[0.875rem] font-bold leading-[1.5rem] text-center">{fresh}</span>}
         </span>
       }
     >
       <div className="px-4 pt-3 pb-2 flex items-center justify-between">
-        <span className="text-[10.5px] font-bold tracking-[.12em] uppercase text-dim">Notifications</span>
-        <Link href="/settings#notifications" data-menu-close className="text-[12.5px] text-dim no-underline hover:text-ink">
+        <span className="text-[0.875rem] font-bold tracking-[.12em] uppercase text-dim">Notifications</span>
+        <Link href="/settings#notifications" data-menu-close className="text-[1.0417rem] text-dim no-underline hover:text-ink">
           Settings
         </Link>
       </div>
       {shown.length === 0 ? (
-        <p className="m-0 px-4 pb-4 text-[12.5px] text-dim">Nothing yet.</p>
+        <p className="m-0 px-4 pb-4 text-[1.0417rem] text-dim">Nothing yet.</p>
       ) : (
         <ul className="m-0 p-0 pb-1 list-none">
           {shown.slice(0, 6).map((n) => (
@@ -85,7 +85,7 @@ export function NotificationsBell({ items, framed = false }: { items: Notificati
           ))}
         </ul>
       )}
-      <Link href="/notifications" data-menu-close className="block border-t border-hair px-4 py-2.5 text-[12.5px] font-semibold text-accent no-underline hover:bg-card-hi">
+      <Link href="/notifications" data-menu-close className="block border-t border-hair px-4 py-2.5 text-[1.0417rem] font-semibold text-accent no-underline hover:bg-card-hi">
         See all notifications
       </Link>
     </Menu>
@@ -112,7 +112,7 @@ export function NotificationsPage({ items }: { items: Notification[] }) {
     ["comment", "Replies"],
   ];
   return (
-    <div className="max-w-[720px] grid grid-cols-[minmax(0,1fr)] gap-8">
+    <div className="max-w-[60rem] grid grid-cols-[minmax(0,1fr)] gap-8">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div role="tablist" aria-label="Kinds" className="inline-flex gap-1 p-1 rounded-full bg-card border border-hair">
           {tabs.map(([k, label]) => (
@@ -122,19 +122,19 @@ export function NotificationsPage({ items }: { items: Notification[] }) {
               role="tab"
               aria-selected={kind === k}
               onClick={() => setKind(k)}
-              className={`px-4 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${kind === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+              className={`px-4 py-2 rounded-full text-[0.875rem] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${kind === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
             >
               {label}
             </button>
           ))}
         </div>
-        <Link href="/settings#notifications" className="text-[12.5px] text-dim no-underline hover:text-ink">
+        <Link href="/settings#notifications" className="text-[1.0417rem] text-dim no-underline hover:text-ink">
           Notification settings
         </Link>
       </div>
 
       {off.length > 0 && (
-        <p className="m-0 rounded-shell bg-card p-3 text-[12.5px] text-dim">
+        <p className="m-0 rounded-shell bg-card p-3 text-[1.0417rem] text-dim">
           {listOf(off.map((k) => ({ follow: "Follows", follow_request: "Follows", follow_accepted: "Follows", like: "Likes", comment: "Replies" })[k]))} are switched off in{" "}
           <Link href="/settings#notifications" className="text-accent no-underline hover:underline">
             Settings
@@ -143,12 +143,12 @@ export function NotificationsPage({ items }: { items: Notification[] }) {
         </p>
       )}
 
-      {groups.length === 0 && <p className="m-0 rounded-shell bg-card p-3 text-[12.5px] text-dim">Nothing here yet.</p>}
+      {groups.length === 0 && <p className="m-0 rounded-shell bg-card p-3 text-[1.0417rem] text-dim">Nothing here yet.</p>}
 
       {groups.map(([label, ns]) => (
         <section key={label} className="grid grid-cols-[minmax(0,1fr)] gap-2">
           <div>
-            <h2 className="inline-flex items-center h-[34px] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[10.5px] !leading-none !tracking-[.12em] uppercase text-ink">{label}</h2>
+            <h2 className="inline-flex items-center h-[2.8333rem] px-4 rounded-full bg-piece ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink">{label}</h2>
           </div>
           <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
             <ul className="m-0 p-0 list-none rounded-shell bg-piece divide-y divide-hair overflow-hidden">
@@ -182,13 +182,13 @@ function Item({ n, fresh, compact = false }: { n: Notification; fresh: boolean; 
             : `commented on your ${thing}`;
   return (
     <Link href={href} data-menu-close className={`flex items-start gap-3 ${compact ? "px-4 py-2.5 hover:bg-card-hi" : "p-3 hover:bg-card"} no-underline text-ink transition-colors`}>
-      <span className="relative shrink-0 w-9 h-9 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[17px] leading-none pt-[2px]">
+      <span className="relative shrink-0 w-9 h-9 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[1.4167rem] leading-none pt-[2px]">
         {n.who[0].toUpperCase()}
-        <span className="absolute -right-1 -bottom-1 w-[18px] h-[18px] rounded-full bg-card border border-hair flex items-center justify-center text-ink">
+        <span className="absolute -right-1 -bottom-1 w-[1.5rem] h-[1.5rem] rounded-full bg-card border border-hair flex items-center justify-center text-ink">
           <KindGlyph kind={n.kind} />
         </span>
       </span>
-      <span className="min-w-0 flex-1 text-[12.5px] leading-[1.45]">
+      <span className="min-w-0 flex-1 text-[1.0417rem] leading-[1.45]">
         <span className="font-semibold">@{n.who}</span> <span className="text-mid-tone">{what}</span>
         {n.about && <span className="font-semibold"> {n.about.title}</span>}
         {n.text && <span className={`block mt-0.5 text-dim ${compact ? "truncate" : ""}`}>&ldquo;{n.text}&rdquo;</span>}

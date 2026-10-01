@@ -54,7 +54,7 @@ export function ElsewhereSheet({ entries: given, cover = false, mine = [] }: { e
       {open &&
         createPortal(
           <div role="dialog" aria-modal="true" aria-label="Streaming worldwide" className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={() => setOpen(false)}>
-            <div className="w-full sm:max-w-[560px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
+            <div className="w-full sm:max-w-[46.6667rem] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
               <div className="p-4 flex items-center justify-between gap-3 border-b border-hair">
                 <h3 className="!text-[clamp(24px,2.6vw,30px)] !leading-none uppercase">Streaming worldwide</h3>
                 <button type="button" onClick={() => setOpen(false)} aria-label="Close" autoFocus className="shrink-0 w-9 h-9 rounded-full bg-card-hi hover:bg-hair text-ink flex items-center justify-center cursor-pointer">
@@ -73,13 +73,13 @@ export function ElsewhereSheet({ entries: given, cover = false, mine = [] }: { e
                       )}
                     </span>
                     <div className="min-w-0 grid gap-1.5">
-                      <div className="text-[15px] font-semibold text-ink">
+                      <div className="text-[1.25rem] font-semibold text-ink">
                         {e.provider.name}
-                        {mine.includes(e.provider.id) && <span className="ml-2 align-middle inline-flex items-center h-[20px] px-2 rounded-full bg-accent-fill text-on-accent text-[10.5px] font-bold uppercase tracking-[.12em]">Yours</span>}
+                        {mine.includes(e.provider.id) && <span className="ml-2 align-middle inline-flex items-center h-[1.6667rem] px-2 rounded-full bg-accent-fill text-on-accent text-[0.875rem] font-bold uppercase tracking-[.12em]">Yours</span>}
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {e.countries.map((c) => (
-                          <span key={c} title={names?.of(c) ?? c} className="rounded-[6px] border border-hair px-2 py-[3px] text-[12px] leading-none text-ink">
+                          <span key={c} title={names?.of(c) ?? c} className="rounded-[6px] border border-hair px-2 py-[0.25rem] text-[1rem] leading-none text-ink">
                             {c}
                           </span>
                         ))}
@@ -87,7 +87,7 @@ export function ElsewhereSheet({ entries: given, cover = false, mine = [] }: { e
                     </div>
                   </div>
                 ))}
-                <div className="pt-4 border-t border-hair text-[11px] text-dim">Streaming data by JustWatch</div>
+                <div className="pt-4 border-t border-hair text-[0.9167rem] text-dim">Streaming data by JustWatch</div>
               </div>
             </div>
           </div>,

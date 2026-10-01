@@ -50,7 +50,7 @@ export function PosterRow({
 
   const heading = (
     <>
-      <span className="display text-[24px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px]">{title}</span>
+      <span className="display text-[2rem] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px]">{title}</span>
       {href && (
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim shrink-0">
           <path d="M4 12h15M13 5l7 7-7 7" />
@@ -74,7 +74,7 @@ export function PosterRow({
         {extra}
       </div>
 
-      {items.length === 0 && <p className="m-0 text-[13px] text-dim">{empty}</p>}
+      {items.length === 0 && <p className="m-0 text-[1.0833rem] text-dim">{empty}</p>}
 
       <ScrollStrip title={title}>
         {items.map((it) => (
@@ -169,8 +169,8 @@ export function PosterCard({ it, lists, className = "" }: { it: PosterRowItem; l
           <span aria-hidden className="pointer-events-none absolute inset-0 rounded-t-[12px] rounded-b-[8px] ring-0 group-hover/card:ring-2 ring-accent-fill ring-inset transition-[box-shadow]" />
         </div>
         <div className="px-2.5 pt-2.5 pb-1.5">
-          <div className="text-[12.5px] font-semibold leading-tight text-ink truncate">{it.title}</div>
-          <div className="text-[12px] leading-tight text-dim mt-0.5 truncate">{it.sub || "\u00a0"}</div>
+          <div className="text-[1.0417rem] font-semibold leading-tight text-ink truncate">{it.title}</div>
+          <div className="text-[1rem] leading-tight text-dim mt-0.5 truncate">{it.sub || "\u00a0"}</div>
         </div>
       </Link>
       <MarkButtons target={it.target} state={it.marks} lists={lists} variant="keys" />

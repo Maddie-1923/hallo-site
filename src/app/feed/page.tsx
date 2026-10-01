@@ -22,15 +22,15 @@ export default async function Feed() {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <div className="max-w-[760px] mx-auto grid gap-4">
+        <div className="max-w-[63.3333rem] mx-auto grid gap-4">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <h1 className="!text-[clamp(36px,5vw,60px)] !leading-[.9] tracking-[.02em] uppercase">Feed</h1>
-            <Link href="/members" className="text-[12.5px] font-semibold text-accent no-underline hover:underline">
+            <Link href="/members" className="text-[1.0417rem] font-semibold text-accent no-underline hover:underline">
               Find people to follow →
             </Link>
           </div>
           {signedOut ? (
-            <p className="m-0 rounded-shell bg-card p-4 text-[12.5px] text-mid-tone">
+            <p className="m-0 rounded-shell bg-card p-4 text-[1.0417rem] text-mid-tone">
               <Link href="/login?next=/feed" className="text-accent no-underline hover:underline">
                 Sign in
               </Link>{" "}
@@ -39,7 +39,7 @@ export default async function Feed() {
           ) : items && items.length ? (
             <FeedList items={items} />
           ) : (
-            <p className="m-0 rounded-shell bg-card p-4 text-[12.5px] text-mid-tone">Follow people from Members, and what they rate, review and list shows up here.</p>
+            <p className="m-0 rounded-shell bg-card p-4 text-[1.0417rem] text-mid-tone">Follow people from Members, and what they rate, review and list shows up here.</p>
           )}
         </div>
       </main>

@@ -25,7 +25,7 @@ const faq = [
 
 function Shot({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-shell bg-card border border-hair aspect-[4/3] flex items-center justify-center text-center p-6 text-[13px] text-dim">
+    <div className="rounded-shell bg-card border border-hair aspect-[4/3] flex items-center justify-center text-center p-6 text-[1.0833rem] text-dim">
       {children}
     </div>
   );
@@ -89,7 +89,7 @@ export default async function About() {
                   know the day the next one lands.
                 </p>
                 <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 mt-7">
-                  <a className="btn !inline-flex items-center gap-2 !py-2.5 !px-4 !text-[15px] whitespace-nowrap" href="#">
+                  <a className="btn !inline-flex items-center gap-2 !py-2.5 !px-4 !text-[1.25rem] whitespace-nowrap" href="#">
                     <AppleMark />
                     App Store
                   </a>
@@ -98,14 +98,14 @@ export default async function About() {
                       Android version" is the first thing half the people
                       reading this will want to know. */}
                   <span
-                    className="btn ghost !inline-flex items-center gap-2 !py-2.5 !px-4 !text-[15px] whitespace-nowrap !text-white/60 !border-white/25 cursor-default"
+                    className="btn ghost !inline-flex items-center gap-2 !py-2.5 !px-4 !text-[1.25rem] whitespace-nowrap !text-white/60 !border-white/25 cursor-default"
                     aria-disabled="true"
                   >
                     <AndroidMark />
                     Android
-                    <span className="text-[11px] font-bold tracking-[.12em] uppercase text-white/40">Soon</span>
+                    <span className="text-[0.9167rem] font-bold tracking-[.12em] uppercase text-white/40">Soon</span>
                   </span>
-                  <a className="btn ghost !py-2.5 !px-4 !text-[15px] whitespace-nowrap !text-white !border-white/40" href="#import">Import</a>
+                  <a className="btn ghost !py-2.5 !px-4 !text-[1.25rem] whitespace-nowrap !text-white !border-white/40" href="#import">Import</a>
                 </div>
               </div>
             </div>
@@ -130,9 +130,9 @@ export default async function About() {
               <div className="grid gap-5 mt-9">
                 {features.map(([tag, title, body]) => (
                   <div key={title} className="grid gap-1">
-                    <div className="text-[11px] font-bold tracking-[.14em] uppercase text-accent transition-colors duration-500">{tag}</div>
+                    <div className="text-[0.9167rem] font-bold tracking-[.14em] uppercase text-accent transition-colors duration-500">{tag}</div>
                     <h3 className="m-0">{title}</h3>
-                    <p className="text-[15px] text-dim m-0 max-w-[46ch]">{body}</p>
+                    <p className="text-[1.25rem] text-dim m-0 max-w-[46ch]">{body}</p>
                   </div>
                 ))}
               </div>
@@ -222,13 +222,13 @@ export default async function About() {
               Seven days free, then whichever plan suits you. No charge until the trial ends, and you
               can cancel any time before then.
             </p>
-            <div className="grid gap-4 mt-11 max-w-[640px] sm:grid-cols-2">
+            <div className="grid gap-4 mt-11 max-w-[53.3333rem] sm:grid-cols-2">
               <div className="card">
-                <div className="display text-[52px] leading-none">$1.99</div>
+                <div className="display text-[4.3333rem] leading-none">$1.99</div>
                 <div className="text-sm text-dim">per month</div>
               </div>
               <div className="card !bg-card-hi !border-accent transition-colors duration-500">
-                <div className="display text-[52px] leading-none">$15.99</div>
+                <div className="display text-[4.3333rem] leading-none">$15.99</div>
                 <div className="text-sm text-dim">per year</div>
                 <div className="text-xs font-bold tracking-[.1em] uppercase text-accent mt-2.5">Save 33%</div>
               </div>
@@ -245,7 +245,7 @@ export default async function About() {
             <div className="rule" />
             <div className="eyebrow">Questions</div>
             <h2>Good to know</h2>
-            <div className="mt-9 max-w-[760px]">
+            <div className="mt-9 max-w-[63.3333rem]">
               {faq.map(([q, a]) => (
                 <details key={q} className="faq">
                   <summary>{q}</summary>

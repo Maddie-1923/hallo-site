@@ -105,10 +105,10 @@ export function ReviewDialog({
         aria-modal="true"
         aria-label={`Log ${title}`}
         tabIndex={-1}
-        className="w-full max-w-[760px] max-h-[90vh] overflow-y-auto rounded-shell border border-hair bg-card shadow-[0_40px_120px_rgba(0,0,0,.7)] outline-none"
+        className="w-full max-w-[63.3333rem] max-h-[90vh] overflow-y-auto rounded-shell border border-hair bg-card shadow-[0_40px_120px_rgba(0,0,0,.7)] outline-none"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-hair">
-          <div className="text-[15px] font-semibold tracking-[.02em] text-ink">Review &amp; catalogue</div>
+          <div className="text-[1.25rem] font-semibold tracking-[.02em] text-ink">Review &amp; catalogue</div>
           <button type="button" onClick={onClose} aria-label="Close" className="text-dim hover:text-ink text-xl leading-none cursor-pointer px-2">
             ✕
           </button>
@@ -135,7 +135,7 @@ export function ReviewDialog({
                     saying different things, and matching them made the year
                     read as part of the name. */}
                 <span className="display text-[clamp(26px,3.4vw,38px)] leading-[0.8] text-ink">{title}</span>
-                {when && <span className="text-[15px] text-dim" style={{ fontFamily: "var(--font-body)" }}>{when}</span>}
+                {when && <span className="text-[1.25rem] text-dim" style={{ fontFamily: "var(--font-body)" }}>{when}</span>}
                 {target.kind === "show" && <SeriesBadge status={target.show.status} />}
               </div>
 
@@ -172,7 +172,7 @@ export function ReviewDialog({
               </div>
 
               <textarea
-                className="field flex-1 min-h-[90px] resize-none"
+                className="field flex-1 min-h-[7.5rem] resize-none"
                 placeholder="Add a review…"
                 value={text}
                 maxLength={10_000}
@@ -223,8 +223,8 @@ export function ReviewDialog({
                       } ${full ? "opacity-30 cursor-default" : ""}`}
                       style={on ? { background: "var(--accent-fill)" } : undefined}
                     >
-                      <span aria-hidden className="text-[22px] leading-none">{m.emoji}</span>
-                      <span className="text-[11px] leading-tight text-center">{m.label}</span>
+                      <span aria-hidden className="text-[1.8333rem] leading-none">{m.emoji}</span>
+                      <span className="text-[0.9167rem] leading-tight text-center">{m.label}</span>
                     </button>
                   );
                 })}
@@ -239,10 +239,10 @@ export function ReviewDialog({
               {error}
             </span>
           )}
-          <button type="button" className="text-[15px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
+          <button type="button" className="text-[1.25rem] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" className="btn !py-2.5 !px-6 !text-[15px]" disabled={pending} onClick={submit}>
+          <button type="button" className="btn !py-2.5 !px-6 !text-[1.25rem]" disabled={pending} onClick={submit}>
             {pending ? "Saving…" : "Save"}
           </button>
         </div>

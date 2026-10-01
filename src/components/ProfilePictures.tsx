@@ -21,7 +21,7 @@ export function ProfilePictures({ library, avatar, banner }: { library: ProfileT
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="h-9 px-4 rounded-full bg-black/45 border border-white/25 backdrop-blur-md text-white text-[12.5px] font-semibold cursor-pointer hover:bg-black/60"
+        className="h-9 px-4 rounded-full bg-black/45 border border-white/25 backdrop-blur-md text-white text-[1.0417rem] font-semibold cursor-pointer hover:bg-black/60"
       >
         Photo &amp; banner
       </button>
@@ -62,7 +62,7 @@ function Sheet({ library, avatar: startAvatar, banner: startBanner, onClose }: {
 
   return (
     <div role="dialog" aria-modal="true" aria-label="Photo and banner" className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
-      <div className="w-full sm:max-w-[760px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full sm:max-w-[63.3333rem] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b border-hair flex items-center justify-between gap-3">
           <h3 className="!text-[clamp(26px,3vw,34px)] !leading-[.95]">Photo &amp; banner</h3>
           <button type="button" onClick={onClose} aria-label="Close" className="shrink-0 w-9 h-9 rounded-full bg-card-hi hover:bg-hair text-ink flex items-center justify-center cursor-pointer">
@@ -74,9 +74,9 @@ function Sheet({ library, avatar: startAvatar, banner: startBanner, onClose }: {
 
         <div className="p-4 overflow-y-auto soft-scroll grid gap-5">
           <section className="grid gap-2">
-            <div className="text-[10.5px] font-bold tracking-[.12em] uppercase text-dim">Photo</div>
+            <div className="text-[0.875rem] font-bold tracking-[.12em] uppercase text-dim">Photo</div>
             {posters.length === 0 ? (
-              <p className="m-0 text-[12.5px] text-dim">Track a few titles and their posters show up here.</p>
+              <p className="m-0 text-[1.0417rem] text-dim">Track a few titles and their posters show up here.</p>
             ) : (
               <div className="grid grid-cols-6 sm:grid-cols-9 gap-2">
                 <Choice on={avatar === null} onClick={() => setAvatar(null)} label="Your initial" round />
@@ -87,9 +87,9 @@ function Sheet({ library, avatar: startAvatar, banner: startBanner, onClose }: {
             )}
           </section>
           <section className="grid gap-2">
-            <div className="text-[10.5px] font-bold tracking-[.12em] uppercase text-dim">Banner</div>
+            <div className="text-[0.875rem] font-bold tracking-[.12em] uppercase text-dim">Banner</div>
             {backdrops.length === 0 ? (
-              <p className="m-0 text-[12.5px] text-dim">Track a few titles and their pictures show up here.</p>
+              <p className="m-0 text-[1.0417rem] text-dim">Track a few titles and their pictures show up here.</p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <Choice on={banner === null} onClick={() => setBanner(null)} label="Your latest watch" />
@@ -102,10 +102,10 @@ function Sheet({ library, avatar: startAvatar, banner: startBanner, onClose }: {
         </div>
 
         <div className="p-4 border-t border-hair flex items-center justify-between gap-3">
-          <span className={`text-[12.5px] ${problem ? "text-loved" : "text-dim"}`} role={problem ? "alert" : undefined}>
+          <span className={`text-[1.0417rem] ${problem ? "text-loved" : "text-dim"}`} role={problem ? "alert" : undefined}>
             {problem ?? "Everyone who can see your profile sees these."}
           </span>
-          <button type="button" onClick={save} disabled={busy} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40">
+          <button type="button" onClick={save} disabled={busy} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold cursor-pointer disabled:opacity-40">
             {busy ? "Saving…" : "Save"}
           </button>
         </div>
@@ -128,7 +128,7 @@ function Choice({ on, onClick, label, src, round }: { on: boolean; onClick: () =
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="" loading="lazy" className={`w-full h-full object-cover ${round ? "object-top" : ""}`} />
       ) : (
-        <span className="absolute inset-0 flex items-center justify-center p-1 text-center text-[11px] leading-tight text-dim">{label}</span>
+        <span className="absolute inset-0 flex items-center justify-center p-1 text-center text-[0.9167rem] leading-tight text-dim">{label}</span>
       )}
     </button>
   );

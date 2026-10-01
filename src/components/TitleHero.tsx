@@ -26,7 +26,7 @@ export function CastRow({ cast }: { cast: RawPerson[] }) {
         {cast.map((p) => {
           const src = image.profile(p.profile_path);
           return (
-            <div key={p.id} className="w-[110px] shrink-0">
+            <div key={p.id} className="w-[9.1667rem] shrink-0">
               <div className="aspect-[2/3] rounded-xl overflow-hidden bg-card border border-hair">
                 {src ? (
                   // eslint-disable-next-line @next/next/no-img-element

@@ -37,7 +37,7 @@ export function ThemeSwatches() {
 
   return (
     <div className="px-4 pt-2.5 pb-3">
-      <div className="text-[11px] font-bold tracking-[.14em] uppercase text-dim">Theme colour</div>
+      <div className="text-[0.9167rem] font-bold tracking-[.14em] uppercase text-dim">Theme colour</div>
       <div role="radiogroup" aria-label="Theme colour" className="mt-2.5 flex items-center justify-between">
         {THEMES.map((t) => {
           const on = t.id === theme;

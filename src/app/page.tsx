@@ -61,18 +61,18 @@ export default async function Home() {
 
         {/* The app's pitch, last: the page opens on the posters, and whoever
             has scrolled this far has seen what Kodigo is for. */}
-        <section className="wrap !max-w-[1240px] text-center pt-14 pb-20 border-t border-hair">
+        <section className="wrap !max-w-[103.3333rem] text-center pt-14 pb-20 border-t border-hair">
           <p className="display text-[clamp(28px,4vw,46px)] leading-[1] m-0">
             Track what you watch. Save what you want to see.
             <br />
             <span className="text-accent">Tell your friends what&apos;s good.</span>
           </p>
           <div className="flex flex-wrap justify-center gap-3 mt-6">
-            <a className="btn !inline-flex items-center gap-2 !py-2.5 !px-5 !text-[15px]" href="#">
+            <a className="btn !inline-flex items-center gap-2 !py-2.5 !px-5 !text-[1.25rem]" href="#">
               <AppleMark />
               Get the app
             </a>
-            <Link className="btn ghost !py-2.5 !px-5 !text-[15px]" href="/about">
+            <Link className="btn ghost !py-2.5 !px-5 !text-[1.25rem]" href="/about">
               What Kodigo does
             </Link>
           </div>

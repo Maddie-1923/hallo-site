@@ -113,7 +113,7 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
         <ul className="m-0 p-0 list-none grid gap-1">
           {SECTIONS.map(([id, label]) => (
             <li key={id}>
-              <a href={`#${id}`} className={`block rounded-[10px] px-3 py-2 text-[12.5px] no-underline hover:bg-piece transition-colors ${id === "delete" ? "text-dim hover:text-ink" : "text-ink"}`}>
+              <a href={`#${id}`} className={`block rounded-[10px] px-3 py-2 text-[1.0417rem] no-underline hover:bg-piece transition-colors ${id === "delete" ? "text-dim hover:text-ink" : "text-ink"}`}>
                 {label}
               </a>
             </li>
@@ -121,8 +121,8 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
         </ul>
       </nav>
 
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 max-w-[720px]">
-        <p className="m-0 rounded-shell bg-card p-3 text-[12.5px] leading-[1.6] text-mid-tone">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 max-w-[60rem]">
+        <p className="m-0 rounded-shell bg-card p-3 text-[1.0417rem] leading-[1.6] text-mid-tone">
           {signedIn
             ? "Your choices are saved to your account and follow you to every device where you're signed in. Day or night stays with each device."
             : "Your choices are kept in this browser. Sign in and they're saved to your account, on every device."}
@@ -135,11 +135,11 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
           <Field label="Username" hint="Your profile's address, kodigo.pro/u/…">
             {signedIn ? (
               <span className="flex items-center gap-2">
-                {username && <span className="text-[12.5px] text-ink">@{username}</span>}
+                {username && <span className="text-[1.0417rem] text-ink">@{username}</span>}
                 <LinkButton href="/profile/setup">{username ? "Change" : "Choose one"}</LinkButton>
               </span>
             ) : (
-              <span className="text-[12.5px] text-ink">@{username}</span>
+              <span className="text-[1.0417rem] text-ink">@{username}</span>
             )}
           </Field>
           <Field label="Location">
@@ -155,7 +155,7 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
 
         <Group id="account" title="Account">
           <Field label="Email" hint="Where your sign-in link goes.">
-            <span className="text-[12.5px] text-dim truncate">{signedIn && email ? email : "Opens with accounts"}</span>
+            <span className="text-[1.0417rem] text-dim truncate">{signedIn && email ? email : "Opens with accounts"}</span>
           </Field>
           <Field label="Subscription" hint={subscriptionHint(subscription, s.dateFormat)}>
             {subscription?.pro && subscription.source === "stripe" ? <ManageSubscription /> : subscription?.pro ? null : <LinkButton href="/pro">Kodigo Pro</LinkButton>}
@@ -163,7 +163,7 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
           <Field label="Sign out" hint="On this browser only.">
             {signedIn ? (
               <form action="/auth/signout" method="post">
-                <button type="submit" className="h-8 px-4 rounded-full text-[12.5px] font-semibold cursor-pointer bg-card text-ink border border-hair hover:text-accent">
+                <button type="submit" className="h-8 px-4 rounded-full text-[1.0417rem] font-semibold cursor-pointer bg-card text-ink border border-hair hover:text-accent">
                   Sign out
                 </button>
               </form>
@@ -213,7 +213,7 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
             <select
               value={region}
               onChange={(e) => chooseRegion(e.target.value)}
-              className="max-w-[220px] rounded-[10px] bg-card border border-hair px-2.5 py-1.5 text-[12.5px] text-ink cursor-pointer focus:outline-none focus:border-accent"
+              className="max-w-[18.3333rem] rounded-[10px] bg-card border border-hair px-2.5 py-1.5 text-[1.0417rem] text-ink cursor-pointer focus:outline-none focus:border-accent"
             >
               {regions.map((r) => (
                 <option key={r.code} value={r.code}>
@@ -222,9 +222,9 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
               ))}
             </select>
           </Field>
-          <div className="py-[10px]">
-            <div className="text-[12.5px] text-ink">Your services</div>
-            <div className="mt-0.5 text-[12.5px] text-dim">The ones you pay for. {loading ? "Loading…" : `${s.services.length} chosen.`}</div>
+          <div className="py-[0.8333rem]">
+            <div className="text-[1.0417rem] text-ink">Your services</div>
+            <div className="mt-0.5 text-[1.0417rem] text-dim">The ones you pay for. {loading ? "Loading…" : `${s.services.length} chosen.`}</div>
             <div className="mt-2.5 grid grid-cols-[repeat(auto-fill,minmax(52px,1fr))] gap-2">
               {services.map((sv) => {
                 const on = s.services.includes(sv.id);
@@ -293,7 +293,7 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
         <Group id="data" title="Import & export">
           <ImportPanel />
           <Field label="Download everything" hint="Your whole library as one Kodigo backup file, which any copy of Kodigo can read back.">
-            <a href="/api/export" download className="inline-flex items-center h-8 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink no-underline hover:text-accent transition-colors">
+            <a href="/api/export" download className="inline-flex items-center h-8 px-4 rounded-full bg-card border border-hair text-[1.0417rem] font-semibold text-ink no-underline hover:text-accent transition-colors">
               Export
             </a>
           </Field>
@@ -318,7 +318,7 @@ function Group({ id, title, note, children }: { id: string; title: string; note?
       </div>
       <div className={SHELL}>
         <div className="rounded-shell bg-piece px-3 py-[2px]">
-          {note && <p className="m-0 py-[10px] border-b border-hair text-[12.5px] leading-[1.6] text-dim">{note}</p>}
+          {note && <p className="m-0 py-[0.8333rem] border-b border-hair text-[1.0417rem] leading-[1.6] text-dim">{note}</p>}
           <div className="divide-y divide-hair">{children}</div>
         </div>
       </div>
@@ -330,10 +330,10 @@ function Group({ id, title, note, children }: { id: string; title: string; note?
     on the right. */
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-[10px] min-w-0">
+    <div className="flex items-center justify-between gap-4 py-[0.8333rem] min-w-0">
       <div className="min-w-0">
-        <div className="text-[12.5px] text-ink">{label}</div>
-        {hint && <div className="mt-0.5 text-[12.5px] leading-[1.5] text-dim">{hint}</div>}
+        <div className="text-[1.0417rem] text-ink">{label}</div>
+        {hint && <div className="mt-0.5 text-[1.0417rem] leading-[1.5] text-dim">{hint}</div>}
       </div>
       <div className="shrink-0 flex justify-end">{children}</div>
     </div>
@@ -350,7 +350,7 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
       onClick={() => onChange(!on)}
       className={`relative w-11 h-6 rounded-full cursor-pointer transition-colors ${on ? "bg-accent-fill" : "bg-hair"}`}
     >
-      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,.35)] transition-[left] duration-200 ${on ? "left-[22px]" : "left-0.5"}`} />
+      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,.35)] transition-[left] duration-200 ${on ? "left-[1.8333rem]" : "left-0.5"}`} />
     </button>
   );
 }
@@ -361,7 +361,7 @@ function Text({ value, onChange, placeholder, check }: { value: string; onChange
   const [draft, setDraft] = useState<string | null>(null);
   const problem = draft != null && check ? check(draft) : null;
   return (
-    <div className="grid gap-1 w-[220px] max-w-full">
+    <div className="grid gap-1 w-[18.3333rem] max-w-full">
       <input
         value={draft ?? value}
         onChange={(e) => {
@@ -375,10 +375,10 @@ function Text({ value, onChange, placeholder, check }: { value: string; onChange
         aria-invalid={!!problem}
         placeholder={placeholder}
         maxLength={80}
-        className={`w-full rounded-[10px] bg-card border px-2.5 py-1.5 text-[12.5px] text-ink placeholder:text-dim focus:outline-none ${problem ? "border-loved" : "border-hair focus:border-accent"}`}
+        className={`w-full rounded-[10px] bg-card border px-2.5 py-1.5 text-[1.0417rem] text-ink placeholder:text-dim focus:outline-none ${problem ? "border-loved" : "border-hair focus:border-accent"}`}
       />
       {problem && (
-        <span role="alert" className="text-[12px] leading-[1.4] text-loved">
+        <span role="alert" className="text-[1rem] leading-[1.4] text-loved">
           {problem}
         </span>
       )}
@@ -397,7 +397,7 @@ function Segments<T extends string>({ value, onChange, options }: { value: T; on
           role="radio"
           aria-checked={value === v}
           onClick={() => onChange(v)}
-          className={`px-3 py-1.5 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${value === v ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+          className={`px-3 py-1.5 rounded-full text-[0.875rem] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${value === v ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
         >
           {label}
         </button>
@@ -412,7 +412,7 @@ function Button({ children, off = false, danger = false }: { children: React.Rea
       type="button"
       disabled={off}
       title={off ? "Opens with accounts" : undefined}
-      className={`h-8 px-4 rounded-full text-[12.5px] font-semibold cursor-pointer disabled:cursor-default disabled:opacity-45 ${danger ? "bg-loved/20 text-loved" : "bg-card text-ink border border-hair"}`}
+      className={`h-8 px-4 rounded-full text-[1.0417rem] font-semibold cursor-pointer disabled:cursor-default disabled:opacity-45 ${danger ? "bg-loved/20 text-loved" : "bg-card text-ink border border-hair"}`}
     >
       {children}
     </button>
@@ -421,7 +421,7 @@ function Button({ children, off = false, danger = false }: { children: React.Rea
 
 function LinkButton({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="inline-flex items-center h-8 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink no-underline hover:text-accent transition-colors">
+    <Link href={href} className="inline-flex items-center h-8 px-4 rounded-full bg-card border border-hair text-[1.0417rem] font-semibold text-ink no-underline hover:text-accent transition-colors">
       {children}
     </Link>
   );

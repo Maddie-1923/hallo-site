@@ -47,13 +47,13 @@ export default async function CategoryPage({ params }: PageProps<"/explore/categ
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <Link href={back} className="text-[12.5px] font-semibold text-dim no-underline hover:text-ink">
+        <Link href={back} className="text-[1.0417rem] font-semibold text-dim no-underline hover:text-ink">
           ← {rail.catalogue}
         </Link>
         <div className="mt-3 flex items-start gap-3">
           <div className="min-w-0">
             <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase !m-0">{rail.name}</h1>
-            <p className="m-0 mt-2 text-[12.5px] text-dim">{criteriaLine(rail.filter)}</p>
+            <p className="m-0 mt-2 text-[1.0417rem] text-dim">{criteriaLine(rail.filter)}</p>
           </div>
           <div className="mt-1">
             <CategoryMenu rail={rail} services={services} counts={railCounts(archive)} leaveTo={back} />

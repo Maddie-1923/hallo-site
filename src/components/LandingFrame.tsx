@@ -60,7 +60,7 @@ export function LandingFrame({ slides, children }: { slides: FrameSlide[]; child
 
       {/* Wider than the page's text column and clear of the bar above it:
           the frame is the picture, not a paragraph. */}
-      <div className="relative mx-auto w-full max-w-[1320px] px-[var(--pad)] pt-10 sm:pt-16 pb-16">
+      <div className="relative mx-auto w-full max-w-[110rem] px-[var(--pad)] pt-10 sm:pt-16 pb-16">
         <div
           className="relative rounded-shell overflow-hidden border border-white/15 shadow-[0_40px_120px_rgba(0,0,0,.55)]"
           style={{ background: "var(--graphite)" }}
@@ -113,7 +113,7 @@ export function LandingFrame({ slides, children }: { slides: FrameSlide[]; child
                   type="button"
                   aria-label={`Show ${s.title}`}
                   onClick={() => setAt(i)}
-                  className="h-[3px] rounded-full transition-all cursor-pointer"
+                  className="h-[0.25rem] rounded-full transition-all cursor-pointer"
                   style={{
                     width: i === at ? 26 : 12,
                     background: i === at ? "var(--accent-fill)" : "rgba(255,255,255,.3)",

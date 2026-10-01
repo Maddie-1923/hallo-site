@@ -36,7 +36,7 @@ export function ProfileAbout({ location, quote, owner, username }: { location: s
 
   const add = "text-dim hover:text-ink cursor-pointer";
   return (
-    <div className="mt-2 grid gap-1.5 text-[12.5px] leading-[1.4] min-w-0">
+    <div className="mt-2 grid gap-1.5 text-[1.0417rem] leading-[1.4] min-w-0">
       {(place || owner) && (
         <div className="flex items-center gap-1.5 min-w-0 text-dim">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
@@ -88,11 +88,11 @@ function AboutSheet({ location, quote, onSave, onClose }: { location: string; qu
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
-  const field = "w-full rounded-[12px] bg-card-hi border border-hair px-3 py-2 text-[14px] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
+  const field = "w-full rounded-[12px] bg-card-hi border border-hair px-3 py-2 text-[1.1667rem] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label="About you" className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <form
-        className="w-full sm:max-w-[480px] rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl p-4 grid gap-3"
+        className="w-full sm:max-w-[40rem] rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl p-4 grid gap-3"
         onClick={(x) => x.stopPropagation()}
         onSubmit={(e) => {
           e.preventDefault();
@@ -102,24 +102,24 @@ function AboutSheet({ location, quote, onSave, onClose }: { location: string; qu
         }}
       >
         <h3 className="!text-[clamp(26px,3vw,34px)] !leading-[.95]">About you</h3>
-        <label className="grid gap-1.5 text-[12.5px] text-dim">
+        <label className="grid gap-1.5 text-[1.0417rem] text-dim">
           Location
           <input autoFocus value={place} onChange={(e) => setPlace(e.target.value)} placeholder="San Francisco, CA" maxLength={60} className={field} />
         </label>
-        <label className="grid gap-1.5 text-[12.5px] text-dim">
+        <label className="grid gap-1.5 text-[1.0417rem] text-dim">
           Quote
           <textarea value={line} onChange={(e) => setLine(e.target.value)} placeholder="A line about you, or one you love" maxLength={140} rows={2} className={`${field} resize-none`} />
         </label>
         {problem && (
-          <p role="alert" className="m-0 text-[12.5px] text-loved">
+          <p role="alert" className="m-0 text-[1.0417rem] text-loved">
             {problem}
           </p>
         )}
         <div className="flex items-center justify-end gap-2 pt-1">
-          <button type="button" onClick={onClose} className="h-9 px-4 rounded-full text-[13px] text-dim hover:text-ink cursor-pointer">
+          <button type="button" onClick={onClose} className="h-9 px-4 rounded-full text-[1.0833rem] text-dim hover:text-ink cursor-pointer">
             Cancel
           </button>
-          <button type="submit" className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold cursor-pointer">
+          <button type="submit" className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[1.0833rem] font-semibold cursor-pointer">
             Save
           </button>
         </div>

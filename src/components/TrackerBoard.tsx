@@ -510,7 +510,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   return (
     <div ref={root}>
       {problem && (
-        <div role="alert" className="fixed z-50 bottom-6 left-1/2 -translate-x-1/2 max-w-[90vw] rounded-full bg-card-hi border border-hair px-4 py-2 text-[12.5px] text-ink shadow-lg">
+        <div role="alert" className="fixed z-50 bottom-6 left-1/2 -translate-x-1/2 max-w-[90vw] rounded-full bg-card-hi border border-hair px-4 py-2 text-[1.0417rem] text-ink shadow-lg">
           {problem}
         </div>
       )}
@@ -559,10 +559,10 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
                     type="button"
                     onClick={jump}
                     aria-label={`Go to the start of ${active.title.toUpperCase()}`}
-                    className="group/pill inline-flex items-center h-[44px] max-w-full px-[14px] rounded-[10px] bg-piece border border-hair overflow-hidden cursor-pointer"
+                    className="group/pill inline-flex items-center h-11 max-w-full px-3.5 rounded-[10px] bg-piece border border-hair overflow-hidden cursor-pointer"
                   >
                     {/* Keyed on the pile, so a new name slides up into place. */}
-                    <span key={active.id} className="block truncate display text-[20px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px] group-hover/pill:text-accent transition-colors animate-[tracker-pill-in_250ms_ease-out]">
+                    <span key={active.id} className="block truncate display text-[1.6667rem] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px] group-hover/pill:text-accent transition-colors animate-[tracker-pill-in_250ms_ease-out]">
                       {active.title}
                     </span>
                   </button>
@@ -570,12 +570,12 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Menu label={`Genre: ${genre?.label ?? "All genres"}`} width={240} button={<span className={headerKey(!!genre)}><ClapperGlyph /></span>}>
-                  <div className="soft-scroll max-h-[360px] overflow-y-auto py-1.5">
+                  <div className="soft-scroll max-h-[30rem] overflow-y-auto py-1.5">
                     <MenuHeading>Genre</MenuHeading>
                     <Choice on={!genre} onClick={clearGenre}>
                       All genres
                     </Choice>
-                    {tallies.length === 0 && <div className="px-4 py-2 text-[12.5px] text-dim">No genres yet</div>}
+                    {tallies.length === 0 && <div className="px-4 py-2 text-[1.0417rem] text-dim">No genres yet</div>}
                     {tallies.map(({ g, count }) => (
                       <Choice key={g.key} on={genre?.key === g.key} onClick={() => setPref({ genre: g.key })}>
                         {g.label} ({count})
@@ -608,7 +608,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
         </div>
         {genre && (
           <div className="mb-3">
-            <span className="inline-flex items-center gap-1.5 h-8 pl-3.5 pr-1 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold">
+            <span className="inline-flex items-center gap-1.5 h-8 pl-3.5 pr-1 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold">
               {pileName ? `${pileName} · ${genre.label}` : genre.label}
               <button type="button" onClick={clearGenre} aria-label="Clear genre" className="w-6 h-6 rounded-full flex items-center justify-center cursor-pointer hover:bg-black/15">
                 <span aria-hidden>✕</span>
@@ -622,8 +622,8 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
             <section key={g.id} className={i > 0 ? "mt-8" : ""}>
               {i > 0 && (
                 <div data-pile-heading={g.id} className="mb-3">
-                  <h2 className="inline-flex items-center h-[44px] px-[14px] rounded-[10px] bg-piece border border-hair !m-0">
-                    <span className="display text-[20px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px]">{g.title}</span>
+                  <h2 className="inline-flex items-center h-11 px-3.5 rounded-[10px] bg-piece border border-hair !m-0">
+                    <span className="display text-[1.6667rem] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px]">{g.title}</span>
                   </h2>
                 </div>
               )}
@@ -719,14 +719,14 @@ function useWide() {
   );
 }
 
-const ACTION = "inline-flex items-center h-10 px-5 rounded-full bg-accent-fill text-on-accent text-[12px] font-bold uppercase tracking-[.1em] no-underline cursor-pointer";
+const ACTION = "inline-flex items-center h-10 px-5 rounded-full bg-accent-fill text-on-accent text-[1rem] font-bold uppercase tracking-[.1em] no-underline cursor-pointer";
 
 /** A page with nothing on it, as the app's empty states say it. */
 function Empty({ title, message, action }: { title: string; message: string; action: React.ReactNode }) {
   return (
     <div className="rounded-shell bg-card px-6 py-10 flex flex-col items-center text-center gap-3">
-      <div className="display text-[30px] leading-none tracking-[.03em] uppercase text-ink">{title}</div>
-      <p className="m-0 max-w-[420px] text-[13.5px] leading-[1.5] text-dim">{message}</p>
+      <div className="display text-[2.5rem] leading-none tracking-[.03em] uppercase text-ink">{title}</div>
+      <p className="m-0 max-w-[35rem] text-[1.125rem] leading-[1.5] text-dim">{message}</p>
       <div className="mt-1">{action}</div>
     </div>
   );
@@ -737,16 +737,16 @@ function Empty({ title, message, action }: { title: string; message: string; act
 function headerKey(on: boolean) {
   // Solid on the bar's glass, with a hairline and the ink colour, so the
   // keys read clearly rather than fading into the bar.
-  return `inline-flex items-center justify-center w-[44px] h-[44px] rounded-[10px] bg-piece border transition-colors ${on ? "border-accent text-accent" : "border-hair text-ink hover:text-accent"}`;
+  return `inline-flex items-center justify-center w-11 h-11 rounded-[10px] bg-piece border transition-colors ${on ? "border-accent text-accent" : "border-hair text-ink hover:text-accent"}`;
 }
 
 function MenuHeading({ children }: { children: React.ReactNode }) {
-  return <div className="px-4 pt-1.5 pb-1 text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">{children}</div>;
+  return <div className="px-4 pt-1.5 pb-1 text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim">{children}</div>;
 }
 
 function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button type="button" data-menu-close onClick={onClick} aria-pressed={on} className={`w-full flex items-center justify-between gap-3 px-4 py-2 text-[12.5px] text-left cursor-pointer hover:bg-card-hi ${on ? "text-accent font-semibold" : "text-ink"}`}>
+    <button type="button" data-menu-close onClick={onClick} aria-pressed={on} className={`w-full flex items-center justify-between gap-3 px-4 py-2 text-[1.0417rem] text-left cursor-pointer hover:bg-card-hi ${on ? "text-accent font-semibold" : "text-ink"}`}>
       {children}
       {on && <span aria-hidden>✓</span>}
     </button>
@@ -888,20 +888,20 @@ function EpisodePanel({ item: given, keysFor, recapFor, band }: { item: Item; ke
           </div>
         )}
         <div className="rounded-shell bg-piece p-3">
-          <div className="display text-[22px] leading-none tracking-[.03em] uppercase">{ep ? (spoilers.names && !seenHere ? MASKED_NAME : ep.name) : item.t.title}</div>
+          <div className="display text-[1.8333rem] leading-none tracking-[.03em] uppercase">{ep ? (spoilers.names && !seenHere ? MASKED_NAME : ep.name) : item.t.title}</div>
           {/* Under the name, which episode it is, and its badge (FINALE and
               the rest) level with it on the right, the size of the Status
               pill below. */}
           {item.episode && (
             <div className="mt-1.5 flex items-center justify-between gap-3">
-              <span className="text-[12.5px] font-semibold tracking-[.06em] text-dim">{code(item.episode)}</span>
+              <span className="text-[1.0417rem] font-semibold tracking-[.06em] text-dim">{code(item.episode)}</span>
               <EpisodePill badge={band} />
             </div>
           )}
           {facts.length > 0 && (
             <div className="mt-2.5 border-t border-hair">
               {facts.map(([label, value], i) => (
-                <div key={label} className={`flex items-baseline justify-between gap-4 py-[8px] text-[12.5px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
+                <div key={label} className={`flex items-baseline justify-between gap-4 py-[0.6667rem] text-[1.0417rem] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
                   <span className="text-dim">{label}</span>
                   <span className="text-right text-ink min-w-0 truncate">{value}</span>
                 </div>
@@ -909,7 +909,7 @@ function EpisodePanel({ item: given, keysFor, recapFor, band }: { item: Item; ke
             </div>
           )}
           {ep?.overview && (
-            <div className="mt-[1px] pt-[9px] border-t border-hair">
+            <div className="mt-[1px] pt-[0.75rem] border-t border-hair">
               <ExpandableText text={ep.overview} watched={seenHere} />
             </div>
           )}
@@ -921,7 +921,7 @@ function EpisodePanel({ item: given, keysFor, recapFor, band }: { item: Item; ke
             ))}
           </div>
         )}
-        <Link href={href} className="rounded-shell bg-piece p-3 flex items-center justify-between text-[12.5px] font-semibold text-ink no-underline hover:text-accent transition-colors">
+        <Link href={href} className="rounded-shell bg-piece p-3 flex items-center justify-between text-[1.0417rem] font-semibold text-ink no-underline hover:text-accent transition-colors">
           {item.episode ? "Open the episode's page" : isFilm ? "Open the film's page" : "Open the show's page"}
           <span aria-hidden className="text-accent">→</span>
         </Link>
@@ -937,7 +937,7 @@ function EpisodePanel({ item: given, keysFor, recapFor, band }: { item: Item; ke
 // with the same hairline as the bar's keys.
 function Switch<T extends string>({ value, onChange, options, label }: { value: T; onChange: (v: T) => void; options: [T, string][]; label: string }) {
   return (
-    <div role="tablist" aria-label={label} className="inline-flex items-center gap-[2px] p-[4px] rounded-[12px] bg-piece border border-hair">
+    <div role="tablist" aria-label={label} className="inline-flex items-center gap-0.5 p-1 rounded-[12px] bg-piece border border-hair">
       {options.map(([v, text]) => (
         <button
           key={v}
@@ -945,7 +945,7 @@ function Switch<T extends string>({ value, onChange, options, label }: { value: 
           role="tab"
           aria-selected={value === v}
           onClick={() => onChange(v)}
-          className={`h-[40px] px-[14px] rounded-[9px] display text-[27px] leading-none tracking-[.02em] uppercase cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}
+          className={`h-10 px-3.5 rounded-[9px] display text-[2.25rem] leading-none tracking-[.02em] uppercase cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}
         >
           <span className="block translate-y-[1px]">{text}</span>
         </button>

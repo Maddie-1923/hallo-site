@@ -93,14 +93,14 @@ export function FavouritesCard({
         {owner && (
           <div className="flex items-center gap-2">
             {editing && custom && (
-              <button type="button" onClick={() => save({ movie: null, show: null })} className="text-[12px] text-dim hover:text-ink cursor-pointer">
+              <button type="button" onClick={() => save({ movie: null, show: null })} className="text-[1rem] text-dim hover:text-ink cursor-pointer">
                 Reset to automatic
               </button>
             )}
             <button
               type="button"
               onClick={() => setEditing((e) => !e)}
-              className={`px-3 h-7 rounded-full text-[12.5px] font-semibold cursor-pointer transition-colors ${editing ? "bg-accent-fill text-on-accent" : "border border-hair text-ink hover:border-accent hover:text-accent"}`}
+              className={`px-3 h-7 rounded-full text-[1.0417rem] font-semibold cursor-pointer transition-colors ${editing ? "bg-accent-fill text-on-accent" : "border border-hair text-ink hover:border-accent hover:text-accent"}`}
             >
               {editing ? "Done" : "Edit"}
             </button>
@@ -144,7 +144,7 @@ function Row({
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   return (
     <div>
-      <div className="text-[11px] font-bold tracking-[.14em] uppercase text-dim mb-2">{label}</div>
+      <div className="text-[0.9167rem] font-bold tracking-[.14em] uppercase text-dim mb-2">{label}</div>
       <div className="grid grid-cols-5 gap-2">
         {Array.from({ length: 5 }, (_, i) => {
           const t = titles[i];
@@ -155,7 +155,7 @@ function Row({
                 type="button"
                 onClick={() => onAdd?.(titles.length)}
                 aria-label={`Add to ${label}`}
-                className="aspect-[2/3] rounded-[8px] border border-dashed border-accent text-accent flex items-center justify-center text-[24px] leading-none cursor-pointer hover:bg-card-hi transition-colors"
+                className="aspect-[2/3] rounded-[8px] border border-dashed border-accent text-accent flex items-center justify-center text-[2rem] leading-none cursor-pointer hover:bg-card-hi transition-colors"
               >
                 +
               </button>
@@ -194,7 +194,7 @@ function Row({
                 type="button"
                 onClick={() => onRemove?.(kind, i)}
                 aria-label={`Remove ${t.title}`}
-                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 text-white text-[14px] leading-none flex items-center justify-center cursor-pointer hover:bg-black"
+                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 text-white text-[1.1667rem] leading-none flex items-center justify-center cursor-pointer hover:bg-black"
               >
                 ×
               </button>
@@ -239,7 +239,7 @@ function Picker({ kind, library, onChoose, onClose }: { kind: Kind; library: Pro
 
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`Choose a ${noun}`} className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-shell bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-[60rem] max-h-[82vh] flex flex-col rounded-shell bg-card border border-hair shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b border-hair flex items-center gap-3">
           <input
             ref={input}
@@ -252,7 +252,7 @@ function Picker({ kind, library, onChoose, onClose }: { kind: Kind; library: Pro
             ×
           </button>
         </div>
-        <div className="px-4 pt-3 text-[11px] font-bold tracking-[.14em] uppercase text-dim">
+        <div className="px-4 pt-3 text-[0.9167rem] font-bold tracking-[.14em] uppercase text-dim">
           {results ? (pending ? "Searching…" : `Results for “${query.trim()}”`) : "From your library"}
         </div>
         <div className="p-4 overflow-y-auto grid grid-cols-4 sm:grid-cols-6 gap-3">
@@ -263,7 +263,7 @@ function Picker({ kind, library, onChoose, onClose }: { kind: Kind; library: Pro
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {t.poster && <img src={t.poster} alt="" className="w-full h-full object-cover" />}
               </div>
-              <div className="mt-1 text-[11.5px] leading-tight text-ink line-clamp-2">
+              <div className="mt-1 text-[0.9583rem] leading-tight text-ink line-clamp-2">
                 {t.title} <span className="text-dim">{t.year}</span>
               </div>
             </button>

@@ -89,7 +89,7 @@ export function GoogleButton({ clientID, onSignedIn, onError, children }: { clie
   }, [clientID, onError, onSignedIn]);
 
   // A blocker that stops Google's script leaves the email way in, said so.
-  if (failed) return <p className="m-0 text-[12.5px] text-dim text-center">Google sign-in couldn&apos;t load here. Use your email below.</p>;
+  if (failed) return <p className="m-0 text-[1.0417rem] text-dim text-center">Google sign-in couldn&apos;t load here. Use your email below.</p>;
   return (
     <div className="relative w-full h-11 rounded-full overflow-hidden hover:brightness-95">
       <div aria-hidden className="pointer-events-none">{children}</div>

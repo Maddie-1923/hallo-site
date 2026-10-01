@@ -29,19 +29,19 @@ export default async function Welcome({ searchParams }: PageProps<"/pro/welcome"
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <div className={`${SHELL} max-w-[560px] mx-auto`}>
+        <div className={`${SHELL} max-w-[46.6667rem] mx-auto`}>
           <div className="rounded-shell bg-piece p-3">
             <h1 className="!text-[clamp(40px,5vw,60px)] !leading-[.9] tracking-[.02em] uppercase">{paid ? "Welcome to Pro" : "Almost there"}</h1>
-            <p className="m-0 mt-3 text-[12.5px] leading-[1.6] text-mid-tone">
+            <p className="m-0 mt-3 text-[1.0417rem] leading-[1.6] text-mid-tone">
               {paid
                 ? `Your ${plan ?? ""} Kodigo Pro is on, here and in the app when you sign in with the same account. A receipt is on its way to your email.`.replace("  ", " ")
                 : "We couldn't confirm a payment from this link. If you just paid, it can take a moment; your receipt email is the proof, and Settings shows your plan once it lands."}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Link href="/calendar" className="inline-flex items-center min-h-10 py-2 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold no-underline">
+              <Link href="/calendar" className="inline-flex items-center min-h-10 py-2 px-5 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold no-underline">
                 Open your calendar
               </Link>
-              <Link href="/settings#account" className="inline-flex items-center min-h-10 py-2 px-5 rounded-full bg-card border border-hair text-ink text-[12.5px] font-semibold no-underline hover:text-accent">
+              <Link href="/settings#account" className="inline-flex items-center min-h-10 py-2 px-5 rounded-full bg-card border border-hair text-ink text-[1.0417rem] font-semibold no-underline hover:text-accent">
                 Your subscription
               </Link>
             </div>

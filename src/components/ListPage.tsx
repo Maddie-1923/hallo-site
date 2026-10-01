@@ -60,30 +60,30 @@ export function ListPage({ l, watched, moderator = false }: { l: ListView; watch
   }
 
   return (
-    <div className="max-w-[1040px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
+    <div className="max-w-[86.6667rem] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
       <div className={SHELL}>
         <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_280px]">
           <div className="rounded-shell bg-piece p-3">
             <Link href={`/u/${l.owner}`} className="inline-flex items-center gap-2 no-underline text-ink group">
-              <span className="w-7 h-7 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[15px] leading-none pt-[2px]">{l.owner[0].toUpperCase()}</span>
-              <span className="text-[12.5px] font-semibold group-hover:text-accent transition-colors">@{l.owner}</span>
+              <span className="w-7 h-7 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[1.25rem] leading-none pt-[2px]">{l.owner[0].toUpperCase()}</span>
+              <span className="text-[1.0417rem] font-semibold group-hover:text-accent transition-colors">@{l.owner}</span>
             </Link>
             <MoreButton what={{ kind: "list", target: `${l.owner}/${l.id}`, author: l.owner, href: `/u/${l.owner}/list/${l.id}`, excerpt: l.name }} className="float-right -mt-0.5" />
             <h1 className="mt-3 !text-[clamp(32px,4.4vw,52px)] !leading-[.95] tracking-[.02em] uppercase">{l.name}</h1>
-            {l.detail && <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">{l.detail}</p>}
-            <div className="mt-2 text-[12.5px] text-dim">
+            {l.detail && <p className="m-0 mt-2 text-[1.0417rem] leading-[1.6] text-mid-tone">{l.detail}</p>}
+            <div className="mt-2 text-[1.0417rem] text-dim">
               {l.titles.length} {l.titles.length === 1 ? "title" : "titles"}
             </div>
           </div>
           <div className="rounded-shell bg-piece p-3 flex flex-col gap-3">
             <div>
-              <div className="flex items-baseline justify-between text-[12.5px]">
+              <div className="flex items-baseline justify-between text-[1.0417rem]">
                 <span className="text-ink">
                   You&apos;ve watched <b className="font-semibold tabular-nums">{seen}</b> of <b className="font-semibold tabular-nums">{l.titles.length}</b>
                 </span>
                 <span className="text-dim tabular-nums">{pct}%</span>
               </div>
-              <div className="mt-2 h-[3px] rounded-full bg-track overflow-hidden">
+              <div className="mt-2 h-[0.25rem] rounded-full bg-track overflow-hidden">
                 <div className="h-full rounded-full bg-accent-fill" style={{ width: `${pct}%` }} />
               </div>
             </div>
@@ -92,12 +92,12 @@ export function ListPage({ l, watched, moderator = false }: { l: ListView; watch
                 type="button"
                 aria-pressed={isLiked}
                 onClick={toggleLike}
-                className={`h-[46px] rounded-[12px] flex flex-col items-center justify-center gap-0.5 text-[12.5px] font-semibold cursor-pointer transition-colors ${isLiked ? "bg-accent-fill text-on-accent" : "bg-card text-dim hover:text-ink"}`}
+                className={`h-[3.8333rem] rounded-[12px] flex flex-col items-center justify-center gap-0.5 text-[1.0417rem] font-semibold cursor-pointer transition-colors ${isLiked ? "bg-accent-fill text-on-accent" : "bg-card text-dim hover:text-ink"}`}
               >
                 <span aria-hidden>{isLiked ? "♥" : "♡"}</span>
                 {likeCount} {likeCount === 1 ? "like" : "likes"}
               </button>
-              <button type="button" onClick={share} className="h-[46px] rounded-[12px] bg-card text-dim hover:text-ink flex flex-col items-center justify-center gap-0.5 text-[12.5px] font-semibold cursor-pointer">
+              <button type="button" onClick={share} className="h-[3.8333rem] rounded-[12px] bg-card text-dim hover:text-ink flex flex-col items-center justify-center gap-0.5 text-[1.0417rem] font-semibold cursor-pointer">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   <path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
                 </svg>
@@ -113,7 +113,7 @@ export function ListPage({ l, watched, moderator = false }: { l: ListView; watch
                   setFeatured(on);
                   if (!(await setFeaturedList(l.owner, l.id, on).catch(() => false))) setFeatured(!on);
                 }}
-                className={`h-9 rounded-[12px] text-[12px] font-semibold cursor-pointer ${featured ? "bg-accent-fill text-on-accent" : "bg-card text-dim hover:text-ink"}`}
+                className={`h-9 rounded-[12px] text-[1rem] font-semibold cursor-pointer ${featured ? "bg-accent-fill text-on-accent" : "bg-card text-dim hover:text-ink"}`}
               >
                 {featured ? "Featured on Lists · Stop" : "Feature on the Lists page"}
               </button>
@@ -138,7 +138,7 @@ export function ListPage({ l, watched, moderator = false }: { l: ListView; watch
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={t.poster} alt="" loading="lazy" className={`w-full h-full object-cover ${done ? "opacity-60" : ""}`} />
                       )}
-                      <span className="absolute left-1.5 top-1.5 min-w-[22px] h-[22px] px-1 rounded-full bg-black/60 text-white text-[10.5px] font-bold flex items-center justify-center tabular-nums">{i + 1}</span>
+                      <span className="absolute left-1.5 top-1.5 min-w-[1.8333rem] h-[1.8333rem] px-1 rounded-full bg-black/60 text-white text-[0.875rem] font-bold flex items-center justify-center tabular-nums">{i + 1}</span>
                       {done && (
                         <span title="Watched" className="absolute right-1.5 bottom-1.5 w-6 h-6 rounded-full bg-accent-fill text-on-accent flex items-center justify-center">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -147,8 +147,8 @@ export function ListPage({ l, watched, moderator = false }: { l: ListView; watch
                         </span>
                       )}
                     </span>
-                    <span className="block mt-1.5 text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{t.title}</span>
-                    <span className="block text-[12.5px] leading-[16px] text-dim">
+                    <span className="block mt-1.5 text-[1.0417rem] leading-[1.3333rem] truncate group-hover:text-accent transition-colors">{t.title}</span>
+                    <span className="block text-[1.0417rem] leading-[1.3333rem] text-dim">
                       {t.year}
                       {t.kind === "show" && " · Series"}
                     </span>

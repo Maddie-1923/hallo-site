@@ -49,24 +49,24 @@ export function FollowList({ kind, owner, username, className, children }: { kin
       {open &&
         createPortal(
           <div role="dialog" aria-modal="true" aria-label={title} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={() => setOpen(false)}>
-            <div className="w-full sm:max-w-[420px] rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl p-2" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full sm:max-w-[35rem] rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl p-2" onClick={(e) => e.stopPropagation()}>
               <div className="rounded-shell bg-piece p-4 grid gap-3">
                 <h3 className="!text-[clamp(24px,2.6vw,30px)] !leading-none uppercase">{title}</h3>
                 {requests.length > 0 && (
                   <div className="grid gap-1">
-                    <div className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">Asking to follow you</div>
+                    <div className="text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim">Asking to follow you</div>
                     <ul className="m-0 p-0 list-none grid gap-1">
                       {requests.map((p) => (
                         <li key={p.username} className="flex items-center justify-between gap-2 py-1.5">
                           <Link href={`/u/${p.username}`} className="min-w-0 no-underline text-ink hover:text-accent">
-                            <span className="block text-[12.5px] font-semibold truncate">{p.displayName}</span>
-                            <span className="block text-[12.5px] text-dim truncate">@{p.username}</span>
+                            <span className="block text-[1.0417rem] font-semibold truncate">{p.displayName}</span>
+                            <span className="block text-[1.0417rem] text-dim truncate">@{p.username}</span>
                           </Link>
                           <span className="flex gap-1.5 shrink-0">
-                            <button type="button" onClick={() => answer(p.username, true)} className="h-8 px-3.5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer">
+                            <button type="button" onClick={() => answer(p.username, true)} className="h-8 px-3.5 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold cursor-pointer">
                               Accept
                             </button>
-                            <button type="button" onClick={() => answer(p.username, false)} className="h-8 px-3.5 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink cursor-pointer">
+                            <button type="button" onClick={() => answer(p.username, false)} className="h-8 px-3.5 rounded-full bg-card border border-hair text-[1.0417rem] font-semibold text-ink cursor-pointer">
                               Decline
                             </button>
                           </span>
@@ -80,14 +80,14 @@ export function FollowList({ kind, owner, username, className, children }: { kin
                     {shown.map((p) => (
                       <li key={p.username} className="flex items-center justify-between gap-3 py-1.5">
                         <Link href={`/u/${p.username}`} className="flex items-center gap-2 min-w-0 no-underline text-ink group">
-                          <span className="w-8 h-8 shrink-0 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[15px] leading-none pt-[2px]">{p.username[0].toUpperCase()}</span>
+                          <span className="w-8 h-8 shrink-0 rounded-full bg-accent-fill text-on-accent flex items-center justify-center display text-[1.25rem] leading-none pt-[2px]">{p.username[0].toUpperCase()}</span>
                           <span className="min-w-0">
-                            <span className="block text-[12.5px] font-semibold truncate group-hover:text-accent transition-colors">{p.displayName}</span>
-                            <span className="block text-[12.5px] text-dim truncate">@{p.username}</span>
+                            <span className="block text-[1.0417rem] font-semibold truncate group-hover:text-accent transition-colors">{p.displayName}</span>
+                            <span className="block text-[1.0417rem] text-dim truncate">@{p.username}</span>
                           </span>
                         </Link>
                         {kind === "followers" && owner && (
-                          <button type="button" onClick={() => (username ? answer(p.username, false) : removeFollower(p.username))} className="h-8 px-4 shrink-0 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink cursor-pointer hover:text-loved transition-colors">
+                          <button type="button" onClick={() => (username ? answer(p.username, false) : removeFollower(p.username))} className="h-8 px-4 shrink-0 rounded-full bg-card border border-hair text-[1.0417rem] font-semibold text-ink cursor-pointer hover:text-loved transition-colors">
                             Remove
                           </button>
                         )}
@@ -95,11 +95,11 @@ export function FollowList({ kind, owner, username, className, children }: { kin
                     ))}
                   </ul>
                 ) : (
-                  <p className="m-0 text-[12.5px] text-dim">{live ? (kind === "followers" ? "No followers yet." : "Not following anyone yet.") : people.length ? "Nobody here now." : "Follower lists open with accounts."}</p>
+                  <p className="m-0 text-[1.0417rem] text-dim">{live ? (kind === "followers" ? "No followers yet." : "Not following anyone yet.") : people.length ? "Nobody here now." : "Follower lists open with accounts."}</p>
                 )}
-                {kind === "followers" && owner && shown.length > 0 && <p className="m-0 text-[12.5px] leading-[1.5] text-dim">Removing someone doesn&apos;t tell them. To stop them following again, block them.</p>}
+                {kind === "followers" && owner && shown.length > 0 && <p className="m-0 text-[1.0417rem] leading-[1.5] text-dim">Removing someone doesn&apos;t tell them. To stop them following again, block them.</p>}
                 <div className="flex justify-end">
-                  <button type="button" onClick={() => setOpen(false)} className="h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer">
+                  <button type="button" onClick={() => setOpen(false)} className="h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold cursor-pointer">
                     Done
                   </button>
                 </div>

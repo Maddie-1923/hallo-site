@@ -105,7 +105,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
         {/* On a phone the links are hidden, so nothing stands on the foot;
             11px under the wordmark puts it on the same line it has beside
             them. */}
-        <div className="self-end pb-[11px] md:pb-0 flex items-baseline gap-6">
+        <div className="self-end pb-[0.9167rem] md:pb-0 flex items-baseline gap-6">
           {/* The app's own icon, square background and all, so the mark is
               the same in day and night rather than recoloured. Centred on
               the round buttons on the right: its middle sits 16px above the tabs'
@@ -151,7 +151,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
 // request to draw a search box.
 function SearchBoundary() {
   return (
-    <Suspense fallback={<span className="w-[22px]" />}>
+    <Suspense fallback={<span className="w-[1.8333rem]" />}>
       <NavSearch />
     </Suspense>
   );
@@ -281,7 +281,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
       {accountsOpen ? (
         <div className="p-4 grid gap-3">
           <p className="m-0 text-sm text-dim">Sign in to keep your diary, ratings, reviews and lists here and on your phone.</p>
-          <Link href="/login" className="justify-self-start inline-flex items-center h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold no-underline hover:brightness-110">
+          <Link href="/login" className="justify-self-start inline-flex items-center h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[1.0833rem] font-semibold no-underline hover:brightness-110">
             Sign in
           </Link>
         </div>
@@ -290,7 +290,7 @@ function GuestProfile({ framed }: { framed: boolean }) {
           <p className="m-0 text-sm text-dim">
             Kodigo accounts on the web are coming soon. Your profile, diary, reviews and lists will live here.
           </p>
-          <Link href="/about" className="justify-self-start inline-flex items-center h-9 px-5 rounded-full bg-card border border-hair text-ink text-[13px] font-semibold no-underline hover:text-accent">
+          <Link href="/about" className="justify-self-start inline-flex items-center h-9 px-5 rounded-full bg-card border border-hair text-ink text-[1.0833rem] font-semibold no-underline hover:text-accent">
             Get the app meanwhile
           </Link>
         </div>

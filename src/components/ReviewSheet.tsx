@@ -49,7 +49,7 @@ export const reviewPath = (username: string, key: string) => `/u/${username}/rev
 // unlayered `margin: 0` in globals.css, hence the title's `!mt-2`.)
 export function ReviewSheetCard({ r, username, avatar, onClose }: { r: SheetReview; username: string; avatar?: string | null; onClose?: () => void }) {
   const body = (
-    <div className="mt-4 grid gap-2 text-[12.5px] leading-[1.6] text-bone">
+    <div className="mt-4 grid gap-2 text-[1.0417rem] leading-[1.6] text-bone">
       {r.text.split(/\n\s*\n/).map((p, i) => (
         <p key={i} className="m-0">
           {p}
@@ -80,8 +80,8 @@ export function ReviewSheetCard({ r, username, avatar, onClose }: { r: SheetRevi
         <ReviewHeading username={username} avatar={avatar} r={r} />
         {r.spoilers ? (
           <details className="mt-4 group/sp">
-            <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[12.5px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
-              <span className="px-2 py-[2px] rounded-full bg-card-hi border border-hair text-[10.5px] font-bold uppercase tracking-[.12em]">Spoilers</span>
+            <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[1.0417rem] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
+              <span className="px-2 py-[2px] rounded-full bg-card-hi border border-hair text-[0.875rem] font-bold uppercase tracking-[.12em]">Spoilers</span>
               <span className="group-open/sp:hidden">This review gives things away. Show it anyway.</span>
               <span className="hidden group-open/sp:inline">Hide it again</span>
             </summary>
@@ -92,7 +92,7 @@ export function ReviewSheetCard({ r, username, avatar, onClose }: { r: SheetRevi
         )}
         <ReviewActions likes={r.likes} comments={r.comments} title={r.title} shareHref={reviewPath(username, r.key)} what={{ kind: "review", target: `${username}/${r.key}`, author: username, href: reviewPath(username, r.key), excerpt: r.text.slice(0, 200) }} owner={username} reviewKey={r.key} className="mt-4" />
         <div className="mt-4 pt-4 border-t border-hair flex justify-end">
-          <Link href={r.href} className="inline-block text-[12.5px] leading-none font-semibold text-accent no-underline hover:underline">
+          <Link href={r.href} className="inline-block text-[1.0417rem] leading-none font-semibold text-accent no-underline hover:underline">
             Go to {r.title} →
           </Link>
         </div>
@@ -120,7 +120,7 @@ export function ReviewSheet({ r, username, avatar, onClose }: { r: SheetReview; 
   }, [onClose]);
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`@${username}'s review of ${r.title}`} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
-      <div className="w-full sm:max-w-[600px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
+      <div className="w-full sm:max-w-[50rem] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
         <ReviewSheetCard r={r} username={username} avatar={avatar} onClose={onClose} />
       </div>
     </div>,
@@ -150,10 +150,10 @@ export function ReviewHeading({
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <div className="flex items-center gap-2 text-[12.5px] leading-none text-dim">
+        <div className="flex items-center gap-2 text-[1.0417rem] leading-none text-dim">
           {/* Their photo, or their initial on the accent when they have none,
               as the profile draws it. */}
-          <Link href={`/u/${username}`} className="shrink-0 w-7 h-7 rounded-full overflow-hidden bg-accent-fill text-on-accent border border-hair flex items-center justify-center display text-[15px] leading-none no-underline" aria-hidden tabIndex={-1}>
+          <Link href={`/u/${username}`} className="shrink-0 w-7 h-7 rounded-full overflow-hidden bg-accent-fill text-on-accent border border-hair flex items-center justify-center display text-[1.25rem] leading-none no-underline" aria-hidden tabIndex={-1}>
             {avatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatar} alt="" className="w-full h-full object-cover" />
@@ -191,7 +191,7 @@ export function ReviewHeading({
       </div>
       <div className="shrink-0 flex flex-col items-end">
         {/* As tall as the byline's photo, so the date sits level with the name. */}
-        <span className="h-7 flex items-center text-dim text-[12.5px] leading-none">{r.date ? <Day iso={r.date} style="short" /> : ""}</span>
+        <span className="h-7 flex items-center text-dim text-[1.0417rem] leading-none">{r.date ? <Day iso={r.date} style="short" /> : ""}</span>
       </div>
     </div>
   );
@@ -200,7 +200,7 @@ export function ReviewHeading({
 /** "S2 E4 · Woe's Hollow": a series review's episode, under the show's name. */
 export function EpisodeLine({ episode, name }: { episode: string; name?: string }) {
   return (
-    <div className="mt-2 text-[12.5px] leading-none text-dim">
+    <div className="mt-2 text-[1.0417rem] leading-none text-dim">
       <b className="text-ink font-semibold">{episode}</b>
       {name && <> · {name}</>}
     </div>

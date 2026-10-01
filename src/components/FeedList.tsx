@@ -25,7 +25,7 @@ export function FeedList({ items }: { items: FeedItem[] }) {
                   <img src={i.poster} alt="" className="w-full h-full object-cover" loading="lazy" />
                 )}
               </Link>
-              <div className="min-w-0 flex-1 text-[12.5px] leading-[1.5]">
+              <div className="min-w-0 flex-1 text-[1.0417rem] leading-[1.5]">
                 <div>
                   <Link href={`/u/${i.who.username}`} className="font-semibold text-ink no-underline hover:text-accent">
                     @{i.who.username}

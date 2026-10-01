@@ -86,7 +86,7 @@ export function ReviewPanel({
           <label htmlFor="review-text" className="eyebrow">Your review</label>
           <textarea
             id="review-text"
-            className="field mt-2 flex-1 min-h-[160px] resize-y"
+            className="field mt-2 flex-1 min-h-[13.3333rem] resize-y"
             placeholder={`What did you make of ${title}?`}
             value={text}
             maxLength={10_000}

@@ -23,11 +23,11 @@ export function PinReview({ reviewKey, pinned }: { reviewKey: string; pinned: bo
             else router.refresh();
           })
         }
-        className="text-[12px] font-semibold text-dim hover:text-accent cursor-pointer disabled:opacity-50"
+        className="text-[1rem] font-semibold text-dim hover:text-accent cursor-pointer disabled:opacity-50"
       >
         {pinned ? "Unpin" : "Pin to profile"}
       </button>
-      {problem && <span className="text-[12px] text-loved">{problem}</span>}
+      {problem && <span className="text-[1rem] text-loved">{problem}</span>}
     </span>
   );
 }

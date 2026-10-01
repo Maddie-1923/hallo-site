@@ -54,7 +54,7 @@ export function InfiniteGrid({ source, first, empty, filterable = false }: { sou
   const shown = useMemo(() => narrow(items, { genre, since: Number(since) || 0, stars: Number(stars) || 0, sort }), [items, genre, since, stars, sort]);
   const narrowed = !!(genre || since || stars || sort);
 
-  if (items.length === 0) return <p className="mt-8 text-[13px] text-dim">{empty}</p>;
+  if (items.length === 0) return <p className="mt-8 text-[1.0833rem] text-dim">{empty}</p>;
   const select = "pick";
   return (
     <>
@@ -99,20 +99,20 @@ export function InfiniteGrid({ source, first, empty, filterable = false }: { sou
             </select>
           </span>
           {narrowed && (
-            <button type="button" className="h-8 px-2 text-[13px] font-semibold text-accent hover:underline cursor-pointer" onClick={() => (setGenre(""), setSince(""), setStars(""), setSort(""))}>
+            <button type="button" className="h-8 px-2 text-[1.0833rem] font-semibold text-accent hover:underline cursor-pointer" onClick={() => (setGenre(""), setSince(""), setStars(""), setSort(""))}>
               Clear
             </button>
           )}
         </div>
       )}
-      {shown.length === 0 && <p className="mt-8 text-[13px] text-dim">Nothing loaded so far matches. {more ? "Scroll for more." : ""}</p>}
+      {shown.length === 0 && <p className="mt-8 text-[1.0833rem] text-dim">Nothing loaded so far matches. {more ? "Scroll for more." : ""}</p>}
       <div className="mt-6 grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {shown.map((it) => (
           <PosterCard key={it.key} it={it} lists={first.lists} />
         ))}
       </div>
       <div ref={end} aria-hidden className="h-px" />
-      {loading && <p className="pt-6 text-center text-[12.5px] text-dim">Loading more…</p>}
+      {loading && <p className="pt-6 text-center text-[1.0417rem] text-dim">Loading more…</p>}
     </>
   );
 }

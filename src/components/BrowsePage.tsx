@@ -54,7 +54,7 @@ export function BrowsePage({ filters: f, first, services }: { filters: Filters; 
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">Browse {f.kind}</h1>
-              <p className="m-0 mt-2 text-[12.5px] text-mid-tone">{first.total ? `${first.total.toLocaleString("en")} ${f.kind === "films" ? "films" : "series"}` : "Nothing matches these filters."}</p>
+              <p className="m-0 mt-2 text-[1.0417rem] text-mid-tone">{first.total ? `${first.total.toLocaleString("en")} ${f.kind === "films" ? "films" : "series"}` : "Nothing matches these filters."}</p>
             </div>
             <div role="tablist" aria-label="Films or series" className="inline-flex gap-1 p-1 rounded-full bg-card">
               {(["films", "series"] as const).map((k) => (
@@ -64,7 +64,7 @@ export function BrowsePage({ filters: f, first, services }: { filters: Filters; 
                   role="tab"
                   aria-selected={f.kind === k}
                   onClick={() => go({ kind: k, genre: undefined, network: undefined, status: undefined })}
-                  className={`px-4 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${f.kind === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+                  className={`px-4 py-2 rounded-full text-[0.875rem] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${f.kind === k ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
                 >
                   {k === "films" ? "Films" : "Series"}
                 </button>
@@ -96,7 +96,7 @@ export function BrowsePage({ filters: f, first, services }: { filters: Filters; 
               {/* Once a decade is chosen, its years, to narrow it to one. */}
               {f.decade && (
                 <>
-                  <div className="px-3 pt-2 pb-1 text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">{f.decade} by year</div>
+                  <div className="px-3 pt-2 pb-1 text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim">{f.decade} by year</div>
                   {Array.from({ length: 10 }, (_, i) => String(Number(f.decade!.slice(0, 4)) + i))
                     .filter((y) => Number(y) <= new Date().getFullYear() + 1)
                     .map((y) => (
@@ -169,12 +169,12 @@ export function BrowsePage({ filters: f, first, services }: { filters: Filters; 
           {chips.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
               {chips.map(([label, off]) => (
-                <button key={label} type="button" onClick={() => go(off)} className="inline-flex items-center gap-1.5 rounded-full bg-card border border-hair px-3 py-1 text-[12.5px] text-ink cursor-pointer hover:border-dim">
+                <button key={label} type="button" onClick={() => go(off)} className="inline-flex items-center gap-1.5 rounded-full bg-card border border-hair px-3 py-1 text-[1.0417rem] text-ink cursor-pointer hover:border-dim">
                   {label}
                   <span aria-hidden className="text-dim">×</span>
                 </button>
               ))}
-              <button type="button" onClick={() => go({ genre: undefined, decade: undefined, year: undefined, on: undefined, network: undefined, status: undefined })} className="text-[12.5px] text-dim hover:text-ink cursor-pointer px-1">
+              <button type="button" onClick={() => go({ genre: undefined, decade: undefined, year: undefined, on: undefined, network: undefined, status: undefined })} className="text-[1.0417rem] text-dim hover:text-ink cursor-pointer px-1">
                 Clear all
               </button>
             </div>
@@ -194,8 +194,8 @@ export function BrowsePage({ filters: f, first, services }: { filters: Filters; 
                       <img src={t.poster} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                     )}
                   </span>
-                  <span className="block px-1 pt-1.5 text-[12.5px] leading-[16px] font-semibold truncate group-hover:text-accent transition-colors">{t.title}</span>
-                  <span className="block px-1 pb-0.5 text-[12.5px] leading-[16px] text-dim">
+                  <span className="block px-1 pt-1.5 text-[1.0417rem] leading-[1.3333rem] font-semibold truncate group-hover:text-accent transition-colors">{t.title}</span>
+                  <span className="block px-1 pb-0.5 text-[1.0417rem] leading-[1.3333rem] text-dim">
                     {t.year || "—"}
                     {t.vote ? ` · ${t.vote.toFixed(1)}` : ""}
                   </span>
@@ -205,7 +205,7 @@ export function BrowsePage({ filters: f, first, services }: { filters: Filters; 
           </ul>
           {page < first.pages && (
             <div className="pt-2 flex justify-center">
-              <button type="button" onClick={loadMore} disabled={loading} className="h-9 px-5 rounded-full bg-piece text-[12.5px] font-semibold text-ink cursor-pointer hover:text-accent disabled:opacity-50">
+              <button type="button" onClick={loadMore} disabled={loading} className="h-9 px-5 rounded-full bg-piece text-[1.0417rem] font-semibold text-ink cursor-pointer hover:text-accent disabled:opacity-50">
                 {loading ? "Loading…" : "Show more"}
               </button>
             </div>
@@ -224,7 +224,7 @@ function Pick({ label, on, children, wide = false, align = "left" }: { label: st
       width={wide ? 260 : 200}
       align={align}
       button={
-        <span className={`inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12.5px] font-semibold border transition-colors ${on ? "bg-ink text-page border-transparent" : "bg-card text-ink border-hair hover:border-dim"}`}>
+        <span className={`inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[1.0417rem] font-semibold border transition-colors ${on ? "bg-ink text-page border-transparent" : "bg-card text-ink border-hair hover:border-dim"}`}>
           {label}
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M6 9l6 6 6-6" />
@@ -232,14 +232,14 @@ function Pick({ label, on, children, wide = false, align = "left" }: { label: st
         </span>
       }
     >
-      <div className="soft-scroll max-h-[360px] overflow-y-auto py-1.5">{children}</div>
+      <div className="soft-scroll max-h-[30rem] overflow-y-auto py-1.5">{children}</div>
     </Menu>
   );
 }
 
 function Option({ on, onClick, children, keepOpen = false }: { on: boolean; onClick: () => void; children: React.ReactNode; keepOpen?: boolean }) {
   return (
-    <button type="button" {...(keepOpen ? {} : { "data-menu-close": true })} onClick={onClick} aria-pressed={on} className={`w-full flex items-center justify-between gap-3 px-4 py-2 text-[12.5px] text-left cursor-pointer hover:bg-card-hi ${on ? "text-accent font-semibold" : "text-ink"}`}>
+    <button type="button" {...(keepOpen ? {} : { "data-menu-close": true })} onClick={onClick} aria-pressed={on} className={`w-full flex items-center justify-between gap-3 px-4 py-2 text-[1.0417rem] text-left cursor-pointer hover:bg-card-hi ${on ? "text-accent font-semibold" : "text-ink"}`}>
       {children}
       {on && <span aria-hidden>✓</span>}
     </button>

@@ -49,18 +49,18 @@ export function ModerationPage({ initial }: { initial: Report[] }) {
   }
 
   return (
-    <div className="max-w-[900px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
+    <div className="max-w-[75rem] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
       <div className={SHELL}>
         <div className="rounded-shell bg-piece p-3">
           <h1 className="!text-[clamp(36px,5vw,60px)] !leading-[.9] tracking-[.02em] uppercase">Moderation</h1>
-          <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone max-w-[60ch]">
+          <p className="m-0 mt-2 text-[1.0417rem] leading-[1.6] text-mid-tone max-w-[60ch]">
             Reports from members, the most-reported first. Check each against the <Link href="/terms#community-rules" className="text-accent no-underline hover:underline">community rules</Link>. Urgent ones, such as threats or anything involving children, go to the authorities too.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={testCrash} className="h-8 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink cursor-pointer hover:text-accent">
+            <button type="button" onClick={testCrash} className="h-8 px-4 rounded-full bg-card border border-hair text-[1.0417rem] font-semibold text-ink cursor-pointer hover:text-accent">
               Send a test crash
             </button>
-            {tested && <span className="text-[12.5px] text-dim">{tested}</span>}
+            {tested && <span className="text-[1.0417rem] text-dim">{tested}</span>}
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@ export function ModerationPage({ initial }: { initial: Report[] }) {
               ["resolved", `Resolved · ${resolved.length}`],
             ] as const
           ).map(([k, label]) => (
-            <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`h-8 px-4 rounded-full text-[10.5px] font-bold uppercase tracking-[.12em] cursor-pointer ${tab === k ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}>
+            <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`h-8 px-4 rounded-full text-[0.875rem] font-bold uppercase tracking-[.12em] cursor-pointer ${tab === k ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink"}`}>
               {label}
             </button>
           ))}
@@ -81,7 +81,7 @@ export function ModerationPage({ initial }: { initial: Report[] }) {
 
         {shown.length === 0 ? (
           <div className={SHELL}>
-            <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">{tab === "open" ? "Nothing to review. Every report has been dealt with." : "Nothing resolved yet."}</p>
+            <p className="m-0 rounded-shell bg-piece p-3 text-[1.0417rem] text-dim">{tab === "open" ? "Nothing to review. Every report has been dealt with." : "Nothing resolved yet."}</p>
           </div>
         ) : (
           shown.map(({ rs, status }) => {
@@ -91,7 +91,7 @@ export function ModerationPage({ initial }: { initial: Report[] }) {
             return (
               <article key={`${r.kind}:${r.target}`} className={SHELL}>
                 <div className="rounded-shell bg-piece p-3 grid gap-2">
-                  <div className="flex flex-wrap items-center gap-2 text-[12.5px]">
+                  <div className="flex flex-wrap items-center gap-2 text-[1.0417rem]">
                     <HeadingPill small>{NOUN[r.kind]}</HeadingPill>
                     <Link href={`/u/${r.author}`} className="font-semibold text-ink no-underline hover:text-accent">
                       @{r.author}
@@ -99,12 +99,12 @@ export function ModerationPage({ initial }: { initial: Report[] }) {
                     <span className="text-dim">
                       · {rs.length} {rs.length === 1 ? "report" : "reports"} · first {new Date(rs.reduce((a, x) => (x.at < a ? x.at : a), r.at)).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                     </span>
-                    {status !== "open" && <span className="ml-auto text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">{OUTCOME[status as Report["status"]]}</span>}
+                    {status !== "open" && <span className="ml-auto text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim">{OUTCOME[status as Report["status"]]}</span>}
                   </div>
-                  {r.excerpt && <blockquote className="m-0 rounded-[10px] bg-card px-3 py-2 text-[12.5px] leading-[1.6] text-ink">{r.excerpt}</blockquote>}
+                  {r.excerpt && <blockquote className="m-0 rounded-[10px] bg-card px-3 py-2 text-[1.0417rem] leading-[1.6] text-ink">{r.excerpt}</blockquote>}
                   <div className="flex flex-wrap gap-1.5">
                     {reasons.map((x) => (
-                      <span key={x} className="inline-flex items-center h-6 px-2.5 rounded-full bg-[color:var(--quiet)] text-[12px] text-ink">
+                      <span key={x} className="inline-flex items-center h-6 px-2.5 rounded-full bg-[color:var(--quiet)] text-[1rem] text-ink">
                         {REASON[x]}
                         {rs.filter((y) => y.reason === x).length > 1 && ` × ${rs.filter((y) => y.reason === x).length}`}
                       </span>
@@ -113,37 +113,37 @@ export function ModerationPage({ initial }: { initial: Report[] }) {
                   {notes.length > 0 && (
                     <ul className="m-0 p-0 list-none grid gap-1">
                       {notes.map((x) => (
-                        <li key={x.id} className="text-[12.5px] leading-[1.5] text-mid-tone">
+                        <li key={x.id} className="text-[1.0417rem] leading-[1.5] text-mid-tone">
                           <span className="text-dim">@{x.reporter}:</span> {x.note}
                         </li>
                       ))}
                     </ul>
                   )}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <Link href={r.href} className="h-8 px-4 inline-flex items-center rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink no-underline hover:text-accent">
+                    <Link href={r.href} className="h-8 px-4 inline-flex items-center rounded-full bg-card border border-hair text-[1.0417rem] font-semibold text-ink no-underline hover:text-accent">
                       Open
                     </Link>
                     <span className="flex-1" />
                     {status === "open" ? (
                       <>
-                        <button type="button" onClick={() => settle(rs, "dismissed")} className="h-8 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink cursor-pointer hover:text-accent">
+                        <button type="button" onClick={() => settle(rs, "dismissed")} className="h-8 px-4 rounded-full bg-card border border-hair text-[1.0417rem] font-semibold text-ink cursor-pointer hover:text-accent">
                           Dismiss
                         </button>
                         {r.kind !== "profile" && (
-                          <button type="button" onClick={() => settle(rs, "removed")} className="h-8 px-4 rounded-full bg-loved/20 text-loved text-[12.5px] font-semibold cursor-pointer hover:bg-loved/30">
+                          <button type="button" onClick={() => settle(rs, "removed")} className="h-8 px-4 rounded-full bg-loved/20 text-loved text-[1.0417rem] font-semibold cursor-pointer hover:bg-loved/30">
                             Remove {NOUN[r.kind]}
                           </button>
                         )}
                         <button
                           type="button"
                           onClick={() => confirm(`Suspend @${r.author}? Their profile and everything they've posted are hidden and they can't post until you lift it.`) && settle(rs, "suspended")}
-                          className="h-8 px-4 rounded-full bg-loved text-white text-[12.5px] font-semibold cursor-pointer"
+                          className="h-8 px-4 rounded-full bg-loved text-white text-[1.0417rem] font-semibold cursor-pointer"
                         >
                           Suspend @{r.author}
                         </button>
                       </>
                     ) : (
-                      <button type="button" onClick={() => settle(rs, "open")} className="h-8 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink cursor-pointer hover:text-accent">
+                      <button type="button" onClick={() => settle(rs, "open")} className="h-8 px-4 rounded-full bg-card border border-hair text-[1.0417rem] font-semibold text-ink cursor-pointer hover:text-accent">
                         Reopen
                       </button>
                     )}

@@ -57,7 +57,7 @@ export default async function PersonPage({ params }: PageProps<"/person/[id]">) 
               {facts.length > 0 && (
                 <div className="mt-2.5 border-t border-hair">
                   {facts.map((f, i) => (
-                    <div key={f.label} className={`flex items-baseline justify-between gap-4 py-[8px] text-[12.5px] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
+                    <div key={f.label} className={`flex items-baseline justify-between gap-4 py-[0.6667rem] text-[1.0417rem] ${i < facts.length - 1 ? "border-b border-hair" : ""}`}>
                       <span className="text-dim shrink-0">{f.label}</span>
                       <span className="text-right min-w-0 text-ink">{f.value}</span>
                     </div>
@@ -99,7 +99,7 @@ function Credits({ title, items, showRole, seen }: { title: string; items: Perso
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={c.poster} alt="" loading="lazy" className="w-full h-full object-cover" />
                   )}
-                  {coming && <span className="absolute top-2 left-2 rounded-[6px] bg-accent-fill text-on-accent px-1.5 py-[2px] text-[10.5px] font-bold tracking-[.12em] uppercase">Coming</span>}
+                  {coming && <span className="absolute top-2 left-2 rounded-[6px] bg-accent-fill text-on-accent px-1.5 py-[2px] text-[0.875rem] font-bold tracking-[.12em] uppercase">Coming</span>}
                   {seen.has(`${c.kind[0]}${c.id}`) && (
                     <span title="You've seen it" className="absolute right-1.5 bottom-1.5 w-6 h-6 rounded-full bg-accent-fill text-on-accent flex items-center justify-center">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" aria-label="Seen">
@@ -109,12 +109,12 @@ function Credits({ title, items, showRole, seen }: { title: string; items: Perso
                   )}
                 </div>
                 <div className="px-2.5 pt-2 pb-2.5">
-                  <div className="text-[12.5px] leading-[16px] font-semibold truncate group-hover:text-accent transition-colors">{c.title}</div>
-                  <div className="text-[12.5px] leading-[16px] text-dim truncate">
+                  <div className="text-[1.0417rem] leading-[1.3333rem] font-semibold truncate group-hover:text-accent transition-colors">{c.title}</div>
+                  <div className="text-[1.0417rem] leading-[1.3333rem] text-dim truncate">
                     {c.date ? (coming ? `Coming ${c.date.slice(0, 4)}` : c.date.slice(0, 4)) : "In the works"}
                     {c.kind === "show" && " · Series"}
                   </div>
-                  {showRole && c.role && <div className="text-[12.5px] leading-[16px] text-dim truncate">{c.role}</div>}
+                  {showRole && c.role && <div className="text-[1.0417rem] leading-[1.3333rem] text-dim truncate">{c.role}</div>}
                 </div>
               </Link>
             );

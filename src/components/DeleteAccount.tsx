@@ -53,49 +53,49 @@ export function DeleteAccount({ signedIn }: { signedIn: boolean }) {
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="h-8 px-4 rounded-full text-[12.5px] font-semibold cursor-pointer bg-loved/20 text-loved hover:bg-loved/30 transition-colors">
+      <button type="button" onClick={() => setOpen(true)} className="h-8 px-4 rounded-full text-[1.0417rem] font-semibold cursor-pointer bg-loved/20 text-loved hover:bg-loved/30 transition-colors">
         Delete
       </button>
       {open &&
         createPortal(
           <div role="dialog" aria-modal="true" aria-label="Delete your Kodigo account?" className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={() => !busy && setOpen(false)}>
-            <div className="w-full sm:max-w-[460px] rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl p-2" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full sm:max-w-[38.3333rem] rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl p-2" onClick={(e) => e.stopPropagation()}>
               <div className="rounded-shell bg-piece p-4 grid gap-3">
                 {done ? (
-                  <p className="m-0 text-[12.5px] leading-[1.6] text-ink">{signedIn ? "Your account has been deleted." : "Everything Kodigo kept in this browser has been cleared."} Taking you home…</p>
+                  <p className="m-0 text-[1.0417rem] leading-[1.6] text-ink">{signedIn ? "Your account has been deleted." : "Everything Kodigo kept in this browser has been cleared."} Taking you home…</p>
                 ) : (
                   <>
                     <h3 className="!text-[clamp(24px,2.6vw,30px)] !leading-none uppercase">Delete your Kodigo account?</h3>
-                    <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">
+                    <p className="m-0 text-[1.0417rem] leading-[1.6] text-mid-tone">
                       Your sign-in, the copy of your library on the server and your profile are deleted, with your reviews, lists, follows and likes. This can&apos;t be undone. The library on your phone stays exactly as it is, and so does any backup you&apos;ve saved.
                     </p>
-                    {!signedIn && <p className="m-0 text-[12.5px] leading-[1.6] text-dim">In this preview there&apos;s no account yet, so this clears everything Kodigo keeps in this browser instead: your settings, profile details, takes and choices. Theme and day or night stay.</p>}
-                    <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">
+                    {!signedIn && <p className="m-0 text-[1.0417rem] leading-[1.6] text-dim">In this preview there&apos;s no account yet, so this clears everything Kodigo keeps in this browser instead: your settings, profile details, takes and choices. Theme and day or night stay.</p>}
+                    <p className="m-0 text-[1.0417rem] leading-[1.6] text-mid-tone">
                       Want a copy first?{" "}
                       <a href="/api/export" download className="text-accent no-underline hover:underline">
                         Export your library
                       </a>
                       .
                     </p>
-                    <label className="grid gap-1.5 text-[12.5px] text-dim">
+                    <label className="grid gap-1.5 text-[1.0417rem] text-dim">
                       Type DELETE to confirm
                       <input
                         autoFocus
                         value={typed}
                         onChange={(e) => setTyped(e.target.value)}
-                        className="rounded-[10px] bg-card border border-hair px-2.5 py-1.5 text-[12.5px] text-ink tracking-[.08em] focus:outline-none focus:border-accent"
+                        className="rounded-[10px] bg-card border border-hair px-2.5 py-1.5 text-[1.0417rem] text-ink tracking-[.08em] focus:outline-none focus:border-accent"
                       />
                     </label>
                     {error && (
-                      <p role="alert" className="m-0 text-[12.5px] text-loved">
+                      <p role="alert" className="m-0 text-[1.0417rem] text-loved">
                         {error}
                       </p>
                     )}
                     <div className="flex justify-end gap-2">
-                      <button type="button" disabled={busy} onClick={() => setOpen(false)} className="h-9 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink cursor-pointer">
+                      <button type="button" disabled={busy} onClick={() => setOpen(false)} className="h-9 px-4 rounded-full bg-card border border-hair text-[1.0417rem] font-semibold text-ink cursor-pointer">
                         Cancel
                       </button>
-                      <button type="button" disabled={!ready || busy} onClick={go} className="h-9 px-4 rounded-full bg-loved text-white text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default">
+                      <button type="button" disabled={!ready || busy} onClick={go} className="h-9 px-4 rounded-full bg-loved text-white text-[1.0417rem] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default">
                         {busy ? "Deleting…" : "Delete account"}
                       </button>
                     </div>

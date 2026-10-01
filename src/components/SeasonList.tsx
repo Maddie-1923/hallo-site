@@ -59,7 +59,7 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
 
   return (
     <div ref={listRef} className={`grid gap-2 content-start ${scroll ? "soft-scroll absolute inset-2 overflow-y-auto overscroll-contain pr-1" : ""}`}>
-      {note && <p className="m-0 px-1 text-[12.5px] text-dim">Checking off episodes on the website opens with accounts. Until then, check them off in the app.</p>}
+      {note && <p className="m-0 px-1 text-[1.0417rem] text-dim">Checking off episodes on the website opens with accounts. Until then, check them off in the app.</p>}
       {seasons.map((s) => {
         const done = Array.from({ length: s.count }, (_, i) => `${showID}-${s.number}-${i + 1}`).filter((k) => seen.has(k)).length;
         const isOpen = open === s.number;
@@ -67,16 +67,16 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
         return (
           <div key={s.number} className="rounded-shell bg-piece p-3">
             <div className="flex items-center gap-3">
-              <button type="button" onClick={() => setOpen(isOpen ? null : s.number)} aria-expanded={isOpen} className="flex items-center gap-2 text-[12.5px] font-semibold text-ink cursor-pointer">
+              <button type="button" onClick={() => setOpen(isOpen ? null : s.number)} aria-expanded={isOpen} className="flex items-center gap-2 text-[1.0417rem] font-semibold text-ink cursor-pointer">
                 {s.number === 0 ? "Specials" : `Season ${s.number}`}
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className={`text-dim transition-transform ${isOpen ? "rotate-180" : ""}`}>
                   <path d="M6 9l6 6 6-6" />
                 </svg>
               </button>
-              <span className="ml-auto text-[12.5px] text-dim tabular-nums">
+              <span className="ml-auto text-[1.0417rem] text-dim tabular-nums">
                 {done}/{s.count}
               </span>
-              <button type="button" onClick={() => setNote(true)} aria-label={`Mark ${s.name} watched`} className={`w-[34px] h-7 rounded-[9px] flex items-center justify-center cursor-pointer ${done === s.count && s.count > 0 ? "bg-accent-fill text-on-accent" : "bg-hair text-ink"}`}>
+              <button type="button" onClick={() => setNote(true)} aria-label={`Mark ${s.name} watched`} className={`w-[2.8333rem] h-7 rounded-[9px] flex items-center justify-center cursor-pointer ${done === s.count && s.count > 0 ? "bg-accent-fill text-on-accent" : "bg-hair text-ink"}`}>
                 <Glyph name="check" size={14} />
               </button>
             </div>
@@ -85,8 +85,8 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
             </div>
             {isOpen && (
               <div className="mt-2 grid gap-1">
-                {!eps && <p className="m-0 py-2 text-[12.5px] text-dim">{pending ? "Loading episodes…" : ""}</p>}
-                {eps?.length === 0 && <p className="m-0 py-2 text-[12.5px] text-dim">No episodes have aired yet.</p>}
+                {!eps && <p className="m-0 py-2 text-[1.0417rem] text-dim">{pending ? "Loading episodes…" : ""}</p>}
+                {eps?.length === 0 && <p className="m-0 py-2 text-[1.0417rem] text-dim">No episodes have aired yet.</p>}
                 {eps?.map((e) => {
                   const key = `${showID}-${e.season}-${e.episode}`;
                   const aired = !!e.airDate && e.airDate <= today;
@@ -95,29 +95,29 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
                     <div key={key} data-ep={key} className={`rounded-[10px] bg-[color:var(--quiet)] px-2.5 py-2.5 flex items-center gap-3 ${aired ? "" : "opacity-70"} ${picked === key ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
                       {/* The episode's own page, as a tap on the row opens it in the app. */}
                       {onPick ? (
-                        <button type="button" onClick={() => onPick(e)} aria-pressed={picked === key} className="min-w-0 flex-1 grid gap-[3px] text-left text-ink group cursor-pointer">
-                        <div className="text-[12.5px] leading-none">
+                        <button type="button" onClick={() => onPick(e)} aria-pressed={picked === key} className="min-w-0 flex-1 grid gap-[0.25rem] text-left text-ink group cursor-pointer">
+                        <div className="text-[1.0417rem] leading-none">
                           <span className="font-semibold text-ink">{code(e.season, e.episode)}</span>
                           {e.airDate && <span className="ml-1.5 text-dim"><Day iso={e.airDate} style="short" /></span>}
                         </div>
-                        <div className="text-[12.5px] leading-[16px] text-dim truncate group-hover:text-accent transition-colors">
+                        <div className="text-[1.0417rem] leading-[1.3333rem] text-dim truncate group-hover:text-accent transition-colors">
                           <SpoilerName name={e.name} watched={seen.has(key)} />
                         </div>
                         </button>
                       ) : (
-                        <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className="min-w-0 flex-1 grid gap-[3px] no-underline text-ink group">
-                        <div className="text-[12.5px] leading-none">
+                        <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className="min-w-0 flex-1 grid gap-[0.25rem] no-underline text-ink group">
+                        <div className="text-[1.0417rem] leading-none">
                           <span className="font-semibold text-ink">{code(e.season, e.episode)}</span>
                           {e.airDate && <span className="ml-1.5 text-dim"><Day iso={e.airDate} style="short" /></span>}
                         </div>
-                        <div className="text-[12.5px] leading-[16px] text-dim truncate group-hover:text-accent transition-colors">
+                        <div className="text-[1.0417rem] leading-[1.3333rem] text-dim truncate group-hover:text-accent transition-colors">
                           <SpoilerName name={e.name} watched={seen.has(key)} />
                         </div>
                         </Link>
                       )}
                       {aired ? (
                         <div className="flex gap-1.5">
-                          <button type="button" onClick={() => setNote(true)} aria-label={`Skip ${code(e.season, e.episode)}`} className="w-[34px] h-7 rounded-[9px] bg-hair text-dim flex items-center justify-center cursor-pointer">
+                          <button type="button" onClick={() => setNote(true)} aria-label={`Skip ${code(e.season, e.episode)}`} className="w-[2.8333rem] h-7 rounded-[9px] bg-hair text-dim flex items-center justify-center cursor-pointer">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" aria-hidden>
                               <path d="M5 5.5v13l10-6.5z" />
                               <path d="M18.5 5.5v13" strokeLinecap="round" />
@@ -128,20 +128,20 @@ export function SeasonList({ showID, seasons, watched, open: initial, picked, on
                             onClick={() => setNote(true)}
                             aria-label={`Mark ${code(e.season, e.episode)} watched`}
                             aria-pressed={seen.has(key)}
-                            className={`w-[34px] h-7 rounded-[9px] flex items-center justify-center cursor-pointer ${seen.has(key) ? "bg-accent-fill text-on-accent" : "bg-hair text-ink"}`}
+                            className={`w-[2.8333rem] h-7 rounded-[9px] flex items-center justify-center cursor-pointer ${seen.has(key) ? "bg-accent-fill text-on-accent" : "bg-hair text-ink"}`}
                           >
                             <Glyph name="check" size={14} />
                           </button>
                         </div>
                       ) : (
-                        <div className="min-w-[22px] text-center leading-none">
+                        <div className="min-w-[1.8333rem] text-center leading-none">
                           {days != null && days > 0 ? (
                             <>
-                              <div className="text-[17px] font-bold text-ink">{days}</div>
-                              <div className="text-[9px] font-bold tracking-[.04em] text-dim">DAYS</div>
+                              <div className="text-[1.4167rem] font-bold text-ink">{days}</div>
+                              <div className="text-[0.75rem] font-bold tracking-[.04em] text-dim">DAYS</div>
                             </>
                           ) : (
-                            <div className="text-[12.5px] font-bold text-dim">TBA</div>
+                            <div className="text-[1.0417rem] font-bold text-dim">TBA</div>
                           )}
                         </div>
                       )}

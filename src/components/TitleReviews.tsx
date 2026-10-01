@@ -22,7 +22,7 @@ export function ReviewsSection({ reviews, ratings = null }: { reviews: { review:
             ))}
           </div>
         ) : (
-          <p className="m-0 px-3 py-4 text-[12.5px] text-dim">No reviews yet. Members&apos; reviews show here once accounts open.</p>
+          <p className="m-0 px-3 py-4 text-[1.0417rem] text-dim">No reviews yet. Members&apos; reviews show here once accounts open.</p>
         )}
       </SectionCard>
     </Section>
@@ -40,31 +40,31 @@ function RatingsSummary({ r }: { r: TitleRatings }) {
         <div className="flex items-end justify-between gap-4">
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span aria-hidden className="text-loved text-[18px] leading-none">♥</span>
-              <span className="display text-[34px] leading-[.85] text-ink">{r.average?.toFixed(1)}</span>
-              <span className="text-[12.5px] text-dim">/10</span>
+              <span aria-hidden className="text-loved text-[1.5rem] leading-none">♥</span>
+              <span className="display text-[2.8333rem] leading-[.85] text-ink">{r.average?.toFixed(1)}</span>
+              <span className="text-[1.0417rem] text-dim">/10</span>
             </div>
-            <div className="mt-1 text-[12px] text-dim">
+            <div className="mt-1 text-[1rem] text-dim">
               {r.count.toLocaleString("en")} {r.count === 1 ? "rating" : "ratings"}
               {r.loved > 0 && ` · ${r.loved.toLocaleString("en")} loved it`}
             </div>
           </div>
-          <div role="img" aria-label={`Ratings from 1 to 10: ${r.spread.join(", ")}`} className="flex items-end gap-[3px] h-10">
+          <div role="img" aria-label={`Ratings from 1 to 10: ${r.spread.join(", ")}`} className="flex items-end gap-[0.25rem] h-10">
             {r.spread.map((n, i) => (
-              <span key={i} title={`${i + 1}: ${n}`} className="w-[7px] rounded-t-[2px] bg-accent-fill" style={{ height: `${Math.max(6, (n / top) * 100)}%`, opacity: n ? 1 : 0.25 }} />
+              <span key={i} title={`${i + 1}: ${n}`} className="w-[0.5833rem] rounded-t-[2px] bg-accent-fill" style={{ height: `${Math.max(6, (n / top) * 100)}%`, opacity: n ? 1 : 0.25 }} />
             ))}
           </div>
         </div>
       )}
       {r.friends.length > 0 && (
         <div className="grid gap-1.5">
-          <div className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">People you follow</div>
+          <div className="text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim">People you follow</div>
           <ul className="m-0 p-0 list-none flex flex-wrap gap-2">
             {r.friends.slice(0, 12).map((f) => (
               <li key={f.username}>
                 <Unblocked username={f.username}>
                   <Link href={f.href} title={`@${f.username}`} className="flex items-center gap-1.5 h-8 pl-1 pr-2.5 rounded-full bg-card border border-hair no-underline text-ink hover:border-accent">
-                    <span className="w-6 h-6 rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center text-[11px] font-semibold">
+                    <span className="w-6 h-6 rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center text-[0.9167rem] font-semibold">
                       {f.avatar ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={f.avatar} alt="" className="w-full h-full object-cover object-top" />
@@ -72,8 +72,8 @@ function RatingsSummary({ r }: { r: TitleRatings }) {
                         f.username[0].toUpperCase()
                       )}
                     </span>
-                    <span className="text-[12px] font-semibold">{f.rating != null ? String(f.rating).replace(/\.0$/, "") : ""}</span>
-                    {f.loved && <span aria-label="loved it" className="text-loved text-[12px]">♥</span>}
+                    <span className="text-[1rem] font-semibold">{f.rating != null ? String(f.rating).replace(/\.0$/, "") : ""}</span>
+                    {f.loved && <span aria-label="loved it" className="text-loved text-[1rem]">♥</span>}
                   </Link>
                 </Unblocked>
               </li>

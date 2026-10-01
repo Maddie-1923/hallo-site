@@ -137,7 +137,7 @@ export function CinemaHero({ slides, corner, banner = false }: { slides: CinemaS
           onMouseLeave={() => setHover(false)}
         >
           <div
-            className={`relative overflow-hidden bg-[#141312] flex flex-col ${banner ? "rounded-[calc(var(--shell-radius)-1px)] min-h-[520px] sm:min-h-[420px] lg:min-h-0 lg:h-[clamp(300px,40vw,540px)]" : "rounded-[calc(clamp(22px,3vw,43px)-1px)] min-h-[640px] sm:min-h-[520px] lg:min-h-[360px] billboard-fit"}`}
+            className={`relative overflow-hidden bg-[#141312] flex flex-col ${banner ? "rounded-[calc(var(--shell-radius)-1px)] min-h-[43.3333rem] sm:min-h-[35rem] lg:min-h-0 lg:h-[clamp(300px,40vw,540px)]" : "rounded-[calc(clamp(22px,3vw,43px)-1px)] min-h-[53.3333rem] sm:min-h-[43.3333rem] lg:min-h-[30rem] billboard-fit"}`}
             // The frame is always a darkened photograph, so the words inside
             // it draw in Night's colours whatever the page is.
             style={nightTokens}
@@ -215,7 +215,7 @@ export function CinemaHero({ slides, corner, banner = false }: { slides: CinemaS
                     aria-selected={i === at}
                     aria-label={`${i + 1} of ${count}: ${x.title}`}
                     onClick={() => go(i)}
-                    className="h-[4px] rounded-full transition-all duration-300 cursor-pointer"
+                    className="h-[0.3333rem] rounded-full transition-all duration-300 cursor-pointer"
                     style={{ width: i === at ? 30 : 12, background: i === at ? FILL : "rgba(255,255,255,.35)" }}
                   />
                 ))}
@@ -269,7 +269,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
   return (
     <div className="px-[clamp(20px,5vw,80px)] sm:pl-[clamp(84px,7vw,108px)] pt-24 lg:pt-8 pb-[clamp(24px,3vw,44px)]">
       <div className="max-w-[min(460px,100%)]">
-        <div className="text-[11px] tracking-[.08em] uppercase text-white/85 mb-2 [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">{s.eyebrow}
+        <div className="text-[0.9167rem] tracking-[.08em] uppercase text-white/85 mb-2 [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">{s.eyebrow}
           {s.eyebrowDate && <> <Day iso={s.eyebrowDate} style={s.eyebrowDate.slice(0, 4) === String(new Date().getFullYear()) ? "dayMonth" : "long"} /></>}
         </div>
         {/* The title as Netflix sets it: the show's own logo artwork, kept
@@ -289,20 +289,20 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             )}
           </Link>
         </h1>
-        {s.note && <p className="m-0 mt-2 text-[12.5px] font-semibold text-white [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">{s.note}
+        {s.note && <p className="m-0 mt-2 text-[1.0417rem] font-semibold text-white [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">{s.note}
             {s.noteDate && <> <Day iso={s.noteDate} /></>}
           </p>}
 
         {s.tagline && (
-          <p className="m-0 mt-3 text-white uppercase tracking-[.04em] leading-[1.2] text-[11px] [font-family:var(--font-wide)] font-extrabold [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">
+          <p className="m-0 mt-3 text-white uppercase tracking-[.04em] leading-[1.2] text-[0.9167rem] [font-family:var(--font-wide)] font-extrabold [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">
             {s.tagline}
           </p>
         )}
-        <p className="m-0 mt-1.5 text-[12px] text-white/95 flex flex-wrap items-center gap-x-2 [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">
+        <p className="m-0 mt-1.5 text-[1rem] text-white/95 flex flex-wrap items-center gap-x-2 [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">
           {[
             s.year,
             s.certification ? (
-              <span key="c" className="px-[5px] rounded-[2px] font-semibold text-[10.5px] leading-[16px] tracking-[.02em] [text-shadow:none]" style={{ background: FILL, color: ON_FILL }}>
+              <span key="c" className="px-[0.4167rem] rounded-[2px] font-semibold text-[0.875rem] leading-[1.3333rem] tracking-[.02em] [text-shadow:none]" style={{ background: FILL, color: ON_FILL }}>
                 {s.certification}
               </span>
             ) : null,
@@ -312,14 +312,14 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             .filter(Boolean)
             .flatMap((x, i) => (i ? [<span key={`d${i}`} className="text-white/45">|</span>, <span key={i}>{x}</span>] : [<span key={i}>{x}</span>]))}
         </p>
-        {s.overview && <p className="m-0 mt-2 text-[12.5px] leading-[1.45] text-white/95 line-clamp-2 [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">{s.overview}</p>}
+        {s.overview && <p className="m-0 mt-2 text-[1.0417rem] leading-[1.45] text-white/95 line-clamp-2 [text-shadow:0_1px_2px_rgba(0,0,0,.85),0_0_10px_rgba(0,0,0,.55)]">{s.overview}</p>}
 
         <div className="flex flex-wrap items-center gap-2 mt-3.5">
           {s.trailer && (
             <button
               type="button"
               onClick={() => onTrailer(s.trailer!)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-[6px] rounded-[9px] bg-white text-[#141312] text-[12px] font-bold uppercase tracking-[.04em] cursor-pointer transition-colors hover:bg-white/85"
+              className="inline-flex items-center gap-1.5 px-3.5 py-[0.5rem] rounded-[9px] bg-white text-[#141312] text-[1rem] font-bold uppercase tracking-[.04em] cursor-pointer transition-colors hover:bg-white/85"
             >
               <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden>
                 <path d="M2 1l9 5-9 5z" fill="currentColor" />
@@ -329,13 +329,13 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
           )}
           <Link
             href={s.href}
-            className="inline-flex items-center px-3.5 py-[6px] rounded-[9px] bg-[rgba(109,109,110,.7)] text-white text-[12px] font-bold uppercase tracking-[.04em] no-underline hover:bg-[rgba(109,109,110,.45)] transition-colors"
+            className="inline-flex items-center px-3.5 py-[0.5rem] rounded-[9px] bg-[rgba(109,109,110,.7)] text-white text-[1rem] font-bold uppercase tracking-[.04em] no-underline hover:bg-[rgba(109,109,110,.45)] transition-colors"
           >
             Details
           </Link>
           <WatchlistChip slide={s} />
         </div>
-        <div aria-hidden className="h-[4px] mt-5" />
+        <div aria-hidden className="h-[0.3333rem] mt-5" />
       </div>
     </div>
   );
@@ -419,11 +419,11 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
           type="button"
           onClick={add}
           disabled={pending}
-          className={`inline-flex items-center gap-1.5 px-3 py-[6px] rounded-[9px] text-[12px] font-semibold cursor-pointer transition-[filter] hover:brightness-110 ${set ? "bg-[rgba(109,109,110,.7)] text-white" : ""}`}
+          className={`inline-flex items-center gap-1.5 px-3 py-[0.5rem] rounded-[9px] text-[1rem] font-semibold cursor-pointer transition-[filter] hover:brightness-110 ${set ? "bg-[rgba(109,109,110,.7)] text-white" : ""}`}
           style={set ? undefined : { background: FILL, color: ON_FILL }}
         >
           {/* The app's marks: a plus until it's on the watchlist, a bookmark once it is. */}
-          {set ? <span className="inline-flex" style={{ color: TYPE }}><MarkBookmark size={20} className="-mx-1 -my-[3px]" /></span> : <MarkAdd size={20} className="-mx-1 -my-[3px]" />}
+          {set ? <span className="inline-flex" style={{ color: TYPE }}><MarkBookmark size={20} className="-mx-1 -my-[0.25rem]" /></span> : <MarkAdd size={20} className="-mx-1 -my-[0.25rem]" />}
           {set ? "Added" : "Add"}
         </button>
       )}

@@ -226,7 +226,7 @@ export function ProfileCategories({ categories: given, owner = false, username =
   return (
     <div>
       <div className="flex items-center justify-between gap-3 mb-4">
-        <span className="text-[12.5px] text-dim">
+        <span className="text-[1.0417rem] text-dim">
           {arranging ? "Drag to rearrange. Tap the eye to make one private." : `${visible.length} ${visible.length === 1 ? "category" : "categories"}`}
         </span>
         <div className="flex items-center gap-2">
@@ -238,7 +238,7 @@ export function ProfileCategories({ categories: given, owner = false, username =
                 if (!arranging) chooseSort("custom");
                 setArranging(!arranging);
               }}
-              className={`h-9 px-4 rounded-full text-[12.5px] font-semibold cursor-pointer transition-colors ${arranging ? "bg-accent-fill text-on-accent" : "bg-page border border-hair text-dim hover:text-ink"}`}
+              className={`h-9 px-4 rounded-full text-[1.0417rem] font-semibold cursor-pointer transition-colors ${arranging ? "bg-accent-fill text-on-accent" : "bg-page border border-hair text-dim hover:text-ink"}`}
             >
               {arranging ? "Done" : "Edit"}
             </button>
@@ -341,7 +341,7 @@ export function ProfileCategories({ categories: given, owner = false, username =
         />
       )}
       {problem && !creating && !editing && (
-        <p role="alert" className="m-0 mt-3 text-[12.5px] text-loved">
+        <p role="alert" className="m-0 mt-3 text-[1.0417rem] text-loved">
           {problem}
         </p>
       )}
@@ -393,8 +393,8 @@ function CategoryTile({
           )}
         </span>
         <span className="block px-3 pt-2.5 pb-3">
-          <span className={`block display text-[22px] leading-none tracking-[.02em] uppercase truncate transition-colors ${editing ? "" : "group-hover:text-accent"}`}>{c.name}</span>
-          <span className="flex items-center gap-1.5 mt-1 text-[12.5px] text-dim">
+          <span className={`block display text-[1.8333rem] leading-none tracking-[.02em] uppercase truncate transition-colors ${editing ? "" : "group-hover:text-accent"}`}>{c.name}</span>
+          <span className="flex items-center gap-1.5 mt-1 text-[1.0417rem] text-dim">
             {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
           </span>
         </span>
@@ -470,11 +470,11 @@ function PicturePicker({ c, current, onChoose, onClose }: { c: CategoryEntry; cu
   const titles = c.titles.filter((t) => t.backdrop);
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`Picture for ${c.name}`} className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-[720px] max-h-[82vh] flex flex-col rounded-shell bg-card border border-hair shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-[60rem] max-h-[82vh] flex flex-col rounded-shell bg-card border border-hair shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b border-hair flex items-center justify-between gap-3">
-          <div className="display text-[24px] leading-none">Picture for {c.name}</div>
+          <div className="display text-[2rem] leading-none">Picture for {c.name}</div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => onChoose(null)} className={`text-[12.5px] cursor-pointer ${current ? "text-dim hover:text-ink" : "text-accent font-semibold"}`}>
+            <button type="button" onClick={() => onChoose(null)} className={`text-[1.0417rem] cursor-pointer ${current ? "text-dim hover:text-ink" : "text-accent font-semibold"}`}>
               Last added
             </button>
             <button type="button" onClick={onClose} aria-label="Close" className="w-9 h-9 rounded-full bg-card-hi hover:bg-hair text-ink flex items-center justify-center cursor-pointer">
@@ -491,7 +491,7 @@ function PicturePicker({ c, current, onChoose, onClose }: { c: CategoryEntry; cu
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={t.backdrop!} alt="" className="w-full h-full object-cover" />
               </span>
-              <span className="block mt-1 text-[12.5px] text-ink truncate">{t.title}</span>
+              <span className="block mt-1 text-[1.0417rem] text-ink truncate">{t.title}</span>
             </button>
           ))}
         </div>
@@ -516,16 +516,16 @@ function CategorySheet({ c, onClose, onDelete, onEdit, username }: { c: Category
   }, [onClose]);
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={c.name} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
-      <div className="w-full sm:max-w-[760px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
+      <div className="w-full sm:max-w-[63.3333rem] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl" onClick={(x) => x.stopPropagation()}>
         <div className="p-4 flex items-start justify-between gap-4 border-b border-hair">
           <div className="min-w-0">
             <h3 className="!text-[clamp(26px,3vw,34px)] !leading-[.95]">{c.name}</h3>
-            <div className="mt-2 text-[12.5px] leading-none text-dim">
+            <div className="mt-2 text-[1.0417rem] leading-none text-dim">
               {c.titles.length} {c.titles.length === 1 ? "title" : "titles"}
             </div>
-            {c.detail && <p className="m-0 mt-3 text-[12.5px] leading-[1.5] text-bone">{c.detail}</p>}
+            {c.detail && <p className="m-0 mt-3 text-[1.0417rem] leading-[1.5] text-bone">{c.detail}</p>}
             {c.id.startsWith("list:") && username && (
-              <Link href={`/u/${username}/list/${c.id.slice(5)}`} className="inline-block mt-3 text-[12.5px] font-semibold text-accent no-underline hover:underline">
+              <Link href={`/u/${username}/list/${c.id.slice(5)}`} className="inline-block mt-3 text-[1.0417rem] font-semibold text-accent no-underline hover:underline">
                 Open the list&apos;s page →
               </Link>
             )}
@@ -534,12 +534,12 @@ function CategorySheet({ c, onClose, onDelete, onEdit, username }: { c: Category
             {(onEdit || onDelete) && (
               <div className="mt-3 flex flex-wrap gap-4">
                 {onEdit && (
-                  <button type="button" onClick={onEdit} className="text-[12.5px] font-semibold text-accent hover:underline cursor-pointer">
+                  <button type="button" onClick={onEdit} className="text-[1.0417rem] font-semibold text-accent hover:underline cursor-pointer">
                     Edit list
                   </button>
                 )}
                 {onDelete && (
-                  <button type="button" onClick={() => confirm(`Delete ${c.name}? Everything in it stays tracked.`) && onDelete()} className="text-[12.5px] text-dim hover:text-loved cursor-pointer">
+                  <button type="button" onClick={() => confirm(`Delete ${c.name}? Everything in it stays tracked.`) && onDelete()} className="text-[1.0417rem] text-dim hover:text-loved cursor-pointer">
                     Delete category
                   </button>
                 )}
@@ -563,8 +563,8 @@ function CategorySheet({ c, onClose, onDelete, onEdit, username }: { c: Category
                   <span className="w-full h-full flex items-center justify-center p-2 text-center text-xs text-dim">{t.title}</span>
                 )}
               </span>
-              <span className="block mt-1.5 text-[12.5px] leading-tight truncate group-hover:text-accent transition-colors">{t.title}</span>
-              {t.year && <span className="block text-[12.5px] leading-tight text-dim">{t.year}</span>}
+              <span className="block mt-1.5 text-[1.0417rem] leading-tight truncate group-hover:text-accent transition-colors">{t.title}</span>
+              {t.year && <span className="block text-[1.0417rem] leading-tight text-dim">{t.year}</span>}
             </Link>
           ))}
         </div>
@@ -632,7 +632,7 @@ function SortMenu({ sort, onChoose }: { sort: SortId; onChoose: (id: SortId) => 
             aria-checked={s.id === sort}
             data-menu-close
             onClick={() => onChoose(s.id)}
-            className="w-full flex items-center gap-3 px-4 py-1.5 text-[12.5px] hover:bg-card-hi cursor-pointer text-ink"
+            className="w-full flex items-center gap-3 px-4 py-1.5 text-[1.0417rem] hover:bg-card-hi cursor-pointer text-ink"
           >
             <span className="flex-1 text-left">{s.label}</span>
             {s.id === sort && (
@@ -666,8 +666,8 @@ function NewCategoryTile({ onClick }: { onClick: () => void }) {
         </svg>
       </span>
       <span className="block px-3 pt-2.5 pb-3">
-        <span className="block display text-[22px] leading-none tracking-[.02em] uppercase group-hover:text-accent transition-colors">New category</span>
-        <span className="block mt-1 text-[12.5px] text-dim">Your own shelf</span>
+        <span className="block display text-[1.8333rem] leading-none tracking-[.02em] uppercase group-hover:text-accent transition-colors">New category</span>
+        <span className="block mt-1 text-[1.0417rem] text-dim">Your own shelf</span>
       </span>
     </button>
   );
@@ -696,11 +696,11 @@ function NewCategorySheet({ library, onCreate, onClose, initial, problem }: { li
   const shown = library.filter((t) => t.title.toLowerCase().includes(query.trim().toLowerCase()));
   const toggle = (k: string) => setKeys((ks) => (ks.includes(k) ? ks.filter((x) => x !== k) : [...ks, k]));
   const ready = name.trim().length > 0;
-  const field = "w-full rounded-[12px] bg-card-hi border border-hair px-3 py-2 text-[12.5px] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
+  const field = "w-full rounded-[12px] bg-card-hi border border-hair px-3 py-2 text-[1.0417rem] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={initial ? `Edit ${initial.name}` : "New category"} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <form
-        className="w-full sm:max-w-[760px] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl"
+        className="w-full sm:max-w-[63.3333rem] max-h-[88vh] flex flex-col overflow-hidden rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl"
         onClick={(x) => x.stopPropagation()}
         onSubmit={(e) => {
           e.preventDefault();
@@ -740,17 +740,17 @@ function NewCategorySheet({ library, onCreate, onClose, initial, problem }: { li
                     </span>
                   )}
                 </span>
-                <span className="block mt-1.5 text-[12.5px] leading-tight truncate text-ink">{t.title}</span>
+                <span className="block mt-1.5 text-[1.0417rem] leading-tight truncate text-ink">{t.title}</span>
               </button>
             );
           })}
-          {shown.length === 0 && <p className="col-span-full m-0 text-[12.5px] text-dim">Nothing in your library matches.</p>}
+          {shown.length === 0 && <p className="col-span-full m-0 text-[1.0417rem] text-dim">Nothing in your library matches.</p>}
         </div>
         <div className="p-4 border-t border-hair flex items-center justify-between gap-3">
-          <span className={`text-[12.5px] ${problem ? "text-loved" : "text-dim"}`} role={problem ? "alert" : undefined}>
+          <span className={`text-[1.0417rem] ${problem ? "text-loved" : "text-dim"}`} role={problem ? "alert" : undefined}>
             {problem ?? `${keys.length} ${keys.length === 1 ? "title" : "titles"} picked`}
           </span>
-          <button type="submit" disabled={!ready || busy} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+          <button type="submit" disabled={!ready || busy} className="h-9 px-5 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
             {busy ? "Saving…" : initial ? "Save" : "Create"}
           </button>
         </div>

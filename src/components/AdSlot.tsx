@@ -13,18 +13,18 @@ export async function AdSlot({ place, className = "" }: { place: AdPlace; classN
   if (!live && process.env.NODE_ENV !== "development") return null;
   return (
     <aside aria-label="Advertisement" className={`w-full ${className}`}>
-      <div className="max-w-[970px] mx-auto">
-        <div className="flex items-center justify-between gap-3 mb-1.5 px-1 text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">
+      <div className="max-w-[80.8333rem] mx-auto">
+        <div className="flex items-center justify-between gap-3 mb-1.5 px-1 text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim">
           <span>Advertisement</span>
-          <a href="/pro" className="normal-case tracking-normal font-semibold text-[12px] text-dim no-underline hover:text-accent">
+          <a href="/pro" className="normal-case tracking-normal font-semibold text-[1rem] text-dim no-underline hover:text-accent">
             Go ad-free with Pro →
           </a>
         </div>
-        <div className="h-[100px] sm:h-[90px] rounded-[10px] overflow-hidden">
+        <div className="h-[8.3333rem] sm:h-[7.5rem] rounded-[10px] overflow-hidden">
           {live ? (
             <AdUnit client={adsenseClient!} slot={slot!} />
           ) : (
-            <div className="h-full rounded-[10px] border border-dashed border-hair flex items-center justify-center text-[12px] text-dim text-center px-3">Ad space · shown to visitors and free accounts once AdSense is set up</div>
+            <div className="h-full rounded-[10px] border border-dashed border-hair flex items-center justify-center text-[1rem] text-dim text-center px-3">Ad space · shown to visitors and free accounts once AdSense is set up</div>
           )}
         </div>
       </div>

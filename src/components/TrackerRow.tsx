@@ -41,8 +41,8 @@ export const HOLD = "#D9BC52";
 export function Row({ t, lines, bar, keys, onPick, picked = false, rowKey, band = null, countdown = null }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null; onPick?: () => void; picked?: boolean; /** Marks the row so the tracker can find it on the page. */ rowKey?: string; band?: EpisodeBadge | null; countdown?: number | null }) {
   return (
     <li data-picked={picked || undefined} data-row={rowKey} onClick={onPick && pickFromShell(onPick)} className={`${onPick ? "cursor-pointer " : ""}rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "border-transparent ring-2 ring-accent-fill" : "border-t-[color:var(--lit-edge)] border-x-piece border-b-well"}`}>
-      <div className="h-[80px] rounded-[10px] bg-piece flex gap-2.5 overflow-hidden">
-        <Link href={t.href} aria-label={`Open ${t.title}`} className="relative w-[142px] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
+      <div className="h-[6.6667rem] rounded-[10px] bg-piece flex gap-2.5 overflow-hidden">
+        <Link href={t.href} aria-label={`Open ${t.title}`} className="relative w-[11.8333rem] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
           {(t.backdrop ?? t.poster) && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={(t.backdrop ?? t.poster)!} alt="" className="w-full h-full object-cover" />
@@ -50,7 +50,7 @@ export function Row({ t, lines, bar, keys, onPick, picked = false, rowKey, band 
         </Link>
         <To href={t.href} onPick={onPick} picked={picked} className="group/info min-w-0 flex-1 flex no-underline">
           <span className="min-w-0 flex-1 flex flex-col py-1.5 pr-2.5">
-            <span className="block w-full text-[12.5px] leading-[16px] font-semibold text-ink truncate group-hover/info:text-accent">
+            <span className="block w-full text-[1.0417rem] leading-[1.3333rem] font-semibold text-ink truncate group-hover/info:text-accent">
               {t.title}
             </span>
             {/* As the app's row: the code on its own line in the mid tone,
@@ -58,16 +58,16 @@ export function Row({ t, lines, bar, keys, onPick, picked = false, rowKey, band 
             {/* The episode's badge (FINALE and the rest) level with its code,
                 at the right, as the panel has it. */}
             <span className="mt-0.5 flex items-center gap-2">
-              <span className="min-w-0 flex-1 text-[12.5px] leading-[16px] text-mid-tone truncate">{lines[0]}</span>
+              <span className="min-w-0 flex-1 text-[1.0417rem] leading-[1.3333rem] text-mid-tone truncate">{lines[0]}</span>
               <EpisodePill badge={band} />
             </span>
-            {lines[1] && <span className="block text-[12.5px] leading-[16px] text-dim truncate">{lines[1]}</span>}
+            {lines[1] && <span className="block text-[1.0417rem] leading-[1.3333rem] text-dim truncate">{lines[1]}</span>}
             {bar && (
               <span className="mt-auto flex items-center gap-2">
                 <span className="flex-1 h-[2px] rounded-full bg-track overflow-hidden">
                   <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
                 </span>
-                <span className="text-[11px] leading-none text-dim whitespace-nowrap tabular-nums">
+                <span className="text-[0.9167rem] leading-none text-dim whitespace-nowrap tabular-nums">
                   {bar.done}/{bar.total}
                 </span>
               </span>
@@ -111,7 +111,7 @@ export function ArtworkBand({ badge }: { badge: EpisodeBadge | null }) {
         <span
           key={text}
           aria-hidden
-          className="flex-1 min-w-0 px-1 py-[4px] text-center text-[10px] leading-[12px] font-bold uppercase tracking-[.04em]"
+          className="flex-1 min-w-0 px-1 py-[0.3333rem] text-center text-[0.8333rem] leading-[1rem] font-bold uppercase tracking-[.04em]"
           style={{ background: `var(--band-${tone})`, color: `var(--band-${tone}-ink)` }}
         >
           {text}
@@ -131,7 +131,7 @@ export function EpisodePill({ badge }: { badge: EpisodeBadge | null }) {
   return (
     <span role="img" aria-label={badge.today ? `${badge.label}, today` : badge.label} className="shrink-0 flex gap-1">
       {halves.map(([text, tone]) => (
-        <span key={text} aria-hidden className="inline-flex items-center min-h-[14px] py-[2px] rounded-[4px] px-[4px] text-[8px] leading-none font-bold tracking-[.04em] uppercase" style={{ background: `var(--band-${tone})`, color: `var(--band-${tone}-ink)` }}>
+        <span key={text} aria-hidden className="inline-flex items-center min-h-[1.1667rem] py-[2px] rounded-[4px] px-[0.3333rem] text-[0.6667rem] leading-none font-bold tracking-[.04em] uppercase" style={{ background: `var(--band-${tone})`, color: `var(--band-${tone}-ink)` }}>
           {text}
         </span>
       ))}
@@ -145,9 +145,9 @@ export function EpisodePill({ badge }: { badge: EpisodeBadge | null }) {
 export function Countdown({ days, film = false, light = false, className = "" }: { days: number | null | undefined; /** Said as a film's: it opens, where an episode airs. */ film?: boolean; light?: boolean; className?: string }) {
   if (days == null || days < 2) return null;
   return (
-    <span role="img" aria-label={`${film ? "Opens" : "Airs"} in ${days} days`} className={`shrink-0 min-w-[46px] flex flex-col items-center ${className}`}>
-      <span aria-hidden className={`text-[20px] leading-[22px] font-bold tabular-nums ${light ? "text-white" : "text-ink"}`}>{days}</span>
-      <span aria-hidden className={`text-[9px] leading-[11px] font-semibold ${light ? "text-white/70" : "text-dim"}`}>DAYS</span>
+    <span role="img" aria-label={`${film ? "Opens" : "Airs"} in ${days} days`} className={`shrink-0 min-w-[3.8333rem] flex flex-col items-center ${className}`}>
+      <span aria-hidden className={`text-[1.6667rem] leading-[1.8333rem] font-bold tabular-nums ${light ? "text-white" : "text-ink"}`}>{days}</span>
+      <span aria-hidden className={`text-[0.75rem] leading-[0.9167rem] font-semibold ${light ? "text-white/70" : "text-dim"}`}>DAYS</span>
     </span>
   );
 }

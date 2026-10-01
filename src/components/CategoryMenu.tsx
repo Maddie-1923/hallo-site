@@ -38,7 +38,7 @@ export function CategoryMenu({
     });
   }
 
-  const item = "w-full flex items-center gap-3 px-4 py-2.5 text-[13.5px] text-ink hover:bg-card-hi cursor-pointer text-left";
+  const item = "w-full flex items-center gap-3 px-4 py-2.5 text-[1.125rem] text-ink hover:bg-card-hi cursor-pointer text-left";
   return (
     <>
       <Menu
@@ -104,10 +104,10 @@ function RenameSheet({ id, name, onClose }: { id: string; name: string; onClose:
               {error}
             </span>
           )}
-          <button type="button" className="text-[15px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
+          <button type="button" className="text-[1.25rem] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" className="btn !py-2.5 !px-6 !text-[15px]" disabled={pending || empty} onClick={save}>
+          <button type="button" className="btn !py-2.5 !px-6 !text-[1.25rem]" disabled={pending || empty} onClick={save}>
             {pending ? "Saving…" : "Save"}
           </button>
         </>

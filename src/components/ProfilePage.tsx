@@ -40,7 +40,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
   return (
     <main className={`w-full ${GUTTER} pt-[clamp(12px,2.2vw,32px)] pb-20`}>
       {v.previewNote && (
-        <div className="mb-3 rounded-full border border-hair bg-card px-4 py-2 text-[12.5px] text-dim text-center">{v.previewNote}</div>
+        <div className="mb-3 rounded-full border border-hair bg-card px-4 py-2 text-[1.0417rem] text-dim text-center">{v.previewNote}</div>
       )}
 
       <ViewingAsOthers />
@@ -101,7 +101,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                     <ActivityList v={v} />
                     {v.liked && v.liked.length > 0 && (
                       <div className="grid gap-2">
-                        <div className="px-1 text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">Liked</div>
+                        <div className="px-1 text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim">Liked</div>
                         <LikedGrid items={v.liked} />
                       </div>
                     )}
@@ -185,12 +185,12 @@ function Dashboard({ v }: { v: PublicProfileView }) {
     {v.owner && (
       <div className="grid gap-2 sm:grid-cols-2">
         <Link href={`/u/${v.username}/year/${year}`} className="rounded-shell bg-accent-fill text-on-accent p-3 flex items-center justify-between no-underline hover:brightness-110">
-          <span className="text-[12.5px] font-semibold">Your {year} in review</span>
+          <span className="text-[1.0417rem] font-semibold">Your {year} in review</span>
           <span aria-hidden>→</span>
         </Link>
         {/* Every number, on the Stats page (Pro). */}
         <Link href="/stats" className="rounded-shell bg-card-hi text-ink p-3 flex items-center justify-between no-underline hover:text-accent">
-          <span className="text-[12.5px] font-semibold">See all your stats</span>
+          <span className="text-[1.0417rem] font-semibold">See all your stats</span>
           <span aria-hidden>→</span>
         </Link>
       </div>
@@ -213,7 +213,7 @@ function Dashboard({ v }: { v: PublicProfileView }) {
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-shell bg-piece p-3 flex flex-col min-w-0">
-      <div className="text-[10.5px] font-bold tracking-[.12em] uppercase text-dim mb-2">{title}</div>
+      <div className="text-[0.875rem] font-bold tracking-[.12em] uppercase text-dim mb-2">{title}</div>
       {children}
     </div>
   );
@@ -260,8 +260,8 @@ const TILE = "min-w-0 rounded-shell bg-card-hi pt-2 pb-1.5 px-1 text-center flex
 function Tile({ label, value }: { label: string; value: string | number }) {
   return (
     <>
-      <div className="display text-[21px] xl:text-[23px] leading-none text-accent">{value}</div>
-      <div className="text-[10px] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.54] xl:scale-[.72]">{label}</div>
+      <div className="display text-[1.75rem] xl:text-[1.9167rem] leading-none text-accent">{value}</div>
+      <div className="text-[0.8333rem] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.54] xl:scale-[.72]">{label}</div>
     </>
   );
 }
@@ -272,15 +272,15 @@ function RatingsSpread({ values }: { values: number[] }) {
   const avg = values.length ? values.reduce((x, y) => x + y, 0) / values.length : null;
   return (
     <div className="flex-1 flex flex-col">
-      <div className="text-[12.5px] mb-2">
+      <div className="text-[1.0417rem] mb-2">
         <b className="text-ink">{values.length}</b> <span className="text-dim">ratings{avg != null ? ` · avg ${avg.toFixed(1)}` : ""}</span>
       </div>
-      <div className="flex items-end gap-[3px] h-[64px]">
+      <div className="flex items-end gap-[0.25rem] h-[5.3333rem]">
         {buckets.map((n, i) => (
           <div key={i} title={`${i + 1}: ${n}`} className="flex-1 rounded-t-[3px] bg-accent-fill" style={{ height: `${Math.max(4, (n / most) * 100)}%`, opacity: n ? 1 : 0.18 }} />
         ))}
       </div>
-      <div className="flex justify-between text-[10.5px] text-dim mt-1.5">
+      <div className="flex justify-between text-[0.875rem] text-dim mt-1.5">
         <span>★ 1</span>
         <span>★ 10</span>
       </div>
@@ -289,14 +289,14 @@ function RatingsSpread({ values }: { values: number[] }) {
 }
 
 function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
-  if (genres.length === 0) return <p className="m-0 text-[12.5px] text-dim">Nothing tracked yet.</p>;
+  if (genres.length === 0) return <p className="m-0 text-[1.0417rem] text-dim">Nothing tracked yet.</p>;
   const most = Math.max(...genres.map((g) => g.share));
   return (
-    <ul className="m-0 p-0 list-none grid gap-[7px]">
+    <ul className="m-0 p-0 list-none grid gap-[0.5833rem]">
       {genres.map((g) => (
-        <li key={g.name} className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_30px] items-center gap-1.5 text-[12.5px]">
+        <li key={g.name} className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_30px] items-center gap-1.5 text-[1.0417rem]">
           <span className="truncate text-ink">{g.name}</span>
-          <span className="h-[5px] rounded-full bg-card-hi overflow-hidden">
+          <span className="h-[0.4167rem] rounded-full bg-card-hi overflow-hidden">
             <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${(g.share / most) * 100}%` }} />
           </span>
           <span className="text-right text-dim">{Math.round(g.share * 100)}%</span>
@@ -370,7 +370,7 @@ function FavouriteCard({ v }: { v: PublicProfileView }) {
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="m-0 rounded-shell bg-piece p-3 text-[12.5px] text-dim">{children}</p>;
+  return <p className="m-0 rounded-shell bg-piece p-3 text-[1.0417rem] text-dim">{children}</p>;
 }
 
 // What they have been doing lately, newest first: watches from the diary
@@ -413,8 +413,8 @@ function PosterGrid({ titles }: { titles: ProfileTitle[] }) {
                 <img src={t.poster} alt="" className="w-full h-full object-cover" loading="lazy" />
               )}
             </span>
-            <span className="block mt-1.5 text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{t.title}</span>
-            <span className="block text-[12.5px] leading-[16px] text-dim">
+            <span className="block mt-1.5 text-[1.0417rem] leading-[1.3333rem] truncate group-hover:text-accent transition-colors">{t.title}</span>
+            <span className="block text-[1.0417rem] leading-[1.3333rem] text-dim">
               {t.year}
               {t.kind === "show" && " · Series"}
             </span>
@@ -438,8 +438,8 @@ function LikedGrid({ items }: { items: LikedItem[] }) {
                 <img src={t.poster} alt="" className="w-full h-full object-cover" loading="lazy" />
               )}
             </span>
-            <span className="block mt-1.5 text-[12.5px] leading-[16px] truncate group-hover:text-accent transition-colors">{t.title}</span>
-            <span className="block text-[12.5px] leading-[16px] text-dim truncate">
+            <span className="block mt-1.5 text-[1.0417rem] leading-[1.3333rem] truncate group-hover:text-accent transition-colors">{t.title}</span>
+            <span className="block text-[1.0417rem] leading-[1.3333rem] text-dim truncate">
               {t.kind === "review" ? "Review" : "List"} by @{t.owner}
             </span>
           </Link>

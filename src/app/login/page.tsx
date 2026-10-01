@@ -25,17 +25,17 @@ export default async function Login({ searchParams }: PageProps<"/login">) {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-10 pb-20 flex-1">
-        <div className="max-w-[288px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-3">
+        <div className="max-w-[24rem] mx-auto grid grid-cols-[minmax(0,1fr)] gap-3">
           <div className={SHELL}>
             <div className="rounded-shell bg-piece p-4">
               <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase">Sign in</h1>
-              <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">
+              <p className="m-0 mt-2 text-[1.0417rem] leading-[1.6] text-mid-tone">
                 {intro(enabled.length > 0, process.env.NEXT_PUBLIC_EMAIL_CODE === "on")}
               </p>
               <LoginForm next={next} initialError={error} providers={enabled} />
             </div>
           </div>
-          <p className="m-0 px-2 text-[12px] leading-[1.6] text-dim">
+          <p className="m-0 px-2 text-[1rem] leading-[1.6] text-dim">
             By signing in you agree to the{" "}
             <Link href="/terms" className="text-accent no-underline hover:underline">
               Terms
@@ -65,19 +65,19 @@ function NotOpen() {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-10 pb-20 flex-1">
-        <div className="max-w-[288px] mx-auto">
+        <div className="max-w-[24rem] mx-auto">
           <div className={SHELL}>
             <div className="rounded-shell bg-piece p-4 grid gap-3">
               <h1 className="!text-[clamp(32px,4.4vw,48px)] !leading-[.95] tracking-[.02em] uppercase">Not open yet</h1>
-              <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">
+              <p className="m-0 text-[1.0417rem] leading-[1.6] text-mid-tone">
                 Kodigo accounts on the web are coming soon: your library, reviews, lists and profile, here and on your phone. Signing up and signing in aren&apos;t open yet.
               </p>
-              <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">Meanwhile, look around, or get the app.</p>
+              <p className="m-0 text-[1.0417rem] leading-[1.6] text-mid-tone">Meanwhile, look around, or get the app.</p>
               <div className="flex flex-wrap gap-2">
-                <Link href="/about" className="inline-flex items-center h-10 px-5 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold no-underline">
+                <Link href="/about" className="inline-flex items-center h-10 px-5 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold no-underline">
                   Get the app
                 </Link>
-                <Link href="/explore" className="inline-flex items-center h-10 px-5 rounded-full bg-card border border-hair text-ink text-[12.5px] font-semibold no-underline hover:text-accent">
+                <Link href="/explore" className="inline-flex items-center h-10 px-5 rounded-full bg-card border border-hair text-ink text-[1.0417rem] font-semibold no-underline hover:text-accent">
                   Explore
                 </Link>
               </div>

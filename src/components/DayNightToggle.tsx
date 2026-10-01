@@ -40,7 +40,7 @@ export function DayNightToggle({ onPicture = false }: { onPicture?: boolean }) {
   const idle = onPicture ? "text-white/70 hover:text-white" : "text-dim hover:text-ink";
 
   return (
-    <div role="group" aria-label="Day or night" className={`inline-flex items-center p-[3px] rounded-full border ${shell}`}>
+    <div role="group" aria-label="Day or night" className={`inline-flex items-center p-[0.25rem] rounded-full border ${shell}`}>
       {[false, true].map((isDark) => {
         const on = dark === isDark;
         return (

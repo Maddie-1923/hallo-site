@@ -24,7 +24,7 @@ const NOUN: Record<ReportKind, string> = { review: "review", comment: "comment",
 function Sheet({ label, onClose, busy = false, children }: { label: string; onClose: () => void; busy?: boolean; children: React.ReactNode }) {
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={label} className="fixed inset-0 z-[100] bg-black/70 flex items-end sm:items-center justify-center sm:p-4" onClick={() => !busy && onClose()}>
-      <div className="w-full sm:max-w-[480px] max-h-[92vh] overflow-y-auto rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl p-2" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full sm:max-w-[40rem] max-h-[92vh] overflow-y-auto rounded-t-shell sm:rounded-shell bg-card border border-hair shadow-2xl p-2" onClick={(e) => e.stopPropagation()}>
         <div className="rounded-shell bg-piece p-4 grid gap-3">{children}</div>
       </div>
     </div>,
@@ -32,9 +32,9 @@ function Sheet({ label, onClose, busy = false, children }: { label: string; onCl
   );
 }
 
-const quiet = "h-9 px-4 rounded-full bg-card border border-hair text-[12.5px] font-semibold text-ink cursor-pointer disabled:opacity-40 disabled:cursor-default";
-const strong = "h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default";
-const danger = "h-9 px-4 rounded-full bg-loved text-white text-[12.5px] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default";
+const quiet = "h-9 px-4 rounded-full bg-card border border-hair text-[1.0417rem] font-semibold text-ink cursor-pointer disabled:opacity-40 disabled:cursor-default";
+const strong = "h-9 px-4 rounded-full bg-accent-fill text-on-accent text-[1.0417rem] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default";
+const danger = "h-9 px-4 rounded-full bg-loved text-white text-[1.0417rem] font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-default";
 
 /** Report: why, a note if they like, then thanks and the offer to block. */
 export function ReportSheet({ what, onClose }: { what: ReportTarget; onClose: () => void }) {
@@ -68,10 +68,10 @@ export function ReportSheet({ what, onClose }: { what: ReportTarget; onClose: ()
       {sent ? (
         <>
           <h3 className="!text-[clamp(24px,2.6vw,30px)] !leading-none uppercase">Thanks for telling us</h3>
-          <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">
+          <p className="m-0 text-[1.0417rem] leading-[1.6] text-mid-tone">
             We&apos;ll look at it and act if it breaks the <a href="/terms#community-rules" className="text-accent no-underline hover:underline">community rules</a>. @{what.author} isn&apos;t told who reported them.
           </p>
-          <p className="m-0 text-[12.5px] leading-[1.6] text-dim">If someone is in danger, contact your local emergency services first.</p>
+          <p className="m-0 text-[1.0417rem] leading-[1.6] text-dim">If someone is in danger, contact your local emergency services first.</p>
           <div className="flex justify-end gap-2">
             {!blocked && (
               <button type="button" onClick={() => setBlockNext(true)} className={quiet}>
@@ -86,7 +86,7 @@ export function ReportSheet({ what, onClose }: { what: ReportTarget; onClose: ()
       ) : (
         <>
           <h3 className="!text-[clamp(24px,2.6vw,30px)] !leading-none uppercase">Report this {noun}</h3>
-          {what.excerpt && <p className="m-0 text-[12.5px] leading-[1.6] text-dim line-clamp-2">&ldquo;{what.excerpt}&rdquo;</p>}
+          {what.excerpt && <p className="m-0 text-[1.0417rem] leading-[1.6] text-dim line-clamp-2">&ldquo;{what.excerpt}&rdquo;</p>}
           <div role="radiogroup" aria-label="What's wrong?" className="grid gap-1">
             {REPORT_REASONS.filter(([id]) => !(id === "spoilers" && what.kind === "profile")).map(([id, label, hint]) => {
               const on = reason === id;
@@ -103,24 +103,24 @@ export function ReportSheet({ what, onClose }: { what: ReportTarget; onClose: ()
                     {on && <span className="w-2 h-2 rounded-full bg-accent-fill" />}
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[12.5px] font-semibold text-ink">{label}</span>
-                    <span className="block text-[12.5px] leading-[1.5] text-dim">{hint}</span>
+                    <span className="block text-[1.0417rem] font-semibold text-ink">{label}</span>
+                    <span className="block text-[1.0417rem] leading-[1.5] text-dim">{hint}</span>
                   </span>
                 </button>
               );
             })}
           </div>
-          <label className="grid gap-1.5 text-[12.5px] text-dim">
+          <label className="grid gap-1.5 text-[1.0417rem] text-dim">
             {reason === "other" ? "What's wrong?" : "Anything we should know? (optional)"}
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value.slice(0, 500))}
               rows={3}
-              className="rounded-[10px] bg-card border border-hair px-2.5 py-1.5 text-[12.5px] leading-[1.5] text-ink resize-none focus:outline-none focus:border-accent"
+              className="rounded-[10px] bg-card border border-hair px-2.5 py-1.5 text-[1.0417rem] leading-[1.5] text-ink resize-none focus:outline-none focus:border-accent"
             />
           </label>
           {error && (
-            <p role="alert" className="m-0 text-[12.5px] text-loved">
+            <p role="alert" className="m-0 text-[1.0417rem] text-loved">
               {error}
             </p>
           )}
@@ -143,7 +143,7 @@ export function BlockSheet({ username, onClose }: { username: string; onClose: (
   return (
     <Sheet label={`Block @${username}?`} onClose={onClose}>
       <h3 className="!text-[clamp(24px,2.6vw,30px)] !leading-none uppercase">Block @{username}?</h3>
-      <ul className="m-0 pl-4 grid gap-1 text-[12.5px] leading-[1.6] text-mid-tone list-disc">
+      <ul className="m-0 pl-4 grid gap-1 text-[1.0417rem] leading-[1.6] text-mid-tone list-disc">
         <li>You won&apos;t see their profile, reviews, lists or comments, and they won&apos;t see yours.</li>
         <li>They can&apos;t follow you, like your things or comment on them.</li>
         <li>If either of you follows the other, that ends.</li>
@@ -173,7 +173,7 @@ export function MoreButton({ what, className = "" }: { what: ReportTarget; class
   const [sheet, setSheet] = useState<"report" | "block" | null>(null);
   const blocked = useBlocked(what.author);
   useSafety();
-  const item = "w-full flex items-center gap-3 px-4 py-2.5 text-[13px] text-ink hover:bg-card-hi cursor-pointer text-left";
+  const item = "w-full flex items-center gap-3 px-4 py-2.5 text-[1.0833rem] text-ink hover:bg-card-hi cursor-pointer text-left";
   return (
     <span className={className}>
       <Menu
@@ -234,10 +234,10 @@ export function BlockGate({ username, bare = false, children }: { username: stri
   if (!blocked) return <>{children}</>;
   return (
     <div className={bare ? "" : "px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1"}>
-      <div className="max-w-[520px] mx-auto rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+      <div className="max-w-[43.3333rem] mx-auto rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]">
         <div className="rounded-shell bg-piece p-4 grid gap-3">
           <h1 className="!text-[clamp(28px,3vw,36px)] !leading-none uppercase">You&apos;ve blocked @{username}</h1>
-          <p className="m-0 text-[12.5px] leading-[1.6] text-mid-tone">You don&apos;t see their profile, reviews, lists or comments, and they don&apos;t see yours.</p>
+          <p className="m-0 text-[1.0417rem] leading-[1.6] text-mid-tone">You don&apos;t see their profile, reviews, lists or comments, and they don&apos;t see yours.</p>
           <div>
             <button type="button" onClick={() => unblock(username)} className={quiet}>
               Unblock

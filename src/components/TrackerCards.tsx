@@ -28,7 +28,7 @@ function Progress({ bar, count }: { bar: { done: number; total: number }; count:
       <span className="flex-1 h-[2px] rounded-full bg-track overflow-hidden">
         <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />
       </span>
-      <span className="text-[11px] leading-none text-dim whitespace-nowrap tabular-nums">{count}</span>
+      <span className="text-[0.9167rem] leading-none text-dim whitespace-nowrap tabular-nums">{count}</span>
     </div>
   );
 }
@@ -61,15 +61,15 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
               // the title's page, as the artwork does in the app.
               <Link href={t.href} aria-label={`Open ${t.title}`} onClick={(e) => e.stopPropagation()} className="shrink-0 rounded-[8px] hover:ring-2 hover:ring-white/70">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={t.poster} alt="" loading="lazy" className="block w-[56px] sm:w-[68px] aspect-[2/3] rounded-[8px] object-cover border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,.5)]" />
+                <img src={t.poster} alt="" loading="lazy" className="block w-[4.6667rem] sm:w-[5.6667rem] aspect-[2/3] rounded-[8px] object-cover border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,.5)]" />
               </Link>
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={t.poster} alt="" loading="lazy" className="w-[56px] sm:w-[68px] aspect-[2/3] shrink-0 rounded-[8px] object-cover border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,.5)]" />
+              <img src={t.poster} alt="" loading="lazy" className="w-[4.6667rem] sm:w-[5.6667rem] aspect-[2/3] shrink-0 rounded-[8px] object-cover border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,.5)]" />
             ))}
           <span className="min-w-0 flex-1 grid gap-1">
             <span className="flex items-start gap-2">
-              <span className="min-w-0 flex-1 display text-[24px] leading-none tracking-[.03em] uppercase text-white truncate">{t.title}</span>
+              <span className="min-w-0 flex-1 display text-[2rem] leading-none tracking-[.03em] uppercase text-white truncate">{t.title}</span>
               <Countdown days={countdown} film={t.kind === "movie"} light />
             </span>
             {countdown !== undefined ? (
@@ -77,11 +77,11 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
               // code on its own, the episode's name under it.
               <>
                 <CodeLine code={lines[0]} band={band} />
-                {lines[1] && <span className="text-[12.5px] leading-[16px] text-white/65 truncate">{lines[1]}</span>}
+                {lines[1] && <span className="text-[1.0417rem] leading-[1.3333rem] text-white/65 truncate">{lines[1]}</span>}
               </>
             ) : (
               <span className="flex items-center gap-2">
-                <span className="min-w-0 flex-1 text-[12.5px] leading-[16px] text-white/85 truncate">
+                <span className="min-w-0 flex-1 text-[1.0417rem] leading-[1.3333rem] text-white/85 truncate">
                   {lines[0]}
                   {lines[1] && <span className="text-white/65"> · {lines[1]}</span>}
                 </span>
@@ -112,7 +112,7 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
 function CodeLine({ code, band }: { code: string; band: EpisodeBadge | null | undefined }) {
   return (
     <span className="flex items-center gap-2">
-      <span className="min-w-0 flex-1 text-[12.5px] leading-[16px] text-white/85 truncate">{code}</span>
+      <span className="min-w-0 flex-1 text-[1.0417rem] leading-[1.3333rem] text-white/85 truncate">{code}</span>
       <EpisodePill badge={band ?? null} />
     </span>
   );
@@ -160,12 +160,12 @@ export function PosterTile({ t, lines, bar, keys, className = "", as: Tag = "li"
           <span aria-hidden className="pointer-events-none absolute inset-0 z-[3] rounded-t-[12px] rounded-b-[8px] ring-0 group-hover/card:ring-2 ring-accent-fill ring-inset transition-[box-shadow]" />
         </div>
         <div className="px-2.5 pt-2.5 pb-2 grid gap-0.5">
-          <div className="text-[12.5px] font-semibold leading-tight text-ink truncate">{t.title}</div>
-          <div className="text-[12px] leading-tight text-mid-tone truncate">{lines[0] || " "}</div>
+          <div className="text-[1.0417rem] font-semibold leading-tight text-ink truncate">{t.title}</div>
+          <div className="text-[1rem] leading-tight text-mid-tone truncate">{lines[0] || " "}</div>
           {/* Under a Coming soon poster, the wait rather than the name, as
               the app's tiles have it: "5 days", or nothing under two days,
               where the heading has said Today or Tomorrow. */}
-          <div className="text-[12px] leading-tight text-dim truncate">{bar ? countLine(bar) : countdown !== undefined ? (countdown >= 2 ? `${countdown} days` : " ") : lines[1] || " "}</div>
+          <div className="text-[1rem] leading-tight text-dim truncate">{bar ? countLine(bar) : countdown !== undefined ? (countdown >= 2 ? `${countdown} days` : " ") : lines[1] || " "}</div>
           {bar && (
             <span className="mt-1 block h-[2px] rounded-full bg-track overflow-hidden">
               <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${Math.round((bar.done / bar.total) * 100)}%` }} />

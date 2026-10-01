@@ -29,7 +29,7 @@ export default async function RailPage({ params }: PageProps<"/explore/rail/[slu
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-8 pb-20 flex-1">
-        <Link href={rail.back} className="text-[12.5px] font-semibold text-dim no-underline hover:text-ink">
+        <Link href={rail.back} className="text-[1.0417rem] font-semibold text-dim no-underline hover:text-ink">
           ← {backLabel}
         </Link>
         <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase !m-0 mt-3">{rail.title(regionName(region))}</h1>

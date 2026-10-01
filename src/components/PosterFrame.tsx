@@ -25,7 +25,7 @@ export function PosterFrame({ posters }: { posters: { key: string; src: string }
   }, []);
 
   return (
-    <div className="relative mx-auto w-full max-w-[380px]">
+    <div className="relative mx-auto w-full max-w-[31.6667rem]">
       {/* A soft pool of the poster's own colour under the frame, so it sits on
           the page rather than floating on flat grey. */}
       <div aria-hidden className="absolute -inset-8 overflow-hidden pointer-events-none">

@@ -50,11 +50,11 @@ export function WatchedOn({ value, onChange, out }: { value: string; onChange: (
 
   return (
     <div ref={box} className="relative">
-      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="rounded-[10px] bg-card border border-hair px-2.5 py-1 text-[12.5px] text-ink cursor-pointer hover:border-dim">
+      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="rounded-[10px] bg-card border border-hair px-2.5 py-1 text-[1.0417rem] text-ink cursor-pointer hover:border-dim">
         {chosen === today ? "Today" : long(chosen)}
       </button>
       {open && (
-        <div role="dialog" aria-label="Watched on" className="absolute z-40 left-0 top-[calc(100%+6px)] w-[264px] rounded-shell bg-card border border-hair shadow-[0_20px_50px_rgba(0,0,0,.6)] p-3 grid gap-3">
+        <div role="dialog" aria-label="Watched on" className="absolute z-40 left-0 top-[calc(100%+6px)] w-[22rem] rounded-shell bg-card border border-hair shadow-[0_20px_50px_rgba(0,0,0,.6)] p-3 grid gap-3">
           <div className="flex flex-wrap gap-1.5">
             <Quick on={chosen === today} onClick={() => pick(today)}>
               Today
@@ -66,7 +66,7 @@ export function WatchedOn({ value, onChange, out }: { value: string; onChange: (
             )}
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-[12.5px] font-semibold text-ink">{month.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</span>
+            <span className="text-[1.0417rem] font-semibold text-ink">{month.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</span>
             <span className="flex gap-1">
               <Arrow label="Month before" onClick={() => shift(-1)} d="M15 6l-6 6 6 6" />
               <Arrow label="Month after" onClick={() => shift(1)} d="M9 6l6 6-6 6" off={month >= thisMonth} />
@@ -74,7 +74,7 @@ export function WatchedOn({ value, onChange, out }: { value: string; onChange: (
           </div>
           <div className="grid grid-cols-7 gap-y-1 text-center">
             {WEEK.map((w, i) => (
-              <span key={i} className="text-[10.5px] font-bold text-dim pb-1">
+              <span key={i} className="text-[0.875rem] font-bold text-dim pb-1">
                 {w}
               </span>
             ))}
@@ -91,7 +91,7 @@ export function WatchedOn({ value, onChange, out }: { value: string; onChange: (
                   type="button"
                   disabled={future}
                   onClick={() => pick(v)}
-                  className={`mx-auto w-8 h-8 rounded-full text-[12.5px] tabular-nums cursor-pointer disabled:cursor-default disabled:opacity-30 ${on ? "bg-accent-fill text-on-accent font-semibold" : v === today ? "text-accent font-semibold enabled:hover:bg-piece" : "text-ink enabled:hover:bg-piece"}`}
+                  className={`mx-auto w-8 h-8 rounded-full text-[1.0417rem] tabular-nums cursor-pointer disabled:cursor-default disabled:opacity-30 ${on ? "bg-accent-fill text-on-accent font-semibold" : v === today ? "text-accent font-semibold enabled:hover:bg-piece" : "text-ink enabled:hover:bg-piece"}`}
                 >
                   {i + 1}
                 </button>
@@ -106,7 +106,7 @@ export function WatchedOn({ value, onChange, out }: { value: string; onChange: (
 
 function Quick({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button type="button" onClick={onClick} className={`rounded-full px-3 py-[6px] text-[12.5px] leading-none cursor-pointer ${on ? "bg-accent-fill text-on-accent font-semibold" : "bg-piece text-ink hover:bg-card-hi"}`}>
+    <button type="button" onClick={onClick} className={`rounded-full px-3 py-[0.5rem] text-[1.0417rem] leading-none cursor-pointer ${on ? "bg-accent-fill text-on-accent font-semibold" : "bg-piece text-ink hover:bg-card-hi"}`}>
       {children}
     </button>
   );

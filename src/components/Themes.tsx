@@ -7,7 +7,7 @@ import { useState } from "react";
 export function Themes({ items }: { items: string[] }) {
   const [all, setAll] = useState(false);
   const shown = all ? items : items.slice(0, 10);
-  const chip = "inline-flex items-center rounded-[8px] bg-[color:var(--quiet)] px-2 py-[4px] text-[12.5px] leading-[1.2] text-ink";
+  const chip = "inline-flex items-center rounded-[8px] bg-[color:var(--quiet)] px-2 py-[0.3333rem] text-[1.0417rem] leading-[1.2] text-ink";
   return (
     <>
       {shown.map((k) => (

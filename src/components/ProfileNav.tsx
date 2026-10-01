@@ -84,8 +84,8 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
             <rect x="5" y="11" width="14" height="9" rx="2" />
             <path d="M8 11V8a4 4 0 0 1 8 0v3" />
           </svg>
-          <div className="text-[12.5px] font-semibold text-ink">This profile is private</div>
-          <div className="text-[12.5px] text-dim max-w-[40ch]">Only people they let follow them can see their reviews, lists and what they watch.</div>
+          <div className="text-[1.0417rem] font-semibold text-ink">This profile is private</div>
+          <div className="text-[1.0417rem] text-dim max-w-[40ch]">Only people they let follow them can see their reviews, lists and what they watch.</div>
         </div>
       </section>
     );
@@ -93,7 +93,7 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
   return (
     <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
       {aside && (
-        <div className="lg:col-start-2 lg:row-start-2 max-lg:h-[640px] lg:min-h-[480px] flex flex-col">{aside}</div>
+        <div className="lg:col-start-2 lg:row-start-2 max-lg:h-[53.3333rem] lg:min-h-[40rem] flex flex-col">{aside}</div>
       )}
       <div className="lg:col-start-1 lg:row-start-1 min-w-0">
       <div
@@ -115,7 +115,7 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
               aria-selected={on}
               aria-controls={`panel-${s.id}`}
               onClick={() => choose(s.id)}
-              className={`shrink-0 inline-flex items-center gap-1.5 ${flat ? "grow justify-center px-2 tracking-[.07em]" : "px-4 tracking-[.12em]"} py-2 rounded-full text-[10.5px] leading-none font-bold uppercase cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+              className={`shrink-0 inline-flex items-center gap-1.5 ${flat ? "grow justify-center px-2 tracking-[.07em]" : "px-4 tracking-[.12em]"} py-2 rounded-full text-[0.875rem] leading-none font-bold uppercase cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
             >
               {s.label}
               {hidden.has(s.id) && (
@@ -137,7 +137,7 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
         role="tabpanel"
         id={`panel-${shown.id}`}
         aria-labelledby={`tab-${shown.id}`}
-        className={`${aside || flat ? "" : "mt-2"} min-w-0 lg:col-start-1 lg:row-start-2 ${flat ? "flex-1 min-h-0 overflow-y-auto soft-scroll [scrollbar-gutter:stable] rounded-shell bg-piece p-3 pr-[1px]" : shown.bare ? "" : "min-h-[240px] rounded-shell bg-card border border-hair p-2"}`}
+        className={`${aside || flat ? "" : "mt-2"} min-w-0 lg:col-start-1 lg:row-start-2 ${flat ? "flex-1 min-h-0 overflow-y-auto soft-scroll [scrollbar-gutter:stable] rounded-shell bg-piece p-3 pr-[1px]" : shown.bare ? "" : "min-h-[20rem] rounded-shell bg-card border border-hair p-2"}`}
       >
         {shown.content}
       </div>

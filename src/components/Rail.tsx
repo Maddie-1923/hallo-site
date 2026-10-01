@@ -85,7 +85,7 @@ export function Rail({ children }: { children: React.ReactNode }) {
               aria-selected={i === page}
               aria-label={`Set ${i + 1} of ${pages}`}
               onClick={() => ref.current?.scrollTo({ left: i * (step || ref.current.clientWidth), behavior: "smooth" })}
-              className={`h-[3px] rounded-full cursor-pointer transition-all duration-300 ${i === page ? "w-7 bg-accent-fill" : "w-4 bg-hair hover:bg-dim"}`}
+              className={`h-[0.25rem] rounded-full cursor-pointer transition-all duration-300 ${i === page ? "w-7 bg-accent-fill" : "w-4 bg-hair hover:bg-dim"}`}
             />
           ))}
         </div>

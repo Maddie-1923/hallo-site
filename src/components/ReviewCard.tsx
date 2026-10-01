@@ -13,7 +13,7 @@ import { PinReview } from "./PinReview";
 export function ReviewCard({ r, username, avatar, onTitlePage = false, owner = false }: { r: ReviewEntry; username: string; avatar: string | null; onTitlePage?: boolean; owner?: boolean }) {
   const paragraphs = r.text.split(/\n\s*\n/);
   const body = (
-    <div className="mt-4 grid gap-2 text-[12.5px] leading-[1.6] text-bone max-w-[80ch]">
+    <div className="mt-4 grid gap-2 text-[1.0417rem] leading-[1.6] text-bone max-w-[80ch]">
       {paragraphs.map((p, i) => (
         <p key={i} className="m-0">
           {p}
@@ -34,7 +34,7 @@ export function ReviewCard({ r, username, avatar, onTitlePage = false, owner = f
       <div className="min-w-0 flex-1">
         {(r.pinned || owner) && !onTitlePage && (
           <div className="mb-2 flex items-center gap-3">
-            {r.pinned && <span className="px-2 py-[2px] rounded-full bg-accent-fill text-on-accent text-[10px] font-bold uppercase tracking-[.12em]">Pinned</span>}
+            {r.pinned && <span className="px-2 py-[2px] rounded-full bg-accent-fill text-on-accent text-[0.8333rem] font-bold uppercase tracking-[.12em]">Pinned</span>}
             {owner && <PinReview reviewKey={r.key} pinned={!!r.pinned} />}
           </div>
         )}
@@ -42,8 +42,8 @@ export function ReviewCard({ r, username, avatar, onTitlePage = false, owner = f
 
         {r.spoilers ? (
           <details className="mt-4 group/sp">
-            <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[12.5px] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
-              <span className="px-2 py-[2px] rounded-full bg-card border border-hair text-[10.5px] font-bold uppercase tracking-[.12em]">Spoilers</span>
+            <summary className="list-none cursor-pointer inline-flex items-center gap-2 text-[1.0417rem] text-dim hover:text-ink [&::-webkit-details-marker]:hidden">
+              <span className="px-2 py-[2px] rounded-full bg-card border border-hair text-[0.875rem] font-bold uppercase tracking-[.12em]">Spoilers</span>
               <span className="group-open/sp:hidden">This review gives things away. Show it anyway.</span>
               <span className="hidden group-open/sp:inline">Hide it again</span>
             </summary>

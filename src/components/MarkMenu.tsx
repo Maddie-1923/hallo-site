@@ -114,7 +114,7 @@ export function MarkMenu({
     });
   }
 
-  const row = "w-full text-left px-3.5 py-2 text-[13px] hover:bg-card-hi cursor-pointer disabled:opacity-50 disabled:cursor-default text-ink no-underline block";
+  const row = "w-full text-left px-3.5 py-2 text-[1.0833rem] hover:bg-card-hi cursor-pointer disabled:opacity-50 disabled:cursor-default text-ink no-underline block";
 
   if (!pos || typeof document === "undefined") return null;
   return createPortal(
@@ -126,7 +126,7 @@ export function MarkMenu({
         e.stopPropagation();
       }}
       style={{ position: "fixed", ...pos }}
-      className="z-[70] w-[232px] rounded-shell border border-hair bg-card shadow-[0_20px_50px_rgba(0,0,0,.6)] overflow-hidden text-left font-normal"
+      className="z-[70] w-[19.3333rem] rounded-shell border border-hair bg-card shadow-[0_20px_50px_rgba(0,0,0,.6)] overflow-hidden text-left font-normal"
     >
       <div className="px-1.5 pt-2 pb-1.5">
         <StarRating

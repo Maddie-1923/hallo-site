@@ -15,7 +15,7 @@ export function YearChart({ months }: { months: number[] }) {
   const peak = months.indexOf(Math.max(...months));
   return (
     <div className="relative">
-      <div className="relative h-[180px] flex items-end gap-2 border-b border-hair" role="img" aria-label="Watches each month">
+      <div className="relative h-[15rem] flex items-end gap-2 border-b border-hair" role="img" aria-label="Watches each month">
         {/* Three faint guides, recessive. */}
         {[0.33, 0.66, 1].map((f) => (
           <span key={f} aria-hidden className="absolute left-0 right-0 border-t border-dashed border-hair/60" style={{ bottom: `${f * 100}%` }} />
@@ -32,11 +32,11 @@ export function YearChart({ months }: { months: number[] }) {
             className="relative flex-1 h-full flex items-end justify-center cursor-default focus:outline-none group"
           >
             <span
-              className={`block w-full max-w-[28px] rounded-t-[4px] transition-opacity ${n ? "bg-accent-fill" : "bg-hair"} ${at != null && at !== i ? "opacity-45" : ""}`}
+              className={`block w-full max-w-[2.3333rem] rounded-t-[4px] transition-opacity ${n ? "bg-accent-fill" : "bg-hair"} ${at != null && at !== i ? "opacity-45" : ""}`}
               style={{ height: n ? `${Math.max(3, (n / max) * 100)}%` : "2px" }}
             />
             {i === peak && n > 0 && at == null && (
-              <span className="absolute text-[12.5px] font-semibold text-ink tabular-nums" style={{ bottom: `calc(${(n / max) * 100}% + 4px)` }}>
+              <span className="absolute text-[1.0417rem] font-semibold text-ink tabular-nums" style={{ bottom: `calc(${(n / max) * 100}% + 4px)` }}>
                 {n}
               </span>
             )}
@@ -45,14 +45,14 @@ export function YearChart({ months }: { months: number[] }) {
       </div>
       <div className="mt-1.5 flex gap-2">
         {MONTHS.map((m, i) => (
-          <span key={m} className={`flex-1 text-center text-[10.5px] font-bold uppercase tracking-[.08em] ${i === at ? "text-ink" : "text-dim"}`}>
+          <span key={m} className={`flex-1 text-center text-[0.875rem] font-bold uppercase tracking-[.08em] ${i === at ? "text-ink" : "text-dim"}`}>
             {m.slice(0, 1)}
             <span className="max-sm:hidden">{m.slice(1)}</span>
           </span>
         ))}
       </div>
       {at != null && (
-        <div role="status" className="absolute top-0 right-0 rounded-[10px] bg-card border border-hair px-3 py-1.5 text-[12.5px] shadow-[0_8px_20px_rgba(0,0,0,.35)] pointer-events-none">
+        <div role="status" className="absolute top-0 right-0 rounded-[10px] bg-card border border-hair px-3 py-1.5 text-[1.0417rem] shadow-[0_8px_20px_rgba(0,0,0,.35)] pointer-events-none">
           <span className="text-dim">{FULL[at]}</span> <b className="font-semibold text-ink tabular-nums">{months[at]}</b> <span className="text-dim">{months[at] === 1 ? "watch" : "watches"}</span>
         </div>
       )}

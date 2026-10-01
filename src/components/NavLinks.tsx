@@ -39,7 +39,7 @@ export function NavLinks({ links }: { links: [string, string][] }) {
             {label}
             {/* The accent line under the current tab, hung from the link's
                 own padding so it sits on the bar's bottom edge. */}
-            {on && <span aria-hidden className="absolute left-0 right-0 bottom-0 h-[3px] rounded-t-full" style={{ background: STRIPE[href] ?? "var(--accent-fill)" }} />}
+            {on && <span aria-hidden className="absolute left-0 right-0 bottom-0 h-[0.25rem] rounded-t-full" style={{ background: STRIPE[href] ?? "var(--accent-fill)" }} />}
           </Link>
         );
       })}

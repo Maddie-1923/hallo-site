@@ -113,7 +113,7 @@ function Finder({ onClose, onPick }: { onClose: () => void; onPick: (p: Picked) 
 
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label="Log something you watched" className="fixed inset-0 z-[100] bg-black/70 flex items-start justify-center p-4 pt-[12vh]" onClick={onClose}>
-      <div className="w-full max-w-[520px] rounded-shell bg-card border border-hair shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-[43.3333rem] rounded-shell bg-card border border-hair shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="p-3 border-b border-hair flex items-center gap-2">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden className="text-dim shrink-0 ml-1">
             <circle cx="11" cy="11" r="7" />
@@ -138,7 +138,7 @@ function Finder({ onClose, onPick }: { onClose: () => void; onPick: (p: Picked) 
             }}
             placeholder="What did you watch?"
             aria-label="Search for a film or series"
-            className="flex-1 min-w-0 h-10 bg-transparent text-[15px] text-ink placeholder:text-dim focus:outline-none"
+            className="flex-1 min-w-0 h-10 bg-transparent text-[1.25rem] text-ink placeholder:text-dim focus:outline-none"
           />
           <button type="button" onClick={onClose} aria-label="Close" className="shrink-0 w-9 h-9 rounded-full bg-card-hi hover:bg-hair text-ink flex items-center justify-center cursor-pointer">
             <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="block">
@@ -167,17 +167,17 @@ function Finder({ onClose, onPick }: { onClose: () => void; onPick: (p: Picked) 
                       )}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[13px] font-semibold text-ink truncate">{title}</span>
-                      <span className="block text-[12.5px] text-dim">{[when, hit.kind === "show" ? "Series" : "Film"].filter(Boolean).join(" · ")}</span>
+                      <span className="block text-[1.0833rem] font-semibold text-ink truncate">{title}</span>
+                      <span className="block text-[1.0417rem] text-dim">{[when, hit.kind === "show" ? "Series" : "Film"].filter(Boolean).join(" · ")}</span>
                     </span>
-                    {loading === i && <span className="text-[12px] text-dim shrink-0">Opening…</span>}
+                    {loading === i && <span className="text-[1rem] text-dim shrink-0">Opening…</span>}
                   </button>
                 </li>
               );
             })}
           </ul>
         ) : (
-          <p className="m-0 p-4 text-[12.5px] text-dim">{q.trim().length < 2 ? "Type a film or series. Press L on any page to open this." : searched === q.trim() ? `Nothing matches “${q.trim()}”.` : "Searching…"}</p>
+          <p className="m-0 p-4 text-[1.0417rem] text-dim">{q.trim().length < 2 ? "Type a film or series. Press L on any page to open this." : searched === q.trim() ? `Nothing matches “${q.trim()}”.` : "Searching…"}</p>
         )}
       </div>
     </div>,

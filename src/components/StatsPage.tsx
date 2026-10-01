@@ -156,17 +156,17 @@ export function StatsPage({ input, watchTime, owner }: { input: StatsInput; watc
   const moodList = MOODS.map((m) => ({ ...m, count: input.moods[m.id] ?? 0 })).filter((m) => m.count > 0).sort((a, b) => b.count - a.count);
 
   return (
-    <div className="max-w-[1100px] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
+    <div className="max-w-[91.6667rem] mx-auto grid grid-cols-[minmax(0,1fr)] gap-8">
       {/* The totals. */}
       <div className={SHELL}>
         <div className="grid gap-2">
           <div className="rounded-shell bg-piece p-3 flex flex-wrap items-end justify-between gap-2">
             <div>
               <h1 className="!text-[clamp(36px,5vw,60px)] !leading-[.9] tracking-[.02em] uppercase">Your stats</h1>
-              <p className="m-0 mt-2 text-[12.5px] leading-[1.6] text-mid-tone">Everything you&apos;ve watched, counted. Days follow this device&apos;s time zone.</p>
+              <p className="m-0 mt-2 text-[1.0417rem] leading-[1.6] text-mid-tone">Everything you&apos;ve watched, counted. Days follow this device&apos;s time zone.</p>
             </div>
             {owner && (
-              <Link href={`/u/${owner}/year/${new Date().getFullYear()}`} className="text-[12.5px] font-semibold text-accent no-underline hover:underline">
+              <Link href={`/u/${owner}/year/${new Date().getFullYear()}`} className="text-[1.0417rem] font-semibold text-accent no-underline hover:underline">
                 Your year in review →
               </Link>
             )}
@@ -209,15 +209,15 @@ export function StatsPage({ input, watchTime, owner }: { input: StatsInput; watc
             <div className="rounded-shell bg-piece p-3">
               <ul className="m-0 p-0 list-none divide-y divide-hair">
                 {facts.map(([k, v]) => (
-                  <li key={k} className="flex items-baseline justify-between gap-4 py-2 text-[12.5px]">
+                  <li key={k} className="flex items-baseline justify-between gap-4 py-2 text-[1.0417rem]">
                     <span className="text-dim">{k}</span>
                     <span className="text-ink text-right">{v}</span>
                   </li>
                 ))}
-                {facts.length === 0 && <li className="py-2 text-[12.5px] text-dim">Nothing dated yet.</li>}
+                {facts.length === 0 && <li className="py-2 text-[1.0417rem] text-dim">Nothing dated yet.</li>}
               </ul>
               {(tab === "movies" ? input.undatedFilms : input.undatedEpisodes) > 0 && (
-                <p className="m-0 mt-2 text-[12px] leading-[1.5] text-dim">
+                <p className="m-0 mt-2 text-[1rem] leading-[1.5] text-dim">
                   {(tab === "movies" ? input.undatedFilms : input.undatedEpisodes).toLocaleString("en")} {tab === "movies" ? "films were" : "episodes were"} marked watched without a date, from before Kodigo recorded when or from an import. They count in the totals, just not on any night.
                 </p>
               )}
@@ -270,9 +270,9 @@ export function StatsPage({ input, watchTime, owner }: { input: StatsInput; watc
                 {genresTop.length ? (
                   <ul className="m-0 p-0 list-none grid gap-2">
                     {genresTop.map((g) => (
-                      <li key={g.name} className="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_2.5rem] items-center gap-2 text-[12.5px]" title={`${g.name}: ${g.count}`}>
+                      <li key={g.name} className="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_2.5rem] items-center gap-2 text-[1.0417rem]" title={`${g.name}: ${g.count}`}>
                         <span className="truncate text-ink">{g.name}</span>
-                        <span className="h-[6px] rounded-full bg-card overflow-hidden">
+                        <span className="h-[0.5rem] rounded-full bg-card overflow-hidden">
                           <span className="block h-full rounded-full bg-accent-fill" style={{ width: `${(g.count / genresTop[0].count) * 100}%` }} />
                         </span>
                         <span className="text-right text-dim tabular-nums">{g.count}</span>
@@ -299,8 +299,8 @@ export function StatsPage({ input, watchTime, owner }: { input: StatsInput; watc
                             <img src={r.poster} alt="" className="w-full h-full object-cover" loading="lazy" />
                           )}
                         </span>
-                        <span className="block mt-1 text-[12px] truncate group-hover:text-accent">{r.title}</span>
-                        <span className="block text-[12px] text-dim">★ {r.rating}</span>
+                        <span className="block mt-1 text-[1rem] truncate group-hover:text-accent">{r.title}</span>
+                        <span className="block text-[1rem] text-dim">★ {r.rating}</span>
                       </Link>
                     </li>
                   ))}
@@ -314,7 +314,7 @@ export function StatsPage({ input, watchTime, owner }: { input: StatsInput; watc
                 {moodList.length ? (
                   <ul className="m-0 p-0 list-none flex flex-wrap gap-1.5">
                     {moodList.map((m) => (
-                      <li key={m.id} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-card text-[12.5px] text-ink">
+                      <li key={m.id} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-card text-[1.0417rem] text-ink">
                         <span aria-hidden>{m.emoji}</span>
                         {m.label}
                         <span className="text-dim tabular-nums">{m.count}</span>
@@ -348,15 +348,15 @@ export function StatsPage({ input, watchTime, owner }: { input: StatsInput; watc
               {data.top.slice(0, 10).map((s, i) => (
                 <li key={s.id}>
                   <Link href={s.href} className="group flex items-center gap-3 px-3 py-2 no-underline text-ink">
-                    <span className="w-5 text-[12.5px] text-dim tabular-nums text-right">{i + 1}</span>
+                    <span className="w-5 text-[1.0417rem] text-dim tabular-nums text-right">{i + 1}</span>
                     <span className="w-8 shrink-0 aspect-[2/3] rounded-[5px] overflow-hidden bg-card border border-hair">
                       {s.poster && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={s.poster} alt="" className="w-full h-full object-cover" loading="lazy" />
                       )}
                     </span>
-                    <span className="flex-1 min-w-0 text-[12.5px] font-semibold truncate group-hover:text-accent">{s.name}</span>
-                    <span className="text-[12.5px] text-dim tabular-nums">{s.episodes} episodes</span>
+                    <span className="flex-1 min-w-0 text-[1.0417rem] font-semibold truncate group-hover:text-accent">{s.name}</span>
+                    <span className="text-[1.0417rem] text-dim tabular-nums">{s.episodes} episodes</span>
                   </Link>
                 </li>
               ))}
@@ -379,8 +379,8 @@ export function Tile({ value, label, note, small = false, inset = false }: { val
   return (
     <div className={`rounded-shell ${inset ? "bg-card" : "bg-piece"} p-3 min-w-0`}>
       <div className={`display leading-none text-accent truncate ${small ? "text-[clamp(22px,2.4vw,28px)]" : "text-[clamp(30px,3.4vw,40px)]"}`}>{value}</div>
-      <div className="mt-1 text-[10.5px] font-bold uppercase tracking-[.12em] text-dim">{label}</div>
-      {note && <div className="mt-0.5 text-[12px] text-dim truncate">{note}</div>}
+      <div className="mt-1 text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim">{label}</div>
+      {note && <div className="mt-0.5 text-[1rem] text-dim truncate">{note}</div>}
     </div>
   );
 }
@@ -388,21 +388,21 @@ export function Tile({ value, label, note, small = false, inset = false }: { val
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-shell bg-piece p-3 min-w-0">
-      <div className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim mb-2">{title}</div>
+      <div className="text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim mb-2">{title}</div>
       {children}
     </div>
   );
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="m-0 text-[12.5px] text-dim">{children}</p>;
+  return <p className="m-0 text-[1.0417rem] text-dim">{children}</p>;
 }
 
 /** The week, a bar a day, today marked under its bar. */
 function WeekChart({ week, todayIndex, unit }: { week: { day: Date; count: number }[]; todayIndex: number; unit: string }) {
   return (
     <div className="rounded-shell bg-piece p-3">
-      <div className="text-[10.5px] font-bold uppercase tracking-[.12em] text-dim mb-2">{unit} · this week</div>
+      <div className="text-[0.875rem] font-bold uppercase tracking-[.12em] text-dim mb-2">{unit} · this week</div>
       <Bars
         bars={week.map((w, i) => ({
           label: w.day.toLocaleDateString("en-GB", { weekday: "short" }) + (i === todayIndex ? " •" : ""),
@@ -422,15 +422,15 @@ function Bars({ bars, height }: { bars: { label: string; tip: string; value: num
   const most = Math.max(1, ...bars.map((b) => b.value));
   return (
     <div role="img" aria-label={bars.map((b) => b.tip).join("; ")}>
-      <div className="flex items-end gap-[6px] border-b border-hair" style={{ height }}>
+      <div className="flex items-end gap-[0.5rem] border-b border-hair" style={{ height }}>
         {bars.map((b, i) => (
           <div key={i} title={b.tip} className="group relative flex-1 h-full flex items-end justify-center">
-            <div className={`w-full max-w-[28px] rounded-t-[4px] bg-accent-fill transition-opacity ${b.value ? "" : "opacity-20"} group-hover:opacity-80`} style={{ height: `${b.value ? Math.max(4, (b.value / most) * 100) : 3}%` }} />
+            <div className={`w-full max-w-[2.3333rem] rounded-t-[4px] bg-accent-fill transition-opacity ${b.value ? "" : "opacity-20"} group-hover:opacity-80`} style={{ height: `${b.value ? Math.max(4, (b.value / most) * 100) : 3}%` }} />
             {/* Only there while hovered (so it can't widen the page), and
                 opening inwards from the bars at either end. */}
             <span
               aria-hidden
-              className={`pointer-events-none absolute bottom-full mb-1 hidden group-hover:block whitespace-nowrap rounded-full bg-card-hi border border-hair px-2 py-0.5 text-[11.5px] text-ink z-10 ${
+              className={`pointer-events-none absolute bottom-full mb-1 hidden group-hover:block whitespace-nowrap rounded-full bg-card-hi border border-hair px-2 py-0.5 text-[0.9583rem] text-ink z-10 ${
                 i < 2 ? "left-0" : i >= bars.length - 2 ? "right-0" : "left-1/2 -translate-x-1/2"
               }`}
             >
@@ -439,9 +439,9 @@ function Bars({ bars, height }: { bars: { label: string; tip: string; value: num
           </div>
         ))}
       </div>
-      <div className="flex gap-[6px] mt-1">
+      <div className="flex gap-[0.5rem] mt-1">
         {bars.map((b, i) => (
-          <span key={i} className={`flex-1 text-center text-[11px] truncate ${b.strong ? "text-ink font-semibold" : "text-dim"}`}>
+          <span key={i} className={`flex-1 text-center text-[0.9167rem] truncate ${b.strong ? "text-ink font-semibold" : "text-dim"}`}>
             {b.label}
           </span>
         ))}
@@ -460,7 +460,7 @@ function Switch<T extends string>({ value, onChange, options, label }: { value: 
           role="tab"
           aria-selected={value === v}
           onClick={() => onChange(v)}
-          className={`px-4 py-2 rounded-full text-[10.5px] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${value === v ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+          className={`px-4 py-2 rounded-full text-[0.875rem] leading-none font-bold uppercase tracking-[.12em] cursor-pointer transition-colors ${value === v ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
         >
           {text}
         </button>

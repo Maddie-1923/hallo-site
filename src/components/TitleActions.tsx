@@ -99,17 +99,17 @@ export function TitleActions({ kind, title, tracked, watched = false, loved, sto
               off={k.off}
               radius={12}
               run={() => (k.id === "share" ? share() : k.id === "list" ? say("Lists open with accounts.") : k.id === "rewatch" ? say("Rewatch recorded on this page.") : flip(k.id))}
-              className={`h-[58px] pb-[2px] flex flex-col items-center justify-center gap-1 ring-inset ring-[color:var(--dim)] enabled:hover:ring-[1.5px] focus-visible:ring-[1.5px] focus-visible:outline-none ${on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
+              className={`h-[4.8333rem] pb-[2px] flex flex-col items-center justify-center gap-1 ring-inset ring-[color:var(--dim)] enabled:hover:ring-[1.5px] focus-visible:ring-[1.5px] focus-visible:outline-none ${on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
             >
               {/* 2px more below than above: the label's line keeps room under
                   its letters, so this centres what is drawn. */}
               <Glyph name={on && k.iconOn ? k.iconOn : k.icon} size={18} />
-              <span className="text-[12.5px] font-semibold leading-none">{on && k.labelOn ? k.labelOn : k.label}</span>
+              <span className="text-[1.0417rem] font-semibold leading-none">{on && k.labelOn ? k.labelOn : k.label}</span>
             </ConfirmKey>
           );
         })}
       </div>
-      {said && <p className="m-0 mt-2 text-center text-[12.5px] text-dim">{said}</p>}
+      {said && <p className="m-0 mt-2 text-center text-[1.0417rem] text-dim">{said}</p>}
     </div>
   );
 }

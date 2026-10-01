@@ -63,7 +63,7 @@ export function NavSearch() {
         placeholder="Titles, people, genres"
         aria-label="Search shows and movies"
         tabIndex={open ? 0 : -1}
-        className={`bg-transparent outline-none text-[15px] text-ink placeholder:text-dim ml-2 transition-opacity duration-200 ${
+        className={`bg-transparent outline-none text-[1.25rem] text-ink placeholder:text-dim ml-2 transition-opacity duration-200 ${
           open ? "w-full opacity-100" : "w-0 opacity-0"
         }`}
       />

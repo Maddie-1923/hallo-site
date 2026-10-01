@@ -4,8 +4,8 @@ import { useCallback, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { GoogleButton } from "./GoogleButton";
 
-const input = "w-full h-11 px-4 rounded-full bg-card border border-hair text-[13px] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
-const primary = "w-full h-11 rounded-full bg-accent-fill text-on-accent text-[13px] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-default";
+const input = "w-full h-11 px-4 rounded-full bg-card border border-hair text-[1.0833rem] text-ink placeholder:text-dim focus:outline-none focus:border-accent";
+const primary = "w-full h-11 rounded-full bg-accent-fill text-on-accent text-[1.0833rem] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-default";
 // Each provider's button in its own colours, as their sign-in guidelines ask,
 // 44px tall with 13px type: the size of Google's own button beside them.
 const BRAND: Record<Provider, { label: string; className: string; logo: React.ReactNode }> = {
@@ -79,8 +79,8 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
   if (state === "sent") {
     return (
       <div className="mt-4 rounded-[10px] bg-card border border-hair p-3" role="status">
-        <div className="text-[12.5px] font-semibold text-ink">Check your email</div>
-        <p className="m-0 mt-1 text-[12.5px] leading-[1.6] text-mid-tone">
+        <div className="text-[1.0417rem] font-semibold text-ink">Check your email</div>
+        <p className="m-0 mt-1 text-[1.0417rem] leading-[1.6] text-mid-tone">
           {withCode ? (
             <>
               We sent a 6-digit code to <b className="font-semibold text-ink">{email.trim()}</b>. Type it here. It works once, for an hour. (The email&apos;s button signs you in too.)
@@ -105,7 +105,7 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
             placeholder="123456"
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/[^\d\s]/g, ""))}
-            className={`${input} text-center tracking-[.3em] text-[16px]`}
+            className={`${input} text-center tracking-[.3em] text-[1.3333rem]`}
           />
           <button className={primary} type="submit" disabled={checking || code.replace(/\D/g, "").length < 6}>
             {checking ? "Signing in…" : "Sign in with the code"}
@@ -113,11 +113,11 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
         </form>
         )}
         {error && (
-          <p className="m-0 mt-2 text-[12.5px] text-loved" role="alert">
+          <p className="m-0 mt-2 text-[1.0417rem] text-loved" role="alert">
             {error}
           </p>
         )}
-        <p className="m-0 mt-2 text-[12px] text-dim">
+        <p className="m-0 mt-2 text-[1rem] text-dim">
           Nothing there? Look in spam, or{" "}
           <button
             type="button"
@@ -141,20 +141,20 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
       {providers.map((p) =>
         p === "google" && googleID ? (
           <GoogleButton key={p} clientID={googleID} onSignedIn={afterGoogle} onError={googleError}>
-            <span className={`w-full h-11 rounded-full text-[13px] font-medium flex items-center justify-center gap-2.5 ${BRAND.google.className}`}>
+            <span className={`w-full h-11 rounded-full text-[1.0833rem] font-medium flex items-center justify-center gap-2.5 ${BRAND.google.className}`}>
               {BRAND.google.logo}
               {BRAND.google.label}
             </span>
           </GoogleButton>
         ) : (
-          <button key={p} type="button" onClick={() => continueWith(p)} className={`w-full h-11 rounded-full text-[13px] font-medium cursor-pointer flex items-center justify-center gap-2.5 hover:brightness-95 ${BRAND[p].className}`}>
+          <button key={p} type="button" onClick={() => continueWith(p)} className={`w-full h-11 rounded-full text-[1.0833rem] font-medium cursor-pointer flex items-center justify-center gap-2.5 hover:brightness-95 ${BRAND[p].className}`}>
             {BRAND[p].logo}
             {BRAND[p].label}
           </button>
         ),
       )}
       {providers.length > 0 && (
-        <div className="flex items-center gap-3 text-[12px] text-dim my-1">
+        <div className="flex items-center gap-3 text-[1rem] text-dim my-1">
           <span className="flex-1 h-px bg-hair" />
           or with your email
           <span className="flex-1 h-px bg-hair" />
@@ -170,7 +170,7 @@ export function LoginForm({ next, initialError, providers = [] }: { next: string
         </button>
       </form>
       {error && (
-        <p className="m-0 mt-1 text-[12.5px] text-loved" role="alert">
+        <p className="m-0 mt-1 text-[1.0417rem] text-loved" role="alert">
           {error}
         </p>
       )}
