@@ -148,8 +148,8 @@ export default function Terms() {
           Titles, posters, cast, episode lists and trailers come from{" "}
           <a href="https://www.themoviedb.org" rel="noopener">TMDB</a>. Air times come from{" "}
           <a href="https://www.tvmaze.com" rel="noopener">TVmaze</a>, and where-to-watch listings from{" "}
-          <a href="https://www.justwatch.com" rel="noopener">JustWatch</a> via TMDB. This product uses the
-          TMDB API but is not endorsed or certified by TMDB. That information can be wrong or out of date,
+          <a href="https://www.justwatch.com" rel="noopener">JustWatch</a> via TMDB. This product uses TMDB
+          and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB. That information can be wrong or out of date,
           and streaming services change what they carry, so check with the service before you rely on it.
           Posters, stills and trailers belong to the studios and networks that made them.
         </p>
