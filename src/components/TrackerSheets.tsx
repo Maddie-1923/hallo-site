@@ -74,7 +74,12 @@ export function TrackerRecap({ t, episode, watched, onClose }: { t: ProfileTitle
         <p className="m-0 mt-2 text-[14px] text-dim">TMDB has no summary for this episode.</p>
       ) : reveal ? (
         <>
-          <div className="mt-1 text-[16px] font-semibold text-ink">{ep.name}</div>
+          {ep.still && (
+            // The episode's own still, as the episode panel shows it.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={ep.still} alt="" className="mt-2 w-full aspect-video object-cover rounded-[12px] bg-piece" />
+          )}
+          <div className="mt-3 text-[16px] font-semibold text-ink">{ep.name}</div>
           <p className="m-0 mt-2 text-[14px] leading-[1.55] text-ink">{ep.overview}</p>
         </>
       ) : (
