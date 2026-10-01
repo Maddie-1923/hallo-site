@@ -232,13 +232,15 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   const picked = all.find((i) => i.key === pickKey) ?? all[0] ?? null;
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
+    // The calendar on the left and the tracker beside it; under 1024px the
+    // tracker goes under the calendar.
+    <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[auto_minmax(0,1fr)] gap-4 items-start">
       {problem && (
         <div role="alert" className="fixed z-50 bottom-6 left-1/2 -translate-x-1/2 max-w-[90vw] rounded-full bg-card-hi border border-hair px-4 py-2 text-[12.5px] text-ink shadow-lg">
           {problem}
         </div>
       )}
-      {/* The calendar first, under the carousel on the left. */}
+      {/* The calendar first, on the left. */}
       <TrackerCalendar events={data.calendar} keysFor={keysFor} watched={watchedEp} />
       {/* One bento: the switches, then the list on the left and, beside it,
           the picked title's next episode, as a show page lays out its
