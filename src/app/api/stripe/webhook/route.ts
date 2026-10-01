@@ -39,7 +39,7 @@ export async function POST(req: Request) {
         cancel_at_period_end: sub.cancel_at_period_end,
         updated_at: new Date().toISOString(),
       },
-      { onConflict: "user_id" },
+      { onConflict: "user_id,source" },
     );
   };
 

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return new NextResponse("Sign in first.", { status: 401 });
-  const { data } = await supabase.from("entitlements").select("stripe_customer_id").eq("user_id", user.id).maybeSingle();
+  const { data } = await supabase.from("entitlements").select("stripe_customer_id").eq("user_id", user.id).eq("source", "stripe").maybeSingle();
   if (!data?.stripe_customer_id) return new NextResponse("No web subscription on this account.", { status: 404 });
   // The address the request came to, so a preview returns to the preview.
   const site = new URL(req.url).origin;
