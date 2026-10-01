@@ -33,7 +33,7 @@ export default async function RailPage({ params }: PageProps<"/explore/rail/[slu
           ← {backLabel}
         </Link>
         <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase !m-0 mt-3">{rail.title(regionName(region))}</h1>
-        <InfiniteGrid source={source} first={first} empty="Nothing here right now." />
+        <InfiniteGrid filterable source={source} first={first} empty="Nothing here right now." />
       </main>
       <SiteFooter />
     </div>

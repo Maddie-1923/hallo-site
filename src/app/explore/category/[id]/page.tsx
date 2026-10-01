@@ -60,7 +60,7 @@ export default async function CategoryPage({ params }: PageProps<"/explore/categ
           </div>
         </div>
 
-        <InfiniteGrid source={source} first={first} empty="Nothing matches this category right now." />
+        <InfiniteGrid filterable source={source} first={first} empty="Nothing matches this category right now." />
       </main>
       <SiteFooter />
     </div>
