@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { EpisodeBadge } from "@/lib/episode-badge";
 import type { ProfileTitle } from "@/lib/public-profile";
-import { ArtworkBand, Countdown, KeyButton, To, pickFromShell, type Key } from "./TrackerRow";
+import { ArtworkBand, Countdown, EpisodePill, KeyButton, To, pickFromShell, type Key } from "./TrackerRow";
 
 // The tracker's two other ways of drawing an entry, beside the list's Row:
 // the wide card (the app's card layout) and the poster tile (its grid and
@@ -54,9 +54,7 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
           <img src={wide} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.03]" />
         )}
         <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,.85),rgba(0,0,0,.35)_45%,transparent_70%)]" />
-        <ArtworkBand badge={band} />
-        {/* Lifted clear of the band when there is one. */}
-        <span className={`absolute inset-x-0 flex items-end gap-3 p-3 ${band ? "bottom-[20px]" : "bottom-0"}`}>
+        <span className="absolute inset-x-0 bottom-0 flex items-end gap-3 p-3">
           {t.poster &&
             (onPick ? (
               // Picking the card shows its episode; the poster on it opens
@@ -78,13 +76,16 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
               // Coming soon's three lines, as its list rows have them: the
               // code on its own, the episode's name under it.
               <>
-                <span className="text-[12.5px] leading-[16px] text-white/85 truncate">{lines[0]}</span>
+                <CodeLine code={lines[0]} band={band} />
                 {lines[1] && <span className="text-[12.5px] leading-[16px] text-white/65 truncate">{lines[1]}</span>}
               </>
             ) : (
-              <span className="text-[12.5px] leading-[16px] text-white/85 truncate">
-                {lines[0]}
-                {lines[1] && <span className="text-white/65"> · {lines[1]}</span>}
+              <span className="flex items-center gap-2">
+                <span className="min-w-0 flex-1 text-[12.5px] leading-[16px] text-white/85 truncate">
+                  {lines[0]}
+                  {lines[1] && <span className="text-white/65"> · {lines[1]}</span>}
+                </span>
+                <EpisodePill badge={band} />
               </span>
             )}
             {bar && (
@@ -103,6 +104,17 @@ export function BackdropCard({ t, lines, bar, keys, onPick, picked = false, rowK
         </div>
       )}
     </li>
+  );
+}
+
+// The episode's code on a card, its badge pill level with it at the right,
+// as the list's rows and the panel have it.
+function CodeLine({ code, band }: { code: string; band: EpisodeBadge | null | undefined }) {
+  return (
+    <span className="flex items-center gap-2">
+      <span className="min-w-0 flex-1 text-[12.5px] leading-[16px] text-white/85 truncate">{code}</span>
+      <EpisodePill badge={band ?? null} />
+    </span>
   );
 }
 
