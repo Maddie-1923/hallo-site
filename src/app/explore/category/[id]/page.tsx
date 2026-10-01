@@ -4,24 +4,21 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { CategoryMenu } from "@/components/CategoryMenu";
-import { PosterGrid } from "@/components/PosterGrid";
+import { InfiniteGrid } from "@/components/InfiniteGrid";
+import { gridPage } from "@/lib/grid-pages";
 import { accountsOpen } from "@/lib/accounts";
 import { optionalLibrary } from "@/lib/library";
 import { visitorRegion } from "@/lib/region";
-import { regionServices, savedRailTitles } from "@/lib/tmdb";
+import { regionServices } from "@/lib/tmdb";
 import { criteriaLine, orderedRails, railCounts, sameID } from "@/lib/saved-rails";
-import { markLookup } from "@/lib/marks";
-import { movieCards, showCards } from "@/lib/explore-rails";
 
 // A custom category's own page, where its heading on Explore leads: the whole
 // of what it asks for as a grid of posters — the app's FilterResultsView for a
 // saved rail — with the same ••• as the row. It is the owner's alone, so
 // anyone else (or anybody while accounts are closed) gets a not-found.
 //
-// "Show more" is a link rather than state: `?pages=3` draws the first three
-// pages, so the grid is rendered on the server and survives a reload.
+// More titles load by themselves as the visitor scrolls (InfiniteGrid).
 
-const PAGE_CAP = 10;
 
 async function findRail(id: string) {
   if (!accountsOpen) return null;
@@ -36,25 +33,14 @@ export async function generateMetadata({ params }: PageProps<"/explore/category/
   return { title: found ? `${found.rail.name} — Kodigo` : "Category — Kodigo" };
 }
 
-export default async function CategoryPage({ params, searchParams }: PageProps<"/explore/category/[id]">) {
+export default async function CategoryPage({ params }: PageProps<"/explore/category/[id]">) {
   const { id } = await params;
-  const { pages: asked } = await searchParams;
   const found = await findRail(id);
   if (!found) notFound();
   const { rail, archive } = found;
   const region = await visitorRegion();
-  const want = Math.min(PAGE_CAP, Math.max(1, Number(asked) || 1));
-
-  const [services, ...results] = await Promise.all([regionServices(region, 60), ...Array.from({ length: want }, (_, i) => savedRailTitles(rail, region, i + 1))]);
-  const total = results[0]?.pages ?? 0;
-  const seen = new Set<string>();
-  const titles = results
-    .flatMap((r) =>
-      r.kind === "show"
-        ? showCards(r.titles)
-        : movieCards(r.titles),
-    )
-    .filter((t) => !seen.has(t.key) && seen.add(t.key));
+  const source = { kind: "category" as const, id };
+  const [services, first] = await Promise.all([regionServices(region, 60), gridPage(source, 1)]);
   const back = rail.catalogue === "Shows" ? "/shows" : "/movies";
 
   return (
@@ -74,19 +60,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
           </div>
         </div>
 
-        {titles.length === 0 ? (
-          <p className="mt-8 text-[13px] text-dim">Nothing matches this category right now.</p>
-        ) : (
-          <PosterGrid titles={titles} marks={markLookup(archive)} />
-        )}
-
-        {want < Math.min(total, PAGE_CAP) && (
-          <div className="pt-6 flex justify-center">
-            <Link href={`?pages=${want + 1}`} scroll={false} className="h-9 px-5 inline-flex items-center rounded-full bg-piece text-[12.5px] font-semibold text-ink no-underline hover:text-accent">
-              Show more
-            </Link>
-          </div>
-        )}
+        <InfiniteGrid source={source} first={first} empty="Nothing matches this category right now." />
       </main>
       <SiteFooter />
     </div>
