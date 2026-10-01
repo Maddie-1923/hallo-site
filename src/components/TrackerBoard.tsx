@@ -302,7 +302,8 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   // enough for both; the grid and the rails take the whole width, and so
   // does a phone, where a row opens its title's page instead.
   const wide = useWide();
-  const withPanel = wide && (layout === "list" || layout === "card");
+  const rows = layout === "list" || layout === "card";
+  const withPanel = wide && rows;
   const flat = groups.flatMap((g) => g.items);
   const picked = flat.find((i) => i.key === pickKey) ?? flat[0] ?? null;
 
@@ -565,7 +566,9 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
         className={withPanel ? "grid gap-4 items-start" : ""}
         style={withPanel ? { gridTemplateColumns: barW ? `minmax(0,${barW}px) minmax(0,${barW}px)` : "minmax(0,1fr) minmax(0,1fr)" } : undefined}
       >
-        <div ref={leftCol} className="min-w-0">
+        {/* The list and the cards keep the bar's width with or without the
+            panel; the grid and the rails run the page's width under it. */}
+        <div ref={leftCol} className="min-w-0" style={rows && barW ? { maxWidth: barW } : undefined}>
         {/* The header, pinned under the site's bar as the app pins its own:
             the two choices side by side from the left, then the docked pile
             name and the three keys. The page's colour behind it, with a 12px
@@ -574,7 +577,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
             beside it; across the page otherwise. */}
         {/* The same width in every layout: over the list when the panel is
             beside it, and the same half of the page in grid and rails. */}
-        <div ref={header} className={`sticky z-20 pt-3 -mt-3 pb-3 ${withPanel ? "" : "lg:w-[calc(50%-8px)]"}`} style={{ top: navH }}>
+        <div ref={header} className="sticky z-20 pt-3 -mt-3 pb-3" style={{ top: navH }}>
           {/* Frosted glass behind the bar rather than a solid band: whatever
               scrolls up under it blurs, barely tinted, and the blur fades out
               below the bar instead of stopping on a hard line. */}
@@ -592,7 +595,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
               WebkitMaskComposite: "source-in",
             }}
           />
-          <div className="relative w-fit max-w-full rounded-shell p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.25)] backdrop-blur-xl grid grid-cols-[minmax(0,1fr)] gap-2" style={{ background: "color-mix(in srgb, var(--card) 72%, transparent)" }}>
+          <div className={`relative ${rows ? "w-full" : "w-fit max-w-full"} rounded-shell p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.25)] backdrop-blur-xl grid grid-cols-[minmax(0,1fr)] gap-2`} style={{ background: "color-mix(in srgb, var(--card) 72%, transparent)" }}>
             <div ref={switches} className="flex flex-wrap items-center gap-2">
               <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
               <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
