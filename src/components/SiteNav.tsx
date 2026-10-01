@@ -21,12 +21,12 @@ import { myNotifications } from "@/lib/my-notifications";
 
 // No Home: the logo and wordmark are the way home. Three tabs, one for each
 // of the logo's stripes: Explore (Shows and Movies, switched on the page),
-// Calendar, and Community (Members and Lists, switched on the page). The
+// Tracker, and Community (Members and Lists, switched on the page). The
 // same three signed in; Library, Profile and the rest are in the profile
 // menu, and the app's own page sits there with the subscription.
 const tabs: [string, string][] = [
   ["/explore", "Explore"],
-  ["/calendar", "Calendar"],
+  ["/calendar", "Tracker"],
   ["/members", "Community"],
 ];
 
@@ -41,7 +41,7 @@ const menuGroups: [string, string][][] = [
   [
     ["/library", "Library"],
     ["/watchlist", "Watchlist"],
-    ["/calendar", "Calendar"],
+    ["/calendar", "Tracker"],
     ["/stats", "Stats"],
   ],
   [
@@ -180,7 +180,7 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
       <SearchBoundary />
 
       {/* Their notifications: follows, requests, likes and comments. What's
-          airing next is the Calendar's job now. */}
+          airing next is the Tracker's job now. */}
       <NotificationsBell items={notes} framed={framed} />
 
       {/* On a phone the bar holds the logo and four buttons at most; day or

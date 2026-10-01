@@ -191,7 +191,7 @@ export function digestEmail(d: DigestData): Email | null {
   const bits = [episodes ? `${episodes} ${episodes === 1 ? "show" : "shows"} with new episodes` : null, review ? `what @${review.who} thought of ${clip(review.title, 40)}` : null].filter(Boolean);
   const subject = bits.length ? `Your week on Kodigo: ${bits.join(", and ")}` : "Your week on Kodigo";
 
-  const html = frame(`Your week · ${d.week}`, parts.join(GAP), { label: "Open your Calendar", href: `${d.site}/calendar` }, footer(`The weekly digest comes on Sunday mornings because it's on for @${d.me}.`, d.site, d.unsubscribe));
+  const html = frame(`Your week · ${d.week}`, parts.join(GAP), { label: "Open your Tracker", href: `${d.site}/calendar` }, footer(`The weekly digest comes on Sunday mornings because it's on for @${d.me}.`, d.site, d.unsubscribe));
   const text = [
     `Your week on Kodigo · ${d.week}`,
     "",
@@ -199,7 +199,7 @@ export function digestEmail(d: DigestData): Email | null {
     ...(d.out.length ? ["Out this week from your shows:", ...d.out.slice(0, 6).map((r) => `- ${r.title}: ${r.what}${r.note ? ` (${r.note})` : ""} ${r.href}`), ""] : []),
     ...(d.coming.length ? ["Coming next week:", ...d.coming.slice(0, 5).map((w) => `- ${w.title}: ${w.what} ${w.href}`), ""] : []),
     ...(d.friends.length ? ["From people you follow:", ...d.friends.slice(0, 6).map((f) => `- @${f.who} ${f.kind === "review" ? "reviewed" : f.kind === "rating" ? "rated" : f.kind === "loved" ? "loved" : "made a list:"} ${f.title}${f.rating != null ? ` (${f.rating}/10)` : ""} ${f.href}`), ""] : []),
-    `Open your Calendar: ${d.site}/calendar`,
+    `Open your Tracker: ${d.site}/calendar`,
     "",
     `Choose which emails: ${d.site}/settings#alerts`,
     `Unsubscribe from all: ${d.unsubscribe}`,
@@ -221,12 +221,12 @@ export function alertsEmail(d: AlertsData): Email | null {
   const mine = [...d.premieres, ...d.episodes, ...d.films];
   const subject = mine.length === 1 ? `Out today: ${mine[0].title}` : mine.length > 1 ? `Out today: ${mine[0].title} and ${mine.length - 1} more` : `New today: ${d.releases[0].title}${d.releases.length > 1 ? ` and ${d.releases.length - 1} more` : ""}`;
 
-  const html = frame(d.day, shown.map(([label, rows]) => rowsCard(label, rows.slice(0, 8))).join(GAP), { label: "Open your Calendar", href: `${d.site}/calendar` }, footer(`These reminders come in your morning because they're on for @${d.me}.`, d.site, d.unsubscribe));
+  const html = frame(d.day, shown.map(([label, rows]) => rowsCard(label, rows.slice(0, 8))).join(GAP), { label: "Open your Tracker", href: `${d.site}/calendar` }, footer(`These reminders come in your morning because they're on for @${d.me}.`, d.site, d.unsubscribe));
   const text = [
     `Out today · ${d.day}`,
     "",
     ...shown.flatMap(([label, rows]) => [`${label}:`, ...rows.slice(0, 8).map((r) => `- ${r.title}: ${r.what} ${r.href}`), ""]),
-    `Open your Calendar: ${d.site}/calendar`,
+    `Open your Tracker: ${d.site}/calendar`,
     "",
     `Choose which emails: ${d.site}/settings#alerts`,
     `Unsubscribe from all: ${d.unsubscribe}`,

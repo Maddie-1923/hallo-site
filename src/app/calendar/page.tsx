@@ -12,7 +12,7 @@ import { optionalLibrary } from "@/lib/library";
 import { hasPro } from "@/lib/pro";
 import type { LibraryArchive } from "@/lib/archive";
 
-export const metadata: Metadata = { title: "Calendar — Kodigo" };
+export const metadata: Metadata = { title: "Tracker — Kodigo" };
 
 // Calendar: the tracker, the app's main screen, on the web (Pro), named for
 // the calendar at its head. Signed in with Pro, it's their own library and
