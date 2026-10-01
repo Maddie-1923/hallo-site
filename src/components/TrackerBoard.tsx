@@ -9,7 +9,8 @@ import { ExpandableText } from "./ExpandableText";
 import { addWatch, today } from "@/lib/live-watches";
 import type { CalendarEvent, ComingFilm, ComingShow, TrackerPage } from "@/lib/tracker";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
-import { CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, Row, SkipGlyph, type Key } from "./TrackerRow";
+import { CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, type Key } from "./TrackerRow";
+import { episodeBefore, TrackerMore, TrackerRecap } from "./TrackerSheets";
 import { HeadingPill } from "./TitleParts";
 import { TrackerCalendar } from "./TrackerCalendar";
 import { useDateFormat } from "./Day";
@@ -54,6 +55,9 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   // The entry shown beside the list; the first one until another is picked.
   const [pickKey, setPickKey] = useState<string | null>(null);
   const [groupId, setGroupId] = useState<string | null>(null);
+  // The More or Recap sheet open over the page, if any.
+  const [sheet, setSheet] = useState<{ kind: "more"; t: ProfileTitle } | { kind: "recap"; t: ProfileTitle; episode: string; watched: boolean } | null>(null);
+  const more = (t: ProfileTitle): Key => ({ icon: <MoreGlyph />, label: `More for ${t.title}`, run: () => setSheet({ kind: "more", t }) });
 
   const seenOf = (s: TrackerShow) => [...s.seen, ...(seen[s.key] ?? [])];
   // Spoiler protection: every episode these lists name is one not yet
@@ -75,7 +79,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       const done = [...(known.get(e.t.key)?.seen ?? []), ...(seen[e.t.key] ?? [])].includes(k);
       const aside = skipped.includes(`${e.t.key}:${k}`);
       return [
-        { icon: <MoreGlyph />, label: `More for ${e.t.title}` },
+        more(e.t),
         {
           icon: <SkipGlyph />,
           label: `Watch ${code(k)} of ${e.t.title} later`,
@@ -107,7 +111,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     }
     const done = watchedFilms.includes(e.t.key);
     return [
-      { icon: <MoreGlyph />, label: `More for ${e.t.title}` },
+      more(e.t),
       {
         icon: <CheckGlyph />,
         label: done ? `${e.t.title} watched` : `Mark ${e.t.title} watched`,
@@ -129,8 +133,12 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   const showKeys = (s: TrackerShow): Key[] => {
     const p = progress(s, seenOf(s));
     const skippedHere = p.next ? skipped.includes(`${s.key}:${p.next.key}`) : false;
+    const before = p.next ? episodeBefore(s.aired, p.next.key) : null;
     return [
-      { icon: <MoreGlyph />, label: `More for ${s.title}` },
+      more(s),
+      // Recap only where there's an episode before the next one to recap;
+      // otherwise no key at all, rather than a grey one.
+      ...(before ? [{ icon: <RecapGlyph />, label: `Recap ${code(before)} of ${s.title}`, run: () => setSheet({ kind: "recap", t: s, episode: before, watched: seenOf(s).includes(before) }) }] : []),
       {
         icon: <SkipGlyph />,
         label: p.next ? `Watch ${code(p.next.key)} later` : "Skip",
@@ -164,7 +172,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     ];
   };
   const filmKeys = (f: ProfileTitle): Key[] => [
-    { icon: <MoreGlyph />, label: `More for ${f.title}` },
+    more(f),
     {
       icon: <CheckGlyph />,
       label: `Mark ${f.title} watched`,
@@ -246,6 +254,8 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
           {problem}
         </div>
       )}
+      {sheet?.kind === "more" && <TrackerMore t={sheet.t} onClose={() => setSheet(null)} />}
+      {sheet?.kind === "recap" && <TrackerRecap t={sheet.t} episode={sheet.episode} watched={sheet.watched} onClose={() => setSheet(null)} />}
       {/* The calendar first, on the left. */}
       <TrackerCalendar events={data.calendar} keysFor={keysFor} watched={watchedEp} />
       {/* One bento: the switches, then the list on the left and, beside it,

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { addWatch, today } from "@/lib/live-watches";
 import { MASKED_NAME, useSpoilers } from "./Spoiler";
 import { CheckGlyph, code, HOLD, MoreGlyph, progress, Row, SkipGlyph } from "./TrackerRow";
+import { TrackerMore } from "./TrackerSheets";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
 
 // The profile's mini tracker: what they're watching now, at a glance. Series
@@ -27,9 +28,12 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
   const [skipped, setSkipped] = useState<string[]>([]);
 
   const filmsLeft = films.filter((f) => !watchedFilms.includes(f.key));
+  // The More sheet open for a title, if any.
+  const [moreFor, setMoreFor] = useState<ProfileTitle | null>(null);
 
   return (
     <div className="flex-1 rounded-shell bg-card border border-hair p-2 flex flex-col">
+      {moreFor && <TrackerMore t={moreFor} onClose={() => setMoreFor(null)} />}
       {/* Headed like Favourites beside it: the card's name, then the
           section's in small capitals, "Up next" as the app calls it. */}
       <div className="flex items-center justify-between gap-2">
@@ -77,7 +81,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
                     keys={
                       owner
                         ? [
-                            { icon: <MoreGlyph />, label: `More for ${s.title}` },
+                            { icon: <MoreGlyph />, label: `More for ${s.title}`, run: () => setMoreFor(s) },
                             {
                               icon: <SkipGlyph />,
                               label: p.next ? `Watch ${code(p.next.key)} later` : "Skip",
@@ -122,7 +126,7 @@ export function MiniTracker({ shows, films, owner }: { shows: TrackerShow[]; fil
                   keys={
                     owner
                       ? [
-                          { icon: <MoreGlyph />, label: `More for ${f.title}` },
+                          { icon: <MoreGlyph />, label: `More for ${f.title}`, run: () => setMoreFor(f) },
                           {
                             icon: <CheckGlyph />,
                             label: `Mark ${f.title} watched`,
