@@ -497,3 +497,14 @@ section.band p + p { margin-top: 1em; }
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
 }
+
+/* Capitals in a pill, in the body face: Open Runde's line box rounds onto
+   the pixel grid so its capitals sit about half a pixel high in a pill of
+   fixed height. One pixel on top centres them, in every such pill at once
+   (the heading pills, the tab bars, the badges), rather than each nudged by
+   hand. The display face's pills nudge their own (translate-y). */
+/* Only pills of a set height (h-…) with no padding of their own on top: a
+   pill sized by its padding (py-…) keeps it. */
+:is([class*="--font-body"], :not(h1, h2, h3, .display)).uppercase.items-center:is([class^="h-"], [class*=" h-"]):not([class*="py-"], [class*="pt-"], [class^="p-"], [class*=" p-"]) {
+  padding-top: 1px;
+}
