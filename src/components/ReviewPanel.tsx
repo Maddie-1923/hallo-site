@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Movie, Review, Show } from "@/lib/archive";
 import { deleteReview, saveReview } from "@/lib/library-actions";
 import { StarRating } from "./StarRating";
-import { MarkHeart } from "./marks";
+import { WatchedOn } from "./WatchedOn";
 
 type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 
@@ -33,14 +33,15 @@ export function ReviewPanel({
   const [error, setError] = useState<string>();
   const [saved, setSaved] = useState(false);
   const [text, setText] = useState(review?.text ?? "");
-  const [watchedOn, setWatchedOn] = useState(review?.watchedOn ?? "");
+  const [watchedOn, setWatchedOn] = useState((review?.watchedOn ?? "").slice(0, 10));
   const [rewatch, setRewatch] = useState(review?.rewatch ?? false);
   const [spoilers, setSpoilers] = useState(review?.spoilers ?? false);
   const [score, setScore] = useState<number | null>(rating);
-  const [heart, setHeart] = useState(loved);
+  // The heart lives on the page's Like key; a save here keeps whatever it is.
+  const heart = loved;
   const title = target.kind === "show" ? target.show.name : target.movie.title;
 
-  const tile = "rounded-shell border border-hair bg-card p-4";
+  const tile = "rounded-shell border border-hair bg-card p-3";
 
   function submit() {
     if (!signedIn) {
@@ -77,68 +78,60 @@ export function ReviewPanel({
   }
 
   return (
-    <section id="review" className="scroll-mt-24">
+    <section id="review" className="scroll-mt-24 max-w-[66.6667rem]">
       <div className="mb-2">
         <HeadingPill small>Review &amp; catalogue</HeadingPill>
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className={`${tile} sm:col-span-2 sm:row-span-2 flex flex-col`}>
+      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
+        <div className={`${tile} sm:row-span-2 flex flex-col`}>
           <label htmlFor="review-text" className="eyebrow">Your review</label>
           <textarea
             id="review-text"
-            className="field mt-2 flex-1 min-h-[13.3333rem] resize-y"
+            className="field mt-2 flex-1 min-h-[8.3333rem] resize-y"
             placeholder={`What did you make of ${title}?`}
             value={text}
             maxLength={10_000}
             onChange={(e) => setText(e.target.value)}
           />
-          <label className="flex items-center gap-2 text-xs text-dim mt-3 cursor-pointer">
+          <label className="flex items-center gap-2 text-xs text-dim mt-2 cursor-pointer">
             <input type="checkbox" className="accent-[var(--accent-fill)]" checked={spoilers} onChange={(e) => setSpoilers(e.target.checked)} />
             Contains spoilers
           </label>
         </div>
 
         <div className={tile}>
-          <label htmlFor="review-date" className="eyebrow">Watched on</label>
-          <input id="review-date" type="date" className="field mt-2" value={watchedOn} onChange={(e) => setWatchedOn(e.target.value)} />
-          <label className="flex items-center gap-2 text-xs text-dim mt-3 cursor-pointer">
+          <div className="eyebrow">Watched on</div>
+          {/* The same choice as everywhere else: today, the day it came out,
+              or a day off the calendar. */}
+          <div className="mt-2">
+            <WatchedOn
+              value={watchedOn}
+              onChange={setWatchedOn}
+              out={(target.kind === "show" ? target.show.first_air_date : target.movie.release_date) ? { label: target.kind === "show" ? "First aired" : "Release day", date: (target.kind === "show" ? target.show.first_air_date : target.movie.release_date)! } : null}
+            />
+          </div>
+          <label className="flex items-center gap-2 text-xs text-dim mt-2 cursor-pointer">
             <input type="checkbox" className="accent-[var(--accent-fill)]" checked={rewatch} onChange={(e) => setRewatch(e.target.checked)} />
             I&rsquo;ve watched this before
           </label>
         </div>
 
-        <div className={`${tile} flex items-center justify-between gap-3`}>
-          <div>
-            <div className="eyebrow">Rating</div>
-            <StarRating value={score} onChange={setScore} label={`Rate ${title} out of ten`} size={16} className="!justify-start mt-2" />
-            <div className="text-xs text-dim mt-1 h-4">
-              {score !== null && (
-                <>
-                  {score} / 10 ·{" "}
-                  <button type="button" className="hover:text-ink cursor-pointer" onClick={() => setScore(null)}>
-                    clear
-                  </button>
-                </>
-              )}
-            </div>
+        <div className={tile}>
+          <div className="eyebrow">Rating</div>
+          <StarRating value={score} onChange={setScore} label={`Rate ${title} out of ten`} size={16} className="!justify-start mt-2" />
+          <div className="text-xs text-dim mt-1 h-4">
+            {score !== null && (
+              <>
+                {score} / 10 ·{" "}
+                <button type="button" className="hover:text-ink cursor-pointer" onClick={() => setScore(null)}>
+                  clear
+                </button>
+              </>
+            )}
           </div>
-          <button
-            type="button"
-            aria-pressed={heart}
-            aria-label={heart ? "Remove from favorites" : "Add to favorites"}
-            onClick={() => setHeart((h) => !h)}
-            className="rounded-full w-12 h-12 flex items-center justify-center shrink-0 border transition-colors cursor-pointer"
-            style={{
-              background: heart ? "var(--loved)" : "color-mix(in srgb, var(--ink) 12%, transparent)",
-              borderColor: heart ? "var(--loved)" : "transparent",
-              color: heart ? "#fff" : "var(--ink)",
-            }}
-          >
-            <MarkHeart size={32} />
-          </button>
         </div>
 
-        <div className="sm:col-span-3 flex items-center gap-3 flex-wrap">
+        <div className="sm:col-span-2 flex items-center gap-3 flex-wrap">
           <button type="button" className="btn" disabled={pending} onClick={submit}>
             {signedIn ? "Save" : "Sign in to save"}
           </button>
