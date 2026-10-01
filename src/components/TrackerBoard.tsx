@@ -448,6 +448,8 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     return before ? { icon: <RecapGlyph />, label: `Recap ${code(before)} of ${t.title}`, run: () => setSheet({ kind: "recap", t: s ?? t, episode: before, watched }) } : null;
   };
 
+  // Under Coming soon the rows carry the countdown, and the episode's badge
+  // is the panel's to show; the watch list's rows carry it themselves.
   // A coming entry's keys, for the layouts with no panel to carry them.
   const tileKeys = (i: Item) => i.keys ?? (i.date ? keysFor({ date: i.date, t: i.t, label: "", episode: i.episode }) : null);
   const body = (g: Group) => {
@@ -473,9 +475,9 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       <ul className="m-0 p-0 list-none grid gap-2">
         {g.items.map((i) =>
           layout === "card" ? (
-            <BackdropCard key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? null : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} band={i.band} countdown={i.countdown} />
+            <BackdropCard key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? null : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} band={i.countdown === undefined ? i.band : null} countdown={i.countdown} />
           ) : (
-            <Row key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? null : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} band={i.band} countdown={i.countdown} />
+            <Row key={i.key} rowKey={i.key} t={i.t} lines={i.lines} bar={i.bar} keys={withPanel ? null : tileKeys(i)} onPick={withPanel ? () => pickRow(i.key) : undefined} picked={withPanel && picked?.key === i.key} band={i.countdown === undefined ? i.band : null} countdown={i.countdown} />
           ),
         )}
       </ul>
