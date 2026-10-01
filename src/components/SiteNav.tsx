@@ -117,7 +117,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
                 wordmark's baseline, which the tabs beside it stand on. */}
             <span aria-hidden className="display text-2xl leading-none w-0">&#8203;</span>
           </Link>
-          <div className="hidden md:flex items-baseline gap-5 text-sm text-dim">
+          <div className="hidden md:flex items-baseline gap-5 text-base text-dim">
             <NavLinks links={tabs} />
           </div>
         </div>

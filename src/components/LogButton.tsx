@@ -38,7 +38,7 @@ export function LogButton({ framed = false }: { framed?: boolean }) {
         onClick={() => setOpen(true)}
         aria-label="Log something you watched"
         title="Log something you watched (L)"
-        className={`h-9 rounded-full flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 text-sm font-semibold cursor-pointer transition-[filter] hover:brightness-110 ${
+        className={`h-9 rounded-full flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 text-base font-semibold cursor-pointer transition-[filter] hover:brightness-110 ${
           framed ? "bg-black/35 border border-white/25 backdrop-blur-md text-white" : "bg-accent-fill text-on-accent"
         }`}
       >

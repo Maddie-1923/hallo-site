@@ -32,7 +32,7 @@ export function SeriesBadge({ status, type, className = "" }: { status: string |
 // show still going, stone for one that has ended.
 export function SeriesPill({ label, returning, small = false }: { label: string; returning: boolean; /** The Tracker's size, matched by its episode pills. */ small?: boolean }) {
   return (
-    <span className={`shrink-0 font-bold tracking-[.04em] ${small ? "inline-flex items-center min-h-[1.1667rem] py-[2px] rounded-[4px] px-[0.3333rem] text-[0.6667rem] leading-none" : "rounded-[6px] px-1.5 py-[2px] text-[0.9167rem]"} ${returning ? "bg-[#6FAECF] text-[#0D2E40]" : "bg-[#CFCAC0] text-[#3A3833]"}`}>
+    <span className={`shrink-0 font-bold tracking-[.04em] ${small ? "inline-flex items-center min-h-[1.3333rem] py-[2px] rounded-[4px] px-[0.4167rem] text-[0.8333rem] leading-none" : "rounded-[6px] px-1.5 py-[2px] text-[0.9167rem]"} ${returning ? "bg-[#6FAECF] text-[#0D2E40]" : "bg-[#CFCAC0] text-[#3A3833]"}`}>
       {label}
     </span>
   );

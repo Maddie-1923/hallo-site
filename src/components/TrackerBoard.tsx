@@ -547,7 +547,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
               WebkitMaskComposite: "source-in",
             }}
           />
-          <div className="relative rounded-shell p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.25)] backdrop-blur-xl grid grid-cols-[minmax(0,1fr)] gap-2" style={{ background: "color-mix(in srgb, var(--card) 72%, transparent)" }}>
+          <div className="relative w-fit max-w-full rounded-shell p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.25)] backdrop-blur-xl grid grid-cols-[minmax(0,1fr)] gap-2" style={{ background: "color-mix(in srgb, var(--card) 72%, transparent)" }}>
             <div className="flex flex-wrap items-center gap-2">
               <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
               <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
