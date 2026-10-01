@@ -319,7 +319,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
             <button
               type="button"
               onClick={() => onTrailer(s.trailer!)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-[6px] rounded-[3px] bg-white text-[#141312] text-[12px] font-bold uppercase tracking-[.04em] cursor-pointer transition-colors hover:bg-white/85"
+              className="inline-flex items-center gap-1.5 px-3.5 py-[6px] rounded-[9px] bg-white text-[#141312] text-[12px] font-bold uppercase tracking-[.04em] cursor-pointer transition-colors hover:bg-white/85"
             >
               <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden>
                 <path d="M2 1l9 5-9 5z" fill="currentColor" />
@@ -329,7 +329,7 @@ function SlideWords({ slide: s, onTrailer }: { slide: CinemaSlide; onTrailer: (i
           )}
           <Link
             href={s.href}
-            className="inline-flex items-center px-3.5 py-[6px] rounded-[3px] bg-[rgba(109,109,110,.7)] text-white text-[12px] font-bold uppercase tracking-[.04em] no-underline hover:bg-[rgba(109,109,110,.45)] transition-colors"
+            className="inline-flex items-center px-3.5 py-[6px] rounded-[9px] bg-[rgba(109,109,110,.7)] text-white text-[12px] font-bold uppercase tracking-[.04em] no-underline hover:bg-[rgba(109,109,110,.45)] transition-colors"
           >
             Details
           </Link>
@@ -413,13 +413,13 @@ function WatchlistChip({ slide: s }: { slide: CinemaSlide }) {
   // and the bookmark takes the accent, after the stroke has run round it.
   // Trailer stays the one white button, the billboard's main act.
   return (
-    <KeyConfirm active={on} tint={FILL} corner={3}>
+    <KeyConfirm active={on} tint={FILL} corner={9}>
       {(set) => (
         <button
           type="button"
           onClick={add}
           disabled={pending}
-          className={`inline-flex items-center gap-1.5 px-3 py-[6px] rounded-[3px] text-[12px] font-semibold cursor-pointer transition-[filter] hover:brightness-110 ${set ? "bg-[rgba(109,109,110,.7)] text-white" : ""}`}
+          className={`inline-flex items-center gap-1.5 px-3 py-[6px] rounded-[9px] text-[12px] font-semibold cursor-pointer transition-[filter] hover:brightness-110 ${set ? "bg-[rgba(109,109,110,.7)] text-white" : ""}`}
           style={set ? undefined : { background: FILL, color: ON_FILL }}
         >
           {/* The app's marks: a plus until it's on the watchlist, a bookmark once it is. */}
