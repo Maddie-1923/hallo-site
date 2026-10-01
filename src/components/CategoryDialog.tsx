@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import type { Service } from "@/lib/tmdb";
 import { createRails, setRailFilter } from "@/lib/saved-rail-actions";
+import { MarkTip } from "./MarkTip";
 import {
   activeCount,
   CATALOGUES,
@@ -121,6 +122,36 @@ function Chip({ on, onClick, children, logo, disabled = false }: { on: boolean; 
   );
 }
 
+/** A streaming service as its logo alone, larger; the name shows on hover (the
+    site's quick caption) and is read out by screen readers. Chosen, it takes the accent ring and a tick. */
+function LogoChip({ on, onClick, name, logo }: { on: boolean; onClick: () => void; name: string; logo: string | null }) {
+  return (
+    <MarkTip label={name}>
+    <button
+      type="button"
+      aria-pressed={on}
+      aria-label={name}
+      onClick={onClick}
+      className={`relative w-12 h-12 rounded-[12px] cursor-pointer transition-shadow ${on ? "ring-[3px] ring-accent-fill" : "hover:ring-2 hover:ring-hair"}`}
+    >
+      {logo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={logo} alt="" loading="lazy" className="w-12 h-12 rounded-[12px] object-cover" />
+      ) : (
+        <span className="w-12 h-12 rounded-[12px] bg-card border border-hair flex items-center justify-center p-1 text-[10px] leading-tight text-ink text-center">{name}</span>
+      )}
+      {on && (
+        <span aria-hidden className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-accent-fill text-on-accent flex items-center justify-center shadow">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12.5l4.5 4.5L19 7.5" />
+          </svg>
+        </span>
+      )}
+    </button>
+    </MarkTip>
+  );
+}
+
 /** One card of the sheet, its heading in plain words. */
 function Card({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
@@ -166,7 +197,7 @@ function Row({ label, first, children }: { label: string; first?: boolean; child
   );
 }
 
-function MultiRow({ label, summary, first, children }: { label: string; summary: string; first?: boolean; children: React.ReactNode }) {
+function MultiRow({ label, summary, first, logos = false, children }: { label: string; summary: string; first?: boolean; logos?: boolean; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <div className={first ? "" : "border-t border-hair/70"}>
@@ -179,7 +210,7 @@ function MultiRow({ label, summary, first, children }: { label: string; summary:
           </svg>
         </span>
       </button>
-      {open && <div className="pb-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">{children}</div>}
+      {open && <div className={logos ? "pt-1 pb-3 px-1 flex flex-wrap items-center gap-3" : "pb-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1"}>{children}</div>}
     </div>
   );
 }
@@ -380,14 +411,12 @@ export function CategoryDialog({
 
         <Card title="Narrow by">
           {serviceList.length > 0 && (
-            <MultiRow first label="Streaming on" summary={f.providerIDs.length ? f.providerIDs.map((id) => serviceList.find((s) => s.id === id)?.name ?? f.providerNames[String(id)]).join(", ") : "Any service"}>
+            <MultiRow first logos label="Streaming on" summary={f.providerIDs.length ? f.providerIDs.map((id) => serviceList.find((s) => s.id === id)?.name ?? f.providerNames[String(id)]).join(", ") : "Any service"}>
               {shown.map((s) => (
-                <Chip key={s.id} logo={s.logo} on={f.providerIDs.includes(s.id)} onClick={() => toggleService(s)}>
-                  {s.name}
-                </Chip>
+                <LogoChip key={s.id} name={s.name} logo={s.logo} on={f.providerIDs.includes(s.id)} onClick={() => toggleService(s)} />
               ))}
               {serviceList.length > shown.length && (
-                <button type="button" onClick={() => setAllServices(true)} className="min-h-9 px-2.5 text-left text-[13px] font-semibold text-accent hover:underline cursor-pointer">
+                <button type="button" onClick={() => setAllServices(true)} className="h-12 px-1 text-left text-[13px] font-semibold text-accent hover:underline cursor-pointer">
                   Show all {serviceList.length}
                 </button>
               )}

@@ -93,7 +93,7 @@ export function MarkTip({ label, children, className = "" }: { label: string; ch
         createPortal(
           <span
             role="tooltip"
-            className="fixed z-[90] pointer-events-none whitespace-nowrap rounded-lg border border-hair bg-card px-2.5 py-1.5 text-xs font-semibold text-ink shadow-[0_10px_30px_rgba(0,0,0,.55)]"
+            className="fixed z-[120] pointer-events-none whitespace-nowrap rounded-lg border border-hair bg-card px-2.5 py-1.5 text-xs font-semibold text-ink shadow-[0_10px_30px_rgba(0,0,0,.55)]"
             style={{
               left: pos.left,
               top: pos.top,
