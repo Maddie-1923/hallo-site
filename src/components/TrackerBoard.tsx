@@ -446,7 +446,19 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
           {/* Frosted glass behind the bar rather than a solid band: whatever
               scrolls up under it blurs, barely tinted, and the blur fades out
               below the bar instead of stopping on a hard line. */}
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -bottom-6 backdrop-blur-xl [mask-image:linear-gradient(to_bottom,black_75%,transparent)]" style={{ background: "color-mix(in srgb, var(--page) 30%, transparent)" }} />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-x-4 top-0 -bottom-6 backdrop-blur-xl"
+            style={{
+              background: "color-mix(in srgb, var(--page) 30%, transparent)",
+              // Feathered on every side, so the glass has no corners of its
+              // own: it fades in from the edges and out below the bar.
+              maskImage: "linear-gradient(to bottom, transparent, black 14px, black 75%, transparent), linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)",
+              WebkitMaskImage: "linear-gradient(to bottom, transparent, black 14px, black 75%, transparent), linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)",
+              maskComposite: "intersect",
+              WebkitMaskComposite: "source-in",
+            }}
+          />
           <div className="relative rounded-shell p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.25)] backdrop-blur-xl grid grid-cols-[minmax(0,1fr)] gap-2" style={{ background: "color-mix(in srgb, var(--card) 72%, transparent)" }}>
             <div className="flex flex-wrap items-center gap-2">
               <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
