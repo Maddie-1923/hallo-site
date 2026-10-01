@@ -10,10 +10,13 @@ import { useEffect, useRef, useState } from "react";
 // appears once the row has moved. Under the row, instead of a scrollbar, a
 // short line for each set of cards, centred, the one in view lit: a press on a line
 // goes to it. The row still scrolls by trackpad and touch.
+const fade = (start: boolean, end: boolean) => `linear-gradient(to right, ${start ? "black" : "transparent"}, black 36px, black calc(100% - 36px), ${end ? "black" : "transparent"})`;
+
 export function Rail({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const stepRef = useRef(0);
   const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
   const [fits, setFits] = useState(false);
   const [step, setStep] = useState(0);
   const [card, setCard] = useState<number | null>(null);
@@ -28,7 +31,9 @@ export function Rail({ children }: { children: React.ReactNode }) {
       if (first) {
         const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
         const base = Number(first.dataset.base) || first.offsetWidth;
-        const W = el.clientWidth;
+        // The row's padding is room for the cards' shadows, not for cards.
+        const cs = getComputedStyle(el);
+        const W = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
         const PEEK = 1 / 3;
         // n whole cards and a third of the next: n·w + n·gap + w/3 = W.
         const n = Math.max(1, Math.floor((W - PEEK * base) / (base + gap)));
@@ -39,6 +44,7 @@ export function Rail({ children }: { children: React.ReactNode }) {
         stepRef.current = n * (w + gap);
       }
       setAtStart(el.scrollLeft < 4);
+      setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 4);
       setFits(el.scrollWidth <= el.clientWidth + 4);
       // Which set of cards is in view, and how many sets there are.
       const s = stepRef.current || el.clientWidth;
@@ -69,7 +75,17 @@ export function Rail({ children }: { children: React.ReactNode }) {
   const arrow = "absolute top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card/90 backdrop-blur border border-hair text-ink shadow-[0_6px_18px_rgba(0,0,0,.4)] flex items-center justify-center cursor-pointer hover:bg-piece transition-colors";
   return (
     <div className="relative">
-      <div ref={ref} className="flex gap-3 overflow-x-auto snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style={card ? ({ "--rail-card": `${card}px` } as React.CSSProperties) : undefined}>
+      {/* Room all round for the cards' shadows, which the scrolling box would
+          otherwise slice off in a straight line, and the row fading out at
+          whichever end has more past it, as the poster rows do (ScrollStrip). */}
+      <div
+        ref={ref}
+        className="flex gap-3 overflow-x-auto snap-x scroll-px-3 px-3 -mx-3 py-4 -my-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        style={{
+          ...(card ? { "--rail-card": `${card}px` } : {}),
+          ...(fits ? {} : { maskImage: fade(atStart, atEnd), WebkitMaskImage: fade(atStart, atEnd) }),
+        } as React.CSSProperties}
+      >
         {children}
       </div>
       {pages > 1 && (

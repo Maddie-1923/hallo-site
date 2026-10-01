@@ -41,7 +41,7 @@ export function ElsewhereSheet({ entries: given, cover = false, mine = [] }: { e
         title="Streaming worldwide"
         className={
           cover
-            ? "absolute inset-0 rounded-[inherit] cursor-pointer ring-inset ring-[color:var(--dim)] hover:ring-[1.5px] focus-visible:ring-[1.5px] focus-visible:outline-none"
+            ? "absolute -inset-[0.5px] rounded-[inherit] cursor-pointer ring-inset ring-[color:var(--dim)] hover:ring-[1.5px] focus-visible:ring-[1.5px] focus-visible:outline-none"
             : "shrink-0 w-10 h-10 flex items-center justify-center text-accent cursor-pointer hover:brightness-125"
         }
       >

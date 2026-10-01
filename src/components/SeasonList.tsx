@@ -179,7 +179,7 @@ export function SeasonList({ showID, seasons, watched, skipped = [], live = fals
                   const aired = !!e.airDate && e.airDate <= today;
                   const days = e.airDate ? Math.ceil((Date.parse(e.airDate) - Date.parse(today)) / 86400000) : null;
                   return (
-                    <div key={key} data-ep={key} className={`rounded-[10px] bg-[color:var(--episode-row)] px-2.5 py-2.5 flex items-center gap-3 ${aired ? "" : "opacity-70"} ${picked === key ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
+                    <div key={key} data-ep={key} className={`rounded-[10px] bg-[color:var(--raised)] px-2.5 py-2.5 flex items-center gap-3 ${aired ? "" : "opacity-70"} ${picked === key ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
                       {/* The episode's own page, as a tap on the row opens it in the app. */}
                       {onPick ? (
                         <button type="button" onClick={() => onPick(e)} aria-pressed={picked === key} className="min-w-0 flex-1 grid gap-[0.25rem] text-left text-ink group cursor-pointer">

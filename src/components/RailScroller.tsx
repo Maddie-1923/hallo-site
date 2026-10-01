@@ -62,10 +62,12 @@ export function RailScroller({ title, children }: { title: string; children: Rea
       <div
         ref={strip}
         onScroll={update}
-        // The strip clips whatever overflows it, and the hover ring sits outside
-        // the card, so the strip gets a few pixels of padding on every side and
-        // the same amount of negative margin to keep the cards on the grid line.
-        className="flex gap-4 overflow-x-auto snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-1 -mx-1 pt-1 pb-3 [scroll-padding-inline:4px]"
+        // The strip clips whatever overflows it, so it gets room on every side
+        // for the cards' shadows and hover ring, with the same negative margin
+        // to keep the cards on the grid line; and it fades out at whichever
+        // end has more past it, as the poster rows do (ScrollStrip).
+        className="flex gap-4 overflow-x-auto snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-3 -mx-3 pt-4 -mt-3 pb-4 -mb-1 scroll-px-3"
+        style={scrollable ? { maskImage: `linear-gradient(to right, ${atStart ? "black" : "transparent"}, black 36px, black calc(100% - 36px), ${atEnd ? "black" : "transparent"})`, WebkitMaskImage: `linear-gradient(to right, ${atStart ? "black" : "transparent"}, black 36px, black calc(100% - 36px), ${atEnd ? "black" : "transparent"})` } : undefined}
       >
         {children}
       </div>

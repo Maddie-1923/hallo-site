@@ -171,7 +171,7 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
                 off={full}
                 radius={10}
                 run={() => setMoods((m) => (on ? m.filter((x) => x !== label) : m.length >= 3 ? m : [...m, label]))}
-                className={`h-[3.8333rem] px-1.5 flex flex-col items-center justify-center gap-1 disabled:!opacity-50 ${on ? "font-semibold" : "bg-[color:var(--quiet)] text-dim"}`}
+                className={`h-[3.8333rem] px-1.5 flex flex-col items-center justify-center gap-1 disabled:!opacity-50 border ${on ? "font-semibold border-transparent" : "bg-[color:var(--raised)] border-hair text-dim"}`}
               >
                 <span className="text-[1.25rem] leading-none">{emoji}</span>
                 <span className="text-[0.7917rem] leading-none">{label}</span>
