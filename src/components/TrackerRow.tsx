@@ -196,7 +196,7 @@ export function KeyButton({ k, fill = false }: { k: Key; fill?: boolean }) {
       off={k.off}
       radius={8}
       run={k.run}
-      className={`${fill ? "flex-1 min-w-0" : "w-16 shrink-0"} h-9 flex items-center justify-center ${k.on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
+      className={`${fill ? "flex-1 min-w-0" : "w-16 shrink-0"} h-9 flex items-center justify-center border ${k.on ? "border-transparent" : "bg-piece border-hair text-dim enabled:hover:text-ink"}`}
     >
       {k.icon}
     </ConfirmKey>
