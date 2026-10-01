@@ -9,7 +9,7 @@ import { ExpandableText } from "./ExpandableText";
 import { addWatch, today } from "@/lib/live-watches";
 import type { CalendarEvent, ComingFilm, ComingShow, TrackerPage } from "@/lib/tracker";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
-import { CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, type Key } from "./TrackerRow";
+import { CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, Row, SkipGlyph, type Key } from "./TrackerRow";
 import { HeadingPill } from "./TitleParts";
 import { TrackerCalendar } from "./TrackerCalendar";
 import { useDateFormat } from "./Day";
@@ -76,7 +76,6 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       const aside = skipped.includes(`${e.t.key}:${k}`);
       return [
         { icon: <MoreGlyph />, label: `More for ${e.t.title}` },
-        { icon: <RecapGlyph />, label: "Recap", off: true },
         {
           icon: <SkipGlyph />,
           label: `Watch ${code(k)} of ${e.t.title} later`,
@@ -132,7 +131,6 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     const skippedHere = p.next ? skipped.includes(`${s.key}:${p.next.key}`) : false;
     return [
       { icon: <MoreGlyph />, label: `More for ${s.title}` },
-      { icon: <RecapGlyph />, label: "Recap", off: true },
       {
         icon: <SkipGlyph />,
         label: p.next ? `Watch ${code(p.next.key)} later` : "Skip",
