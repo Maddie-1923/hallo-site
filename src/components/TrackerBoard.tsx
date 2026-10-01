@@ -272,7 +272,9 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
                     );
                   })}
                 </div>
-                <div className="relative flex-1 max-lg:h-[520px] lg:min-h-[420px]">
+                {/* Tall enough for five rows (each about 101px with its keys, 8px
+                    apart, and room under the last); the rest scroll. */}
+                <div className="relative h-[548px]">
                   <ul className="absolute inset-0 soft-scroll overflow-y-auto overscroll-contain pr-1 m-0 p-0 pb-3 list-none grid gap-2 content-start">
                     {all.length === 0 && (
                       <li className="rounded-shell bg-piece p-3 text-[12.5px] text-dim">
