@@ -11,6 +11,7 @@ import { TitleActions } from "@/components/TitleActions";
 import { SeasonBrowser } from "@/components/SeasonBrowser";
 import { SeriesPill, seriesBadge } from "@/components/SeriesBadge";
 import { optionalLibrary } from "@/lib/library";
+import { markLookup } from "@/lib/marks";
 import { publicReviewsOfTitle, titleRatings } from "@/lib/public-reads";
 import { readTake } from "@/lib/library-rules";
 import { ReviewsSection } from "@/components/TitleReviews";
@@ -97,6 +98,8 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
   const start = last ? { season: order(last)[0], episode: order(last)[1] } : { season: seasons.find((x) => x.number > 0)?.number ?? 1, episode: 1 };
   const openSeason = start.season;
 
+  // What the visitor has done with each title, for the More like this keys.
+  const look = markLookup(lib.archive);
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
@@ -158,7 +161,7 @@ export default async function ShowPage({ params }: PageProps<"/show/[id]">) {
         </div>
         <AdSlot place="title" className="mt-8" />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
-          {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" />}
+          {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="show" marks={Object.fromEntries(page.moreLikeThis.map((m) => [m.id, look.show(m.id)]))} lists={look.lists} />}
         </div>
       </main>
       <SiteFooter />

@@ -2,9 +2,10 @@ import Link from "next/link";
 import type { CastMember, RailTitle, Video, WhereToWatch } from "@/lib/tmdb";
 import { ExpandableText } from "./ExpandableText";
 import { SpoilerCover, SpoilerName } from "./Spoiler";
-import { Glyph } from "./Glyph";
 import { ElsewhereSheet } from "./ElsewhereSheet";
 import { Rail } from "./Rail";
+import { MarkButtons, type MarkState } from "./MarkButtons";
+import type { ListOption } from "@/lib/marks";
 import { TrailerCard, TrailerRail } from "./TrailerPlayer";
 
 // The pieces of a title's page, drawn after the app's detail screens
@@ -233,10 +234,11 @@ export function TrailerSection({ videos, flat = false }: { videos: Video[]; flat
 }
 
 /** A row card, as the app wraps rail tiles: the well, an inner piece. */
-function RowCard({ width, children }: { width: number; children: React.ReactNode }) {
+// `picked` outlines the whole shell, as a picked row in the Tracker is.
+function RowCard({ width, picked = false, children }: { width: number; picked?: boolean; children: React.ReactNode }) {
   return (
     <div
-      className="shrink-0 rounded-shell bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] snap-start"
+      className={`shrink-0 rounded-shell bg-well p-2 border-[0.5px] shadow-[0_4px_9px_rgba(0,0,0,.35)] snap-start ${picked ? "border-transparent ring-2 ring-accent-fill" : "border-t-[color:var(--lit-edge)] border-x-piece border-b-well"}`}
       // At least its own width; the rail may widen it so a whole number of
       // cards and a glimpse of the next fill the row (see Rail).
       style={{ width: `var(--rail-card, ${width}px)` }}
@@ -310,7 +312,11 @@ function CastTile({ p, fill = "bg-piece" }: { p: CastMember; fill?: string }) {
 }
 
 /** More like this: poster cards with the app's two keys under them. */
-export function MoreLikeThisSection({ items, kind }: { items: RailTitle[]; kind: "movie" | "show" }) {
+// Nothing marked: a card's keys for someone signed out, or a title they
+// haven't touched.
+const NO_MARKS: MarkState = { loved: false, watched: false, tracked: false, rating: null, listIDs: [], review: null, moods: [], rewatch: false };
+
+export function MoreLikeThisSection({ items, kind, marks = {}, lists = [] }: { items: RailTitle[]; kind: "movie" | "show"; /** What each card's keys show, by id (the visitor's library). */ marks?: Record<number, MarkState>; lists?: ListOption[] }) {
   return (
     <Section title="More like this" small>
       <Rail>
@@ -326,14 +332,12 @@ export function MoreLikeThisSection({ items, kind }: { items: RailTitle[]; kind:
                 <div className="text-[1rem] leading-[1.25rem] text-dim">{m.year}</div>
               </div>
             </Link>
-            <div className="mt-2 flex gap-2">
-              <span className="flex-1 h-10 rounded-[10px] bg-piece text-dim flex items-center justify-center" title="More">
-                <Glyph name="ellipsis" />
-              </span>
-              <span className="flex-1 h-10 rounded-[10px] bg-piece text-dim flex items-center justify-center" title="Add">
-                <Glyph name="plus" />
-              </span>
-            </div>
+            {/* The Explore cards' keys: More (the title's menu) and Add. */}
+            {m.target && (
+              <div className="mt-2">
+                <MarkButtons target={m.target} state={marks[m.id] ?? NO_MARKS} lists={lists} variant="keys" />
+              </div>
+            )}
           </RowCard>
         ))}
       </Rail>
@@ -376,8 +380,8 @@ export function EpisodesSection({ showID, episodes, current, title, watched = []
           season's first. */}
       <Rail start={Math.max(0, episodes.findIndex((e) => e.episode === current))}>
         {episodes.map((e) => (
-          <RowCard key={e.episode} width={240}>
-            <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className={`block rounded-[12px] bg-piece overflow-hidden no-underline text-ink group ${e.episode === current ? "ring-2 ring-accent-fill" : ""}`}>
+          <RowCard key={e.episode} width={240} picked={e.episode === current}>
+            <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className="block rounded-[12px] bg-piece overflow-hidden no-underline text-ink group">
               <div className="relative aspect-video rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card">
                 {e.still && (
                   // eslint-disable-next-line @next/next/no-img-element

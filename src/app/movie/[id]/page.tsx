@@ -9,6 +9,7 @@ import { TitleCredits } from "@/components/TitleCredits";
 import { HeaderCard, TitleBento, MoreLikeThisSection, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { TitleActions } from "@/components/TitleActions";
 import { optionalLibrary } from "@/lib/library";
+import { markLookup } from "@/lib/marks";
 import { publicReviewsOfTitle, titleRatings } from "@/lib/public-reads";
 import { readTake } from "@/lib/library-rules";
 import { ReviewsSection } from "@/components/TitleReviews";
@@ -77,6 +78,8 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
     },
   ].filter(Boolean) as { label: string; value: React.ReactNode; accent?: boolean }[];
 
+  // What the visitor has done with each title, for the More like this keys.
+  const look = markLookup(lib.archive);
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
@@ -125,7 +128,7 @@ export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {
         </div>
         <AdSlot place="title" className="mt-8" />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8">
-          {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="movie" />}
+          {page.moreLikeThis.length > 0 && <MoreLikeThisSection items={page.moreLikeThis} kind="movie" marks={Object.fromEntries(page.moreLikeThis.map((m) => [m.id, look.movie(m.id)]))} lists={look.lists} />}
         </div>
       </main>
       <SiteFooter />

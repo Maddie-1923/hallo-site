@@ -655,7 +655,7 @@ export async function filmPage(id: number, region = RATING_FALLBACK): Promise<Fi
     moreLikeThis: (r.recommendations?.results ?? [])
       .filter((x) => x.poster_path)
       .slice(0, 15)
-      .map((x) => ({ id: x.id, title: x.title, year: (x.release_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w780") })),
+      .map((x) => ({ id: x.id, title: x.title, year: (x.release_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w780"), target: { kind: "movie" as const, movie: toMovie(x) } })),
     watch: whereToWatch(r, region),
     crew: crewGroups(r.credits?.crew ?? []),
     details: details(r, "movie", r.id, r.title),
@@ -670,6 +670,8 @@ export interface RailTitle {
   title: string;
   year: string;
   poster: string | null;
+  /** The title whole, for the card's keys to act on (More like this). */
+  target?: { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 }
 
 export interface SeriesPage {
@@ -762,7 +764,7 @@ export async function seriesPage(id: number, region = RATING_FALLBACK): Promise<
     moreLikeThis: (r.recommendations?.results ?? [])
       .filter((x) => x.poster_path)
       .slice(0, 15)
-      .map((x) => ({ id: x.id, title: x.name, year: (x.first_air_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w780") })),
+      .map((x) => ({ id: x.id, title: x.name, year: (x.first_air_date ?? "").slice(0, 4), poster: image.poster(x.poster_path, "w780"), target: { kind: "show" as const, show: toShow(x) } })),
     watch: whereToWatch(r, region),
     crew: crewGroups(r.credits?.crew ?? [], (r.created_by ?? []).map((c) => ({ id: c.id, name: c.name }))),
     details: { ...details(r, "tv", r.id, r.name), networks: (r.networks ?? []).map((n) => n.name) },
