@@ -691,9 +691,11 @@ function readPrefs(raw: unknown): Record<string, Prefs> {
   return out;
 }
 
-// Whether the screen is wide enough for the panel beside the list (the
-// `lg` breakpoint). The server can't know, so it draws without it.
-const WIDE = "(min-width: 1024px)";
+// Whether the window is wide enough for the panel beside the list: from
+// 880px the bar's two switches still fit over half the page, so the panel
+// shows on a laptop's smaller windows too. The server can't know, so it
+// draws without it.
+const WIDE = "(min-width: 880px)";
 function useWide() {
   return useSyncExternalStore(
     (on) => {
