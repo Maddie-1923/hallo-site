@@ -127,9 +127,15 @@ export function ScrollStrip({ title, children }: { title: string; children: Reac
       <div
         ref={strip}
         onScroll={update}
-        // Room above and below for the cards' shadows, which a scrolling
-        // box would otherwise cut off.
-        className="flex gap-3 overflow-x-auto snap-x snap-mandatory py-2 -my-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        // Room all round for the cards' shadows, which a scrolling box would
+        // otherwise slice off in a straight line; and the strip fades out at
+        // whichever end has more past it, so a card cut by the edge melts
+        // away instead of stopping on a hard line.
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-px-3 px-3 -mx-3 py-4 -my-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        style={{
+          maskImage: edges.scrollable ? `linear-gradient(to right, ${edges.start ? "black" : "transparent"}, black 36px, black calc(100% - 36px), ${edges.end ? "black" : "transparent"})` : undefined,
+          WebkitMaskImage: edges.scrollable ? `linear-gradient(to right, ${edges.start ? "black" : "transparent"}, black 36px, black calc(100% - 36px), ${edges.end ? "black" : "transparent"})` : undefined,
+        }}
       >
         {children}
       </div>
