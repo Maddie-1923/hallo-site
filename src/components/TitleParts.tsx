@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { CastMember, RailTitle, Video, WhereToWatch } from "@/lib/tmdb";
 import { ExpandableText } from "./ExpandableText";
-import { SpoilerCover, SpoilerName } from "./Spoiler";
+import { SpoilerCover } from "./Spoiler";
 import { ElsewhereSheet } from "./ElsewhereSheet";
 import { Rail } from "./Rail";
 import { MarkButtons, type MarkState } from "./MarkButtons";
@@ -348,7 +348,8 @@ export function MoreLikeThisSection({ items, kind, marks = {}, lists = [] }: { i
 /** The title's picture across the top of its page, the way a profile's
     banner is drawn: the whole width, rounded, the full-size picture. The
     crop keeps the upper part, where faces usually are. */
-export function TitleBanner({ art, logo, title, watched }: { art: string | null; logo?: string | null; title?: string; /** An episode's: its still hides behind the spoiler setting until watched. */ watched?: boolean }) {
+export function TitleBanner({ art, logo, title, watched, heading, prev, next }: { art: string | null; logo?: string | null; title?: string; /** An episode's: its still hides behind the spoiler setting until watched. */ watched?: boolean; /** Lettering of its own in place of the logo (an episode's code and name). */ heading?: React.ReactNode; /** Round chevrons on the picture's sides, to the title before and after (an episode's neighbours). */ prev?: { href: string; label: string } | null; next?: { href: string; label: string } | null }) {
+  const arrow = "absolute top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full border border-white/30 bg-black/35 backdrop-blur-md text-white flex items-center justify-center no-underline transition-colors hover:bg-black/55 hover:border-white/70";
   return (
     <div className="relative overflow-hidden rounded-shell h-[clamp(300px,40vw,540px)] bg-card">
       {art && (
@@ -356,52 +357,36 @@ export function TitleBanner({ art, logo, title, watched }: { art: string | null;
         <img src={art} alt="" className="absolute inset-0 w-full h-full object-cover object-[center_25%]" />
       )}
       {watched === false && <SpoilerCover watched={false} />}
-      {/* The title in its own lettering: the studio's logo artwork, low on
-          the left, over a shade that keeps a pale logo readable whatever the
-          picture is doing there. */}
-      {logo && (
-        <>
-          <div aria-hidden className="absolute inset-0 bg-[linear-gradient(20deg,rgba(0,0,0,.62)_0%,rgba(0,0,0,.25)_35%,transparent_60%)]" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      {/* The title in its own lettering: the studio's logo artwork, or the
+          page's own heading, low on the left, over a shade that keeps it
+          readable whatever the picture is doing there. */}
+      {(logo || heading) && <div aria-hidden className="absolute inset-0 bg-[linear-gradient(20deg,rgba(0,0,0,.62)_0%,rgba(0,0,0,.25)_35%,transparent_60%)]" />}
+      {heading ? (
+        <div className="absolute left-[clamp(20px,3vw,44px)] right-[clamp(20px,3vw,44px)] bottom-[clamp(20px,3vw,40px)] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,.5)]">{heading}</div>
+      ) : (
+        logo && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={logo} alt={title ?? ""} className="absolute left-[clamp(20px,3vw,44px)] bottom-[clamp(20px,3vw,40px)] max-w-[33%] max-h-[30%] object-contain object-left-bottom drop-shadow-[0_2px_12px_rgba(0,0,0,.5)]" />
-        </>
+        )
+      )}
+      {prev && (
+        <Link href={prev.href} aria-label={prev.label} title={prev.label} className={`${arrow} left-[clamp(10px,1.6vw,22px)]`}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M15 5l-7 7 7 7" />
+          </svg>
+        </Link>
+      )}
+      {next && (
+        <Link href={next.href} aria-label={next.label} title={next.label} className={`${arrow} right-[clamp(10px,1.6vw,22px)]`}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
       )}
     </div>
   );
 }
 
-/** The season's episodes as wide cards, the one on the page ringed: its
-    still, its code and its name. */
-export function EpisodesSection({ showID, episodes, current, title, watched = [] }: { showID: number; episodes: { season: number; episode: number; name: string; still: string | null; airDate: string | null }[]; current: number; title: string; /** "showID-season-episode" keys watched, for spoiler protection. */ watched?: string[] }) {
-  const code = (s: number, e: number) => `S${String(s).padStart(2, "0")} | E${String(e).padStart(2, "0")}`;
-  return (
-    <Section title={title} small>
-      {/* Opens on the episode this page is about, outlined, rather than the
-          season's first. */}
-      <Rail start={Math.max(0, episodes.findIndex((e) => e.episode === current))}>
-        {episodes.map((e) => (
-          <RowCard key={e.episode} width={240} picked={e.episode === current}>
-            <Link href={`/show/${showID}/season/${e.season}/episode/${e.episode}`} className="block rounded-[12px] bg-piece overflow-hidden no-underline text-ink group">
-              <div className="relative aspect-video rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card">
-                {e.still && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={e.still} alt="" loading="lazy" className="w-full h-full object-cover" />
-                )}
-                <SpoilerCover watched={watched.includes(`${showID}-${e.season}-${e.episode}`)} />
-              </div>
-              <div className="px-2.5 pt-2 pb-2.5">
-                <div className="text-[1.0417rem] leading-[1.3333rem] font-semibold text-mid-tone">{code(e.season, e.episode)}</div>
-                <div className="text-[1.0417rem] leading-[1.3333rem] truncate group-hover:text-accent transition-colors">
-                  <SpoilerName name={e.name} watched={watched.includes(`${showID}-${e.season}-${e.episode}`)} />
-                </div>
-              </div>
-            </Link>
-          </RowCard>
-        ))}
-      </Rail>
-    </Section>
-  );
-}
 
 /**
  * The top of a title's page as one L-shaped bento: a card that holds About

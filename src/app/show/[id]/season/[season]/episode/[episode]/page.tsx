@@ -14,10 +14,10 @@ import { publicReviewsOfEpisode } from "@/lib/public-reads";
 import { YourReview } from "@/components/YourReview";
 import { WatchAgain } from "@/components/WatchAgain";
 import { rewatchNights } from "@/lib/library-rules";
-import { EpisodesSection, HeaderCard, TitleBento, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
+import { HeaderCard, TitleBento, Section, SectionCard, TitleBanner, TrailerSection, WhereToWatchTile } from "@/components/TitleParts";
 import { optionalLibrary } from "@/lib/library";
 import { readTake } from "@/lib/library-rules";
-import { episodePage, image, seriesPage, titleLogo, type EpisodeLink } from "@/lib/tmdb";
+import { episodePage, image, seriesPage, type EpisodeLink } from "@/lib/tmdb";
 import { visitorRegion } from "@/lib/region";
 import { Day } from "@/components/Day";
 import { AdSlot } from "@/components/AdSlot";
@@ -52,7 +52,7 @@ export default async function EpisodePage({ params }: Params) {
   const d = await load(params);
   if (!d) notFound();
   const { show, ep, showID } = d;
-  const [lib, logo] = await Promise.all([optionalLibrary(), titleLogo("show", showID)]);
+  const lib = await optionalLibrary();
   const key = `${showID}-${ep.season}-${ep.episode}`;
   const watched = !!lib.archive?.watched.includes(key);
   const loved = lib.archive?.reactions?.[`episode:${key}`] === "loved";
@@ -81,7 +81,23 @@ export default async function EpisodePage({ params }: Params) {
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="w-full px-[clamp(16px,3.2vw,64px)] pt-[clamp(12px,2.2vw,32px)] pb-20 flex-1">
-        <TitleBanner art={ep.still ?? image.banner(show.show.backdrop_path)} logo={logo} title={show.show.name} watched={ep.still ? watched : undefined} />
+        {/* The episode's own still, lettered with its code and name rather
+            than the show's logo, and arrows to the episodes either side. */}
+        <TitleBanner
+          art={ep.still ?? image.banner(show.show.backdrop_path)}
+          title={show.show.name}
+          watched={ep.still ? watched : undefined}
+          heading={
+            <>
+              <div className="text-[1.0833rem] font-bold uppercase tracking-[.12em] text-white/85">{code(ep.season, ep.episode)}</div>
+              <div className="display text-[clamp(36px,5vw,64px)] leading-[.95] tracking-[.02em] uppercase mt-1 max-w-[60%]">
+                <SpoilerName name={ep.name} watched={watched} />
+              </div>
+            </>
+          }
+          prev={ep.previous ? { href: `/show/${showID}/season/${ep.previous.season}/episode/${ep.previous.episode}`, label: `Previous: ${code(ep.previous.season, ep.previous.episode)}` } : null}
+          next={ep.next ? { href: `/show/${showID}/season/${ep.next.season}/episode/${ep.next.episode}`, label: `Next: ${code(ep.next.season, ep.next.episode)}` } : null}
+        />
         {/* The top as one L-shaped bento: About down the left with the
             trailers under it, the credits tabs on the right, and the keys
             and where to watch set into the notch above them. */}
@@ -140,12 +156,6 @@ export default async function EpisodePage({ params }: Params) {
             side={(ep.cast.length > 0 || ep.crew.length > 0) && <TitleCredits flat cast={ep.cast} crew={ep.crew} />}
           />
         </div>
-        {/* The season's episodes, straight under the bento, before their take. */}
-        {ep.seasonEpisodes.length > 1 && (
-          <div className="mt-8 grid grid-cols-[minmax(0,1fr)]">
-            <EpisodesSection showID={showID} episodes={ep.seasonEpisodes} current={ep.episode} title={ep.season === 0 ? "Specials" : `Season ${ep.season}`} watched={lib.archive?.watched.filter((k) => k.startsWith(`${showID}-`)) ?? []} />
-          </div>
-        )}
         {/* Under it, the reviews at the About card's width, and their own
             take beside them, as the keys sit beside About. */}
         <div className="mt-8 grid gap-8 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start">
