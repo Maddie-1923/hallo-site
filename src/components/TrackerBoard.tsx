@@ -398,6 +398,26 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     window.scrollTo({ top: window.scrollY + row.getBoundingClientRect().top - (navH + headerH + 4), behavior: reduce ? "auto" : "smooth" });
   };
   const [activeID, setActiveID] = useState<string | null>(null);
+  // How far the panel reaches past the last row's top, so the room under
+  // the list can let the panel follow the last row all the way: a sticky
+  // panel stops where the list's column ends, and a panel taller than the
+  // last row would otherwise ride up past it.
+  const panelBox = useRef<HTMLElement>(null);
+  const [overhang, setOverhang] = useState(0);
+  useEffect(() => {
+    const el = panelBox.current;
+    const col = leftCol.current;
+    if (!el || !col) return;
+    const measure = () => {
+      const rows = col.querySelectorAll<HTMLElement>("[data-row]");
+      const last = rows[rows.length - 1];
+      setOverhang(Math.max(0, el.offsetHeight - (last?.offsetHeight ?? 0)));
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    ro.observe(col);
+    return () => ro.disconnect();
+  }, [withPanel, !!picked]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const el = header.current;
     if (!el) return;
@@ -634,10 +654,10 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
           {/* Room under the last title, so even the last few can come up
               level with the panel, and the panel, pinned beside them, is
               never squeezed or cut off at the foot of the list. */}
-          {withPanel && <div aria-hidden style={{ height: `max(0px, calc(100vh - ${navH + headerH + 260}px))` }} />}
+          {withPanel && <div aria-hidden style={{ height: `max(${overhang}px, calc(100vh - ${navH + headerH + 260}px))` }} />}
         </div>
         {withPanel && picked && (
-          <aside className="sticky self-start min-w-0 lg:pl-2" style={{ top: navH + headerH + 4, marginTop: firstTop }}>
+          <aside ref={panelBox} className="sticky self-start min-w-0 lg:pl-2" style={{ top: navH + headerH + 4, marginTop: firstTop }}>
             {/* In a shell of its own, like the rows beside it. */}
             <div className="rounded-shell bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
               <EpisodePanel item={picked} keysFor={keysFor} recapFor={recapFor} band={bandOf(picked.facts, picked.episode ?? picked.panelEpisode)} />
