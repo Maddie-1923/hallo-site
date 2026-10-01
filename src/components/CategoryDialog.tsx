@@ -90,7 +90,7 @@ export function Sheet({ label, title, onClose, footer, children, width = 720 }: 
 // Laid out as the app's Browse sheet is: cards with a plain heading each —
 // Type, Sort by, Genres, a "Narrow by" list of rows, and Series — rather than
 // a wall of pills under spaced capitals. Built to be easy to read: sentence
-// case, no letter-spacing, 15px type with room between lines, everything
+// case, no letter-spacing, 13–14px type with room between lines, everything
 // left-aligned, and a chosen pill marked with a tick as well as a colour.
 
 /** A choice that is on or off: one cell of a list laid out in rows and
@@ -103,13 +103,13 @@ function Chip({ on, onClick, children, logo, disabled = false }: { on: boolean; 
       aria-pressed={on}
       disabled={disabled}
       onClick={onClick}
-      className={`w-full flex items-center gap-2 min-h-10 px-3 rounded-[10px] border text-left text-[14px] font-semibold leading-tight cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default ${
+      className={`w-full flex items-center gap-2.5 min-h-9 px-2.5 py-1 rounded-[10px] border text-left text-[13px] font-semibold leading-tight cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default ${
         on ? "border-transparent bg-accent-fill text-on-accent" : "border-transparent text-ink hover:border-hair hover:bg-card"
       }`}
     >
       {logo !== undefined && (
         // eslint-disable-next-line @next/next/no-img-element
-        logo ? <img src={logo} alt="" loading="lazy" className="w-6 h-6 rounded-[6px] shrink-0 object-cover" /> : <span aria-hidden className="w-6 h-6 rounded-[6px] shrink-0 bg-piece" />
+        logo ? <img src={logo} alt="" loading="lazy" className="w-8 h-8 rounded-[8px] shrink-0 object-cover" /> : <span aria-hidden className="w-8 h-8 rounded-[8px] shrink-0 bg-piece" />
       )}
       {on && (
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -124,12 +124,12 @@ function Chip({ on, onClick, children, logo, disabled = false }: { on: boolean; 
 /** One card of the sheet, its heading in plain words. */
 function Card({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[14px] bg-piece/60 border border-hair/70 px-4 py-4">
-      <div role="heading" aria-level={3} className="text-[15px] font-semibold text-ink">
+    <section className="rounded-[14px] bg-piece/60 border border-hair/70 px-4 pt-3 pb-3.5">
+      <div role="heading" aria-level={3} className="text-[14px] font-semibold text-ink">
         {title}
       </div>
-      {note && <p className="m-0 mt-1 text-[13.5px] leading-[1.5] text-dim">{note}</p>}
-      <div className="mt-3">{children}</div>
+      {note && <p className="m-0 mt-0.5 text-[12px] leading-[1.45] text-dim">{note}</p>}
+      <div className="mt-2">{children}</div>
     </section>
   );
 }
@@ -145,7 +145,7 @@ function Segments<T extends string>({ label, value, options, onChange }: { label
           role="radio"
           aria-checked={value === v}
           onClick={() => onChange(v)}
-          className={`h-9 px-4 rounded-full text-[14px] font-semibold cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-ink hover:bg-piece"}`}
+          className={`h-8 px-3.5 rounded-full text-[13px] font-semibold cursor-pointer transition-colors ${value === v ? "bg-accent-fill text-on-accent" : "text-ink hover:bg-piece"}`}
         >
           {text}
         </button>
@@ -159,9 +159,9 @@ function Segments<T extends string>({ label, value, options, onChange }: { label
     under the row. */
 function Row({ label, first, children }: { label: string; first?: boolean; children: React.ReactNode }) {
   return (
-    <div className={`flex items-center justify-between gap-4 min-h-12 py-1.5 ${first ? "" : "border-t border-hair/70"}`}>
-      <span className="text-[15px] text-ink">{label}</span>
-      <div className="flex items-center gap-2 text-[14px] text-dim">{children}</div>
+    <div className={`flex items-center justify-between gap-4 min-h-11 py-1 ${first ? "" : "border-t border-hair/70"}`}>
+      <span className="text-[14px] text-ink">{label}</span>
+      <div className="flex items-center gap-2 text-[13px] text-dim">{children}</div>
     </div>
   );
 }
@@ -170,16 +170,16 @@ function MultiRow({ label, summary, first, children }: { label: string; summary:
   const [open, setOpen] = useState(false);
   return (
     <div className={first ? "" : "border-t border-hair/70"}>
-      <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="w-full flex items-center justify-between gap-4 min-h-12 py-1.5 text-left cursor-pointer">
-        <span className="text-[15px] text-ink">{label}</span>
-        <span className="flex items-center gap-2 text-[14px] text-dim min-w-0">
+      <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="w-full flex items-center justify-between gap-4 min-h-11 py-1 text-left cursor-pointer">
+        <span className="text-[14px] text-ink">{label}</span>
+        <span className="flex items-center gap-2 text-[13px] text-dim min-w-0">
           <span className="truncate max-w-[260px]">{summary}</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`}>
             <path d="M6 9l6 6 6-6" />
           </svg>
         </span>
       </button>
-      {open && <div className="pb-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">{children}</div>}
+      {open && <div className="pb-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">{children}</div>}
     </div>
   );
 }
@@ -304,7 +304,7 @@ export function CategoryDialog({
     });
   }
 
-  const select = "field !w-auto !h-10 !py-0 !pl-3 !pr-8 !text-[14px] !text-ink";
+  const select = "field !w-auto !h-9 !py-0 !pl-3 !pr-8 !text-[13px] !text-ink";
   return (
     <Sheet
       label={browse ? "Browse" : edit ? `Edit ${edit.name}` : "New category"}
@@ -313,13 +313,13 @@ export function CategoryDialog({
       footer={
         browse ? (
           <>
-            <button type="button" className="text-[15px] font-semibold text-dim hover:text-ink cursor-pointer mr-auto" onClick={() => setF(emptyFilter(f.kinds))}>
+            <button type="button" className="text-[14px] font-semibold text-dim hover:text-ink cursor-pointer mr-auto" onClick={() => setF(emptyFilter(f.kinds))}>
               Clear
             </button>
-            <button type="button" className="text-[15px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
+            <button type="button" className="text-[14px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
               Cancel
             </button>
-            <button type="button" className="btn !py-2.5 !px-6 !text-[15px]" disabled={pending || (keep && blocked)} onClick={show}>
+            <button type="button" className="btn !py-2 !px-5 !text-[14px]" disabled={pending || (keep && blocked)} onClick={show}>
               {pending ? "Saving…" : keep ? "Save and show results" : "Show results"}
             </button>
           </>
@@ -330,20 +330,20 @@ export function CategoryDialog({
               <span className={error ? "" : "text-dim"}>{error ?? note}</span>
             </span>
           )}
-          <button type="button" className="text-[15px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
+          <button type="button" className="text-[14px] font-semibold text-dim hover:text-ink cursor-pointer" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" className="btn !py-2.5 !px-6 !text-[15px]" disabled={pending || blocked} onClick={save}>
+          <button type="button" className="btn !py-2 !px-5 !text-[14px]" disabled={pending || blocked} onClick={save}>
             {pending ? "Saving…" : edit ? "Save" : "Save as category"}
           </button>
         </>
         )
       }
     >
-      <div className="flex flex-col gap-3 text-[15px] leading-[1.5]">
+      <div className="flex flex-col gap-2.5 text-[14px] leading-[1.5]">
         {!edit && !browse && (
           <Card title="Name" note={`${Array.from(name).length} of ${RAIL_NAME_LIMIT} letters`}>
-            <input className="field !text-[15px]" aria-label="Category name" value={name} maxLength={RAIL_NAME_LIMIT} placeholder={suggestedName(f)} onChange={(e) => setTyped(e.target.value)} />
+            <input className="field !text-[14px]" aria-label="Category name" value={name} maxLength={RAIL_NAME_LIMIT} placeholder={suggestedName(f)} onChange={(e) => setTyped(e.target.value)} />
           </Card>
         )}
 
@@ -387,7 +387,7 @@ export function CategoryDialog({
                 </Chip>
               ))}
               {serviceList.length > shown.length && (
-                <button type="button" onClick={() => setAllServices(true)} className="min-h-10 px-3 text-left text-[14px] font-semibold text-accent hover:underline cursor-pointer">
+                <button type="button" onClick={() => setAllServices(true)} className="min-h-9 px-2.5 text-left text-[13px] font-semibold text-accent hover:underline cursor-pointer">
                   Show all {serviceList.length}
                 </button>
               )}
@@ -493,19 +493,19 @@ export function CategoryDialog({
           <Card title="Save">
             <label className="flex items-center gap-3 min-h-10 cursor-pointer">
               <input type="checkbox" className="w-5 h-5 accent-[var(--accent-fill)] cursor-pointer" checked={keep} onChange={(e) => setKeep(e.target.checked)} />
-              <span className="text-[15px] text-ink">Save as a category on Explore</span>
+              <span className="text-[14px] text-ink">Save as a category on Explore</span>
             </label>
             {keep && (
               <div className="mt-3">
                 <label className="block">
-                  <span className="text-[14px] text-dim">
+                  <span className="text-[12px] text-dim">
                     Name · {Array.from(name).length} of {RAIL_NAME_LIMIT} letters
                   </span>
-                  <input className="field !text-[15px] mt-1.5" aria-label="Category name" value={name} maxLength={RAIL_NAME_LIMIT} placeholder={suggestedName(f)} onChange={(e) => setTyped(e.target.value)} />
+                  <input className="field !text-[14px] mt-1.5" aria-label="Category name" value={name} maxLength={RAIL_NAME_LIMIT} placeholder={suggestedName(f)} onChange={(e) => setTyped(e.target.value)} />
                 </label>
-                {f.kinds.length > 1 && <p className="m-0 mt-2 text-[13.5px] text-dim">Saving makes one category for shows and one for movies.</p>}
+                {f.kinds.length > 1 && <p className="m-0 mt-2 text-[12px] text-dim">Saving makes one category for shows and one for movies.</p>}
                 {(error || note) && (
-                  <p className="m-0 mt-2 text-[13.5px]" style={error ? { color: "var(--movies)" } : undefined} role={error ? "alert" : undefined}>
+                  <p className="m-0 mt-2 text-[12px]" style={error ? { color: "var(--movies)" } : undefined} role={error ? "alert" : undefined}>
                     <span className={error ? "" : "text-dim"}>{error ?? note}</span>
                   </p>
                 )}
