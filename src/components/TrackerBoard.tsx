@@ -451,10 +451,11 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
             className="pointer-events-none absolute -inset-x-4 top-0 -bottom-6 backdrop-blur-xl"
             style={{
               background: "color-mix(in srgb, var(--page) 30%, transparent)",
-              // Feathered on every side, so the glass has no corners of its
-              // own: it fades in from the edges and out below the bar.
-              maskImage: "linear-gradient(to bottom, transparent, black 14px, black 75%, transparent), linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)",
-              WebkitMaskImage: "linear-gradient(to bottom, transparent, black 14px, black 75%, transparent), linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)",
+              // Solid glass along the top, right up to the site's bar, so
+              // nothing shows through the gap there; feathered at the sides
+              // and below the bar so it has no corners or hard edges.
+              maskImage: "linear-gradient(to bottom, black, black 75%, transparent), linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)",
+              WebkitMaskImage: "linear-gradient(to bottom, black, black 75%, transparent), linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)",
               maskComposite: "intersect",
               WebkitMaskComposite: "source-in",
             }}
