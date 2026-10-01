@@ -17,8 +17,8 @@ type Target = { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
 // activity, Review & catalogue, the watchlist for this kind, Your lists (the
 // person's own, plus a field to start one), Other lists, Where to watch.
 // Everything writes through the same actions the app's merge understands.
-// Divided the way the app's menus are: a hairline between rows, and a wider
-// band between groups.
+// Divided the way the app's menus are: a faint hairline between rows, and a
+// stronger one between groups.
 export function MarkMenu({
   target,
   state,
@@ -61,7 +61,11 @@ export function MarkMenu({
     if (!anchor) return;
     const place = () => {
       const r = anchor.getBoundingClientRect();
-      const right = Math.max(8, window.innerWidth - r.right);
+      // Right-aligned to the button, unless that would push the menu off
+      // the window's left edge (the first card in a row): then it starts
+      // at the button's left instead.
+      const width = 232;
+      const right = r.right - width < 8 ? Math.max(8, window.innerWidth - Math.max(8, r.left) - width) : Math.max(8, window.innerWidth - r.right);
       if (r.top > 360) setPos({ bottom: window.innerHeight - r.top + 8, right });
       else setPos({ top: r.bottom + 8, right });
     };
@@ -282,5 +286,5 @@ export function MarkMenu({
 const GROUP = "[&>*+*]:border-t [&>*+*]:border-[color:color-mix(in_srgb,var(--ink)_12%,transparent)]";
 
 function GroupGap() {
-  return <div aria-hidden className="h-2 bg-[color:color-mix(in_srgb,black_22%,transparent)]" />;
+  return <div aria-hidden className="h-px mt-1 bg-[color:color-mix(in_srgb,var(--ink)_28%,transparent)]" />;
 }

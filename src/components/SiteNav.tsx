@@ -31,8 +31,8 @@ const tabs: [string, string][] = [
 ];
 
 // The profile menu in groups of a kind, divided the way the app's menus
-// are (and the poster's ••• menu): a hairline between rows, a wider band
-// between groups. Your own things first, then your library, then settings,
+// are (and the poster's ••• menu): a faint hairline between rows, a
+// stronger one with a little space above it between groups. Your own things first, then your library, then settings,
 // then Kodigo itself, then help.
 const menuGroups: [string, string][][] = [
   [
@@ -61,7 +61,7 @@ const menuGroups: [string, string][][] = [
   ],
 ];
 const HAIRLINE = "[&>li+li]:border-t [&>li+li]:border-[color:color-mix(in_srgb,var(--ink)_12%,transparent)]";
-const BAND = "h-2 bg-[color:color-mix(in_srgb,black_22%,transparent)]";
+const BAND = "h-px mt-1 bg-[color:color-mix(in_srgb,var(--ink)_28%,transparent)]";
 
 // `framed` is the home page's billboard: the bar sits inside the picture's
 // frame, so it lines up with the billboard's words rather than the page column.
