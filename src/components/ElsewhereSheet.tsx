@@ -14,7 +14,7 @@ import type { WhereToWatch } from "@/lib/tmdb";
 // The app pushes a page; the web opens a sheet over this one.
 // `cover`: the opener is the whole of the box it sits in (the Where to watch
 // tile), drawn by the box itself, rather than the arrow.
-export function ElsewhereSheet({ entries: given, cover = false, mine = [] }: { entries: WhereToWatch["elsewhere"]; cover?: boolean; mine?: number[] }) {
+export function ElsewhereSheet({ entries: given, cover = false, mine = [], hint = "Streaming worldwide" }: { entries: WhereToWatch["elsewhere"]; cover?: boolean; mine?: number[]; /** The opener's hover text. */ hint?: string }) {
   // Their own services first, marked.
   const entries = [...given.filter((e) => mine.includes(e.provider.id)), ...given.filter((e) => !mine.includes(e.provider.id))];
   const [open, setOpen] = useState(false);
@@ -38,7 +38,7 @@ export function ElsewhereSheet({ entries: given, cover = false, mine = [] }: { e
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`Where it streams worldwide: ${entries.length} services`}
-        title="Streaming worldwide"
+        title={hint}
         className={
           cover
             ? "absolute -inset-[0.5px] rounded-[inherit] cursor-pointer ring-inset ring-[color:var(--dim)] hover:ring-[1.5px] focus-visible:ring-[1.5px] focus-visible:outline-none"

@@ -37,7 +37,7 @@ export function WhereToWatchTile({ watch = NOWHERE }: { watch?: WhereToWatch | n
         <h2 className="shrink-0 h-[2.8333rem] px-1 rounded-[12px] bg-piece flex items-center justify-center text-center ![font-family:var(--font-body)] !font-bold !text-[0.875rem] !leading-none !tracking-[.12em] uppercase text-ink">Where to watch</h2>
         <div className="flex-1 min-h-0 rounded-[12px] bg-piece p-3 flex items-stretch gap-1.5">
           {shown.map((p) => (
-            <span key={p.id} title={mine.has(p.id) ? `${p.name} · yours` : p.name} className={`${tile} ${here.length ? "" : "opacity-60"} ${mine.has(p.id) ? "!border-transparent ring-2 ring-accent-fill" : ""}`}>
+            <span key={p.id} title={mine.has(p.id) ? `${p.name} · yours` : p.name} className={`${tile} ${mine.has(p.id) ? "!border-transparent ring-2 ring-accent-fill" : ""}`}>
               {p.logo && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={p.logo} alt={p.name} className="w-full h-full object-cover" />
@@ -47,13 +47,25 @@ export function WhereToWatchTile({ watch = NOWHERE }: { watch?: WhereToWatch | n
           {more > 0 && <span className={`${tile} flex items-center justify-center text-[1.0417rem] font-semibold text-dim`}>+{more}</span>}
           {pool.length === 0 && <span className="self-center text-[1.0417rem] leading-[1.4] text-dim">{notOnYours ? "Not on your services" : "Nowhere yet"}</span>}
           {watch.elsewhere.length > 0 && (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="ml-auto shrink-0 self-start text-accent">
-              <path d="M4 12h15M13 6l6 6-6 6" />
-            </svg>
+            // The arrow to every service anywhere; over it, when what's shown
+            // streams only in other countries, a globe saying so.
+            <span className="ml-auto shrink-0 self-stretch flex flex-col items-center justify-between">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-accent">
+                <path d="M4 12h15M13 6l6 6-6 6" />
+              </svg>
+              {!here.length && pool.length > 0 && (
+                <span title="Streaming in other countries" className="text-dim">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" role="img" aria-label="Streaming in other countries">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" />
+                  </svg>
+                </span>
+              )}
+            </span>
           )}
         </div>
       </div>
-      <ElsewhereSheet entries={watch.elsewhere} cover mine={settings.services} />
+      <ElsewhereSheet entries={watch.elsewhere} cover mine={settings.services} hint={!here.length && pool.length > 0 ? "Streaming in other countries" : undefined} />
     </div>
   );
 }
