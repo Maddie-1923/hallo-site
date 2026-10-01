@@ -143,11 +143,12 @@ export function TrackerCalendar({ events }: { events: CalendarEvent[]; keysFor?:
             const isToday = d === today;
             const n = byDay.get(d)?.length ?? 0;
             return (
-              <div key={d} title={n ? `${n} on this day` : undefined} aria-label={`${d}${n ? `, ${n} on` : ""}`} className="relative h-7 flex items-center justify-center">
+              <div key={d} title={n ? `${n} on this day` : undefined} aria-label={`${d}${n ? `, ${n} on` : ""}`} className="h-9 flex flex-col items-center pt-0.5">
                 <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[12.5px] tabular-nums ${isToday ? "bg-accent-fill text-on-accent font-bold" : "text-ink"}`}>
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                {has && <span aria-hidden className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${isToday ? "bg-accent-fill" : "bg-accent"}`} />}
+                {/* The dot sits under the day, clear of today's circle. */}
+                <span aria-hidden className={`mt-[3px] w-1 h-1 rounded-full ${has ? (isToday ? "bg-accent-fill" : "bg-accent") : "bg-transparent"}`} />
               </div>
             );
           })}
