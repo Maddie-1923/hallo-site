@@ -62,7 +62,7 @@ export function Row({ t, lines, bar, keys, onPick, picked = false }: { t: Profil
         </div>
       </div>
       {keys && (
-        <div className="flex gap-1.5">
+        <div className="flex justify-end gap-1.5">
           {keys.map((k) => (
             <KeyButton key={k.label} k={k} />
           ))}
@@ -87,9 +87,9 @@ function To({ href, onPick, picked, className, children }: { href: string; onPic
 }
 
 // A key in the strip, with the app's confirmation (ConfirmKey).
-/** One key, the same size wherever it sits (64 by 36, the watched key on
-    an episode's panel 96 wide), as the app keeps its keys a fixed size
-    rather than stretching them across whatever room there is. */
+/** One key, the same size wherever it sits (64 by 36), as the app keeps
+    its keys a fixed size rather than stretching them across whatever room
+    there is. */
 export function KeyButton({ k }: { k: Key }) {
   return (
     <ConfirmKey
@@ -101,7 +101,7 @@ export function KeyButton({ k }: { k: Key }) {
       off={k.off}
       radius={8}
       run={k.run}
-      className={`${k.wide ? "w-24" : "w-16"} h-9 shrink-0 flex items-center justify-center ${k.on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
+      className={`w-16 h-9 shrink-0 flex items-center justify-center ${k.on ? "" : "bg-piece text-dim enabled:hover:text-ink"}`}
     >
       {k.icon}
     </ConfirmKey>

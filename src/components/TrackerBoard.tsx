@@ -333,11 +333,9 @@ function EpisodePanel({ item: given, keysFor }: { item: Item; keysFor: (e: Calen
   }, [seasonKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const ep = seasonKey ? seasons[seasonKey]?.find((e) => e.episode === en) ?? null : null;
 
-  // The keys for this very episode (or film), without More and Recap, and
-  // Watched the wide one.
+  // The keys for this very episode (or film), without More.
   const keys = (keysFor({ date: ep?.airDate ?? item.date ?? "0000-00-00", t: item.t, label: "", episode: item.episode }) ?? [])
-    .filter((k) => !k.label.startsWith("More") && k.label !== "Recap")
-    .map((k, i, a) => (i === a.length - 1 ? { ...k, wide: true } : k));
+    .filter((k) => !k.label.startsWith("More"));
   const isFilm = item.t.kind === "movie";
   const spoilers = useSpoilers();
   const fmt = useDateFormat();
@@ -386,7 +384,7 @@ function EpisodePanel({ item: given, keysFor }: { item: Item; keysFor: (e: Calen
           )}
         </div>
         {keys.length > 0 && (
-          <div className="flex gap-1.5">
+          <div className="flex justify-end gap-1.5">
             {keys.map((k) => (
               <KeyButton key={k.label} k={k} />
             ))}
