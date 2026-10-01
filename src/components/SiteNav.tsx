@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { LogoBleed } from "./Logo";
 import { Menu } from "./Menu";
 import { NavSearch } from "./NavSearch";
 import { DayNightToggle } from "./DayNightToggle";
@@ -31,22 +30,38 @@ const tabs: [string, string][] = [
   ["/members", "Community"],
 ];
 
-const menuLinks = [
-  ["/feed", "Feed"],
-  ["/calendar", "Calendar"],
-  ["/library", "Library"],
-  ["/watchlist", "Watchlist"],
-  ["/stats", "Stats"],
-  ["/settings", "Settings"],
-  ["/settings#appearance", "Appearance"],
-  ["/settings#data", "Import & export"],
-  ["/about#themes", "Themes"],
-  ["/about", "The app"],
-  ["/pro", "Subscription"],
-  ["/whats-new", "What's new"],
-  ["/about#faq", "FAQ"],
-  ["/support", "Support"],
+// The profile menu in groups of a kind, divided the way the app's menus
+// are (and the poster's ••• menu): a hairline between rows, a wider band
+// between groups. Your own things first, then your library, then settings,
+// then Kodigo itself, then help.
+const menuGroups: [string, string][][] = [
+  [
+    ["/feed", "Feed"],
+  ],
+  [
+    ["/library", "Library"],
+    ["/watchlist", "Watchlist"],
+    ["/calendar", "Calendar"],
+    ["/stats", "Stats"],
+  ],
+  [
+    ["/settings", "Settings"],
+    ["/settings#appearance", "Appearance"],
+    ["/about#themes", "Themes"],
+    ["/settings#data", "Import & export"],
+  ],
+  [
+    ["/pro", "Subscription"],
+    ["/about", "The app"],
+    ["/whats-new", "What's new"],
+  ],
+  [
+    ["/about#faq", "FAQ"],
+    ["/support", "Support"],
+  ],
 ];
+const HAIRLINE = "[&>li+li]:border-t [&>li+li]:border-[color:color-mix(in_srgb,var(--ink)_12%,transparent)]";
+const BAND = "h-2 bg-[color:color-mix(in_srgb,black_22%,transparent)]";
 
 // `framed` is the home page's billboard: the bar sits inside the picture's
 // frame, so it lines up with the billboard's words rather than the page column.
@@ -57,7 +72,7 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
   // Asking Supabase at all would also put a session lookup on every public
   // page for an answer the page cannot use.
   const user = accountsOpen ? await signedInUser() : null;
-  const logoHeight = framed ? 70 : 54;
+  const iconSize = framed ? 44 : 36;
 
   return (
     <nav
@@ -91,10 +106,12 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
             11px under the wordmark puts it on the same line it has beside
             them. */}
         <div className="self-end pb-[11px] md:pb-0 flex items-baseline gap-6">
-          <Link href="/" aria-label="Kodigo home" className="relative inline-flex no-underline" style={{ paddingLeft: (logoHeight * 528) / 1185 }}>
-            <span className="absolute left-0 bottom-[4px]">
-              <LogoBleed height={logoHeight} />
-            </span>
+          {/* The app's own icon, square background and all, so the mark is
+              the same in day and night rather than recoloured. Centred on
+              the tabs' words: its middle sits 7px above their baseline. */}
+          <Link href="/" aria-label="Kodigo home" className="relative inline-flex no-underline" style={{ paddingLeft: iconSize }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/kodigo-icon.png" alt="" width={iconSize} height={iconSize} className="absolute left-0 rounded-[23%] shadow-[0_1px_3px_rgba(0,0,0,.25)]" style={{ bottom: 7 - iconSize / 2 }} />
             {/* The mark alone, no wordmark. This empty letter keeps the
                 wordmark's baseline, which the tabs beside it stand on. */}
             <span aria-hidden className="display text-2xl leading-none w-0">&#8203;</span>
@@ -191,23 +208,39 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
         }
       >
         <div className="px-4 pt-3 pb-2 text-xs text-dim truncate border-b border-hair">{profile.username ? `@${profile.username}` : email}</div>
-        <ul className="m-0 p-0 py-1 list-none">
-          {/* Their public profile, or, until they have a username, the way
-              to choose one (which is also where they're told it's public). */}
+        {/* Their public profile, or, until they have a username, the way to
+            choose one (which is also where they're told it's public), heads
+            the first group with the feed. */}
+        <ul className={`m-0 p-0 list-none ${HAIRLINE}`}>
           <li>
-            <Link href={profile.username ? `/u/${profile.username}` : "/profile/setup"} className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink font-semibold">
+            <Link href={profile.username ? `/u/${profile.username}` : "/profile/setup"} className="block px-4 py-2.5 text-sm hover:bg-card-hi no-underline text-ink font-semibold">
               {profile.username ? "Your public profile" : "Choose your username"}
             </Link>
           </li>
-          {menuLinks.map(([href, label]) => (
+          {menuGroups[0].map(([href, label]) => (
             <li key={href}>
-              <Link href={href} className="block px-4 py-2 text-sm hover:bg-card-hi no-underline text-ink">
+              <Link href={href} className="block px-4 py-2.5 text-sm hover:bg-card-hi no-underline text-ink">
                 {label}
               </Link>
             </li>
           ))}
         </ul>
-        <form action="/auth/signout" method="post" className="border-t border-hair">
+        {menuGroups.slice(1).map((group, i) => (
+          <div key={i}>
+            <div aria-hidden className={BAND} />
+            <ul className={`m-0 p-0 list-none ${HAIRLINE}`}>
+              {group.map(([href, label]) => (
+                <li key={href}>
+                  <Link href={href} className="block px-4 py-2.5 text-sm hover:bg-card-hi no-underline text-ink">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <div aria-hidden className={BAND} />
+        <form action="/auth/signout" method="post">
           <button
             type="submit"
             className="w-full text-left px-4 py-2.5 text-sm text-dim hover:bg-card-hi hover:text-ink cursor-pointer"

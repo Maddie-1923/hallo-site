@@ -1,15 +1,16 @@
 import "server-only";
 import { movieRails, showRails } from "@/lib/tmdb";
 import { poster, year, type Movie, type Show } from "@/lib/archive";
+import type { GridTitle } from "@/components/PosterGrid";
 
 // The built-in rows on Home and Explore, each with an address of its own, so
 // a row's heading can open everything in it — the app's "show all" grid.
 // Mixed rows take films and series in turns, as the row itself does.
 
-export type GridTitle = { key: string; href: string; title: string; poster: string | null; sub: string };
-
-const shows = (xs: Show[]): GridTitle[] => xs.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, poster: poster(s.poster_path, "w342"), sub: year(s.first_air_date) }));
-const movies = (xs: Movie[]): GridTitle[] => xs.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, poster: poster(m.poster_path, "w342"), sub: year(m.release_date) }));
+export const showCards = (xs: Show[]): GridTitle[] => xs.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, poster: poster(s.poster_path, "w342"), sub: year(s.first_air_date), target: { kind: "show", show: s } }));
+export const movieCards = (xs: Movie[]): GridTitle[] => xs.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, poster: poster(m.poster_path, "w342"), sub: year(m.release_date), target: { kind: "movie", movie: m } }));
+const shows = showCards;
+const movies = movieCards;
 function turns(a: GridTitle[], b: GridTitle[]) {
   const out: GridTitle[] = [];
   for (let i = 0; i < Math.max(a.length, b.length); i++) {

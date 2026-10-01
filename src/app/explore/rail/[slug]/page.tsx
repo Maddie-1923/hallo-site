@@ -6,6 +6,9 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { PosterGrid } from "@/components/PosterGrid";
 import { EXPLORE_RAILS } from "@/lib/explore-rails";
 import { regionName, visitorRegion } from "@/lib/region";
+import { accountsOpen } from "@/lib/accounts";
+import { optionalLibrary } from "@/lib/library";
+import { markLookup } from "@/lib/marks";
 
 // Where a built-in row's heading leads: everything in that row as a grid.
 // "Show more" is a link (`?pages=3` draws three of TMDB's pages), so the grid
@@ -25,7 +28,10 @@ export default async function RailPage({ params, searchParams }: PageProps<"/exp
   const want = Math.min(PAGE_CAP, Math.max(1, Number(asked) || 1));
   const region = await visitorRegion();
 
-  const pages = await Promise.all(Array.from({ length: want }, (_, i) => rail.page(i + 1, region)));
+  const [pages, lib] = await Promise.all([
+    Promise.all(Array.from({ length: want }, (_, i) => rail.page(i + 1, region))),
+    accountsOpen ? optionalLibrary() : Promise.resolve({ archive: null }),
+  ]);
   const seen = new Set<string>();
   const titles = pages.flat().filter((t) => t.poster && !seen.has(t.key) && seen.add(t.key));
   // TMDB doesn't say how many pages a list has here; a page that came back
@@ -41,7 +47,7 @@ export default async function RailPage({ params, searchParams }: PageProps<"/exp
           ← {backLabel}
         </Link>
         <h1 className="!text-[clamp(36px,5vw,56px)] !leading-[.95] tracking-[.02em] uppercase !m-0 mt-3">{rail.title(regionName(region))}</h1>
-        {titles.length === 0 ? <p className="mt-8 text-[13px] text-dim">Nothing here right now.</p> : <PosterGrid titles={titles} />}
+        {titles.length === 0 ? <p className="mt-8 text-[13px] text-dim">Nothing here right now.</p> : <PosterGrid titles={titles} marks={markLookup(lib.archive)} />}
         {more && (
           <div className="pt-6 flex justify-center">
             <Link href={`?pages=${want + 1}`} scroll={false} className="h-9 px-5 inline-flex items-center rounded-full bg-piece text-[12.5px] font-semibold text-ink no-underline hover:text-accent">

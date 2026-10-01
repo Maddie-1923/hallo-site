@@ -9,7 +9,9 @@ import { optionalLibrary } from "@/lib/library";
 import { visitorRegion } from "@/lib/region";
 import { regionServices, savedRailTitles } from "@/lib/tmdb";
 import { activeCount, criteriaLine, emptyFilter, filterParam, railCounts, readFilterParam } from "@/lib/saved-rails";
-import { poster, year } from "@/lib/archive";
+import { markLookup } from "@/lib/marks";
+import { movieCards, showCards } from "@/lib/explore-rails";
+import type { GridTitle } from "@/components/PosterGrid";
 
 export const metadata: Metadata = { title: "Filter — Kodigo" };
 
@@ -30,15 +32,14 @@ export default async function FilterPage({ searchParams }: PageProps<"/explore/f
     regionServices(region, 60),
     ...f.kinds.flatMap((catalogue) => Array.from({ length: want }, (_, i) => savedRailTitles({ catalogue, filter: f }, region, i + 1))),
   ]);
-  type Card = { key: string; href: string; title: string; poster: string | null; sub: string };
-  const lists: Card[][] = f.kinds.map((_, k) =>
+  const lists: GridTitle[][] = f.kinds.map((_, k) =>
     results.slice(k * want, (k + 1) * want).flatMap((r) =>
       r.kind === "show"
-        ? r.titles.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, poster: poster(s.poster_path, "w342"), sub: year(s.first_air_date) }))
-        : r.titles.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, poster: poster(m.poster_path, "w342"), sub: year(m.release_date) })),
+        ? showCards(r.titles)
+        : movieCards(r.titles),
     ),
   );
-  const mixed: Card[] = [];
+  const mixed: GridTitle[] = [];
   for (let i = 0; i < Math.max(...lists.map((l) => l.length), 0); i++) for (const l of lists) if (l[i]) mixed.push(l[i]);
   const seen = new Set<string>();
   const titles = mixed.filter((t) => t.poster && !seen.has(t.key) && seen.add(t.key));
@@ -59,7 +60,7 @@ export default async function FilterPage({ searchParams }: PageProps<"/explore/f
           <FilterButton services={services} kinds={f.kinds} initial={f} count={activeCount(f)} counts={lib.archive ? railCounts(lib.archive) : undefined} />
         </div>
 
-        {titles.length === 0 ? <p className="mt-8 text-[13px] text-dim">Nothing matches these filters.</p> : <PosterGrid titles={titles} />}
+        {titles.length === 0 ? <p className="mt-8 text-[13px] text-dim">Nothing matches these filters.</p> : <PosterGrid titles={titles} marks={markLookup(lib.archive)} />}
 
         {more && (
           <div className="pt-6 flex justify-center">

@@ -10,7 +10,8 @@ import { optionalLibrary } from "@/lib/library";
 import { visitorRegion } from "@/lib/region";
 import { regionServices, savedRailTitles } from "@/lib/tmdb";
 import { criteriaLine, orderedRails, railCounts, sameID } from "@/lib/saved-rails";
-import { poster, year } from "@/lib/archive";
+import { markLookup } from "@/lib/marks";
+import { movieCards, showCards } from "@/lib/explore-rails";
 
 // A custom category's own page, where its heading on Explore leads: the whole
 // of what it asks for as a grid of posters — the app's FilterResultsView for a
@@ -50,8 +51,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
   const titles = results
     .flatMap((r) =>
       r.kind === "show"
-        ? r.titles.map((s) => ({ key: `s${s.id}`, href: `/show/${s.id}`, title: s.name, poster: s.poster_path, sub: year(s.first_air_date) }))
-        : r.titles.map((m) => ({ key: `m${m.id}`, href: `/movie/${m.id}`, title: m.title, poster: m.poster_path, sub: year(m.release_date) })),
+        ? showCards(r.titles)
+        : movieCards(r.titles),
     )
     .filter((t) => !seen.has(t.key) && seen.add(t.key));
   const back = rail.catalogue === "Shows" ? "/shows" : "/movies";
@@ -76,7 +77,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
         {titles.length === 0 ? (
           <p className="mt-8 text-[13px] text-dim">Nothing matches this category right now.</p>
         ) : (
-          <PosterGrid titles={titles.map((t) => ({ ...t, poster: poster(t.poster, "w342") }))} />
+          <PosterGrid titles={titles} marks={markLookup(archive)} />
         )}
 
         {want < Math.min(total, PAGE_CAP) && (

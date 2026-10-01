@@ -117,30 +117,7 @@ export function PosterRow({
           className="flex gap-3 overflow-x-auto snap-x snap-mandatory py-2 -my-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {items.map((it) => (
-            // The well: a raised plate holding the card and its keys.
-            <div
-              key={it.key}
-              className="shrink-0 snap-start w-[clamp(150px,13.5vw,196px)] p-2 rounded-[16px] bg-well flex flex-col gap-2 border border-hair/40 shadow-[0_4px_9px_rgba(0,0,0,.35)]"
-            >
-              {/* The poster and its text on one piece, the poster's top
-                  corners matching the piece's and its bottom ones tighter. */}
-              <Link href={it.href} title={it.title} className="group/card block rounded-[12px] bg-piece no-underline overflow-hidden">
-                <div className="relative aspect-[2/3] rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card">
-                  {it.poster ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={it.poster} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.04]" />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center p-3 text-center text-xs text-dim">{it.title}</div>
-                  )}
-                  <span aria-hidden className="pointer-events-none absolute inset-0 rounded-t-[12px] rounded-b-[8px] ring-0 group-hover/card:ring-2 ring-accent-fill ring-inset transition-[box-shadow]" />
-                </div>
-                <div className="px-2.5 pt-2.5 pb-1.5">
-                  <div className="text-[12.5px] font-semibold leading-tight text-ink truncate">{it.title}</div>
-                  <div className="text-[12px] leading-tight text-dim mt-0.5 truncate">{it.sub || "\u00a0"}</div>
-                </div>
-              </Link>
-              <MarkButtons target={it.target} state={it.marks} lists={lists} variant="keys" />
-            </div>
+            <PosterCard key={it.key} it={it} lists={lists} className="shrink-0 snap-start w-[clamp(150px,13.5vw,196px)]" />
           ))}
         </div>
 
@@ -152,6 +129,34 @@ export function PosterRow({
         )}
       </div>
     </section>
+  );
+}
+
+/** One poster card, the app's: the well, the poster and its title and year
+    on one piece, and the More and Add keys under it. Shared by the rows and
+    the grids their headings open. */
+export function PosterCard({ it, lists, className = "" }: { it: PosterRowItem; lists: ListOption[]; className?: string }) {
+  return (
+    <div className={`p-2 rounded-[16px] bg-well flex flex-col gap-2 border border-hair/40 shadow-[0_4px_9px_rgba(0,0,0,.35)] ${className}`}>
+      {/* The poster and its text on one piece, the poster's top corners
+          matching the piece's and its bottom ones tighter. */}
+      <Link href={it.href} title={it.title} className="group/card block rounded-[12px] bg-piece no-underline overflow-hidden">
+        <div className="relative aspect-[2/3] rounded-t-[12px] rounded-b-[8px] overflow-hidden bg-card">
+          {it.poster ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={it.poster} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-[1.04]" />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center p-3 text-center text-xs text-dim">{it.title}</div>
+          )}
+          <span aria-hidden className="pointer-events-none absolute inset-0 rounded-t-[12px] rounded-b-[8px] ring-0 group-hover/card:ring-2 ring-accent-fill ring-inset transition-[box-shadow]" />
+        </div>
+        <div className="px-2.5 pt-2.5 pb-1.5">
+          <div className="text-[12.5px] font-semibold leading-tight text-ink truncate">{it.title}</div>
+          <div className="text-[12px] leading-tight text-dim mt-0.5 truncate">{it.sub || "\u00a0"}</div>
+        </div>
+      </Link>
+      <MarkButtons target={it.target} state={it.marks} lists={lists} variant="keys" />
+    </div>
   );
 }
 

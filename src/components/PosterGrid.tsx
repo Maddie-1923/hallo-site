@@ -1,27 +1,29 @@
-import Link from "next/link";
+import type { Movie, Show } from "@/lib/archive";
+import type { markLookup } from "@/lib/marks";
+import { PosterCard } from "./PosterRow";
 
-// The grid a row opens into: posters with their title and year, the app's
-// three-across "show all" page widened for a screen. Shared by the built-in
-// rows' pages and a custom category's.
-export function PosterGrid({ titles }: { titles: { key: string; href: string; title: string; poster: string | null; sub: string }[] }) {
+// The grid a row opens into, and Browse's results: the same poster cards as
+// the rows (title, year, and the More and Add keys under each), in columns.
+// `marks` is the visitor's library read into what each card's keys show.
+export type GridTitle = {
+  key: string;
+  href: string;
+  title: string;
+  poster: string | null;
+  sub: string;
+  target: { kind: "show"; show: Show } | { kind: "movie"; movie: Movie };
+};
+
+export function PosterGrid({ titles, marks }: { titles: GridTitle[]; marks: ReturnType<typeof markLookup> }) {
   return (
-    <ul className="m-0 mt-6 p-0 list-none grid gap-2 grid-cols-3 sm:grid-cols-4 lg:grid-cols-6">
+    <div className="mt-6 grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {titles.map((t) => (
-        <li key={t.key} className="min-w-0">
-          <Link href={t.href} title={t.title} className="group block rounded-shell bg-piece p-1.5 no-underline text-ink">
-            <span className="block aspect-[2/3] rounded-[10px] overflow-hidden bg-card border border-hair">
-              {t.poster ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={t.poster} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-              ) : (
-                <span className="w-full h-full flex items-center justify-center p-3 text-center text-xs text-dim">{t.title}</span>
-              )}
-            </span>
-            <span className="block px-1 pt-1.5 text-[12.5px] leading-[16px] font-semibold truncate group-hover:text-accent transition-colors">{t.title}</span>
-            <span className="block px-1 pb-0.5 text-[12.5px] leading-[16px] text-dim">{t.sub || "—"}</span>
-          </Link>
-        </li>
+        <PosterCard
+          key={t.key}
+          it={{ ...t, marks: t.target.kind === "show" ? marks.show(t.target.show.id) : marks.movie(t.target.movie.id) }}
+          lists={marks.lists}
+        />
       ))}
-    </ul>
+    </div>
   );
 }
