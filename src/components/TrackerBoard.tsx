@@ -398,6 +398,28 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     window.scrollTo({ top: window.scrollY + row.getBoundingClientRect().top - (navH + headerH + 4), behavior: reduce ? "auto" : "smooth" });
   };
   const [activeID, setActiveID] = useState<string | null>(null);
+  // The bar's own width, from its two switches (which never shrink), and the
+  // list and the panel beside it each that wide: they hold their size as
+  // the window grows rather than stretching across it, and only give way
+  // when the window is too narrow for both.
+  const switches = useRef<HTMLDivElement>(null);
+  const [barW, setBarW] = useState(0);
+  useEffect(() => {
+    const row = switches.current;
+    if (!row) return;
+    const measure = () => {
+      const kids = [...row.children] as HTMLElement[];
+      const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+      const plate = row.parentElement!;
+      const cs = getComputedStyle(plate);
+      const frame = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+      setBarW(Math.ceil(kids.reduce((w, k) => w + k.offsetWidth, 0) + gap * Math.max(0, kids.length - 1) + frame));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    for (const k of row.children) ro.observe(k);
+    return () => ro.disconnect();
+  }, []);
   // How far the panel reaches past the last row's top, so the room under
   // the list can let the panel follow the last row all the way: a sticky
   // panel stops where the list's column ends, and a panel taller than the
@@ -539,7 +561,10 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       {/* The piles in one run down the page; beside them, in the list and
           card layouts, the picked title's episode, its top level with the
           first title's and pinned there as the list goes by. */}
-      <div className={withPanel ? "grid gap-4 items-start grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : ""}>
+      <div
+        className={withPanel ? "grid gap-4 items-start" : ""}
+        style={withPanel ? { gridTemplateColumns: barW ? `minmax(0,${barW}px) minmax(0,${barW}px)` : "minmax(0,1fr) minmax(0,1fr)" } : undefined}
+      >
         <div ref={leftCol} className="min-w-0">
         {/* The header, pinned under the site's bar as the app pins its own:
             the two choices side by side from the left, then the docked pile
@@ -568,7 +593,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
             }}
           />
           <div className="relative w-fit max-w-full rounded-shell p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.25)] backdrop-blur-xl grid grid-cols-[minmax(0,1fr)] gap-2" style={{ background: "color-mix(in srgb, var(--card) 72%, transparent)" }}>
-            <div className="flex flex-wrap items-center gap-2">
+            <div ref={switches} className="flex flex-wrap items-center gap-2">
               <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
               <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
             </div>
