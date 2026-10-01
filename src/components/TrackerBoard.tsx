@@ -9,7 +9,7 @@ import { ExpandableText } from "./ExpandableText";
 import { addWatch, today } from "@/lib/live-watches";
 import type { CalendarEvent, ComingFilm, ComingShow, TrackerPage } from "@/lib/tracker";
 import type { ProfileTitle, TrackerShow } from "@/lib/public-profile";
-import { ArtworkBand, CheckGlyph, code, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, useToday, type Key } from "./TrackerRow";
+import { CheckGlyph, code, EpisodePill, HOLD, KeyButton, MoreGlyph, progress, RecapGlyph, Row, SkipGlyph, useToday, type Key } from "./TrackerRow";
 import { episodeBadge, type EpisodeBadge, type EpisodeFacts } from "@/lib/episode-badge";
 import { SeriesPill, seriesBadge } from "./SeriesBadge";
 import { episodeBefore, TrackerMore, TrackerRecap } from "./TrackerSheets";
@@ -874,13 +874,19 @@ function EpisodePanel({ item: given, keysFor, recapFor, band }: { item: Item; ke
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={(ep?.still ?? item.t.backdrop)!} alt="" className="block w-full aspect-video object-cover bg-piece" />
             {ep?.still && <SpoilerCover watched={seenHere} />}
-            <ArtworkBand badge={band} />
           </div>
         )}
         <div className="rounded-shell bg-piece p-3">
           <div className="display text-[22px] leading-none tracking-[.03em] uppercase">{ep ? (spoilers.names && !seenHere ? MASKED_NAME : ep.name) : item.t.title}</div>
-          {/* Under the name, which episode it is. */}
-          {item.episode && <div className="mt-1.5 text-[12.5px] font-semibold tracking-[.06em] text-dim">{code(item.episode)}</div>}
+          {/* Under the name, which episode it is, and its badge (FINALE and
+              the rest) level with it on the right, the size of the Status
+              pill below. */}
+          {item.episode && (
+            <div className="mt-1.5 flex items-center justify-between gap-3">
+              <span className="text-[12.5px] font-semibold tracking-[.06em] text-dim">{code(item.episode)}</span>
+              <EpisodePill badge={band} />
+            </div>
+          )}
           {facts.length > 0 && (
             <div className="mt-2.5 border-t border-hair">
               {facts.map(([label, value], i) => (

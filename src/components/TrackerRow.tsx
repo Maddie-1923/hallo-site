@@ -117,6 +117,23 @@ export function ArtworkBand({ badge }: { badge: EpisodeBadge | null }) {
   );
 }
 
+/** The same badge as a pill, the size of the series' RETURNING pill
+    (SeriesPill), for the episode panel, where a band across its wide
+    picture runs too long. A marker that also airs today is two pills. */
+export function EpisodePill({ badge }: { badge: EpisodeBadge | null }) {
+  if (!badge) return null;
+  const halves: [string, EpisodeBadge["tone"]][] = badge.today ? [[badge.text, badge.tone], ["TODAY", "starting"]] : [[badge.text, badge.tone]];
+  return (
+    <span role="img" aria-label={badge.today ? `${badge.label}, today` : badge.label} className="shrink-0 flex gap-1">
+      {halves.map(([text, tone]) => (
+        <span key={text} aria-hidden className="rounded-[6px] px-1.5 py-[2px] text-[11px] font-bold tracking-[.04em] uppercase" style={{ background: `var(--band-${tone})`, color: `var(--band-${tone}-ink)` }}>
+          {text}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 /** The days until a Coming soon entry lands, the number over DAYS, as the
     app's KodigoDayCountdown: nothing under two days, where the heading above
     has already said Today or Tomorrow. */
