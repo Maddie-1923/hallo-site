@@ -36,7 +36,7 @@ export function countLine(bar: { done: number; total: number }) {
 export function BackdropCard({ t, lines, bar, keys, onPick, picked = false }: Entry & { onPick?: () => void; picked?: boolean }) {
   const wide = t.backdrop ?? t.poster;
   return (
-    <li className={`rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
+    <li data-picked={picked || undefined} className={`rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
       <To href={t.href} onPick={onPick} picked={picked} className="group/card relative block w-full aspect-[16/9] rounded-[10px] overflow-hidden bg-piece no-underline">
         {wide && (
           // eslint-disable-next-line @next/next/no-img-element

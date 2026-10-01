@@ -297,6 +297,33 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
   const root = useRef<HTMLDivElement>(null);
   const header = useRef<HTMLDivElement>(null);
   const [headerH, setHeaderH] = useState(120);
+  // The site's bar, which the header pins under: measured, since its height
+  // depends on the window (a fixed guess left a gap the titles showed in).
+  const [navH, setNavH] = useState(81);
+  useEffect(() => {
+    const nav = document.querySelector("nav");
+    if (!nav) return;
+    const ro = new ResizeObserver(() => setNavH(nav.getBoundingClientRect().height));
+    ro.observe(nav);
+    return () => ro.disconnect();
+  }, []);
+  // The episode panel sits level with the title it's about: its top lines
+  // up with the picked row's, and it moves when another row is picked, so
+  // it's always plainly beside its own episode.
+  const leftCol = useRef<HTMLDivElement>(null);
+  const [pickedTop, setPickedTop] = useState(0);
+  useEffect(() => {
+    const col = leftCol.current;
+    if (!col) return;
+    const place = () => {
+      const row = col.querySelector("[data-picked]");
+      setPickedTop(row ? row.getBoundingClientRect().top - col.getBoundingClientRect().top : 0);
+    };
+    place();
+    const ro = new ResizeObserver(place);
+    ro.observe(col);
+    return () => ro.disconnect();
+  });
   const [activeID, setActiveID] = useState<string | null>(null);
   useEffect(() => {
     const el = header.current;
@@ -340,7 +367,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     const target = row ?? root.current;
     if (!target) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: window.scrollY + target.getBoundingClientRect().top - (row ? NAV + headerH : NAV), behavior: reduce ? "auto" : "smooth" });
+    window.scrollTo({ top: window.scrollY + target.getBoundingClientRect().top - (row ? navH + headerH : navH), behavior: reduce ? "auto" : "smooth" });
   };
 
   // A coming entry's keys, for the layouts with no panel to carry them.
@@ -394,7 +421,6 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     ) : (
       <Empty title="Nothing to watch" message={pile.empty} action={<Link href={browse.href} className={ACTION}>{browse.label}</Link>} />
     );
-  const panelTop = NAV + headerH;
 
   return (
     <div ref={root}>
@@ -405,85 +431,88 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       )}
       {sheet?.kind === "more" && <TrackerMore t={sheet.t} onClose={() => setSheet(null)} />}
       {sheet?.kind === "recap" && <TrackerRecap t={sheet.t} episode={sheet.episode} watched={sheet.watched} onClose={() => setSheet(null)} />}
-      {/* The header, pinned under the site's bar as the app pins its own:
-          the two choices side by side from the left, then the docked pile
-          name and the three keys. The page's colour behind it, so the titles
-          scrolling up go under it rather than show through. */}
-      <div ref={header} className="sticky top-16 z-20 bg-page pb-3">
-        <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid grid-cols-[minmax(0,1fr)] gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
-            <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="min-w-0 flex-1">
-              {active && (
-                <button
-                  type="button"
-                  onClick={jump}
-                  aria-label={`Go to the start of ${active.title.toUpperCase()}`}
-                  className="group/pill inline-flex items-center h-11 max-w-full px-3.5 rounded-[10px] bg-piece overflow-hidden cursor-pointer"
-                >
-                  {/* Keyed on the pile, so a new name slides up into place. */}
-                  <span key={active.id} className="block truncate display text-[24px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px] group-hover/pill:text-accent transition-colors animate-[tracker-pill-in_250ms_ease-out]">
-                    {active.title}
-                  </span>
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Menu label={`Genre: ${genre?.label ?? "All genres"}`} width={240} button={<span className={headerKey(!!genre)}><ClapperGlyph /></span>}>
-                <div className="soft-scroll max-h-[360px] overflow-y-auto py-1.5">
-                  <MenuHeading>Genre</MenuHeading>
-                  <Choice on={!genre} onClick={clearGenre}>
-                    All genres
-                  </Choice>
-                  {tallies.length === 0 && <div className="px-4 py-2 text-[12.5px] text-dim">No genres yet</div>}
-                  {tallies.map(({ g, count }) => (
-                    <Choice key={g.key} on={genre?.key === g.key} onClick={() => setPref({ genre: g.key })}>
-                      {g.label} ({count})
-                    </Choice>
-                  ))}
-                </div>
-              </Menu>
-              <Menu label={`Filter: ${pile.label}`} width={240} button={<span className={headerKey(pile.id !== "all")}><TrayGlyph /></span>}>
-                <div className="py-1.5">
-                  <MenuHeading>Filter</MenuHeading>
-                  {choices.map((c) => (
-                    <Choice key={c.id} on={c.id === pile.id} onClick={() => setPref({ pile: c.id })}>
-                      {c.label}
-                    </Choice>
-                  ))}
-                </div>
-              </Menu>
-              <button
-                type="button"
-                onClick={() => setPref({ layout: LAYOUTS[(LAYOUTS.indexOf(layout) + 1) % LAYOUTS.length] })}
-                aria-label={`Layout: ${LAYOUT_LABEL[layout]}. Changes to the next layout`}
-                title={`${LAYOUT_LABEL[layout]} layout`}
-                className={`${headerKey(false)} cursor-pointer`}
-              >
-                <LayoutGlyph layout={layout} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {genre && (
-        <div className="mb-3">
-          <span className="inline-flex items-center gap-1.5 h-8 pl-3.5 pr-1 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold">
-            {pileName ? `${pileName} · ${genre.label}` : genre.label}
-            <button type="button" onClick={clearGenre} aria-label="Clear genre" className="w-6 h-6 rounded-full flex items-center justify-center cursor-pointer hover:bg-black/15">
-              <span aria-hidden>✕</span>
-            </button>
-          </span>
-        </div>
-      )}
       {/* The piles in one run down the page; beside them, in the list and
           card layouts, the picked title's episode, its top level with the
           first title's and pinned there as the list goes by. */}
       <div className={withPanel ? "grid gap-4 items-start grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : ""}>
-        <div className="min-w-0">
+        <div ref={leftCol} className="min-w-0">
+        {/* The header, pinned under the site's bar as the app pins its own:
+            the two choices side by side from the left, then the docked pile
+            name and the three keys. The page's colour behind it, with a 12px
+            gap above it once pinned, so titles scrolling up go under it rather
+            than show through. Over the list only when the episode panel is
+            beside it; across the page otherwise. */}
+        <div ref={header} className="sticky z-20 bg-page pt-3 -mt-3 pb-3" style={{ top: navH }}>
+          <div className="rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)] grid grid-cols-[minmax(0,1fr)] gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Switch value={kind} onChange={setKind} options={[["show", "Shows"], ["movie", "Movies"]]} label="Shows or movies" />
+              <Switch value={view} onChange={setView} options={[["list", "Watch list"], ["coming", "Coming soon"]]} label="Watch list or coming soon" />
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                {active && (
+                  <button
+                    type="button"
+                    onClick={jump}
+                    aria-label={`Go to the start of ${active.title.toUpperCase()}`}
+                    className="group/pill inline-flex items-center h-11 max-w-full px-3.5 rounded-[10px] bg-piece overflow-hidden cursor-pointer"
+                  >
+                    {/* Keyed on the pile, so a new name slides up into place. */}
+                    <span key={active.id} className="block truncate display text-[24px] leading-none tracking-[.02em] text-ink uppercase translate-y-[1px] group-hover/pill:text-accent transition-colors animate-[tracker-pill-in_250ms_ease-out]">
+                      {active.title}
+                    </span>
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Menu label={`Genre: ${genre?.label ?? "All genres"}`} width={240} button={<span className={headerKey(!!genre)}><ClapperGlyph /></span>}>
+                  <div className="soft-scroll max-h-[360px] overflow-y-auto py-1.5">
+                    <MenuHeading>Genre</MenuHeading>
+                    <Choice on={!genre} onClick={clearGenre}>
+                      All genres
+                    </Choice>
+                    {tallies.length === 0 && <div className="px-4 py-2 text-[12.5px] text-dim">No genres yet</div>}
+                    {tallies.map(({ g, count }) => (
+                      <Choice key={g.key} on={genre?.key === g.key} onClick={() => setPref({ genre: g.key })}>
+                        {g.label} ({count})
+                      </Choice>
+                    ))}
+                  </div>
+                </Menu>
+                <Menu label={`Filter: ${pile.label}`} width={240} button={<span className={headerKey(pile.id !== "all")}><TrayGlyph /></span>}>
+                  <div className="py-1.5">
+                    <MenuHeading>Filter</MenuHeading>
+                    {choices.map((c) => (
+                      <Choice key={c.id} on={c.id === pile.id} onClick={() => setPref({ pile: c.id })}>
+                        {c.label}
+                      </Choice>
+                    ))}
+                  </div>
+                </Menu>
+                <button
+                  type="button"
+                  onClick={() => setPref({ layout: LAYOUTS[(LAYOUTS.indexOf(layout) + 1) % LAYOUTS.length] })}
+                  aria-label={`Layout: ${LAYOUT_LABEL[layout]}. Changes to the next layout`}
+                  title={`${LAYOUT_LABEL[layout]} layout`}
+                  className={`${headerKey(false)} cursor-pointer`}
+                >
+                  <LayoutGlyph layout={layout} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {genre && (
+          <div className="mb-3">
+            <span className="inline-flex items-center gap-1.5 h-8 pl-3.5 pr-1 rounded-full bg-accent-fill text-on-accent text-[12.5px] font-semibold">
+              {pileName ? `${pileName} · ${genre.label}` : genre.label}
+              <button type="button" onClick={clearGenre} aria-label="Clear genre" className="w-6 h-6 rounded-full flex items-center justify-center cursor-pointer hover:bg-black/15">
+                <span aria-hidden>✕</span>
+              </button>
+            </span>
+          </div>
+        )}
+          <div>
           {empty}
           {groups.map((g, i) => (
             <section key={g.id} className={i > 0 ? "mt-8" : ""}>
@@ -497,10 +526,14 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
               <div data-pile-start={g.id}>{body(g)}</div>
             </section>
           ))}
+          </div>
         </div>
         {withPanel && picked && (
-          <aside className="sticky self-start min-w-0 overflow-y-auto soft-scroll lg:pl-2" style={{ top: panelTop, maxHeight: `calc(100vh - ${panelTop + 16}px)` }}>
-            <EpisodePanel item={picked} keysFor={keysFor} />
+          <aside className="self-start min-w-0 lg:pl-2 transition-[margin] duration-300" style={{ marginTop: pickedTop }}>
+            {/* In a shell of its own, like the rows beside it. */}
+            <div className="rounded-shell bg-well p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)]">
+              <EpisodePanel item={picked} keysFor={keysFor} />
+            </div>
           </aside>
         )}
       </div>
@@ -518,8 +551,6 @@ const LAYOUT_LABEL: Record<Layout, string> = { card: "Card", grid: "Grid", rail:
 const DEFAULT_PREFS: Prefs = { layout: "list", pile: "all", genre: null };
 /** Where this browser keeps each page's layout, pile and genre. */
 const PREFS_KEY = "kodigo.tracker.views";
-/** The site's bar, which the header pins under (`top-16`). */
-const NAV = 64;
 
 // The filter key's choices for each page, with the app's words for a pile
 // that comes up empty.
