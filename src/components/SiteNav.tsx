@@ -108,10 +108,11 @@ export async function SiteNav({ overlay = false, framed = false }: { overlay?: b
         <div className="self-end pb-[11px] md:pb-0 flex items-baseline gap-6">
           {/* The app's own icon, square background and all, so the mark is
               the same in day and night rather than recoloured. Centred on
-              the tabs' words: its middle sits 7px above their baseline. */}
+              the round buttons on the right: its middle sits 16px above the tabs'
+              baseline, which keeps it clear of the bar's bottom line. */}
           <Link href="/" aria-label="Kodigo home" className="relative inline-flex no-underline" style={{ paddingLeft: iconSize }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/kodigo-icon.png" alt="" width={iconSize} height={iconSize} className="absolute left-0 rounded-[23%] shadow-[0_1px_3px_rgba(0,0,0,.25)]" style={{ bottom: 7 - iconSize / 2 }} />
+            <img src="/kodigo-icon.png" alt="" width={iconSize} height={iconSize} className="absolute left-0 rounded-[23%] shadow-[0_1px_3px_rgba(0,0,0,.25)]" style={{ bottom: 16 - iconSize / 2 }} />
             {/* The mark alone, no wordmark. This empty letter keeps the
                 wordmark's baseline, which the tabs beside it stand on. */}
             <span aria-hidden className="display text-2xl leading-none w-0">&#8203;</span>
