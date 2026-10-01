@@ -131,7 +131,7 @@ export function EpisodePill({ badge }: { badge: EpisodeBadge | null }) {
   return (
     <span role="img" aria-label={badge.today ? `${badge.label}, today` : badge.label} className="shrink-0 flex gap-1">
       {halves.map(([text, tone]) => (
-        <span key={text} aria-hidden className="rounded-[5px] px-1 py-[1px] text-[9px] leading-[12px] font-bold tracking-[.04em] uppercase" style={{ background: `var(--band-${tone})`, color: `var(--band-${tone}-ink)` }}>
+        <span key={text} aria-hidden className="rounded-[4px] px-[4px] py-[1px] text-[8px] leading-[10px] font-bold tracking-[.04em] uppercase" style={{ background: `var(--band-${tone})`, color: `var(--band-${tone}-ink)` }}>
           {text}
         </span>
       ))}
