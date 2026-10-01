@@ -23,7 +23,7 @@ export function ReviewsSection({ reviews, ratings = null }: { reviews: { review:
             ))}
           </div>
         ) : (
-          <p className="m-0 px-3 py-4 text-[1.0417rem] text-dim">No reviews yet. Members&apos; reviews show here once accounts open.</p>
+          <p className="m-0 px-3 py-4 text-[1.0417rem] text-dim">No reviews yet. Yours can be the first, in Your take.</p>
         )}
       </SectionCard>
     </Section>

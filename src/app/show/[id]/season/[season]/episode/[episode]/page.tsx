@@ -106,7 +106,7 @@ export default async function EpisodePage({ params }: Params) {
                   (show.lastAired || badge) && (
                     <div className="flex items-center justify-between gap-3 text-[1.0417rem] text-dim">
                       <span>{show.lastAired ? <>Last aired <Day iso={show.lastAired} /></> : ""}</span>
-                      {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING" || badge.label === "PILOT"} />}
+                      {badge && <SeriesPill label={badge.label} returning={badge.label === "RETURNING"} small />}
                     </div>
                   )
                 }
