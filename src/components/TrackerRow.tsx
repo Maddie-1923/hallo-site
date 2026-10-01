@@ -33,7 +33,7 @@ export const HOLD = "#D9BC52";
 // `picked` outlines it.
 export function Row({ t, lines, bar, keys, onPick, picked = false, rowKey }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null; onPick?: () => void; picked?: boolean; /** Marks the row so the tracker can find it on the page. */ rowKey?: string }) {
   return (
-    <li data-picked={picked || undefined} data-row={rowKey} className={`rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "ring-[1.5px] ring-inset ring-accent-fill" : ""}`}>
+    <li data-picked={picked || undefined} data-row={rowKey} className={`rounded-shell bg-well p-1.5 grid gap-1.5 border-[0.5px] shadow-[0_4px_9px_rgba(0,0,0,.55)] ${picked ? "border-transparent ring-2 ring-accent-fill" : "border-t-[color:var(--lit-edge)] border-x-piece border-b-well"}`}>
       <div className="h-[80px] rounded-[10px] bg-piece flex gap-2.5 overflow-hidden">
         <To href={t.href} onPick={onPick} picked={picked} className="w-[142px] shrink-0 h-full rounded-[10px] overflow-hidden border border-hair bg-card">
           {(t.backdrop ?? t.poster) && (
