@@ -237,7 +237,9 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     view === "list"
       ? kind === "show"
         ? [
-            { id: "up-next", title: "Up next", items: data.shows.upNext.map(showItem) },
+            // Caught up is the app's Up to Date, which isn't on the watch list:
+            // only shows with an aired episode still to watch are Up next.
+            { id: "up-next", title: "Up next", items: data.shows.upNext.filter((s) => { const p = progress(s, seenOf(s)); return !(p.total > 0 && !p.next); }).map(showItem) },
             { id: "ready", title: "Ready to start", items: data.shows.readyToStart.map(showItem) },
             { id: "skipped", title: "Skipped", items: data.shows.skipped.map(showItem) },
             { id: "on-hold", title: "On hold", items: data.shows.onHold.map(showItem) },
@@ -861,7 +863,7 @@ function EpisodePanel({ item: given, keysFor, recapFor, band }: { item: Item; ke
     // Where the show stands, in the app's pill (SeriesBadge): RETURNING in
     // its blue, the rest in stone, and no line where TMDB's status is one
     // the app doesn't draw.
-    !isFilm && status && ["Status", <SeriesPill key="st" label={status.label} returning={status.label === "RETURNING"} />],
+    !isFilm && status && ["Status", <SeriesPill key="st" label={status.label} returning={status.label === "RETURNING"} small />],
     isFilm && item.t.year && ["Year", item.t.year],
     isFilm && item.date && ["Release", fmt(item.date)],
   ].filter(Boolean) as [string, React.ReactNode][];

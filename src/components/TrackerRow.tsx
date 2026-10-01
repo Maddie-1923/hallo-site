@@ -35,7 +35,7 @@ export const HOLD = "#D9BC52";
 // the app. With `onPick`, the rest of the row (name and episode lines) picks
 // it, and the tracker shows the picked one's episode beside the list;
 // without, it opens the title's page too. `picked` outlines it.
-// `band` is the episode's badge along the foot of the picture; `countdown`,
+// `band` is the episode's badge, a pill level with its code; `countdown`,
 // on a Coming soon row, the days until it airs, level with the name at the
 // row's right edge as the app's EpisodeRow sits it.
 export function Row({ t, lines, bar, keys, onPick, picked = false, rowKey, band = null, countdown = null }: { t: ProfileTitle; lines: [string, string]; bar: { done: number; total: number } | null; keys: Key[] | null; onPick?: () => void; picked?: boolean; /** Marks the row so the tracker can find it on the page. */ rowKey?: string; band?: EpisodeBadge | null; countdown?: number | null }) {
@@ -47,7 +47,6 @@ export function Row({ t, lines, bar, keys, onPick, picked = false, rowKey, band 
             // eslint-disable-next-line @next/next/no-img-element
             <img src={(t.backdrop ?? t.poster)!} alt="" className="w-full h-full object-cover" />
           )}
-          <ArtworkBand badge={band} />
         </Link>
         <To href={t.href} onPick={onPick} picked={picked} className="group/info min-w-0 flex-1 flex no-underline">
           <span className="min-w-0 flex-1 flex flex-col py-1.5 pr-2.5">
@@ -56,7 +55,12 @@ export function Row({ t, lines, bar, keys, onPick, picked = false, rowKey, band 
             </span>
             {/* As the app's row: the code on its own line in the mid tone,
                 the episode's name under it, quieter. */}
-            <span className="block mt-0.5 text-[12.5px] leading-[16px] text-mid-tone truncate">{lines[0]}</span>
+            {/* The episode's badge (FINALE and the rest) level with its code,
+                at the right, as the panel has it. */}
+            <span className="mt-0.5 flex items-center gap-2">
+              <span className="min-w-0 flex-1 text-[12.5px] leading-[16px] text-mid-tone truncate">{lines[0]}</span>
+              <EpisodePill badge={band} />
+            </span>
             {lines[1] && <span className="block text-[12.5px] leading-[16px] text-dim truncate">{lines[1]}</span>}
             {bar && (
               <span className="mt-auto flex items-center gap-2">
@@ -117,16 +121,17 @@ export function ArtworkBand({ badge }: { badge: EpisodeBadge | null }) {
   );
 }
 
-/** The same badge as a pill, the size of the series' RETURNING pill
-    (SeriesPill), for the episode panel, where a band across its wide
-    picture runs too long. A marker that also airs today is two pills. */
+/** The same badge as a pill, the size of the series' RETURNING pill in the
+    panel (SeriesPill, small), for the episode panel and the list's rows,
+    where a band across the picture runs too long. A marker that also airs
+    today is two pills. */
 export function EpisodePill({ badge }: { badge: EpisodeBadge | null }) {
   if (!badge) return null;
   const halves: [string, EpisodeBadge["tone"]][] = badge.today ? [[badge.text, badge.tone], ["TODAY", "starting"]] : [[badge.text, badge.tone]];
   return (
     <span role="img" aria-label={badge.today ? `${badge.label}, today` : badge.label} className="shrink-0 flex gap-1">
       {halves.map(([text, tone]) => (
-        <span key={text} aria-hidden className="rounded-[6px] px-1.5 py-[2px] text-[11px] font-bold tracking-[.04em] uppercase" style={{ background: `var(--band-${tone})`, color: `var(--band-${tone}-ink)` }}>
+        <span key={text} aria-hidden className="rounded-[5px] px-1 py-[1px] text-[9px] leading-[12px] font-bold tracking-[.04em] uppercase" style={{ background: `var(--band-${tone})`, color: `var(--band-${tone}-ink)` }}>
           {text}
         </span>
       ))}
