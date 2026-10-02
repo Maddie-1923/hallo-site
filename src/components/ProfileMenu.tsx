@@ -52,6 +52,14 @@ export function ProfileMenu({ username, owner }: { username: string; owner: bool
             </svg>
             Copy profile link
           </button>
+          {/* The profile as a 1080 × 1920 picture for a story
+              (app/u/[username]/story), for owner and visitors alike. */}
+          <a href={`/u/${username}/story?download=1`} download={`kodigo-${username}.png`} data-menu-close className={`${item} no-underline`}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim">
+              <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
+            </svg>
+            Download story image
+          </a>
           {owner && (
             // The card's location, quote and links, edited in place.
             <button type="button" data-menu-close onClick={() => window.dispatchEvent(new Event(EDIT_ABOUT))} className={item}>

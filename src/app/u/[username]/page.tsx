@@ -10,7 +10,10 @@ import { BlockGate } from "@/components/SafetySheets";
 // else's private profile shows only what a stranger may see.
 export async function generateMetadata({ params }: PageProps<"/u/[username]">): Promise<Metadata> {
   const { username } = await params;
-  return { title: `@${username} — Kodigo` };
+  // The picture itself is opengraph-image.tsx beside this file; the large
+  // card asks X to show it wide rather than as a thumbnail.
+  const title = `@${username} — Kodigo`;
+  return { title, openGraph: { title }, twitter: { card: "summary_large_image", title } };
 }
 
 export default async function UserProfile({ params }: PageProps<"/u/[username]">) {
