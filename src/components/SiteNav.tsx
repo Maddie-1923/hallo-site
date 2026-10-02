@@ -23,41 +23,34 @@ import { myNotifications } from "@/lib/my-notifications";
 // of the logo's stripes: Explore (Shows and Movies, switched on the page),
 // Tracker, and Community (Members and Lists, switched on the page). The
 // same three signed in; Library, Profile and the rest are in the profile
-// menu, and the app's own page sits there with the subscription.
+// menu, and the app's own page is in the footer.
 const tabs: [string, string][] = [
   ["/explore", "Explore"],
   ["/calendar", "Tracker"],
   ["/members", "Community"],
 ];
 
-// The profile menu in groups of a kind, divided the way the app's menus
-// are (and the poster's ••• menu): a faint hairline between rows, a
-// stronger one with a little space above it between groups. Your own things first, then your library, then settings,
-// then Kodigo itself, then help.
+// The profile menu (trimmed 2 Oct 2026 from sixteen rows to nine), in groups
+// of a kind, divided the way the app's menus are: a faint hairline between
+// rows, a stronger one with a little space above it between groups. Under
+// the name that leads to the profile: your own things, then settings with
+// the theme colours over them, then help. Nothing here repeats a tab or the
+// bar (Tracker is a tab, day or night is in the bar).
 const menuGroups: [string, string][][] = [
   [
     ["/feed", "Feed"],
-  ],
-  [
     ["/library", "Library"],
     ["/watchlist", "Watchlist"],
-    ["/calendar", "Tracker"],
     ["/stats", "Stats"],
   ],
   [
     ["/settings", "Settings"],
-    ["/settings#appearance", "Appearance"],
-    ["/about#themes", "Themes"],
     ["/settings#data", "Import & export"],
+    ["/pro", "Kodigo Pro"],
   ],
   [
-    ["/pro", "Subscription"],
-    ["/about", "The app"],
+    ["/support", "Help & FAQ"],
     ["/whats-new", "What's new"],
-  ],
-  [
-    ["/about#faq", "FAQ"],
-    ["/support", "Support"],
   ],
 ];
 const HAIRLINE = "[&>li+li]:border-t [&>li+li]:border-[color:color-mix(in_srgb,var(--ink)_12%,transparent)]";
@@ -207,25 +200,24 @@ async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
           </>
         }
       >
-        <div className="px-4 pt-3 pb-2 text-xs text-dim truncate border-b border-hair">{profile.username ? `@${profile.username}` : email}</div>
-        {/* Their public profile, or, until they have a username, the way to
-            choose one (which is also where they're told it's public), heads
-            the first group with the feed. */}
-        <ul className={`m-0 p-0 list-none ${HAIRLINE}`}>
-          <li>
-            <Link href={profile.username ? `/u/${profile.username}` : "/profile/setup"} className="block px-4 py-2.5 text-sm hover:bg-card-hi no-underline text-ink font-semibold">
-              {profile.username ? "Your public profile" : "Choose your username"}
-            </Link>
-          </li>
-          {menuGroups[0].map(([href, label]) => (
-            <li key={href}>
-              <Link href={href} className="block px-4 py-2.5 text-sm hover:bg-card-hi no-underline text-ink">
-                {label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        {menuGroups.slice(1).map((group, i) => (
+        {/* Who's signed in, and the way to their profile: until they have a
+            username, the way to choose one (which is also where they're told
+            it's public). */}
+        <Link href={profile.username ? `/u/${profile.username}` : "/profile/setup"} className="flex items-center gap-3 px-4 py-3 no-underline text-ink hover:bg-card-hi">
+          <span className="w-9 h-9 shrink-0 rounded-full overflow-hidden border border-hair bg-accent-fill text-on-accent flex items-center justify-center display text-xl">
+            {avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatar} alt="" className="w-full h-full object-cover object-top" />
+            ) : (
+              initial
+            )}
+          </span>
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold truncate">{profile.display_name || (profile.username ? `@${profile.username}` : email)}</span>
+            <span className="block text-xs text-dim truncate">{profile.username ? `@${profile.username} · View profile` : "Choose your username"}</span>
+          </span>
+        </Link>
+        {menuGroups.map((group, i) => (
           <div key={i}>
             <div aria-hidden className={BAND} />
             {/* The theme colours open the settings group. */}

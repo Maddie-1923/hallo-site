@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -14,6 +15,9 @@ export default function Support() {
             Kodigo keeps track of the shows and movies you&apos;re watching — what you&apos;ve seen,
             what&apos;s waiting, and when the next episode airs. It runs on your phone, with show
             details and air times pulled from TMDB and TVmaze.
+          </p>
+          <p>
+            The common questions are answered in the <Link href="/about#faq">FAQ</Link>.
           </p>
 
           <h2>Get in touch</h2>
