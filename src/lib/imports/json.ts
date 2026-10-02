@@ -1,3 +1,4 @@
+import { cleanReviewText } from "./reviews";
 import { parseDate, toIntOrNull, toLongOrNull } from "./text";
 import { importedEntry, isJsonObject, numberText, parseJson, type ImportedEntry } from "./table";
 
@@ -164,11 +165,68 @@ function trakt(json: unknown): ImportedEntry[] {
     rows = [...o.array("history"), ...o.array("watched"), ...o.array("ratings"), ...o.array("movies"), ...o.array("shows")];
   }
   return rows.flatMap((row) => {
+    // A comment, from `comments-movies.json` and its siblings.
+    if (row.obj("comment")) {
+      const entry = traktComment(row);
+      return entry ? [entry] : [];
+    }
     // A rolled-up record — the show with its seasons under it.
     if (row.has("seasons")) return traktRolledUp(row.obj("show") ?? row, row);
     const entry = traktPlay(row);
     return entry ? [entry] : [];
   });
+}
+
+/**
+ * One of somebody's own comments, as a review of what it was left on: a
+ * film, a show, an episode, or a season — which Kodigo doesn't review, so a
+ * season's goes on the show, saying which season it was about. Replies are
+ * left out (they answer other people, whose comments aren't here), and so
+ * are comments on lists, which name no title and fall out below.
+ *
+ * The row is the review and nothing else: a comment says somebody wrote
+ * about a title, not that they watched it.
+ */
+function traktComment(row: JsonObj): ImportedEntry | null {
+  const comment = row.obj("comment")!;
+  const parent = comment.int("parent_id");
+  if (parent !== null && parent !== 0) return null;
+  const cleaned = cleanReviewText(comment.string("comment") ?? "");
+  if (!cleaned.text) return null;
+
+  const entry = importedEntry({ reviewOnly: true });
+  const movie = row.obj("movie");
+  const show = row.obj("show");
+  const episode = row.obj("episode");
+  const season = row.obj("season");
+  let text = cleaned.text;
+  if (movie) {
+    entry.kind = "movies";
+    entry.title = movie.string("title") ?? "";
+    entry.year = movie.int("year");
+    applyIds(movie.obj("ids"), entry);
+  } else if (show) {
+    entry.kind = "shows";
+    entry.title = show.string("title") ?? "";
+    entry.year = show.int("year");
+    applyIds(show.obj("ids"), entry);
+    if (episode) {
+      entry.season = episode.int("season");
+      entry.episode = episode.int("number");
+      entry.episodeTitle = episode.string("title");
+      // Without its numbers the episode can't be placed, and the comment
+      // isn't the show's.
+      if (entry.season === null || entry.episode === null) return null;
+    } else if (season) {
+      const number = season.int("number");
+      if (number !== null) text = `Season ${number}: ${text}`;
+    }
+  } else {
+    return null;
+  }
+  if (entry.title === "" && entry.tmdbID === null) return null;
+  entry.review = { text, writtenAt: comment.date("created_at"), spoilers: comment.bool("spoiler") || cleaned.spoilers, rewatch: false, source: "trakt" };
+  return entry;
 }
 
 function traktPlay(row: JsonObj): ImportedEntry | null {

@@ -1,4 +1,5 @@
 import { parseCsv } from "./csv";
+import type { ImportedReview } from "./reviews";
 import { fold, ktTrim, parseDate, toDoubleOrNull, toIntOrNull, trimSpaces, truthy } from "./text";
 
 // Reading an export from any app as a table — Android's UniversalImport.kt,
@@ -342,6 +343,14 @@ export interface ImportedEntry {
   imdbID: string | null;
   tmdbID: number | null;
   tvdbID: number | null;
+  /** What somebody wrote about the row's title — a film, the show, or the row's episode. */
+  review: ImportedReview | null;
+  /**
+   * A row that brings a review and nothing else — a Trakt comment, which
+   * says somebody wrote about a title, not that they watched it or meant to.
+   * Its title is matched for the review's sake and isn't added to the library.
+   */
+  reviewOnly: boolean;
 }
 
 export function importedEntry(fields: Partial<ImportedEntry> = {}): ImportedEntry {
@@ -361,6 +370,8 @@ export function importedEntry(fields: Partial<ImportedEntry> = {}): ImportedEntr
     imdbID: null,
     tmdbID: null,
     tvdbID: null,
+    review: null,
+    reviewOnly: false,
     ...fields,
   };
 }
@@ -375,9 +386,15 @@ export function isEpisode(entry: ImportedEntry) {
 /**
  * Every row, dropping the ones that name nothing. `known` is the scale a
  * preset knows the file's app to use; without one the scale is worked out
- * from the whole column.
+ * from the whole column. `also` reads whatever else a preset knows its file
+ * holds off each kept row — Letterboxd's review, say.
  */
-export function readEntries(table: ImportTable, mapping: ImportMapping, known: RatingScale | null = null): ImportedEntry[] {
+export function readEntries(
+  table: ImportTable,
+  mapping: ImportMapping,
+  known: RatingScale | null = null,
+  also?: (entry: ImportedEntry, row: string[]) => void,
+): ImportedEntry[] {
   const ratingIndex = mapping.get("rating");
   const scale = known ?? (ratingIndex !== null ? ratingScale(table.rows.filter((r) => ratingIndex < r.length).map((r) => r[ratingIndex])) : "tenPoint");
 
@@ -416,6 +433,7 @@ export function readEntries(table: ImportTable, mapping: ImportMapping, known: R
     entry.tmdbID = toIntOrNull(value("tmdbID"));
     entry.tvdbID = toIntOrNull(value("tvdbID"));
     if (entry.title === "" && entry.imdbID === null && entry.tmdbID === null && entry.tvdbID === null) continue;
+    also?.(entry, row);
     out.push(entry);
   }
   return out;

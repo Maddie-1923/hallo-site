@@ -1,4 +1,5 @@
-import { fold } from "./text";
+import { cleanReviewText, type ReviewSource } from "./reviews";
+import { fold, ktTrim, parseDate, truthy } from "./text";
 import { FIELD_ORDER, ImportMapping, readEntries, type ImportField, type ImportTable, type ImportTitleKind, type ImportedEntry, type RatingScale } from "./table";
 
 // Knowing an export on sight — Android's ImportPresets.kt, from
@@ -32,6 +33,13 @@ export interface ImportPreset {
   everyRowIsFavorite?: boolean;
   /** A standing every row carries where the file itself is the only thing saying so. */
   standing?: string;
+  /**
+   * Where the file keeps somebody's own review of the row's title, by the
+   * column names in that export, and the app it came from. Read beside the
+   * mapping rather than through it, so the guesser never takes a column of
+   * free text in a file nobody recognised for a review.
+   */
+  review?: { source: ReviewSource; text: string; writtenAt?: string; rewatch?: string };
 }
 
 export function presetMapping(preset: ImportPreset, table: ImportTable): ImportMapping {
@@ -53,7 +61,7 @@ export function presetMapping(preset: ImportPreset, table: ImportTable): ImportM
 }
 
 export function presetEntries(preset: ImportPreset, table: ImportTable): ImportedEntry[] {
-  const rows = readEntries(table, presetMapping(preset, table), preset.ratingScale ?? null);
+  const rows = readEntries(table, presetMapping(preset, table), preset.ratingScale ?? null, reviewReader(preset, table));
   const kind = preset.kind ?? "either";
   for (const row of rows) {
     if (preset.everyRowIsFavorite) row.isFavorite = true;
@@ -62,6 +70,23 @@ export function presetEntries(preset: ImportPreset, table: ImportTable): Importe
     if (kind !== "either" && row.kind === null) row.kind = kind;
   }
   return rows;
+}
+
+/** What reads a preset's review off a row, or nothing when the file has no review column. */
+function reviewReader(preset: ImportPreset, table: ImportTable) {
+  const columns = preset.review;
+  if (!columns) return undefined;
+  const index = (name: string | undefined) => (name === undefined ? -1 : table.foldedHeaders.indexOf(fold(name)));
+  const text = index(columns.text);
+  if (text < 0) return undefined;
+  const written = index(columns.writtenAt);
+  const rewatch = index(columns.rewatch);
+  const cell = (row: string[], at: number) => (at >= 0 && at < row.length ? ktTrim(row[at]) : null);
+  return (entry: ImportedEntry, row: string[]) => {
+    const cleaned = cleanReviewText(cell(row, text) ?? "");
+    if (!cleaned.text) return;
+    entry.review = { text: cleaned.text, writtenAt: parseDate(cell(row, written)), spoilers: cleaned.spoilers, rewatch: truthy(cell(row, rewatch)), source: columns.source };
+  };
 }
 
 // ---- Bingers — four files, one job each, a TMDB id on every row ----
@@ -199,15 +224,35 @@ function letterboxdFile(name: string, wanted: string) {
   return path.endsWith(wanted);
 }
 
-/** `Watched Date`, not `Date`: the night watched rather than the day logged. */
+/**
+ * The files in a Letterboxd export that aren't somebody's own record, which
+ * no preset takes and the guesser mustn't either: the copies under
+ * `deleted/` and `orphaned/`, and `comments.csv` and `likes/reviews.csv`,
+ * which are about other people's reviews — left there, or liked.
+ */
+export function letterboxdIgnored(fileName: string, headers: string[]) {
+  if (!headers.includes("letterboxduri")) return false;
+  const path = fileName.toLowerCase();
+  return /(^|\/)(deleted|orphaned)\//.test(path) || /(^|\/)comments\.csv$/.test(path) || /(^|\/)likes\/reviews\.csv$/.test(path);
+}
+
+/**
+ * `diary.csv`, and `reviews.csv`, which is the diary's entries that have a
+ * review, with the review. `Watched Date`, not `Date`: the night watched
+ * rather than the day logged — which on a review is the day it was written.
+ * Never `likes/reviews.csv`: those are other people's reviews somebody liked.
+ * Letterboxd's export has no spoiler flag.
+ */
 const letterboxdDiary: ImportPreset = {
   id: "letterboxd.diary",
   name: "Letterboxd diary",
   matches: (name, h) =>
-    h.includes("letterboxduri") && h.includes("watcheddate") && (letterboxdFile(name, "diary.csv") || letterboxdFile(name, "reviews.csv")),
+    h.includes("letterboxduri") && h.includes("watcheddate") &&
+    (letterboxdFile(name, "diary.csv") || (letterboxdFile(name, "reviews.csv") && !name.includes("likes/"))),
   columns: { ...letterboxdColumns, watchedAt: ["Watched Date"], rating: ["Rating"] },
   kind: "movies",
   ratingScale: "fivePoint",
+  review: { source: "letterboxd", text: "Review", writtenAt: "Date", rewatch: "Rewatch" },
 };
 
 /** `ratings.csv`: a rated film is a watched one, dated the day the verdict was given. */

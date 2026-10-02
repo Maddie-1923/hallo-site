@@ -1,7 +1,8 @@
 import type { LibraryArchive, Movie, MovieStatus, Show, TrackedMovie, TrackedShow, WatchStatus } from "../archive";
 import { mergeArchives } from "./merge";
 import { jsonEntries, recogniseJsonFormat } from "./json";
-import { presetEntries, recognisePreset } from "./presets";
+import { letterboxdIgnored, presetEntries, recognisePreset } from "./presets";
+import { addReviewPiece, placeReviews, type ReviewPiece } from "./reviews";
 import { attempt, checkAborted, importArchive, reporter } from "./run-parts";
 import { formatSwiftDate, swiftNow, utf16Compare } from "./swift";
 import { guessMapping, ImportTable, isEpisode, readEntries, type ImportedEntry } from "./table";
@@ -46,6 +47,10 @@ function read(name: string, data: Uint8Array): [ImportedEntry[], string | null] 
   if (!table) return [[], null];
   const preset = recognisePreset(name, table);
   if (preset) return [presetEntries(preset, table), preset.name];
+  // Letterboxd's files that aren't the person's own (deleted entries, other
+  // people's reviews), which its presets turn down: left to the guesser they
+  // would come back as films watched.
+  if (letterboxdIgnored(name, table.foldedHeaders)) return [[], null];
   // Nothing recognised it, so the columns are guessed at. A file naming
   // nothing is reported as read but empty — usually the account details or
   // settings that came in the same archive.
@@ -173,7 +178,7 @@ export function movieStatus(rows: ImportedEntry[], watched: boolean): MovieStatu
 function emptyResult(files: ImportFileOutcome[]): UniversalImportResult {
   return {
     files, showsAdded: 0, showsAlreadyTracked: 0, episodesAdded: 0, moviesAdded: 0, moviesAlreadyTracked: 0,
-    ratingsApplied: 0, ratingsKept: 0, ratingsUnplaced: 0, unmatched: [], ambiguous: [],
+    ratingsApplied: 0, ratingsKept: 0, ratingsUnplaced: 0, reviewsAdded: 0, reviewsKept: 0, unmatched: [], ambiguous: [],
   };
 }
 
@@ -246,9 +251,23 @@ export async function runUniversalImport(files: ImportFile[], deps: ImportDeps):
   return { result, plan };
 }
 
+/**
+ * Only the rows that say something about the library, and only the titles
+ * left with any: a title that arrived with nothing but a review (a Trakt
+ * comment) gets its review and isn't added.
+ */
+function tracking<T extends { rows: ImportedEntry[] }>(titles: Map<number, T>): Map<number, T> {
+  const out = new Map<number, T>();
+  for (const [id, entry] of titles) {
+    const rows = entry.rows.filter((r) => !r.reviewOnly);
+    if (rows.length > 0) out.set(id, { ...entry, rows });
+  }
+  return out;
+}
+
 async function write(
-  shows: Map<number, { show: Show; rows: ImportedEntry[] }>,
-  movies: Map<number, { movie: Movie; rows: ImportedEntry[] }>,
+  matchedShows: Map<number, { show: Show; rows: ImportedEntry[] }>,
+  matchedMovies: Map<number, { movie: Movie; rows: ImportedEntry[] }>,
   result: UniversalImportResult,
   deps: ImportDeps,
 ): Promise<ImportPlan> {
@@ -263,6 +282,27 @@ async function write(
   const archive = importArchive(now);
   const plan: ImportPlan = { archive, ratings: {}, loved: [] };
   let applied = false;
+
+  // Reviews first, for every matched title whether or not anything else
+  // lands — a film already tracked here still gains the review it lacked.
+  // An episode's goes under the episode's own key, which needs no listing.
+  const pieces = new Map<string, ReviewPiece[]>();
+  for (const entry of matchedMovies.values()) {
+    for (const row of entry.rows) if (row.review) addReviewPiece(pieces, `movie:${entry.movie.id}`, row.review, row.watchedAt);
+  }
+  for (const entry of matchedShows.values()) {
+    for (const row of entry.rows) {
+      if (!row.review) continue;
+      const key = isEpisode(row) ? `episode:${episodeKey(entry.show.id, row.season!, row.episode!)}` : `show:${entry.show.id}`;
+      addReviewPiece(pieces, key, row.review, row.watchedAt);
+    }
+  }
+  const reviews = placeReviews(pieces, before, archive, now);
+  result.reviewsAdded = reviews.added;
+  result.reviewsKept = reviews.kept;
+
+  const shows = tracking(matchedShows);
+  const movies = tracking(matchedMovies);
 
   const newShows: TrackedShow[] = [];
   const watched = new Set<string>();

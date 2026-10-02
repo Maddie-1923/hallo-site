@@ -1,4 +1,5 @@
 import { csvValue, parseCsv, type CsvTable } from "./csv";
+import { cleanReviewText, type ImportedReview } from "./reviews";
 import { isJsonObject, parseJson } from "./table";
 import { utf16Compare } from "./swift";
 import { ktTrim, parseDate, titleKey, toIntOrNull, trimSpaces, truthy } from "./text";
@@ -49,6 +50,20 @@ export interface TvTimeShow {
   /** TV Time's favourite heart, which becomes a Loved reaction on the show. */
   isFavorited: boolean;
   ratedEpisodes: TvTimeEpisodeRating[];
+  /** Comments somebody left on the show or one of its episodes, which become reviews. */
+  comments: TvTimeComment[];
+  /**
+   * Named by nothing but the comment files: a show somebody commented on and
+   * never tracked. Matched for the comments' sake and not added.
+   */
+  onlyCommented: boolean;
+}
+
+/** One comment, on the show when `season` and `number` are null, else on that episode. */
+export interface TvTimeComment {
+  season: number | null;
+  number: number | null;
+  review: ImportedReview;
 }
 
 export interface TvTimeEpisode {
@@ -76,6 +91,10 @@ export interface TvTimeMovie {
    * everything a match has to go on.
    */
   releaseYear: number | null;
+  /** Comments on the film, by name as everything about a film is. */
+  comments: ImportedReview[];
+  /** As on a show: a film only the comment files name, which isn't added. */
+  onlyCommented: boolean;
 }
 
 /**
@@ -131,6 +150,13 @@ const Col = {
   specialStatus: ["specialstatus", "status"],
   voteKey: ["votekey", "vote", "ratingkey", "voteid", "ratingid"],
   releaseDate: ["releasedate", "firstaired", "released", "year"],
+  /** A comment's text, in the comment files. */
+  commentText: ["comment", "commenttext", "text", "body", "content"],
+  /** What a comment is on, in the one file holding comments on everything; `type` there is "comment" or "like". */
+  entityType: ["entitytype", "objecttype", "targettype"],
+  /** A flag, or a count of the people who reported it as a spoiler. */
+  spoiler: ["isspoiler", "spoiler", "hasspoiler", "spoilercount", "spoilers"],
+  writtenAt: ["createdat", "postedat", "commentedat", "date", "updatedat"],
 };
 
 const ALL_COLUMNS = new Set(Object.values(Col).flat());
@@ -231,6 +257,12 @@ function detect(tables: Named[], jsonNames: string[], files: ZipEntry[], diagnos
     return hasEpisode || hasStanding;
   });
   if (looksLikeTracking) return "gdprCsv";
+  // An export handed over as its comment files alone.
+  const commentsWithTitles = tables.some(({ name, table }) => {
+    const h = new Set(table.foldedHeaders);
+    return isComments(name, table) && (intersects(h, Col.showTitle) || intersects(h, Col.movieTitle));
+  });
+  if (commentsWithTitles) return "gdprCsv";
 
   if (jsonNames.length > 0) {
     const names = jsonNames.map((n) => n.toLowerCase());
@@ -245,6 +277,18 @@ function detect(tables: Named[], jsonNames: string[], files: ZipEntry[], diagnos
   if (tables.some(({ table }) => table.foldedHeaders.includes("tvshowname") && table.foldedHeaders.includes("seasonnumber"))) return "tvTimeOutCsv";
   if (tables.some(({ table }) => ["title", "season", "episode"].every((h) => table.foldedHeaders.includes(h)))) return "liberatorCsv";
   throw new TvTimeReadFailure({ kind: "nothingRecognised" }, diagnostics);
+}
+
+/**
+ * `episode_comment.csv`, `show_comment.csv`, `comments-prod-comments.csv`:
+ * a column of text, in a file that says it holds comments by its name or by
+ * a column called that. Read by the comments pass alone — an episode's
+ * comment file is tracking-shaped, and read as history its dates would be
+ * taken for the nights the episodes were watched.
+ */
+function isComments(name: string, table: CsvTable) {
+  const h = new Set(table.foldedHeaders);
+  return intersects(h, Col.commentText) && (base(name).includes("comment") || h.has("comment"));
 }
 
 function isTrackingShaped(table: CsvTable) {
@@ -286,7 +330,7 @@ function readGdpr(tables: Named[], start: TvTimeDiagnostics): TvTimeExport {
     const key = titleKey(title);
     let s = showsByKey.get(key);
     if (!s) {
-      s = { title, tvdbID: null, episodes: [], isFollowed: false, isForLater: false, isArchived: false, isFavorited: false, ratedEpisodes: [] };
+      s = { title, tvdbID: null, episodes: [], isFollowed: false, isForLater: false, isArchived: false, isFavorited: false, ratedEpisodes: [], comments: [], onlyCommented: false };
       showsByKey.set(key, s);
     }
     return s;
@@ -295,7 +339,7 @@ function readGdpr(tables: Named[], start: TvTimeDiagnostics): TvTimeExport {
     const key = titleKey(title);
     let m = moviesByKey.get(key);
     if (!m) {
-      m = { title, isWatched: false, isForLater: false, watchedAt: null, ratingVote: null, releaseYear: null };
+      m = { title, isWatched: false, isForLater: false, watchedAt: null, ratingVote: null, releaseYear: null, comments: [], onlyCommented: false };
       moviesByKey.set(key, m);
     }
     return m;
@@ -310,7 +354,7 @@ function readGdpr(tables: Named[], start: TvTimeDiagnostics): TvTimeExport {
   // 1. History. Ratings files are tracking-shaped too, but belong to the
   // ratings pass: read here, a rating date would fold in as a watch night.
   for (const { name, table } of tables) {
-    if (base(name).startsWith("ratings")) continue;
+    if (base(name).startsWith("ratings") || isComments(name, table)) continue;
     if (!base(name).startsWith("tracking-prod-records") && !isTrackingShaped(table)) continue;
     filesRead.push(name);
     noteHeaders(table);
@@ -375,7 +419,7 @@ function readGdpr(tables: Named[], start: TvTimeDiagnostics): TvTimeExport {
   // row, which the history pass never saw.
   for (const { name, table } of tables) {
     const lower = base(name);
-    if (lower.startsWith("tracking-prod-records") || lower.startsWith("ratings") || isTrackingShaped(table)) continue;
+    if (lower.startsWith("tracking-prod-records") || lower.startsWith("ratings") || isTrackingShaped(table) || isComments(name, table)) continue;
     const h = new Set(table.foldedHeaders);
     const hasTitle = intersects(h, Col.showTitle);
     const hasSignal =
@@ -428,6 +472,7 @@ function readGdpr(tables: Named[], start: TvTimeDiagnostics): TvTimeExport {
   // show and resolved to a TMDB episode in the importer.
   for (const { name, table } of tables) {
     const h = new Set(table.foldedHeaders);
+    if (isComments(name, table)) continue;
     if (!base(name).startsWith("ratings") && !intersects(h, Col.voteKey)) continue;
     filesRead.push(name);
     noteHeaders(table);
@@ -452,6 +497,51 @@ function readGdpr(tables: Named[], start: TvTimeDiagnostics): TvTimeExport {
       rowsUsed++;
     }
   }
+
+  // 5. Comments, which become reviews: on an episode where the row names
+  // one, on the series where it says so or names none, on a film by its
+  // name. Likes share the file and are left out. A title only these files
+  // name is marked, so the importer places its reviews without adding it.
+  const named = { shows: new Set(showsByKey.keys()), movies: new Set(moviesByKey.keys()) };
+  for (const { name, table } of tables) {
+    if (!isComments(name, table)) continue;
+    filesRead.push(name);
+    noteHeaders(table);
+    for (const row of table.rows) {
+      if ((csvValue(table, row, Col.type) ?? "").toLowerCase().startsWith("like")) continue;
+      const cleaned = cleanReviewText(csvValue(table, row, Col.commentText) ?? "");
+      if (!cleaned.text) continue;
+      const flag = csvValue(table, row, Col.spoiler);
+      const review: ImportedReview = {
+        text: cleaned.text,
+        writtenAt: parseDate(csvValue(table, row, Col.writtenAt)),
+        spoilers: cleaned.spoilers || truthy(flag) || (toIntOrNull(flag) ?? 0) > 0,
+        rewatch: false,
+        source: "tvtime",
+      };
+      const entity = (csvValue(table, row, Col.entityType) ?? "").toLowerCase();
+      const movieTitle = csvValue(table, row, Col.movieTitle);
+      if (movieTitle !== null && (entity === "" || entity.includes("movie"))) {
+        movie(movieTitle).comments.push(review);
+        rowsUsed++;
+        continue;
+      }
+      const showTitle = csvValue(table, row, Col.showTitle);
+      if (showTitle === null) continue;
+      const onSeries = entity.includes("series") || entity.includes("show");
+      const season = onSeries ? null : toIntOrNull(csvValue(table, row, Col.season));
+      const number = onSeries ? null : toIntOrNull(csvValue(table, row, Col.episode));
+      const placed = season !== null && number !== null;
+      // An episode it can't place is still not a comment on the series.
+      if (!onSeries && !placed && (entity.includes("episode") || csvValue(table, row, Col.episodeID) !== null)) continue;
+      const s = show(showTitle);
+      noteTvdb(s, table, row);
+      s.comments.push({ season: placed ? season : null, number: placed ? number : null, review });
+      rowsUsed++;
+    }
+  }
+  for (const [key, s] of showsByKey) s.onlyCommented = !named.shows.has(key);
+  for (const [key, m] of moviesByKey) m.onlyCommented = !named.movies.has(key);
 
   const diagnostics: TvTimeDiagnostics = {
     ...start,

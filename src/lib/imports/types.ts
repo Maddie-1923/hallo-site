@@ -155,12 +155,16 @@ export interface UniversalImportResult {
   ratingsKept: number;
   /** Episode ratings for an episode TMDB's listing doesn't have. */
   ratingsUnplaced: number;
+  /** Titles given a review, however many texts each was put together from. */
+  reviewsAdded: number;
+  /** Reviews for a title already reviewed here, left alone. */
+  reviewsKept: number;
   unmatched: string[];
   ambiguous: string[];
 }
 
 export function universalLanded(r: UniversalImportResult) {
-  return r.showsAdded > 0 || r.episodesAdded > 0 || r.moviesAdded > 0 || r.ratingsApplied > 0;
+  return r.showsAdded > 0 || r.episodesAdded > 0 || r.moviesAdded > 0 || r.ratingsApplied > 0 || r.reviewsAdded > 0;
 }
 
 /** A title matched on its name when more than one fitted, and what it was taken as. */
@@ -205,11 +209,14 @@ export interface TvTimeImportResult {
   unmatchedMovies: string[];
   /** Episode rows carrying only TV Time's own episode id, which nothing can place in a season. */
   episodesWithoutNumbers: number;
+  /** As in `UniversalImportResult`: titles given a review, and reviews left alone because one was here. */
+  reviewsAdded: number;
+  reviewsKept: number;
   diagnostics: TvTimeDiagnostics;
 }
 
 export function tvTimeLanded(r: TvTimeImportResult) {
-  return r.showsAdded > 0 || r.episodesAdded > 0 || r.moviesAdded > 0;
+  return r.showsAdded > 0 || r.episodesAdded > 0 || r.moviesAdded > 0 || r.reviewsAdded > 0;
 }
 
 // ---- Failures ----

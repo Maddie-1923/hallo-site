@@ -1,4 +1,5 @@
 import type { Movie, MovieStatus, Show, TrackedMovie, TrackedShow, WatchStatus } from "../archive";
+import { addReviewPiece, placeReviews, type ReviewPiece } from "./reviews";
 import { attempt, checkAborted, importArchive, movieYear, reporter, showYear } from "./run-parts";
 import { formatSwiftDate, swiftNow, utf16Compare } from "./swift";
 import { titleKey } from "./text";
@@ -177,13 +178,34 @@ export async function runTvTimeImport(files: ImportFile[], deps: ImportDeps): Pr
 
   report("saving");
   const now = swiftNow(deps.now());
+  const archive = importArchive(now);
+  const plan: ImportPlan = { archive, ratings: {}, loved: [] };
+
+  // Comments become reviews on every matched title, tracked here or not —
+  // an episode's under the episode's own key, which needs no listing.
+  const pieces = new Map<string, ReviewPiece[]>();
+  for (const match of shows) {
+    for (const c of match.source.comments) {
+      const key = c.season !== null && c.number !== null ? `episode:${episodeKey(match.show.id, c.season, c.number)}` : `show:${match.show.id}`;
+      addReviewPiece(pieces, key, c.review, null);
+    }
+  }
+  for (const match of movies) for (const review of match.source.comments) addReviewPiece(pieces, `movie:${match.movie.id}`, review, null);
+  const reviews = placeReviews(pieces, before, archive, now);
+
+  // From here on, only the titles the export tracked: one somebody only
+  // commented on has had its say.
+  const tracked = {
+    shows: shows.filter((m) => !m.source.onlyCommented),
+    movies: movies.filter((m) => !m.source.onlyCommented),
+  };
   const alreadyWatched = new Set(before.watched ?? []);
   const newShows: TrackedShow[] = [];
   const watched = new Set<string>();
   const watchedDates = new Map<string, number>();
   let showsAdded = 0;
   let showsKept = 0;
-  for (const match of shows) {
+  for (const match of tracked.shows) {
     if (trackedShows.has(match.show.id)) {
       showsKept++;
     } else if (!newShows.some((t) => t.show.id === match.show.id)) {
@@ -212,7 +234,7 @@ export async function runTvTimeImport(files: ImportFile[], deps: ImportDeps): Pr
   const movieDates: Record<string, string> = {};
   let moviesAdded = 0;
   let moviesKept = 0;
-  for (const match of movies) {
+  for (const match of tracked.movies) {
     if (trackedMovies.has(match.movie.id)) {
       moviesKept++;
       continue;
@@ -236,11 +258,11 @@ export async function runTvTimeImport(files: ImportFile[], deps: ImportDeps): Pr
     unmatchedShows: [...unmatchedShows].sort(utf16Compare),
     unmatchedMovies: [...unmatchedMovies].sort(utf16Compare),
     episodesWithoutNumbers: exported.episodesWithoutNumbers,
+    reviewsAdded: reviews.added,
+    reviewsKept: reviews.kept,
     diagnostics: exported.diagnostics,
   };
 
-  const archive = importArchive(now);
-  const plan: ImportPlan = { archive, ratings: {}, loved: [] };
   // A score set by the phones replaces whatever was there, and an unknown
   // vote clears it; within the plan the later of two for one title wins the
   // same way. (The plan itself only fills gaps when it lands — see
@@ -261,11 +283,11 @@ export async function runTvTimeImport(files: ImportFile[], deps: ImportDeps): Pr
     // Verdicts on newly added titles only; a title already tracked keeps
     // whatever it had. The heart only where there is none, since on the
     // phones setting it is a toggle.
-    for (const match of movies) {
+    for (const match of tracked.movies) {
       if (trackedMovies.has(match.movie.id) || match.source.ratingVote === null) continue;
       setRating(`movie:${match.movie.id}`, match.source.ratingVote);
     }
-    for (const match of shows) {
+    for (const match of tracked.shows) {
       if (trackedShows.has(match.show.id) || !match.source.isFavorited) continue;
       const key = `show:${match.show.id}`;
       if (before.reactions?.[key] == null && !plan.loved.includes(key)) plan.loved.push(key);
@@ -279,7 +301,7 @@ export async function runTvTimeImport(files: ImportFile[], deps: ImportDeps): Pr
     report("loadingEpisodes");
     await deps.episodes.load(newShows.map((t) => t.show.id));
     checkAborted(signal);
-    for (const match of shows) {
+    for (const match of tracked.shows) {
       if (trackedShows.has(match.show.id)) continue;
       const listing = match.source.ratedEpisodes.length > 0 ? await deps.episodes.episodes(match.show.id) : [];
       for (const rated of match.source.ratedEpisodes) {
