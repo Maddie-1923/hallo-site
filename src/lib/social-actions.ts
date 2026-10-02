@@ -342,7 +342,7 @@ export async function loadFeed(): Promise<FeedItem[] | null> {
   const ids = (f ?? []).map((x) => x.followee);
   if (!ids.length) return [];
   const [entries, lists, who] = await Promise.all([
-    m.supabase.from("public_entries").select("user_id, key, kind, tmdb_id, episode, title, poster_path, rating, reaction, review, spoilers, updated_at").in("user_id", ids).or("kind.neq.episode,review.not.is.null").order("updated_at", { ascending: false }).limit(80),
+    m.supabase.from("public_entries").select("user_id, key, kind, tmdb_id, episode, title, poster_path, rating, reaction, review, spoilers, updated_at").in("user_id", ids).eq("quiet", false).or("kind.neq.episode,review.not.is.null").order("updated_at", { ascending: false }).limit(80),
     m.supabase.from("public_lists").select("user_id, id, name, titles, updated_at").in("user_id", ids).order("updated_at", { ascending: false }).limit(20),
     people(m.supabase, ids),
   ]);

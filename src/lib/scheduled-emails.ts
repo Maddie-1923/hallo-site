@@ -160,7 +160,7 @@ async function friendsWeek(db: SupabaseClient, uid: string, start: string): Prom
   if (!ids.length) return [];
   const since = `${start}T00:00:00Z`;
   const [entries, lists, profiles] = await Promise.all([
-    db.from("public_entries").select("user_id, kind, tmdb_id, episode, title, poster_path, rating, reaction, review, spoilers, updated_at").in("user_id", ids).or("kind.neq.episode,review.not.is.null").gte("updated_at", since).order("updated_at", { ascending: false }).limit(40),
+    db.from("public_entries").select("user_id, kind, tmdb_id, episode, title, poster_path, rating, reaction, review, spoilers, updated_at").in("user_id", ids).eq("quiet", false).or("kind.neq.episode,review.not.is.null").gte("updated_at", since).order("updated_at", { ascending: false }).limit(40),
     db.from("public_lists").select("user_id, id, name, titles, updated_at").in("user_id", ids).gte("updated_at", since).order("updated_at", { ascending: false }).limit(10),
     db.from("profiles").select("user_id, username, suspended_at").in("user_id", ids),
   ]);
