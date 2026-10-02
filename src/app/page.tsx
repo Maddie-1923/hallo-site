@@ -53,7 +53,7 @@ export default async function Home() {
         <div className="w-full px-[clamp(16px,3.2vw,64px)] pb-16">
           <Row title="Trending this week" href="/explore/rail/trending" items={trending} marks={marks} />
           <Row title={`In cinemas · ${regionName(region)}`} href="/explore/rail/in-cinemas" items={asMovies(inCinemas)} marks={marks} />
-          <AdSlot place="rows" className="mt-8" />
+          <AdSlot place="rows" className="mt-10" />
           <Row title="New episodes this week" href="/explore/rail/new-episodes" items={asShows(airing)} marks={marks} />
           <Row title={`Coming soon · ${regionName(region)}`} href="/explore/rail/coming-soon-films" items={asMovies(comingFilms)} marks={marks} />
           <Row title="Highest rated" href="/explore/rail/top-rated" items={interleave(asMovies(topFilms), asShows(topShows))} marks={marks} />
