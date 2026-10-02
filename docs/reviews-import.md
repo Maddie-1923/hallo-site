@@ -125,3 +125,75 @@ readers (Letterboxd reviews.csv with a quoted multi-line review and HTML,
 skipping deleted/; Trakt comments with a reply skipped, a season prefix and a
 spoiler tag; TV Time episode and show comments); combining two texts for one
 key; never overwriting an existing review.
+
+## 5. More sources and any file with these columns (added 2 Oct 2026)
+
+Laura: reviews, comments and moods must carry over whenever an export has the
+columns, tied to the right film, show or episode.
+
+### Refract (ZIP with `readable/*.csv` and the same data in `data/*.jsonl`)
+
+Read the CSVs (or the JSONL when the CSV is missing; never both, so nothing
+doubles).
+
+- `reviews.csv`: `title,year,media_type,tmdb_id,target_type,target_id,season,
+  episode,body,is_spoiler,visibility,source,imported,created_at,edited_at`.
+  `body` → text; `is_spoiler` true → spoilers; `created_at` → writtenAt (or
+  `edited_at` when later); `tmdb_id` + `media_type` place the title exactly,
+  `season`/`episode` (or `target_type` episode) make it an episode review.
+  `visibility` private (or anything other than public/followers/empty) →
+  the text becomes the title's **private note** instead of a review.
+- `vibes.csv`: `title,year,media_type,tmdb_id,target_type,target_id,
+  mood_tags,created_at,updated_at` → **moods** on that title (see mapping).
+- `comments.csv` (`target_type,target_id,body,…`): replies on other people's
+  posts; skip, unless `target_type` is movie/show/episode, then a review.
+- `reactions.csv`, `posts.csv`: skip.
+
+### Bingers (`ratings.csv`: `type,title,tvdb_id,tmdb_id,season_number,
+episode_number,rating,favorite_character,emotions`)
+
+`emotions` → **moods** on that title or episode (mapping below).
+`favorite_character` has no place in Kodigo: skip.
+
+### Moods
+
+Kodigo's twelve (raw values as in the archive): lovedIt, hatedIt, likedIt, sad,
+onEdge, boring, frustrated, disappointed, hot, shocked, scared, confused. Map
+tags case-insensitively, split on `,` `;` `|` `/`, by these words (and their
+obvious forms): loved/love/amazing/favourite/masterpiece → lovedIt;
+hated/hate/awful/terrible → hatedIt; liked/like/good/enjoyed/fun → likedIt;
+sad/cried/crying/heartbroken/emotional/tearjerker → sad; tense/on edge/
+suspense/anxious/nervous/thrilling → onEdge; boring/bored/slow/dull → boring;
+frustrated/annoying/angry/infuriating → frustrated; disappointed/let down/
+meh → disappointed; hot/sexy/steamy/attractive → hot; shocked/shocking/
+mind-blown/mindblown/twist/wow → shocked; scared/scary/creepy/terrifying/
+horror → scared; confused/confusing/lost/weird → confused. Emoji: 😍❤️→lovedIt,
+😡🤬→hatedIt, 🙂😊👍→likedIt, 😭😢→sad, 😬🫣→onEdge, 🥱😴→boring, 😤→frustrated,
+😞😕→disappointed, 🥵🔥→hot, 🤯😱(shock)→shocked, 😨👻→scared, 🤔😵‍💫🙃→confused.
+Unknown tags are skipped. At most 3 moods per title (the app's cap), first
+three distinct in file order. Only where the title has no moods yet (never
+overwrite). Count them in the summary ("N moods").
+
+### Any other export (the column guesser)
+
+When a file isn't recognised and its columns are guessed, these columns are
+also read, by name (case and punctuation folded):
+
+- review / reviews / review text / comment / comments / body / my review →
+  review text.
+- note / notes / memo / private note / private notes → the private note
+  (only where none is set).
+- spoiler / spoilers / is spoiler / contains spoilers / has spoilers → spoilers.
+- mood / moods / vibe / vibes / emotion / emotions / tags only if every value
+  maps to a mood → moods.
+- review date / reviewed / reviewed at / created at / written → writtenAt.
+
+A row whose only content is a review (no watch date or status) places the
+review but doesn't add or tick the title (as for Trakt comments).
+
+### Tests
+
+Refract reviews (movie, episode, a private one → note), vibes → moods (with an
+unknown tag skipped and the 3 cap), Bingers emotions → moods, a generic CSV
+with Review, Notes, Spoiler and Mood columns, and never overwriting moods or
+notes.
