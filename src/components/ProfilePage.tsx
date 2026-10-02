@@ -14,7 +14,6 @@ import { BackToTop, ProfileSections } from "./ProfileNav";
 import { ProfileDiary } from "./ProfileDiary";
 import { FavouritesCard } from "./FavouritesCard";
 import { MonthCalendar } from "./MonthCalendar";
-import { MiniTracker } from "./MiniTracker";
 import { AdSlot } from "./AdSlot";
 import { ProfilePictures } from "./ProfilePictures";
 
@@ -28,11 +27,13 @@ import { ProfilePictures } from "./ProfilePictures";
 // accounts side opens.
 
 const GUTTER = "px-[clamp(16px,3.2vw,64px)]";
-// The banner's corner radius.
-// The profile photo's size and where it sits, shared by the banner (which
-// draws it) and the card (which leaves room for it).
-const AVATAR = "clamp(92px, 9vw, 128px)";
-const AVATAR_LEFT = "clamp(16px, 2.2vw, 28px)";
+// Fixed sizes, as on the rest of the site: nothing on the page grows with
+// the window, which only moves the margins once the page is at its widest.
+// The photo hangs from the banner over the card's top edge; its size is a
+// variable set on the card, a little smaller on a phone so the name beside
+// it has room.
+const AVATAR = "var(--avatar)";
+const AVATAR_LEFT = "2.3333rem";
 
 export function ProfilePage({ view: v }: { view: PublicProfileView }) {
   // Their chosen banner; until they choose one, the still of a favourite, of
@@ -42,6 +43,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
   return (
     <main className={`w-full ${GUTTER} pt-[clamp(12px,2.2vw,32px)] pb-20`}>
+      <div className="max-w-[86.6667rem] mx-auto">
       {v.previewNote && (
         <div className="mb-3 rounded-full border border-hair bg-card px-4 py-2 text-[1.0417rem] text-dim text-center">{v.previewNote}</div>
       )}
@@ -60,7 +62,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
           Favourites is parked while this layout is tried; it comes back
           somewhere else (FavouriteCard below is kept for that). */}
-      <div className="grid gap-2 mt-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
+      <div className="grid gap-2 mt-3 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
         <ProfileCard v={v} />
         <div className="rounded-shell bg-card border border-hair p-2 flex self-stretch">
           <NumberTiles v={v} />
@@ -70,9 +72,9 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             privateProfile={!!v.isPrivate && !v.owner}
             hiddenSections={v.owner ? [] : (v.hiddenSections ?? [])}
             className="lg:col-span-2"
-            // Someone else's Tracker shows only the series they're partway into,
-            // not every show waiting at its first episode.
-            aside={<MiniTracker shows={v.owner ? v.tracker.shows : v.tracker.shows.filter((s) => s.seen.length > 0)} films={v.tracker.films} owner={!!v.owner} />}
+            // Beside the sections, their favourites (a tracker is the owner's
+            // own to-do, and Watching already says what they're partway into).
+            aside={<FavouriteCard v={v} />}
             sections={[
               {
                 id: "reviews",
@@ -143,6 +145,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
       <AdSlot place="profile" className="mt-8" />
 
       <BackToTop />
+      </div>
     </main>
   );
 }
@@ -151,7 +154,7 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
   return (
     <section id="top" className="relative scroll-mt-24">
       <div
-        className={`relative overflow-hidden ${art ? "h-[clamp(420px,40vw,540px)]" : "h-[clamp(140px,14vw,200px)]"}`}
+        className={`relative overflow-hidden ${art ? "h-[37.5rem] max-sm:h-[20rem]" : "h-[13.3333rem]"}`}
         style={{ borderRadius: "var(--shell-radius)", ...nightTokens }}
       >
         {art ? (
@@ -236,15 +239,12 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
     ["Following", v.following.toLocaleString("en")],
   ];
   return (
-    // One row of five, as tall as the person's card beside it.
-    <div className="flex-1 grid grid-cols-5 gap-1.5">
+    // Three over two (the titles, then the people), as tall as the person's
+    // card beside it, so the labels have room to be read.
+    <div className="flex-1 grid grid-cols-6 gap-1.5 [&>*:nth-child(-n+3)]:col-span-2 [&>*:nth-child(n+4)]:col-span-3">
       {tiles.map(([label, value]) => (
         // 2px more above than below: Bebas keeps room under its figures, so
         // this is what centres the lettering itself in the tile.
-        // The labels are set at 10px and scaled down to fit, rather than set
-        // tiny: a browser with a minimum font size (a common reading setting)
-        // enlarges small type but leaves a scale alone, so FOLLOWERS still
-        // fits its tile.
         label === "Followers" || label === "Following" ? (
           // Pressed, the people (FollowList).
           <FollowList key={label} kind={label === "Followers" ? "followers" : "following"} owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={TILE}>
@@ -265,8 +265,8 @@ const TILE = "min-w-0 rounded-shell bg-card-hi pt-2 pb-1.5 px-1 text-center flex
 function Tile({ label, value }: { label: string; value: string | number }) {
   return (
     <>
-      <div className="display text-[1.75rem] xl:text-[1.9167rem] leading-none text-accent">{value}</div>
-      <div className="text-[0.8333rem] leading-none font-bold tracking-[.04em] uppercase text-dim mt-0.5 whitespace-nowrap scale-[.54] xl:scale-[.72]">{label}</div>
+      <div className="display text-[2.3333rem] leading-none text-accent">{value}</div>
+      <div className="text-[0.875rem] leading-none font-bold tracking-[.08em] uppercase text-dim mt-1 whitespace-nowrap">{label}</div>
     </>
   );
 }
@@ -316,7 +316,7 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 // to set, and only there when set); on the right, Follow.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
-    <div className="relative flex">
+    <div className="relative flex [--avatar:10.6667rem] max-sm:[--avatar:7.5rem]">
       {/* The photo, as the app draws it: a circle in a ring of the page's own
           colour, crossing the banner's bottom edge so the ring reads as the
           banner being interrupted by the person in front of it. Anchored to
@@ -324,7 +324,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
           bottom line whatever the card holds. */}
       <div
         className="absolute z-10 rounded-full overflow-hidden bg-accent-fill text-on-accent flex items-center justify-center display shadow-[0_0_0_4px_var(--page),0_10px_28px_rgba(0,0,0,.45)]"
-        style={{ width: AVATAR, height: AVATAR, left: AVATAR_LEFT, bottom: 0, fontSize: `calc(${AVATAR} * 0.45)` }}
+        style={{ width: AVATAR, height: AVATAR, left: AVATAR_LEFT, top: `calc(${AVATAR} * -0.5)`, fontSize: `calc(${AVATAR} * 0.45)` }}
       >
         {v.avatar ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -347,11 +347,11 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
               the handle, in lowercase as it's typed, until they set a name. */}
           {v.displayName && v.displayName !== v.username ? (
             <>
-              <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.9] truncate">{v.displayName}</div>
+              <div className="display text-[2.1667rem] leading-[.9] truncate">{v.displayName}</div>
               <div className="mt-1 text-[1.0417rem] text-dim truncate">@{v.username}</div>
             </>
           ) : (
-            <div className="text-[clamp(17px,1.5vw,21px)] font-semibold leading-tight truncate">@{v.username}</div>
+            <div className="text-[1.6667rem] font-semibold leading-tight truncate">@{v.username}</div>
           )}
         </div>
         {/* Follow, its top level with the top of the handle (a pixel down, to
@@ -372,8 +372,6 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
 
 // The Favourites card (FavouritesCard): top films and series, editable by
 // the owner, and the five most recent watches worked out from the diary.
-// Parked: not on the page while the sections-beside-tracker layout is tried.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function FavouriteCard({ v }: { v: PublicProfileView }) {
   const recent: ProfileTitle[] = [];
   for (const e of v.diary) {

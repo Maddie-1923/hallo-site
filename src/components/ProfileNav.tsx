@@ -93,7 +93,7 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
     );
 
   return (
-    <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
+    <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-2 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
       {aside && (
         <div className="lg:col-start-2 lg:row-start-2 max-lg:h-[53.3333rem] lg:min-h-[40rem] flex flex-col">{aside}</div>
       )}

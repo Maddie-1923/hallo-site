@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HeadingPill } from "./TitleParts";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import type { ProfileTitle } from "@/lib/public-profile";
@@ -87,9 +88,9 @@ export function FavouritesCard({
   const custom = picked.movie != null || picked.show != null;
 
   return (
-    <div className="flex-1 rounded-shell bg-card border border-hair px-[clamp(14px,1.6vw,20px)] py-3.5 flex flex-col justify-between gap-3">
+    <div className="flex-1 rounded-shell bg-card border border-hair p-2 pb-3.5 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="!text-[clamp(22px,2vw,28px)] leading-none">Favourites</h2>
+        <HeadingPill small>Favourites</HeadingPill>
         {owner && (
           <div className="flex items-center gap-2">
             {editing && custom && (
@@ -108,9 +109,12 @@ export function FavouritesCard({
         )}
       </div>
 
-      <Row label="Top 5 films" kind="movie" titles={films} editing={editing} onRemove={remove} onMove={move} onAdd={(slot) => setPicker({ kind: "movie", slot })} />
-      <Row label="Top 5 series" kind="show" titles={shows} editing={editing} onRemove={remove} onMove={move} onAdd={(slot) => setPicker({ kind: "show", slot })} />
-      <Row label="Recent watches" titles={recent} editing={false} />
+      {/* A visitor sees only what's there: no empty slots, and no row with
+          nothing in it. */}
+      {(owner || films.length > 0) && <Row label="Top 5 films" kind="movie" titles={films} editing={editing} owner={!!owner} onRemove={remove} onMove={move} onAdd={(slot) => setPicker({ kind: "movie", slot })} />}
+      {(owner || shows.length > 0) && <Row label="Top 5 series" kind="show" titles={shows} editing={editing} owner={!!owner} onRemove={remove} onMove={move} onAdd={(slot) => setPicker({ kind: "show", slot })} />}
+      {recent.length > 0 && <Row label="Recent watches" titles={recent} editing={false} owner={false} />}
+      {!owner && films.length + shows.length + recent.length === 0 && <p className="m-0 px-1 text-[1.0417rem] text-dim">Nothing here yet.</p>}
 
       {picker && owner && (
         <Picker
@@ -129,6 +133,7 @@ function Row({
   kind,
   titles,
   editing,
+  owner,
   onRemove,
   onMove,
   onAdd,
@@ -137,6 +142,7 @@ function Row({
   kind?: Kind;
   titles: ProfileTitle[];
   editing: boolean;
+  owner: boolean;
   onRemove?: (k: Kind, i: number) => void;
   onMove?: (k: Kind, from: number, to: number) => void;
   onAdd?: (slot: number) => void;
@@ -144,7 +150,7 @@ function Row({
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   return (
     <div>
-      <div className="text-[0.9167rem] font-bold tracking-[.14em] uppercase text-dim mb-2">{label}</div>
+      <div className="px-1 text-[0.9167rem] font-bold tracking-[.14em] uppercase text-dim mb-2">{label}</div>
       <div className="grid grid-cols-5 gap-2">
         {Array.from({ length: 5 }, (_, i) => {
           const t = titles[i];
@@ -159,9 +165,9 @@ function Row({
               >
                 +
               </button>
-            ) : (
+            ) : owner ? (
               <div key={`empty${i}`} aria-hidden className="aspect-[2/3] rounded-[8px] border border-dashed border-hair" />
-            );
+            ) : null;
           }
           const img = t.poster ? (
             // eslint-disable-next-line @next/next/no-img-element
