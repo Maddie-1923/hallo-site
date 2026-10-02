@@ -23,14 +23,6 @@ const faq = [
   ["What happens to my library if I stop subscribing?", "It stays on your device. Nothing is deleted and nothing is held hostage, and backup and export keep working."],
 ];
 
-function Shot({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-shell bg-card border border-hair aspect-[4/3] flex items-center justify-center text-center p-6 text-[1.0833rem] text-dim">
-      {children}
-    </div>
-  );
-}
-
 // The week's trending, shows and films taking turns, for the frame at the top.
 // A failed fetch costs the carousel and nothing else — the frame still draws,
 // the page still reads, because `showRails`/`movieRails` return empty rather
@@ -126,8 +118,8 @@ export default async function About() {
         </section>
 
         <section className="band">
-          <div className="wrap grid gap-[clamp(28px,5vw,72px)] items-center md:grid-cols-2">
-            <div>
+          <div className="wrap">
+            <div className="max-w-[52ch]">
               <div className="rule" />
               <div className="eyebrow">Local first</div>
               <h2>
@@ -141,17 +133,12 @@ export default async function About() {
                 this site, and turning that on is your call.
               </p>
             </div>
-            <Shot>
-              Library screen
-              <br />
-              screenshot
-            </Shot>
           </div>
         </section>
 
         <section id="import" className="band">
-          <div className="wrap grid gap-[clamp(28px,5vw,72px)] items-center md:grid-cols-2">
-            <div className="md:order-2">
+          <div className="wrap">
+            <div className="max-w-[52ch]">
               <div className="rule" />
               <div className="eyebrow">Migrating</div>
               <h2>
@@ -169,11 +156,6 @@ export default async function About() {
                 than losing it quietly.
               </p>
             </div>
-            <Shot>
-              Import flow
-              <br />
-              screenshot
-            </Shot>
           </div>
         </section>
 
