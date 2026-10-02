@@ -37,6 +37,10 @@ export const metadata: Metadata = {
     title: "Kodigo",
     description: "A fast, private tracker for TV and film.",
   },
+  // How AdSense confirms the site is ours (its "Meta tag" option), on every
+  // page and without loading its script: ads themselves still wait for each
+  // placement's slot id (lib/ads.ts).
+  ...(process.env.NEXT_PUBLIC_ADSENSE_CLIENT && { other: { "google-adsense-account": process.env.NEXT_PUBLIC_ADSENSE_CLIENT } }),
 };
 
 export const viewport = { themeColor: "#17191c" };
