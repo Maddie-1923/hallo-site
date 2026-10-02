@@ -39,7 +39,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
   // Their chosen banner; until they choose one, the still of a favourite, of
   // what they rate highest, or of what they watched last. A profile with none
   // of those draws a short gradient rather than a big empty one.
-  const bannerArt = v.banner ?? [...v.favorites, ...v.topFilms, ...v.topShows, ...v.diary].find((t) => t.backdrop)?.backdrop ?? null;
+  const bannerArt = v.banner ?? latestStill(v);
 
   return (
     <main className={`w-full ${GUTTER} pt-[clamp(12px,2.2vw,32px)] pb-20`}>
@@ -150,6 +150,12 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
   );
 }
 
+/** The banner when none is chosen: the still of a favourite, of what they
+    rate highest, or of what they watched last. */
+function latestStill(v: PublicProfileView) {
+  return [...v.favorites, ...v.topFilms, ...v.topShows, ...v.diary].find((t) => t.backdrop)?.backdrop ?? null;
+}
+
 function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
   return (
     <section id="top" className="relative scroll-mt-24">
@@ -172,7 +178,7 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
         {/* The owner changes the photo and banner from the banner itself. */}
         {v.viewerFollow === "self" && v.owner && (
           <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
-            <ProfilePictures library={[...v.owner.shows, ...v.owner.films]} avatar={v.avatar} banner={v.banner ?? null} />
+            <ProfilePictures library={[...v.owner.shows, ...v.owner.films]} avatar={v.avatar} banner={v.banner ?? null} latest={latestStill(v)} name={v.displayName} />
           </div>
         )}
       </div>

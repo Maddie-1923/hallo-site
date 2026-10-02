@@ -414,6 +414,15 @@ export async function titleLogo(kind: "show" | "movie", id: number): Promise<str
   return pick ? `${IMG}/original${pick.file_path}` : null;
 }
 
+export type ArtCandidate = { file_path: string; iso_639_1: string | null; vote_average?: number; vote_count?: number; width?: number; height?: number };
+
+/** Every poster and backdrop of a title, in every language (no language
+    filter, as the app asks), for choosing a profile picture from. */
+export async function titleArtwork(kind: "show" | "movie", id: number): Promise<{ posters: ArtCandidate[]; backdrops: ArtCandidate[] } | null> {
+  const r = await tmdb<{ posters?: ArtCandidate[]; backdrops?: ArtCandidate[] }>(`/${kind === "show" ? "tv" : "movie"}/${id}/images`, {}, 86400);
+  return r ? { posters: r.posters ?? [], backdrops: r.backdrops ?? [] } : null;
+}
+
 /** A backdrop at card size: sharp at a quarter of a wide screen on a 2x
     display without fetching the full-width cut. */
 export function cardBackdrop(p: string | null | undefined) {
