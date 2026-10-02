@@ -61,18 +61,23 @@ export interface CustomList {
 }
 
 /**
- * A review of a title — what the web's "Review & catalogue" writes and what a
- * Letterboxd import brings over. Keyed like reactions ("show:ID" / "movie:ID"),
- * one per title; a rewatch replaces the text rather than stacking entries.
- * The app doesn't read this yet; being optional, older builds decode past it.
+ * A review of a title — what the web's "Review & catalogue" writes and what an
+ * import from Letterboxd, TV Time or Trakt brings over. Keyed like reactions
+ * ("show:ID" / "movie:ID" / "episode:showID-s-e"), one per title; a rewatch
+ * replaces the text rather than stacking entries. Public, unlike a note. The
+ * spec both apps follow is docs/reviews-import.md.
  */
 export interface Review {
+  /** Plain text, trimmed, at most 10,000 characters. */
   text: string;
   /** The day it was watched, "YYYY-MM-DD"; absent when the person didn't say. */
   watchedOn?: string;
   rewatch?: boolean;
   spoilers?: boolean;
+  /** When it was written, or for an imported one when the other app says it was. */
   modified: string;
+  /** Where an imported review came from: "letterboxd", "tvtime" or "trakt". Absent for one written here. */
+  source?: string;
 }
 
 /**
@@ -182,6 +187,11 @@ export interface LibraryArchive {
   profileBanner?: string | null;
   /** When the avatar and banner last changed, together. */
   profilePicturesChanged?: string | null;
+  /**
+   * When something was last imported into this library (a backup included).
+   * The database reads it to keep that write's changes out of feeds.
+   */
+  importedAt?: string;
   [extra: string]: unknown;
 }
 

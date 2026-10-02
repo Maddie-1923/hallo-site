@@ -1,5 +1,6 @@
 import type { LibraryArchive } from "../archive";
 import { mergeArchives } from "./merge";
+import { swiftNow } from "./swift";
 import type { ImportPlan } from "./types";
 
 // Landing an import's plan on a library — what Android does with
@@ -20,7 +21,9 @@ function carriesSomething(a: LibraryArchive) {
     (a.watched?.length ?? 0) > 0 ||
     (a.watchedMovies?.length ?? 0) > 0 ||
     Object.keys(a.watchedDates ?? {}).length > 0 ||
-    Object.keys(a.movieWatchedDates ?? {}).length > 0
+    Object.keys(a.movieWatchedDates ?? {}).length > 0 ||
+    // An import that brought only reviews still has something to land.
+    Object.keys(a.reviews ?? {}).length > 0
   );
 }
 
@@ -33,6 +36,10 @@ function carriesSomething(a: LibraryArchive) {
  * `exported` and `device` come out as the merge leaves them (the import's
  * moment and "Import"); whoever saves the result stamps its own, as every
  * write from the web does.
+ *
+ * `importedAt` is stamped with `now` whatever the plan held, a backup
+ * included: the database takes the write carrying a new stamp as an import's
+ * and keeps what it changed out of followers' feeds and the digest.
  */
 export function applyImportPlan(library: LibraryArchive, plan: ImportPlan, now: Date): LibraryArchive {
   const out: LibraryArchive = carriesSomething(plan.archive) ? mergeArchives(plan.archive, library, now) : { ...library };
@@ -42,5 +49,6 @@ export function applyImportPlan(library: LibraryArchive, plan: ImportPlan, now: 
   for (const key of plan.loved) if (reactions[key] == null) reactions[key] = "loved";
   if (Object.keys(ratings).length > 0 || out.ratings) out.ratings = ratings;
   if (Object.keys(reactions).length > 0 || out.reactions) out.reactions = reactions;
+  out.importedAt = swiftNow(now);
   return out;
 }

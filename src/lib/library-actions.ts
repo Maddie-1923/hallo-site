@@ -6,6 +6,7 @@ import { applyDeleteList, applyDeleteRewatch, applyEpisodeSkipped, applyEpisodeW
 import { tickID } from "@/lib/imports/merge";
 import { checkText } from "@/lib/word-filter";
 import { applyImportPlan, type ImportPlan } from "@/lib/imports";
+import { cleanArchiveReviews } from "@/lib/imports/reviews";
 import { isArchive, type LibraryArchive, type Movie, type MovieStatus, type Show, type WatchStatus } from "./archive";
 
 // Every change the website makes to a library goes through here, and each one
@@ -369,11 +370,17 @@ function revalidateTitle(t: TakeTarget) {
     the library as it is now, on the server, with the app's own merge, so
     nothing already here is replaced and a phone that synced meanwhile loses
     nothing; ratings and hearts only fill gaps. A Kodigo backup comes the
-    same way, as a plan whose archive is the backup. Pro. */
+    same way, as a plan whose archive is the backup. Its reviews are public,
+    so they're checked like the ratings: known keys, text cut at 10,000,
+    fields of the right type. The write stamps importedAt. Pro. */
 export async function importIntoLibrary(plan: ImportPlan) {
   if (!plan || !isArchive(plan.archive)) return { error: "That import couldn't be read. Try again." };
+  const reviews = cleanArchiveReviews(plan.archive.reviews);
+  const archive = { ...plan.archive };
+  if (reviews) archive.reviews = reviews;
+  else delete archive.reviews;
   const clean: ImportPlan = {
-    archive: plan.archive,
+    archive,
     ratings: Object.fromEntries(Object.entries(plan.ratings ?? {}).filter(([k, v]) => /^(movie|show|episode):[\d-]+$/.test(k) && typeof v === "number" && v >= 0.5 && v <= 10)),
     loved: (plan.loved ?? []).filter((k) => /^(movie|show|episode):[\d-]+$/.test(k)),
   };

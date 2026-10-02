@@ -253,10 +253,11 @@ const distinct = <T>(values: T[]) => [...new Set(values)];
 const uuidKey = (id: string) => id.toUpperCase();
 
 /**
- * The web's reviews, which the apps don't read yet and so don't merge: per
- * title the later `modified` wins, the incoming copy taking a tie — the rule
- * the merge gives a tracked show, since a review is edited in place the same
- * way.
+ * Reviews: per title the later `modified` wins, the incoming copy taking a
+ * tie — the rule the merge gives a tracked show, since a review is edited in
+ * place the same way. No tombstones, so a review deleted on one side can come
+ * back from the other. The apps merge them by the same rule
+ * (docs/reviews-import.md).
  */
 function mergeReviews(mine: Record<string, Review> | undefined, theirs: Record<string, Review> | undefined) {
   if (!mine && !theirs) return undefined;
@@ -376,6 +377,11 @@ export function mergeArchives(incoming: LibraryArchive, onto: LibraryArchive, as
   const pick = <T>(mineValue: T | null | undefined, theirValue: T | null | undefined) => mineValue ?? theirValue ?? undefined;
   const incomingIsNewer = moment(incoming.exported) >= moment(onto.exported);
 
+  // The later of the two import stamps, so the last import made on either
+  // side is still the last one after they meet. Only a readable date counts.
+  const importStamps = [incoming.importedAt, onto.importedAt].filter((t): t is string => typeof t === "string" && parseSwiftDate(t) !== null);
+  const importedAt = importStamps.length > 0 ? importStamps.map(stamp).reduce((a, b) => later(a, b)).text : undefined;
+
   const merged: LibraryArchive = {
     ...theirs,
     version: MERGED_VERSION,
@@ -415,6 +421,7 @@ export function mergeArchives(incoming: LibraryArchive, onto: LibraryArchive, as
     moods: { ...(theirs.moods ?? {}), ...(mine.moods ?? {}) },
     notes: { ...(theirs.notes ?? {}), ...(mine.notes ?? {}) },
     reviews: mergeReviews(mine.reviews, theirs.reviews),
+    importedAt,
     tags,
     catchUpOptOuts: distinct([...(theirs.catchUpOptOuts ?? []), ...(mine.catchUpOptOuts ?? [])]),
     mutedShows: distinct([...(theirs.mutedShows ?? []), ...(mine.mutedShows ?? [])]),
@@ -442,7 +449,7 @@ export function mergeArchives(incoming: LibraryArchive, onto: LibraryArchive, as
     movieRewatchTickTombstones: tickStoneList(movieNightStones),
   };
   // Swift leaves a nil optional out of the file rather than writing null.
-  for (const key of ["showOrder", "movieOrder", "savedRailOrder", "profileAvatar", "profileBanner", "profilePicturesChanged", "reviews"] as const) {
+  for (const key of ["showOrder", "movieOrder", "savedRailOrder", "profileAvatar", "profileBanner", "profilePicturesChanged", "reviews", "importedAt"] as const) {
     if (merged[key] === undefined || merged[key] === null) delete merged[key];
   }
   return merged;
