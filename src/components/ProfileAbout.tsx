@@ -8,9 +8,14 @@ import { createPortal } from "react-dom";
 
 // Under the name on the profile card: where the person is, with a map pin,
 // a line in their own words, in quotation marks, and up to three links of
-// their own (lib/profile-links). All theirs to set; none shows when empty. The owner sees a quiet "Add your location"
+// their own (lib/profile-links). All theirs to set; none shows, not even
+// its mark, when empty. The owner edits them from the card's ••• menu,
+// which sends EDIT_ABOUT. The owner sees a quiet "Add your location"
 // and "Add a quote" in their place, and a pencil to change them; until
 // accounts exist what they write is kept in this browser.
+/** The event the card's ••• menu sends to open the editor. */
+export const EDIT_ABOUT = "kodigo:edit-about";
+
 export function ProfileAbout({ location, quote, links = [], owner, username }: { location: string | null; quote: string | null; links?: string[]; owner: boolean; username: string }) {
   const key = `kodigo.profile-about.${username}`;
   const [mine, setMine] = useState<{ location: string; quote: string; links?: string[] } | null>(null);
@@ -36,36 +41,26 @@ export function ProfileAbout({ location, quote, links = [], owner, username }: {
     setEditing(false);
   }
 
-  const add = "text-dim hover:text-ink cursor-pointer";
+  // The card's ••• menu (ProfileMenu) opens the editor: "Edit about".
+  useEffect(() => {
+    if (!owner) return;
+    const open = () => setEditing(true);
+    window.addEventListener(EDIT_ABOUT, open);
+    return () => window.removeEventListener(EDIT_ABOUT, open);
+  }, [owner]);
+
   return (
     <div className="mt-2 grid gap-1.5 text-[1.0417rem] leading-[1.4] min-w-0">
-      {(place || owner) && (
+      {place && (
         <div className="flex items-center gap-1.5 min-w-0 text-dim">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
             <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" />
             <circle cx="12" cy="9.5" r="2.5" />
           </svg>
-          {place ? (
-            <span className="truncate text-ink">{place}</span>
-          ) : (
-            <button type="button" onClick={() => setEditing(true)} className={add}>
-              Add your location
-            </button>
-          )}
-          {owner && place && <EditButton onClick={() => setEditing(true)} />}
+          <span className="truncate text-ink">{place}</span>
         </div>
       )}
-      {line ? (
-        <p className="m-0 text-bone italic line-clamp-2">
-          “{line}”{owner && !place && <EditButton onClick={() => setEditing(true)} />}
-        </p>
-      ) : (
-        owner && (
-          <button type="button" onClick={() => setEditing(true)} className={`${add} text-left`}>
-            Add a quote
-          </button>
-        )
-      )}
+      {line && <p className="m-0 text-bone italic line-clamp-2">“{line}”</p>}
       {shownLinks.length > 0 && (
         <ul className="m-0 p-0 list-none flex flex-wrap gap-x-3 gap-y-1">
           {shownLinks.map((href) => {
@@ -79,26 +74,10 @@ export function ProfileAbout({ location, quote, links = [], owner, username }: {
               </li>
             );
           })}
-          {owner && !line && !place && <EditButton onClick={() => setEditing(true)} />}
         </ul>
-      )}
-      {owner && shownLinks.length === 0 && (
-        <button type="button" onClick={() => setEditing(true)} className={`${add} text-left`}>
-          Add links
-        </button>
       )}
       {editing && <AboutSheet location={place} quote={line} links={shownLinks} onSave={save} onClose={() => setEditing(false)} />}
     </div>
-  );
-}
-
-function EditButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button type="button" onClick={onClick} aria-label="Edit your location, quote and links" title="Edit" className="inline-flex align-middle ml-1.5 text-dim hover:text-ink cursor-pointer not-italic">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
-      </svg>
-    </button>
   );
 }
 

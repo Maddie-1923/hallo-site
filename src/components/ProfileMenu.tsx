@@ -1,5 +1,6 @@
 "use client";
 
+import { EDIT_ABOUT } from "./ProfileAbout";
 import { useState } from "react";
 import { Menu } from "./Menu";
 import { HANDLE, LINE } from "./FollowPill";
@@ -51,6 +52,15 @@ export function ProfileMenu({ username, owner }: { username: string; owner: bool
             </svg>
             Copy profile link
           </button>
+          {owner && (
+            // The card's location, quote and links, edited in place.
+            <button type="button" data-menu-close onClick={() => window.dispatchEvent(new Event(EDIT_ABOUT))} className={item}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim">
+                <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
+              </svg>
+              Edit location, quote and links
+            </button>
+          )}
           {owner && (
             // Their privacy settings, seen from outside.
             <button type="button" data-menu-close onClick={() => setViewAsOthers(!others)} className={item}>
