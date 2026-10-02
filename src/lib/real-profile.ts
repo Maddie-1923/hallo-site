@@ -2,6 +2,7 @@ import "server-only";
 import { accountsOpen } from "@/lib/accounts";
 import { isArchive, type LibraryArchive } from "@/lib/archive";
 import { profileFromArchive, withAiredEpisodes, withUpToDate, type LikedItem, type PublicProfileView, type ReviewEntry } from "@/lib/public-profile";
+import { avatarUrl, bannerUrl, PICTURE_COLUMNS } from "@/lib/pictures";
 import { createClient } from "@/lib/supabase/server";
 import { image } from "@/lib/tmdb";
 
@@ -24,7 +25,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   const supabase = await createClient();
   const { data: p } = await supabase
     .from("profiles")
-    .select("user_id, username, display_name, avatar_path, banner_path, location, quote, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, category_privacy, pinned_reviews")
+    .select(`user_id, display_name, ${PICTURE_COLUMNS}, location, quote, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, category_privacy, pinned_reviews`)
     .eq("username", username.toLowerCase())
     .maybeSingle();
   if (!p?.username) return null;
@@ -40,8 +41,8 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   const meta = {
     username: p.username,
     displayName: p.display_name || p.username,
-    avatar: image.poster(p.avatar_path, "w342"),
-    banner: image.backdrop(p.banner_path),
+    avatar: avatarUrl(p),
+    banner: bannerUrl(p),
     bio: p.quote,
     location: p.location,
   };

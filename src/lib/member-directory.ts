@@ -1,6 +1,7 @@
 "use server";
 
 import { accountsOpen } from "@/lib/accounts";
+import { avatarUrl, PICTURE_COLUMNS } from "@/lib/pictures";
 import { createClient } from "@/lib/supabase/server";
 import { image } from "@/lib/tmdb";
 
@@ -41,6 +42,8 @@ type Row = {
   username: string;
   display_name: string | null;
   avatar_path: string | null;
+  has_avatar?: boolean | null;
+  picture_changed?: string | null;
   location: string | null;
   quote: string | null;
   joined: string;
@@ -90,7 +93,7 @@ export async function memberDirectory(): Promise<Member[] | null> {
     shows: 0,
     joined: Math.max(0, Math.floor((Date.now() - Date.parse(r.joined)) / DAY)),
     likesThisWeek: Number(r.likes_this_week),
-    avatar: image.poster(r.avatar_path, "w342"),
+    avatar: avatarUrl(r),
     follow: r.user_id === me ? "self" : r.my_follow === "accepted" ? "following" : r.my_follow === "pending" ? "pending" : "none",
     favourites: favourites.get(r.user_id) ?? [],
   }));
@@ -102,7 +105,7 @@ export async function searchMembers(query: string): Promise<Member[] | null> {
   const q = query.trim().toLowerCase().replace(/[%_,()]/g, "").slice(0, 40);
   if (q.length < 2) return [];
   const supabase = await createClient();
-  const { data } = await supabase.from("profiles").select("user_id, username, display_name, avatar_path, location, is_private, created_at").not("username", "is", null).or(`username.ilike.%${q}%,display_name.ilike.%${q}%`).limit(30);
+  const { data } = await supabase.from("profiles").select(`user_id, display_name, ${PICTURE_COLUMNS}, location, is_private, created_at`).not("username", "is", null).or(`username.ilike.%${q}%,display_name.ilike.%${q}%`).limit(30);
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -121,7 +124,7 @@ export async function searchMembers(query: string): Promise<Member[] | null> {
     shows: 0,
     joined: Math.max(0, Math.floor((Date.now() - Date.parse(p.created_at)) / DAY)),
     likesThisWeek: 0,
-    avatar: image.poster(p.avatar_path, "w342"),
+    avatar: avatarUrl(p),
     isPrivate: p.is_private,
     follow: p.user_id === user?.id ? "self" : state.get(p.user_id) === "accepted" ? "following" : state.get(p.user_id) === "pending" ? "pending" : "none",
   }));

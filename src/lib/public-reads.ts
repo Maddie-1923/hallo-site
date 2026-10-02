@@ -2,6 +2,7 @@ import "server-only";
 import { accountsOpen } from "@/lib/accounts";
 import type { ListView } from "@/lib/lists";
 import type { ProfileTitle, ReviewEntry } from "@/lib/public-profile";
+import { avatarUrl, PICTURE_COLUMNS } from "@/lib/pictures";
 import { createClient } from "@/lib/supabase/server";
 import { genreNames, image } from "@/lib/tmdb";
 
@@ -19,11 +20,11 @@ interface Who {
 /** Usernames, names and photos for a set of members. */
 async function members(ids: string[]): Promise<Map<string, Who>> {
   if (!ids.length) return new Map();
-  const { data } = await (await createClient()).from("profiles").select("user_id, username, display_name, avatar_path").in("user_id", [...new Set(ids)]);
+  const { data } = await (await createClient()).from("profiles").select(`user_id, display_name, ${PICTURE_COLUMNS}`).in("user_id", [...new Set(ids)]);
   return new Map(
     (data ?? [])
       .filter((p) => p.username)
-      .map((p) => [p.user_id, { username: p.username!, displayName: p.display_name || p.username!, avatar: image.poster(p.avatar_path, "w342") }]),
+      .map((p) => [p.user_id, { username: p.username!, displayName: p.display_name || p.username!, avatar: avatarUrl(p) }]),
   );
 }
 

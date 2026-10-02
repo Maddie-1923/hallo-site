@@ -3,6 +3,7 @@
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { accountsOpen } from "@/lib/accounts";
+import { avatarUrl, PICTURE_COLUMNS } from "@/lib/pictures";
 import { createClient } from "@/lib/supabase/server";
 import { image } from "@/lib/tmdb";
 import { checkText } from "@/lib/word-filter";
@@ -57,8 +58,8 @@ async function idOf(supabase: Client, username: string): Promise<string | null> 
 
 async function people(supabase: Client, ids: string[]): Promise<Map<string, Person>> {
   if (!ids.length) return new Map();
-  const { data } = await supabase.from("profiles").select("user_id, username, display_name, avatar_path").in("user_id", [...new Set(ids)]);
-  return new Map((data ?? []).filter((p) => p.username).map((p) => [p.user_id, { username: p.username!, displayName: p.display_name || p.username!, avatar: image.poster(p.avatar_path, "w342") }]));
+  const { data } = await supabase.from("profiles").select(`user_id, display_name, ${PICTURE_COLUMNS}`).in("user_id", [...new Set(ids)]);
+  return new Map((data ?? []).filter((p) => p.username).map((p) => [p.user_id, { username: p.username!, displayName: p.display_name || p.username!, avatar: avatarUrl(p) }]));
 }
 
 const refused = (e: { message?: string } | null) =>

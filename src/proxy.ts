@@ -82,6 +82,8 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// Profile pictures (api/pictures) are served the same to everyone and
+// cached, so they skip the session lookup along with the static files.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/pictures/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

@@ -5,7 +5,7 @@ import { NavSearch } from "./NavSearch";
 import { DayNightToggle } from "./DayNightToggle";
 import { ThemeSwatches } from "./ThemeMenu";
 import { loadProfile } from "@/lib/profile";
-import { image } from "@/lib/tmdb";
+import { avatarUrl } from "@/lib/pictures";
 import { createClient } from "@/lib/supabase/server";
 import { NavLinks } from "./NavLinks";
 import { LogButton } from "./LogButton";
@@ -161,7 +161,7 @@ async function signedInUser() {
 async function SignedIn({ email, framed }: { email: string; framed: boolean }) {
   const [profile, notes] = await Promise.all([loadProfile(), myNotifications().then((n) => n ?? [])]);
   const initial = ((profile.display_name || email)[0] ?? "?").toUpperCase();
-  const avatar = image.poster(profile.avatar_path, "w342");
+  const avatar = avatarUrl(profile);
 
   return (
     // Centred on the k, as the signed-out buttons are (7px above the row's
