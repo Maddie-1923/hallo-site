@@ -25,7 +25,7 @@ import {
 // needs no matching: it's a library already, and becomes the plan whole.
 
 export type ImportOutcome =
-  | { kind: "backup"; plan: ImportPlan; counts: { shows: number; movies: number; episodes: number } }
+  | { kind: "backup"; plan: ImportPlan; counts: { shows: number; movies: number; episodes: number; reviews: number } }
   | { kind: "tvtime"; plan: ImportPlan; result: TvTimeImportResult }
   | { kind: "universal"; plan: ImportPlan; result: UniversalImportResult };
 
@@ -91,7 +91,7 @@ export async function runImport(picked: File[], onProgress: (p: ImportProgress) 
       return {
         kind: "backup",
         plan: { archive: backup, ratings: {}, loved: [] },
-        counts: { shows: backup.shows.length, movies: backup.movies.length, episodes: backup.watched.length },
+        counts: { shows: backup.shows.length, movies: backup.movies.length, episodes: backup.watched.length, reviews: Object.keys(backup.reviews ?? {}).length },
       };
     }
   }

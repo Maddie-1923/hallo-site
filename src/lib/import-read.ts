@@ -62,8 +62,12 @@ export async function readImport(f: File): Promise<ImportSummary> {
     try {
       const t = readTvTimeFiles([{ name, data }]);
       const episodes = t.shows.reduce((n, s) => n + s.episodes.length, 0);
+      // A title only commented on is there for its review, not to be added.
+      const series = t.shows.filter((s) => !s.onlyCommented).length;
+      const films = t.movies.filter((m) => !m.onlyCommented).length;
+      const reviews = t.shows.reduce((n, s) => n + s.comments.length, 0) + t.movies.reduce((n, m) => n + m.comments.length, 0);
       if (t.shows.length || t.movies.length) {
-        return { file: name, source: "TV Time export", counts: ([["Series", t.shows.length], ["Films", t.movies.length], ["Episodes watched", episodes]] as [string, number][]).filter(([, n]) => n > 0) };
+        return { file: name, source: "TV Time export", counts: ([["Series", series], ["Films", films], ["Episodes watched", episodes], ["Reviews", reviews]] as [string, number][]).filter(([, n]) => n > 0) };
       }
     } catch {}
   }
@@ -77,7 +81,10 @@ export async function readImport(f: File): Promise<ImportSummary> {
   }
   const used = parts.filter((p) => p.entries.length > 0);
   if (!used.length) return { file: name, source: zip ? "A zip file" : "Unknown file", counts: [], note: zip ? "Nothing inside looked like a watch history." : "Kodigo couldn't find a watch history in this file." };
-  const entries = used.flatMap((p) => p.entries);
+  const all = used.flatMap((p) => p.entries);
+  const reviews = all.filter((e) => e.review).length;
+  // A row with only a review (a Trakt comment) adds no title.
+  const entries = all.filter((e) => !e.reviewOnly);
   const series = new Set(entries.filter((e) => isEpisode(e) || e.kind === "shows").map(titleOf));
   const films = new Set(entries.filter((e) => !isEpisode(e) && e.kind === "movies").map(titleOf));
   const other = new Set(entries.filter((e) => !isEpisode(e) && e.kind !== "shows" && e.kind !== "movies").map(titleOf));
@@ -85,7 +92,7 @@ export async function readImport(f: File): Promise<ImportSummary> {
   return {
     file: name,
     source: named ? `${appName(named)} export` : "Another app's export",
-    counts: ([["Series", series.size], ["Films", films.size], ["Titles", other.size], ["Episodes watched", entries.filter(isEpisode).length]] as [string, number][]).filter(([, n]) => n > 0),
-    note: zip && parts.length > 1 ? `${parts.length} files inside, ${used.length} with history in them.` : named || zip ? undefined : "Kodigo couldn't tell which app this came from, so it read the columns.",
+    counts: ([["Series", series.size], ["Films", films.size], ["Titles", other.size], ["Episodes watched", entries.filter(isEpisode).length], ["Reviews", reviews]] as [string, number][]).filter(([, n]) => n > 0),
+    note: zip && parts.length > 1 ? `${parts.length} files inside, ${used.length} with history or reviews in them.` : named || zip ? undefined : "Kodigo couldn't tell which app this came from, so it read the columns.",
   };
 }
