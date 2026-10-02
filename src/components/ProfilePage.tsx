@@ -322,7 +322,7 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 // to set, and only there when set); on the right, Follow.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
-    <div className="relative flex [--avatar:10.6667rem] max-sm:[--avatar:7.5rem]">
+    <div className="relative flex [--avatar:10.6667rem] max-sm:[--avatar:7.5rem] [--card-in:calc(2.3333rem+var(--avatar)+1rem)]">
       {/* The photo, as the app draws it: a circle in a ring of the page's own
           colour, crossing the banner's bottom edge so the ring reads as the
           banner being interrupted by the person in front of it. Anchored to
@@ -340,12 +340,14 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         )}
       </div>
       <div
-        // The card starts at the column's left edge, level with the tabs
-        // below it, and on a wide screen is exactly as wide as the tab bar
-        // (--tabs-w, set by the bar); the photo sits over its left end, and
-        // the writing starts past the photo.
-        className="flex-1 lg:flex-none lg:w-[var(--tabs-w,100%)] rounded-shell bg-card border border-hair pr-3 py-3 min-w-0"
-        style={{ paddingLeft: `calc(${AVATAR_LEFT} + ${AVATAR} + 16px)` }}
+        // The card starts past the photo, so the photo stands on its own
+        // hanging from the banner with no shell under it; on a wide screen
+        // its right edge is level with the tab bar's (--tabs-w, set by the
+        // bar).
+        className="flex-1 lg:flex-none lg:w-[calc(var(--tabs-w,100%)-var(--card-in))] rounded-shell bg-card border border-hair px-4 py-3 min-w-0"
+        // At least as tall as the photo's lower half, so the photo never
+        // drops below the card's foot when there's only a handle to show.
+        style={{ marginLeft: "var(--card-in)", minHeight: `calc(${AVATAR} * 0.5 + 0.75rem)` }}
       >
         <div className="flex items-start gap-4 min-w-0">
         <div className="min-w-0 flex-1">
