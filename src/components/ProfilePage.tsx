@@ -317,12 +317,14 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
   );
 }
 
-// The person's card, beside the photo hanging from the banner. On the left,
+// The person's card, beside the photo hanging from the banner, always as
+// tall as the numbers beside it (the quote is two lines at most, so the
+// card never needs to be taller). On the left,
 // the handle, then where they are and a line in their own words (both theirs
 // to set, and only there when set); on the right, Follow.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
-    <div className="relative flex [--avatar:10.6667rem] max-sm:[--avatar:7.5rem] [--card-in:calc(2.3333rem+var(--avatar)+1rem)]">
+    <div className="relative flex self-stretch [--avatar:10.6667rem] max-sm:[--avatar:7.5rem] [--card-in:calc(2.3333rem+var(--avatar)+1rem)]">
       {/* The photo, as the app draws it: a circle in a ring of the page's own
           colour, crossing the banner's bottom edge so the ring reads as the
           banner being interrupted by the person in front of it. Anchored to
