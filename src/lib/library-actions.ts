@@ -376,8 +376,17 @@ function revalidateTitle(t: TakeTarget) {
 export async function importIntoLibrary(plan: ImportPlan) {
   if (!plan || !isArchive(plan.archive)) return { error: "That import couldn't be read. Try again." };
   const reviews = cleanArchiveReviews(plan.archive.reviews);
+  // Imported reviews go public, so they meet the word filter a review written
+  // here does. One that trips it isn't lost: it lands as the title's private
+  // note, where nobody else reads it, unless a note is already there.
+  const held: Record<string, string> = {};
+  for (const [key, review] of Object.entries(reviews ?? {})) {
+    if (!checkText(review.text)) continue;
+    held[key] = review.text;
+    delete reviews![key];
+  }
   const archive = { ...plan.archive };
-  if (reviews) archive.reviews = reviews;
+  if (reviews && Object.keys(reviews).length) archive.reviews = reviews;
   else delete archive.reviews;
   const clean: ImportPlan = {
     archive,
@@ -387,6 +396,10 @@ export async function importIntoLibrary(plan: ImportPlan) {
   return withArchive(
     (a) => {
       const next = applyImportPlan(a, clean, new Date());
+      for (const [key, text] of Object.entries(held)) {
+        if (next.reviews?.[key] || next.notes?.[key]) continue;
+        next.notes = { ...(next.notes ?? {}), [key]: text };
+      }
       for (const k of Object.keys(a)) delete (a as Record<string, unknown>)[k];
       Object.assign(a, next);
     },
