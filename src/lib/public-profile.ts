@@ -1,6 +1,6 @@
 import "server-only";
 import type { LibraryArchive, Movie, Show } from "./archive";
-import { genreNames, image, seasonEpisodes, showDetail } from "./tmdb";
+import { genreNames, image, movieDetail, seasonEpisodes, showDetail } from "./tmdb";
 import { latestSeason, seasonFacts, type EpisodeFacts } from "./episode-badge";
 import type { SheetReview } from "@/components/ReviewSheet";
 
@@ -141,7 +141,19 @@ export interface PublicProfileView {
   links?: string[];
   followers: number;
   following: number;
-  stats: { films: number; shows: number; episodes: number; hours: number; ratings: number; average: number | null };
+  stats: {
+    films: number;
+    shows: number;
+    episodes: number;
+    hours: number;
+    ratings: number;
+    average: number | null;
+    /** This calendar year (UTC): films and episodes with a watch date in it,
+        and the series those episodes belong to. Null when the library
+        carries no watch dates at all (a visitor's copy with the Watchlog and
+        Activity both off), and the tiles show only the totals. */
+    year: { films: number; shows: number; episodes: number } | null;
+  };
   favorites: ProfileTitle[];
   /** Top five of each, hearts first by rating, topped up with the highest
       rated when there are fewer than five hearts. */
@@ -317,7 +329,7 @@ export function profileFromArchive(
   const genres = topG.map(([name, c]) => ({ name, share: c / topTotal }));
 
   const rated = Object.values(ratings);
-  const films = new Set([...(a.watchedMovies ?? []), ...Object.keys(a.movieWatchedDates ?? {}).map(Number)]).size;
+  const films = watchedFilmIDs(a).length;
   const filmMinutes = a.movies.reduce((sum, t) => sum + (t.status === "Watched" ? (t.movie.runtime ?? 110) : 0), 0);
   // 42 minutes an episode: the app's own estimate, since the archive carries
   // no episode runtimes.
@@ -393,6 +405,7 @@ export function profileFromArchive(
       hours,
       ratings: rated.length,
       average: rated.length ? Math.round((rated.reduce((x, y) => x + y, 0) / rated.length) * 10) / 10 : null,
+      year: yearCounts(a),
     },
     favorites,
     topFilms: top("movie"),
@@ -570,4 +583,145 @@ export async function withUpToDate(view: PublicProfileView, a: LibraryArchive): 
   const latest = [...upToDate].sort((x, y) => (added.get(y.key) ?? "").localeCompare(added.get(x.key) ?? ""))[0]?.key ?? null;
   categories.splice(at < 0 ? categories.length : at, 0, { id: "upToDate", name: "Up to Date", custom: false, titles: upToDate, latest });
   return { ...view, categories };
+}
+
+// ── What they've watched, for the number tiles' own pages ──────────────────
+// /u/<name>/movies, /shows and /episodes list exactly what the tiles count,
+// from the same archive (a visitor's from the public copy, so nothing it
+// leaves out can show up here). Dates come along only when the copy carries
+// them.
+
+/** Every film they've watched: ticked off, or with a watch date. */
+function watchedFilmIDs(a: LibraryArchive): number[] {
+  return [...new Set([...(a.watchedMovies ?? []), ...Object.keys(a.movieWatchedDates ?? {}).map(Number)])];
+}
+
+const thisYear = () => String(new Date().getUTCFullYear());
+
+/** The tiles' "this year": see `stats.year`. */
+function yearCounts(a: LibraryArchive): { films: number; shows: number; episodes: number } | null {
+  const filmDates = a.movieWatchedDates ?? {};
+  const epDates = a.watchedDates ?? {};
+  if (!Object.keys(filmDates).length && !Object.keys(epDates).length) return null;
+  const year = thisYear();
+  // Only episodes still checked off: a date can outlive an uncheck.
+  const watched = new Set(a.watched);
+  const eps = Object.entries(epDates).filter(([k, d]) => d.startsWith(year) && watched.has(k)).map(([k]) => k);
+  return {
+    films: Object.values(filmDates).filter((d) => d.startsWith(year)).length,
+    shows: new Set(eps.map((k) => k.split("-")[0])).size,
+    episodes: eps.length,
+  };
+}
+
+export interface WatchedFilm extends ProfileTitle {
+  /** "YYYY-MM-DD", when the library says when. */
+  date: string | null;
+}
+
+export interface WatchedShow extends ProfileTitle {
+  /** Episodes watched, all time and this year. */
+  episodes: number;
+  yearEpisodes: number;
+}
+
+export interface WatchedEpisode {
+  key: string;
+  season: number;
+  episode: number;
+  date: string | null;
+  href: string;
+}
+
+export interface EpisodeGroup extends ProfileTitle {
+  /** Newest first; undated ones after, latest episode first. */
+  episodes: WatchedEpisode[];
+}
+
+export interface WatchedLists {
+  films: WatchedFilm[];
+  shows: WatchedShow[];
+  episodes: EpisodeGroup[];
+  /** "2026": the year the pages' This year means. */
+  year: string;
+  /** Whether the library carries any watch dates (else no This year). */
+  dated: boolean;
+  /** Films and series counted that the library has no record of (an owner's
+      tick from before a title was tracked), for `withMissingTitles`. */
+  missing: { films: number[]; shows: number[] };
+}
+
+/** A title the library only knows by its id, until TMDB names it. */
+const unknownFilm = (id: number): ProfileTitle => ({ key: `m${id}`, kind: "movie", title: "Film", href: `/movie/${id}`, poster: null, backdrop: null, year: "" });
+const unknownShow = (id: number): ProfileTitle => ({ key: `s${id}`, kind: "show", title: "Series", href: `/show/${id}`, poster: null, backdrop: null, year: "" });
+
+export function watchedLists(a: LibraryArchive): WatchedLists {
+  const shows = new Map(a.shows.map((t) => [t.show.id, t]));
+  const movies = new Map(a.movies.map((t) => [t.movie.id, t.movie]));
+  const filmDates = a.movieWatchedDates ?? {};
+  const epDates = a.watchedDates ?? {};
+  const year = thisYear();
+  const missing = { films: [] as number[], shows: [] as number[] };
+
+  // Films: the dated ones newest first, then the rest by title.
+  const films = watchedFilmIDs(a)
+    .map((id): WatchedFilm => {
+      const m = movies.get(id);
+      if (!m) missing.films.push(id);
+      return { ...(m ? movieTitle(m) : unknownFilm(id)), date: filmDates[id]?.slice(0, 10) ?? null };
+    })
+    .sort((x, y) => (y.date ?? "").localeCompare(x.date ?? "") || x.title.localeCompare(y.title));
+
+  // Episodes by series, each series' newest first.
+  const bySeries = new Map<number, WatchedEpisode[]>();
+  for (const key of a.watched) {
+    const [sid, season, episode] = key.split("-").map(Number);
+    if (!sid || Number.isNaN(season) || Number.isNaN(episode)) continue;
+    const list = bySeries.get(sid) ?? [];
+    list.push({ key, season, episode, date: epDates[key] ?? null, href: `/show/${sid}/season/${season}/episode/${episode}` });
+    bySeries.set(sid, list);
+  }
+  for (const list of bySeries.values()) list.sort((x, y) => (y.date ?? "").localeCompare(x.date ?? "") || y.season - x.season || y.episode - x.episode);
+  const lastSeen = (sid: number) => bySeries.get(sid)?.[0]?.date ?? "";
+
+  // Series: the latest thing that happened to each (an episode watched, or
+  // added to the library) first.
+  const latest = (sid: number) => {
+    const t = shows.get(sid);
+    const added = t?.added ?? t?.modified ?? "";
+    const seen = lastSeen(sid);
+    return seen > added ? seen : added;
+  };
+  const byLatest = (x: number, y: number) => latest(y).localeCompare(latest(x));
+  const showList = [...shows.keys()].sort(byLatest).map((sid): WatchedShow => {
+    const eps = bySeries.get(sid) ?? [];
+    return { ...showTitle(shows.get(sid)!.show), episodes: eps.length, yearEpisodes: eps.filter((e) => e.date?.startsWith(year)).length };
+  });
+
+  const episodes = [...bySeries.keys()]
+    .sort((x, y) => lastSeen(y).localeCompare(lastSeen(x)) || byLatest(x, y))
+    .map((sid): EpisodeGroup => {
+      const t = shows.get(sid);
+      if (!t) missing.shows.push(sid);
+      return { ...(t ? showTitle(t.show) : unknownShow(sid)), episodes: bySeries.get(sid)!.map((e) => ({ ...e, date: e.date?.slice(0, 10) ?? null })) };
+    });
+
+  return { films, shows: showList, episodes, year, dated: Object.keys(filmDates).length + Object.keys(epDates).length > 0, missing };
+}
+
+/**
+ * Names the films and series `watchedLists` only had ids for, from TMDB (one
+ * cached request a title). Only an owner's own library can have them — the
+ * public copy keeps nothing it has no record of — and rarely more than a
+ * few; past sixty they stay "Film" and "Series", still linked.
+ */
+export async function withMissingTitles(w: WatchedLists): Promise<WatchedLists> {
+  if (!w.missing.films.length && !w.missing.shows.length) return w;
+  const [films, shows] = await Promise.all([
+    Promise.all(w.missing.films.slice(0, 60).map((id) => movieDetail(id).then((d) => d && movieTitle(d.movie)))),
+    Promise.all(w.missing.shows.slice(0, 60).map((id) => showDetail(id).then((d) => d && showTitle(d.show)))),
+  ]);
+  const named = new Map([...films, ...shows].filter((t): t is ProfileTitle => !!t).map((t) => [t.key, t]));
+  const name = <T extends ProfileTitle>(t: T): T => (named.has(t.key) ? { ...t, ...named.get(t.key)! } : t);
+  return { ...w, films: w.films.map(name), episodes: w.episodes.map(name) };
 }

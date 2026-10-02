@@ -1,7 +1,7 @@
 import "server-only";
 import { accountsOpen } from "@/lib/accounts";
 import { isArchive, type LibraryArchive } from "@/lib/archive";
-import { profileFromArchive, withAiredEpisodes, withUpToDate, type LikedItem, type PublicProfileView, type ReviewEntry } from "@/lib/public-profile";
+import { profileFromArchive, watchedLists, withAiredEpisodes, withMissingTitles, withUpToDate, type LikedItem, type PublicProfileView, type ReviewEntry, type WatchedLists } from "@/lib/public-profile";
 import { avatarUrl, bannerUrl, PICTURE_COLUMNS } from "@/lib/pictures";
 import { createClient } from "@/lib/supabase/server";
 import { image } from "@/lib/tmdb";
@@ -59,16 +59,14 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   const social = { followers: followers.count ?? 0, following: following.count ?? 0, viewerFollow, liked, links: (p.links as string[] | null) ?? [] };
 
   if (user && user.id === p.user_id) {
-    const { data: row } = await supabase.from("libraries").select("archive").eq("user_id", user.id).maybeSingle();
-    const archive = row && isArchive(row.archive) ? row.archive : EMPTY;
+    const archive = await archiveFor(supabase, p.user_id, true);
     const view = profileFromArchive(archive, meta, true);
     return { ...pinFirst(await withAiredEpisodes(await withUpToDate(view, archive))), ...social, isPrivate: p.is_private, categoryPrivacy: (p.category_privacy as Record<string, boolean>) ?? {} };
   }
   // Everyone else: their public copy, drawn by the same code as the owner's
   // view. None for a private profile unless the viewer is an approved
   // follower (the page shows the private notice), or across a block.
-  const { data: pub } = await supabase.from("public_libraries").select("archive").eq("user_id", p.user_id).maybeSingle();
-  const archive = pub && isArchive(pub.archive) ? pub.archive : EMPTY;
+  const archive = await archiveFor(supabase, p.user_id, false);
   const drawn = profileFromArchive(archive, meta, false);
   const view = archive === EMPTY ? drawn : await withAiredEpisodes(await withUpToDate(drawn, archive));
   // What the owner has switched off (Settings → Privacy, and each category's
@@ -87,6 +85,53 @@ export async function realProfile(username: string): Promise<PublicProfileView |
 }
 
 type Client = Awaited<ReturnType<typeof createClient>>;
+
+/** The library a profile is drawn from: the owner's own, or for anyone else
+    the public copy (empty when the policy hides it from them). */
+async function archiveFor(supabase: Client, userID: string, own: boolean): Promise<LibraryArchive> {
+  const { data } = await supabase.from(own ? "libraries" : "public_libraries").select("archive").eq("user_id", userID).maybeSingle();
+  return data && isArchive(data.archive) ? data.archive : EMPTY;
+}
+
+/** What /u/<name>/movies, /shows and /episodes draw. */
+export interface WatchedPageData {
+  username: string;
+  displayName: string;
+  avatar: string | null;
+  owner: boolean;
+  /** Private, and the viewer isn't an approved follower: a notice only. */
+  isPrivate: boolean;
+  lists: WatchedLists;
+}
+
+/**
+ * Everything a member has watched, for the number tiles' pages: the same
+ * people get nothing (a 404) and the same library is read as for their
+ * profile, without the profile's TMDB asks or social counts.
+ */
+export async function loadWatched(username: string): Promise<WatchedPageData | null> {
+  if (!accountsOpen) return null;
+  const supabase = await createClient();
+  const { data: p } = await supabase.from("profiles").select(`user_id, display_name, ${PICTURE_COLUMNS}, is_private`).eq("username", username.toLowerCase()).maybeSingle();
+  if (!p?.username) return null;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const owner = !!user && user.id === p.user_id;
+  const [archive, follow] = await Promise.all([
+    archiveFor(supabase, p.user_id, owner),
+    user && !owner && p.is_private ? supabase.from("follows").select("status").eq("follower", user.id).eq("followee", p.user_id).maybeSingle() : Promise.resolve({ data: null }),
+  ]);
+  const lists = watchedLists(archive);
+  return {
+    username: p.username,
+    displayName: p.display_name || p.username,
+    avatar: avatarUrl(p),
+    owner,
+    isPrivate: !owner && p.is_private && follow.data?.status !== "accepted",
+    lists: owner ? await withMissingTitles(lists) : lists,
+  };
+}
 
 /** The reviews and lists a member has liked that the viewer may see, newest first. */
 async function likedBy(supabase: Client, userID: string): Promise<LikedItem[]> {

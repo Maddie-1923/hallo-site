@@ -76,19 +76,7 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
     return () => ro.disconnect();
   }, []);
 
-  if (closed)
-    return (
-      <section className={`${className} rounded-shell bg-card border border-hair p-2`}>
-        <div className="rounded-shell bg-piece p-6 grid justify-items-center gap-2 text-center">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim">
-            <rect x="5" y="11" width="14" height="9" rx="2" />
-            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-          </svg>
-          <div className="text-[1.0417rem] font-semibold text-ink">This profile is private</div>
-          <div className="text-[1.0417rem] text-dim max-w-[40ch]">Only people they let follow them can see their reviews, lists and what they watch.</div>
-        </div>
-      </section>
-    );
+  if (closed) return <PrivateNotice className={className} />;
 
   return (
     <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-2 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:grid-rows-[auto_1fr]" : ""}`}>
@@ -174,5 +162,22 @@ export function BackToTop() {
         <path d="M5 15l7-7 7 7" />
       </svg>
     </button>
+  );
+}
+
+/** What a visitor sees of a private profile they don't follow, in place of
+    its sections (and of the pages behind its numbers). */
+export function PrivateNotice({ className = "" }: { className?: string }) {
+  return (
+    <section className={`${className} rounded-shell bg-card border border-hair p-2`}>
+      <div className="rounded-shell bg-piece p-6 grid justify-items-center gap-2 text-center">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim">
+          <rect x="5" y="11" width="14" height="9" rx="2" />
+          <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </svg>
+        <div className="text-[1.0417rem] font-semibold text-ink">This profile is private</div>
+        <div className="text-[1.0417rem] text-dim max-w-[40ch]">Only people they let follow them can see their reviews, lists and what they watch.</div>
+      </div>
+    </section>
   );
 }
