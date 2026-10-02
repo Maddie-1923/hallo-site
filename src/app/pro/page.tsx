@@ -3,10 +3,8 @@ import Link from "next/link";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { HeadingPill } from "@/components/TitleParts";
-import { ProCheckout } from "@/components/ProCheckout";
-import { accountsOpen } from "@/lib/accounts";
+import { ProInApp } from "@/components/ProCheckout";
 import { signedInSubscription } from "@/lib/entitlement";
-import { checkoutReady } from "@/lib/stripe";
 
 export const metadata: Metadata = {
   title: "Kodigo Pro — Kodigo",
@@ -16,9 +14,7 @@ export const metadata: Metadata = {
 // Kodigo Pro, for someone who finds the website before the app: the price,
 // what Pro adds, what stays free, and the questions people ask. One
 // subscription covers the app and the website (see the plan's "Free and
-// Pro"). The web sells it through Stripe in US dollars, charged at checkout;
-// the free trial is the app's, Apple's 7-day introductory offer (ProCheckout). Until Stripe's keys are set and
-// accounts are open, the button says so and nothing can charge.
+// Pro"). It's sold in the apps, and the website points there (ProInApp).
 const SHELL = "rounded-shell bg-card p-2 border-[0.5px] border-t-[color:var(--lit-edge)] border-x-piece border-b-well shadow-[0_4px_9px_rgba(0,0,0,.35)]";
 
 const adds: [string, string][] = [
@@ -41,15 +37,16 @@ const table: [string, boolean, boolean, boolean][] = [
 ];
 
 const faq: [string, string][] = [
-  ["How does the free trial work?", "New subscribers in the app get 7 days free through the App Store. After that the plan you picked renews automatically, unless you cancel at least 24 hours before the trial ends. Subscribing on the website starts Pro straight away."],
+  ["How does the free trial work?", "New subscribers on iPhone get 7 days free through the App Store. After that the plan you picked renews automatically, unless you cancel at least 24 hours before the trial ends."],
   ["Is the website free to use?", "Reading is free for everyone: title pages, profiles, reviews and lists. A free account lets you rate, review and follow. Tracking is Pro."],
-  ["Can I cancel?", "Any time. Subscribed on the website, use Manage subscription in Settings; in the app, your Apple Account's subscriptions. Pro lasts to the end of the period you paid for."],
-  ["What currency is it in?", "The website charges in US dollars; your bank converts it if your card is in another currency. The App Store shows its price in your own currency."],
+  ["Can I subscribe on the website?", "Not yet. Pro is sold in the app, through the App Store or Google Play. Sign in to the app with your Kodigo account and Pro works on the website too."],
+  ["Can I cancel?", "Any time, in your Apple Account or Google Play subscriptions. Pro lasts to the end of the period you paid for."],
+  ["What currency is it in?", "Your own. The App Store and Google Play show the price in your local currency."],
   ["What happens to my library if I stop?", "It stays on your phone. Nothing is deleted, and backup and export keep working whether or not you subscribe."],
 ];
 
 export default async function ProPage() {
-  const { signedIn, subscription } = await signedInSubscription();
+  const { subscription } = await signedInSubscription();
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
@@ -64,7 +61,7 @@ export default async function ProPage() {
                   The tracker, on your phone and on the web. Everything you&apos;re watching, what&apos;s next, and when it lands, with one subscription for both.
                 </p>
               </div>
-              <ProCheckout ready={checkoutReady && accountsOpen} signedIn={signedIn} subscription={subscription} />
+              <ProInApp subscription={subscription} />
             </div>
           </div>
 

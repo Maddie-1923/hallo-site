@@ -9,10 +9,11 @@ export const metadata: Metadata = {
 };
 
 // The terms of use, in the privacy policy's plain voice. Decided 29 Sep 2026:
-// Philippine law, accounts from 13, web subscriptions in US dollars with no
-// refunds for part-used periods (cancel any time). Before real payments, put
-// the legal name of whoever runs Kodigo in "Who we are" (Stripe asks for the
-// same name) and have someone qualified read it over.
+// Philippine law, accounts from 13. Since 2 Oct 2026 Pro is sold only in the
+// apps (Stripe doesn't take sellers in the Philippines), so Apple and Google
+// bill, cancel and refund it. If web checkout comes back, restore a "Bought
+// on the website" paragraph. Before launch, put the legal name of whoever runs
+// Kodigo in "Who we are" and have someone qualified read it over.
 export default function Terms() {
   return (
     <div className="min-h-screen flex flex-col">
@@ -64,36 +65,20 @@ export default function Terms() {
         <h2>Kodigo Pro</h2>
         <p>
           Kodigo Pro is a subscription that unlocks tracking on your phone and on the website. It costs
-          $1.99 a month or $15.99 a year. One subscription covers both, whichever one you buy it on.
+          $1.99 a month or $15.99 a year (the store shows the price in your currency), and is bought in the app,
+          through the App Store or Google Play. Signed in with the same Kodigo account, it covers the
+          website too.
         </p>
         <p>
-          <strong>Bought on the website.</strong> Prices are in US dollars. Your bank converts them if your
-          card is in another currency, and may charge a fee for doing so. You pay when you subscribe; there&apos;s
-          no free trial on the website. The subscription then renews automatically, and your card is
-          charged at the start of each month or year, until you cancel. Payments are handled by Stripe,
-          and Kodigo never sees or stores your card details.
+          <strong>Billing and cancelling.</strong> Subscriptions, including the free trial in the app, are
+          sold and billed by Apple or Google under their own terms. Cancel any time in your Apple Account
+          or Google Play subscriptions: that stops the next renewal, and you keep Pro until the end of the
+          period you&apos;ve paid for. Refunds are asked for there too; Kodigo can&apos;t cancel or refund a
+          subscription for you. If a payment can&apos;t be taken, Pro ends.
         </p>
         <p>
-          <strong>Cancelling.</strong> Cancel any time in <strong>Settings → Account → Subscription → Manage</strong>.
-          Cancelling stops the next renewal, and you keep Pro until the end of the period you&apos;ve
-          already paid for. We don&apos;t refund part-used months or years, except where the law requires
-          it. If a payment fails, we&apos;ll try again for a short while; if it still can&apos;t be
-          taken, Pro ends.
-        </p>
-        <p>
-          <strong>Bought in the app.</strong> Subscriptions bought through the App Store or Google Play,
-          including the free trial in the app, are sold and billed by Apple or Google under their own
-          terms. Cancel them and ask for refunds in your Apple Account or Google Play subscriptions; Kodigo
-          can&apos;t cancel or refund them for you.
-        </p>
-        <p>
-          <strong>Price changes.</strong> If the price goes up, we&apos;ll tell you by email at least 30
-          days before it applies. The new price starts at your next renewal after that, and you can cancel
-          before then.
-        </p>
-        <p>
-          If we ever stop offering Kodigo Pro for good, we&apos;ll refund the unused part of any
-          subscription you paid for on the website.
+          <strong>Price changes.</strong> If the price goes up, Apple or Google will tell you before it
+          applies, as their terms require, and you can cancel before then.
         </p>
 
         <h2>What you post</h2>
@@ -176,8 +161,7 @@ export default function Terms() {
         <h2>Ending</h2>
         <p>
           You can stop using Kodigo and delete your account at any time. We can suspend or close an account
-          that seriously or repeatedly breaks these terms. If we close an account with a paid website
-          subscription for a reason other than breaking these terms, we&apos;ll refund the unused part.
+          that seriously or repeatedly breaks these terms.
         </p>
 
         <h2>Changes to these terms</h2>
@@ -199,7 +183,7 @@ export default function Terms() {
           Questions about these terms: <strong>hello@kodigo.pro</strong>
         </p>
         <p className="text-dim">
-          <em>Last updated: 29 September 2026</em>
+          <em>Last updated: 2 October 2026</em>
         </p>
       </main>
       <SiteFooter />

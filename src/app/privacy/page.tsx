@@ -9,7 +9,8 @@ export const metadata: Metadata = {
 };
 
 // The privacy policy for the app and the website, rewritten 29 Sep 2026 for
-// the social site: public profiles, web accounts, Kodigo Pro through Stripe.
+// the social site: public profiles, web accounts, Kodigo Pro (sold in the
+// apps since 2 Oct 2026; RevenueCat tells the website).
 // Two sections wait for things that aren't live, so the page never describes
 // something that isn't happening. Turn each on, and change the date at the
 // bottom, in the same deploy that ships it:
@@ -119,15 +120,10 @@ export default function Privacy() {
 
         <h2>Kodigo Pro and payments</h2>
         <p>
-          If you subscribe on the website, <strong>Stripe</strong> takes the payment. You enter your card on
-          Stripe&apos;s page, and Stripe keeps it; Kodigo never sees or stores your card number. Stripe tells
-          us your plan, whether it&apos;s active, when it renews, and a customer reference so you can manage
-          it. Stripe&apos;s own privacy policy covers what it keeps, which includes what the law requires for
-          payments and fraud prevention.
-        </p>
-        <p>
-          If you subscribe in the app, Apple or Google take the payment, and we&apos;re told only that your
-          subscription is active and when it renews.
+          Kodigo Pro is bought in the app, and Apple or Google take the payment. Kodigo never sees your card.
+          We&apos;re told, through <strong>RevenueCat</strong>, the service that checks subscriptions for us,
+          which plan you have, whether it&apos;s active and when it renews, so Pro works in the app and on the
+          website when you&apos;re signed in.
         </p>
 
         <h2>Emails</h2>
@@ -204,7 +200,7 @@ export default function Privacy() {
             <strong>YouTube</strong> plays trailers. Its preview pictures load from YouTube, and a trailer only
             starts playing, from YouTube&apos;s privacy-enhanced player, when you press it.
           </li>
-          <li><strong>Stripe</strong>, <strong>Apple</strong> and <strong>Google</strong> handle subscriptions, as above.</li>
+          <li><strong>Apple</strong>, <strong>Google</strong> and <strong>RevenueCat</strong> handle subscriptions, as above.</li>
           <li><strong>Apple</strong> and <strong>Google</strong> handle signing in with them, if you use it.</li>
           {ADS && <li><strong>Google AdSense</strong> shows ads on the website, as above.</li>}
           {CRASH_REPORTS && <li><strong>Sentry</strong> receives crash reports, as above.</li>}
@@ -226,7 +222,7 @@ export default function Privacy() {
           We keep your account and library until you delete them. When you delete your account, everything
           attached to it goes: your library, profile, reviews, lists, comments, likes and follows. Copies in
           our backups are gone within 30 days. What the law requires us to keep for payments, such as a record
-          of the charge, stays with Stripe for as long as the law says.
+          of the charge, stays with Apple or Google for as long as the law says.
         </p>
 
         <h2>Your choices and rights</h2>
