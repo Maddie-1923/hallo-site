@@ -28,7 +28,9 @@ export async function POST(req: Request) {
   const key = process.env.REVENUECAT_SECRET_KEY;
   const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!auth || !key || !serviceKey) return new NextResponse("Not configured.", { status: 503 });
-  if (req.headers.get("authorization") !== auth) return new NextResponse("Unauthorized.", { status: 401 });
+  // The header as set in RevenueCat, with or without a "Bearer " in front.
+  const sent = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
+  if (sent !== auth.replace(/^Bearer\s+/i, "").trim()) return new NextResponse("Unauthorized.", { status: 401 });
 
   const body = (await req.json().catch(() => null)) as { event?: { app_user_id?: string; original_app_user_id?: string; aliases?: string[]; transferred_from?: string[]; transferred_to?: string[] } } | null;
   const e = body?.event;
