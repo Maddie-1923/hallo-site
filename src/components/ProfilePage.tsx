@@ -252,54 +252,31 @@ function PeopleCounts({ v }: { v: PublicProfileView }) {
 function NumberTiles({ v }: { v: PublicProfileView }) {
   const s = v.stats;
   const n = (x: number) => x.toLocaleString("en");
-  const cols: [string, string, number, number | undefined][] = [
+  const tiles: [string, string, number, number | undefined][] = [
     ["Movies", "movies", s.films, s.year?.films],
     ["Shows", "shows", s.shows, s.year?.shows],
     ["Episodes", "episodes", s.episodes, s.year?.episodes],
   ];
-  const dated = s.year != null;
-  // Every column has the same rows, so the hairlines between them run
-  // straight across the box: the heading, this year, all time.
-  const rows = dated ? "grid-rows-[auto_1fr_1fr]" : "grid-rows-[auto_1fr]";
-  const cell = "flex items-center justify-center px-2";
-  const label = "text-[0.75rem] leading-none font-bold tracking-[.1em] uppercase whitespace-nowrap";
   return (
-    // A small table, as tall as the person's card beside it: the three
-    // counts across, this year's over all time's, hairlines between the
-    // rows. Each column opens the page listing what it counts. The social
-    // counts are under the photo (PeopleCounts).
-    <div className="flex-1 flex min-w-0 py-1">
-      {dated && (
-        <div className={`grid ${rows} divide-y divide-hair`}>
-          <div className={`${cell} justify-start py-2`} aria-hidden>
-            <span className={`${label} invisible`}>Movies</span>
-          </div>
-          <div className={`${cell} justify-start`}>
-            <span className={`${label} text-dim`}>This year</span>
-          </div>
-          <div className={`${cell} justify-start`}>
-            <span className={`${label} text-dim`}>All time</span>
-          </div>
-        </div>
-      )}
-      {cols.map(([name, page, all, year]) => (
-        <Link key={name} href={`/u/${v.username}/${page}`} className={`group flex-1 min-w-0 grid ${rows} divide-y divide-hair no-underline text-ink`}>
-          <div className={`${cell} py-2`}>
-            <span className={`${label} text-ink group-hover:text-accent transition-colors`}>{name}</span>
-          </div>
-          {dated && (
-            <div className={cell}>
-              <span className="display text-[2.1667rem] leading-none text-accent pt-[2px]">{n(year ?? 0)}</span>
-            </div>
-          )}
-          <div className={cell}>
-            <span className={`display leading-none pt-[2px] ${dated ? "text-[1.8333rem] text-ink" : "text-[2.3333rem] text-accent"}`}>{n(all)}</span>
-          </div>
+    // Three tiles, as tall as the person's card beside it, each opening the
+    // page that lists what it counts: this year's number big, the all-time
+    // one in small under the name (just the total, big, when the library has
+    // no dates to tell the year by). The social counts are under the photo
+    // (PeopleCounts).
+    <div className="flex-1 grid grid-cols-3 gap-1.5">
+      {tiles.map(([label, page, all, year]) => (
+        <Link key={label} href={`/u/${v.username}/${page}`} className={TILE}>
+          {/* 2px more above than below: Bebas keeps room under its figures. */}
+          <span className="display text-[2.8333rem] leading-none text-accent pt-[2px]">{n(year ?? all)}</span>
+          <span className="mt-1 text-[0.875rem] leading-none font-bold tracking-[.08em] uppercase text-ink whitespace-nowrap">{label}</span>
+          {year !== undefined && <span className="mt-1.5 text-[0.875rem] leading-none text-dim whitespace-nowrap">{n(all)} all time</span>}
         </Link>
       ))}
     </div>
   );
 }
+
+const TILE = "min-w-0 rounded-shell bg-card-hi border border-hair hover:border-accent transition-colors no-underline text-ink py-2 px-1 text-center flex flex-col items-center justify-center";
 
 function RatingsSpread({ values }: { values: number[] }) {
   const buckets = Array.from({ length: 10 }, (_, i) => values.filter((x) => Math.ceil(x) === i + 1).length);
