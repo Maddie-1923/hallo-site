@@ -1,5 +1,6 @@
 import "server-only";
 import { readFile } from "node:fs/promises";
+import { readPicture } from "@/lib/picture-store";
 import { join } from "node:path";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import type { ProfileTitle, PublicProfileView } from "@/lib/public-profile";
@@ -50,6 +51,13 @@ export function originFrom(h: Headers, fallback?: string) {
 /** A picture as a data address, or null when it can't be had in time. */
 async function picture(url: string | null | undefined, origin: string): Promise<string | null> {
   if (!url) return null;
+  // A member's own photo or banner is read from their library rather than
+  // fetched from this site, whose own address a protected preview turns away.
+  const own = url.match(/^\/api\/pictures\/([^/?]+)\/(avatar|banner)(?:\?|$)/);
+  if (own) {
+    const pic = await readPicture(decodeURIComponent(own[1]), own[2] as "avatar" | "banner").catch(() => null);
+    return pic ? `data:image/jpeg;base64,${pic.bytes.toString("base64")}` : null;
+  }
   try {
     const abs = new URL(url, origin).href;
     const res = await fetch(abs, { signal: AbortSignal.timeout(8000), next: { revalidate: 3600 } });
@@ -61,6 +69,14 @@ async function picture(url: string | null | undefined, origin: string): Promise<
   } catch {
     return null;
   }
+}
+
+/** The quote's size: the whole of it always fits (it's at most 210
+    characters), smaller as it gets longer. */
+function fit(text: string, ...steps: [...[number, number][], number]): number {
+  const last = steps[steps.length - 1] as number;
+  for (const step of steps.slice(0, -1) as [number, number][]) if (text.length <= step[0]) return step[1];
+  return last;
 }
 
 /** A TMDB poster at a smaller size than the page asks for. */
@@ -106,7 +122,8 @@ export async function shareData(v: PublicProfileView, origin: string, shape: "wi
     name: v.displayName,
     named: !!v.displayName && v.displayName !== v.username,
     location: v.location?.trim() || null,
-    quote: v.bio?.replace(/\s*\n\s*/g, " ").trim() || null,
+    // Marks the card adds itself, so any typed round the quote go.
+    quote: v.bio?.replace(/\s*\n\s*/g, " ").trim().replace(/^["“”'‘’]+|["“”'‘’]+$/g, "").trim() || null,
     photo,
     banner,
     isPrivate: priv,
@@ -286,7 +303,7 @@ export function WideCard({ d }: { d: ShareData }): ReactElement {
               <span style={{ fontSize: 40, fontWeight: 600, lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>@{d.username}</span>
             )}
             {d.location && <span style={{ fontSize: 22, color: DIM, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.location}</span>}
-            {d.quote && <div style={{ display: "block", marginTop: 14, fontSize: 22, lineHeight: 1.4, color: INK, lineClamp: 3 }}>{`“${d.quote}”`}</div>}
+            {d.quote && <div style={{ display: "block", marginTop: 14, fontSize: fit(d.quote, [80, 22], [140, 19], 16), lineHeight: 1.35, color: INK }}>{`“${d.quote}”`}</div>}
           </Box>
           <Tiles d={d} k={1} />
         </div>
@@ -343,7 +360,7 @@ export function StoryCard({ d }: { d: ShareData }): ReactElement {
           <div style={{ display: "flex", flexDirection: "column", flex: 1, width: "100%", gap: 20, marginTop: 20, minHeight: 0 }}>
             {d.quote && (
               <div style={{ display: "flex", justifyContent: "center", flexShrink: 0, padding: "0 24px" }}>
-                <div style={{ display: "block", fontSize: 30, lineHeight: 1.35, textAlign: "center", lineClamp: 2 }}>{`“${d.quote}”`}</div>
+                <div style={{ display: "block", fontSize: fit(d.quote, [90, 34], [150, 30], 26), lineHeight: 1.35, textAlign: "center" }}>{`“${d.quote}”`}</div>
               </div>
             )}
             <Box style={{ flexShrink: 0, justifyContent: "space-around", padding: "16px 12px" }}>

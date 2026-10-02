@@ -29,7 +29,8 @@ export function ProfileAbout({ location, quote, links = [], owner, username }: {
     } catch {}
   }, [owner, key]);
   const place = (mine ? mine.location : location) || "";
-  const line = (mine ? mine.quote : quote) || "";
+  // The card adds the quotation marks, so any typed round it go.
+  const line = ((mine ? mine.quote : quote) || "").trim().replace(/^["“”'‘’]+|["“”'‘’]+$/g, "").trim();
   const shownLinks = mine?.links ?? links;
   function save(next: { location: string; quote: string; links: string[] }) {
     setMine(next);

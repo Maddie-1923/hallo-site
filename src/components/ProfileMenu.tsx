@@ -1,6 +1,7 @@
 "use client";
 
 import { EDIT_ABOUT } from "./ProfileAbout";
+import { ShareSheet } from "./ShareProfile";
 import { useState } from "react";
 import { Menu } from "./Menu";
 import { HANDLE, LINE } from "./FollowPill";
@@ -15,7 +16,7 @@ export function ProfileMenu({ username, owner }: { username: string; owner: bool
   const [said, setSaid] = useState<string | null>(null);
   const others = useViewAsOthers();
   const blocked = useBlocked(username);
-  const [sheet, setSheet] = useState<"report" | "block" | null>(null);
+  const [sheet, setSheet] = useState<"report" | "block" | "share" | null>(null);
   function say(text: string) {
     setSaid(text);
     setTimeout(() => setSaid(null), 2400);
@@ -52,14 +53,13 @@ export function ProfileMenu({ username, owner }: { username: string; owner: bool
             </svg>
             Copy profile link
           </button>
-          {/* The profile as a 1080 × 1920 picture for a story
-              (app/u/[username]/story), for owner and visitors alike. */}
-          <a href={`/u/${username}/story?download=1`} download={`kodigo-${username}.png`} data-menu-close className={`${item} no-underline`}>
+          {/* The profile's story card and address (ShareProfile), for anyone. */}
+          <button type="button" data-menu-close onClick={() => setSheet("share")} className={item}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim">
-              <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
+              <path d="M12 15V4M7 9l5-5 5 5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5" />
             </svg>
-            Download story image
-          </a>
+            Share profile
+          </button>
           {owner && (
             // The card's location, quote and links, edited in place.
             <button type="button" data-menu-close onClick={() => window.dispatchEvent(new Event(EDIT_ABOUT))} className={item}>
@@ -96,6 +96,7 @@ export function ProfileMenu({ username, owner }: { username: string; owner: bool
       </Menu>
       {sheet === "report" && <ReportSheet what={{ kind: "profile", target: username, author: username, href: `/u/${username}`, excerpt: "" }} onClose={() => setSheet(null)} />}
       {sheet === "block" && <BlockSheet username={username} onClose={() => setSheet(null)} />}
+      {sheet === "share" && <ShareSheet username={username} onClose={() => setSheet(null)} say={say} />}
       {said && (
         <span role="status" className="absolute right-0 top-[calc(100%+8px)] z-50 whitespace-nowrap rounded-full bg-card-hi border border-hair px-3 py-1 text-[1rem] text-ink shadow-lg">
           {said}
