@@ -222,14 +222,16 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 // Under the photo, in the space the card leaves beside it: a small box with
 // the follower and following counts, each opening the list of people.
 function PeopleCounts({ v }: { v: PublicProfileView }) {
-  const line = "block w-full text-left px-2.5 py-0.5 text-[0.9167rem] leading-[1.35] text-dim hover:text-ink cursor-pointer";
+  const line = "block w-full text-left px-3 py-0.5 text-[0.9167rem] leading-[1.35] text-dim hover:text-ink hover:font-semibold cursor-pointer";
   const n = (x: number) => <b className="font-semibold text-ink">{x.toLocaleString("en")}</b>;
   return (
-    <div className="absolute rounded-[10px] bg-card border border-hair py-1.5 ![font-family:var(--font-body)]" style={{ left: AVATAR_LEFT, width: AVATAR, top: `calc(${AVATAR} * 0.5 + 0.5rem)` }}>
-      <FollowList kind="followers" owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={line}>
+    // From the column's left edge (the banner's and Favourites') to the card,
+    // and from under the photo down to the card's foot.
+    <div className="absolute left-0 bottom-0 rounded-shell bg-card border border-hair flex flex-col justify-center py-1.5 ![font-family:var(--font-body)]" style={{ width: "calc(var(--card-in) - 0.5rem)", top: `calc(${AVATAR} * 0.5 + 0.5rem)` }}>
+      <FollowList kind="followers" owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={line} plain>
         {n(v.followers)} {v.followers === 1 ? "follower" : "followers"}
       </FollowList>
-      <FollowList kind="following" owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={line}>
+      <FollowList kind="following" owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={line} plain>
         {n(v.following)} following
       </FollowList>
     </div>
@@ -258,7 +260,7 @@ function NumberTiles({ v }: { v: PublicProfileView }) {
   );
 }
 
-const TILE = "min-w-0 rounded-shell bg-card-hi pt-2 pb-1.5 px-1 text-center flex flex-col items-center justify-center";
+const TILE = "min-w-0 rounded-shell bg-card-hi border border-hair pt-2 pb-1.5 px-1 text-center flex flex-col items-center justify-center";
 
 function Tile({ label, value }: { label: string; value: string | number }) {
   return (
@@ -316,7 +318,7 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 // to set, and only there when set); on the right, Follow.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
-    <div className="relative flex self-stretch [--avatar:10.6667rem] max-sm:[--avatar:7.5rem] [--card-in:calc(2.3333rem+var(--avatar)+1rem)]">
+    <div className="relative flex self-stretch [--avatar:10.6667rem] max-sm:[--avatar:7.5rem] [--card-in:calc(2.3333rem+var(--avatar)+0.5rem)]">
       {/* The photo, as the app draws it: a circle in a ring of the page's own
           colour, crossing the banner's bottom edge so the ring reads as the
           banner being interrupted by the person in front of it. Anchored to
@@ -336,10 +338,9 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
       <PeopleCounts v={v} />
       <div
         // The card starts past the photo, so the photo stands on its own
-        // hanging from the banner with no shell under it; on a wide screen
-        // its right edge is level with the tab bar's (--tabs-w, set by the
-        // bar).
-        className="flex-1 lg:flex-none lg:w-[calc(var(--tabs-w,100%)-var(--card-in))] rounded-shell bg-card border border-hair px-4 py-3 min-w-0"
+        // hanging from the banner with no shell under it, and runs to the
+        // numbers beside it.
+        className="flex-1 rounded-shell bg-card border border-hair px-4 py-3 min-w-0"
         // At least as tall as the photo's lower half and the people box
         // under it, so neither drops below the card's foot.
         style={{ marginLeft: "var(--card-in)", minHeight: `calc(${AVATAR} * 0.5 + 4.75rem)` }}

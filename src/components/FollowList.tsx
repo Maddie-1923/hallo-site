@@ -16,7 +16,7 @@ export interface FollowPerson {
 // (they aren't told, and can follow again unless you block them). Blocked
 // people never show. The people come from the account when the list opens, and the owner's Followers also has their requests to
 // accept or decline; Remove takes a follower off for real.
-export function FollowList({ kind, owner, username, className, children }: { kind: "followers" | "following"; owner: boolean; username?: string; className: string; children: React.ReactNode }) {
+export function FollowList({ kind, owner, username, className, plain = false, children }: { kind: "followers" | "following"; owner: boolean; username?: string; className: string; /** No ring on hover; the className says how it answers. */ plain?: boolean; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [live, setLive] = useState<{ people: FollowPerson[]; requests: FollowPerson[] } | null>(null);
   const [gone, setGone] = useState<string[]>([]);
@@ -43,7 +43,7 @@ export function FollowList({ kind, owner, username, className, children }: { kin
   const title = kind === "followers" ? "Followers" : "Following";
   return (
     <>
-      <button type="button" onClick={openList} aria-label={`See ${title.toLowerCase()}`} className={`${className} cursor-pointer hover:ring-1 hover:ring-inset hover:ring-hair`}>
+      <button type="button" onClick={openList} aria-label={`See ${title.toLowerCase()}`} className={`${className} cursor-pointer ${plain ? "" : "hover:ring-1 hover:ring-inset hover:ring-hair"}`}>
         {children}
       </button>
       {open &&
