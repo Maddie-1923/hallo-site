@@ -3,7 +3,6 @@ import type { LikedItem, ProfileTitle, PublicProfileView } from "@/lib/public-pr
 import { nightTokens } from "@/lib/theme";
 import { FollowPill } from "./FollowPill";
 import { FollowList } from "./FollowList";
-import { WatchingNow } from "./WatchingNow";
 import { ViewingAsOthers } from "./ViewingAsOthers";
 import { ProfileCategories } from "./ProfileCategories";
 import { ProfileAbout } from "./ProfileAbout";
@@ -53,8 +52,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
 
       {/* On top, the person's card beside the numbers. Under them, their
           Favourites in a narrow column on the left and the tabbed sections
-          (Reviews, Watching, Activity, Watchlog, Watchlist, Categories,
-          Stats) on the wider right (ProfileSections lays the two out). On a
+          (Reviews, Activity, Watchlog, Watchlist, Categories, Stats) on the wider right (ProfileSections lays the two out). On a
           phone it all stacks: card, numbers, Favourites, then the sections. */}
       <div className="grid gap-2 mt-3 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
         <ProfileCard v={v} />
@@ -67,7 +65,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             hiddenSections={v.owner ? [] : (v.hiddenSections ?? [])}
             className="lg:col-span-2"
             // Left of the sections, their favourites (a tracker is the owner's
-            // own to-do, and Watching already says what they're partway into).
+            // own to-do).
             aside={<FavouriteCard v={v} />}
             sections={[
               {
@@ -86,15 +84,9 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                   ),
               },
               {
-                id: "watching",
-                label: "Watching",
-                count: v.watching?.length ?? 0,
-                content: v.watching?.length ? <WatchingNow shows={v.watching} /> : <Empty>Not in the middle of any series.</Empty>,
-              },
-              {
                 // What they watched and reviewed lately, then the reviews and
                 // lists they've liked (its own tab until 30 Sep, folded in to
-                // keep the tabs to seven).
+                // keep the tabs few).
                 id: "activity",
                 label: "Activity",
                 content: (
