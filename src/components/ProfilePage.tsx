@@ -51,17 +51,11 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
       <ViewingAsOthers />
       <Banner v={v} art={bannerArt} />
 
-      {/* Two columns on one grid, so their edges line up down the page. On
-          top, the person's card beside the numbers. Under them, the wider
-          left holds the tabbed sections (Reviews, Watching, Activity, Watchlog,
-          Categories, Stats), and the narrower right the Tracker, level with
-          the sections' shell rather than their tabs (ProfileSections lays the
-          two out on the same column widths). The Tracker is as tall as the
-          sections' shell, so both end on one line; its list scrolls inside. On a phone it all stacks: card, numbers, Tracker, then the
-          sections.
-
-          Favourites is parked while this layout is tried; it comes back
-          somewhere else (FavouriteCard below is kept for that). */}
+      {/* On top, the person's card beside the numbers. Under them, their
+          Favourites in a narrow column on the left and the tabbed sections
+          (Reviews, Watching, Activity, Watchlog, Watchlist, Categories,
+          Stats) on the wider right (ProfileSections lays the two out). On a
+          phone it all stacks: card, numbers, Favourites, then the sections. */}
       <div className="grid gap-2 mt-3 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
         <ProfileCard v={v} />
         <div className="rounded-shell bg-card border border-hair p-2 flex self-stretch">
@@ -72,7 +66,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             privateProfile={!!v.isPrivate && !v.owner}
             hiddenSections={v.owner ? [] : (v.hiddenSections ?? [])}
             className="lg:col-span-2"
-            // Beside the sections, their favourites (a tracker is the owner's
+            // Left of the sections, their favourites (a tracker is the owner's
             // own to-do, and Watching already says what they're partway into).
             aside={<FavouriteCard v={v} />}
             sections={[

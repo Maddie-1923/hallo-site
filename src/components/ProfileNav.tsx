@@ -18,12 +18,10 @@ export interface ProfileSection {
 // swaps it in place, with no new page and no jump down the page. The choice
 // is written into the address (…/u/name#diary) without scrolling, so a
 // reload or a shared link opens on the same tab.
-// `aside`, when given, stands beside the section's shell on a wide screen,
-// its top level with the shell's rather than with the tabs, on the same
-// column widths as the profile's grid above so the edges line up, and as
-// tall as the shell, so the two end on the same line whichever tab is open
-// (its own list scrolls inside; a short tab still leaves it room for a few
-// rows). On a phone it comes before the tabs, at a fixed height.
+// `aside`, when given, is a narrow column on the left of a wide screen (the
+// profile's Favourites), its top level with the tab bar and only as tall as
+// it needs; the tabs and their shell take the wider right. On a phone it
+// comes before the tabs.
 // `flat`: inside a card already (a title's credits in its bento), so the
 // tab bar sits on the card's panel colour, and the sections share one inner
 // shell under it that fills what height is left and scrolls inside.
@@ -93,11 +91,12 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
     );
 
   return (
-    <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-2 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : ""}`}>
+    <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-2 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" : ""}`}>
       {aside && (
-        <div className="lg:col-start-2 lg:row-start-2 max-lg:h-[53.3333rem] lg:min-h-[40rem] flex flex-col">{aside}</div>
+        // On the left, from the tab bar's line down, as tall as it needs.
+        <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:self-start flex flex-col">{aside}</div>
       )}
-      <div className="lg:col-start-1 lg:row-start-1 min-w-0">
+      <div className="lg:col-start-2 lg:row-start-1 min-w-0">
       <div
         ref={bar}
         role="tablist"
@@ -139,7 +138,7 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
         role="tabpanel"
         id={`panel-${shown.id}`}
         aria-labelledby={`tab-${shown.id}`}
-        className={`${aside || flat ? "" : "mt-2"} min-w-0 lg:col-start-1 lg:row-start-2 ${flat ? "flex-1 min-h-0 overflow-y-auto soft-scroll [scrollbar-gutter:stable] rounded-shell bg-piece p-3 pr-[1px]" : shown.bare ? "" : "min-h-[20rem] rounded-shell bg-card border border-hair p-2"}`}
+        className={`${aside || flat ? "" : "mt-2"} min-w-0 ${aside ? "lg:col-start-2" : "lg:col-start-1"} lg:row-start-2 ${flat ? "flex-1 min-h-0 overflow-y-auto soft-scroll [scrollbar-gutter:stable] rounded-shell bg-piece p-3 pr-[1px]" : shown.bare ? "" : "min-h-[20rem] rounded-shell bg-card border border-hair p-2"}`}
       >
         {shown.content}
       </div>
