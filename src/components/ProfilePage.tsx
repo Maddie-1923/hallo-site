@@ -251,49 +251,53 @@ function PeopleCounts({ v }: { v: PublicProfileView }) {
 
 function NumberTiles({ v }: { v: PublicProfileView }) {
   const s = v.stats;
-  const tiles: [string, string, number, number | undefined][] = [
+  const n = (x: number) => x.toLocaleString("en");
+  const cols: [string, string, number, number | undefined][] = [
     ["Movies", "movies", s.films, s.year?.films],
     ["Shows", "shows", s.shows, s.year?.shows],
     ["Episodes", "episodes", s.episodes, s.year?.episodes],
   ];
+  const dated = s.year != null;
+  // Every column has the same rows, so the hairlines between them run
+  // straight across the box: the heading, this year, all time.
+  const rows = dated ? "grid-rows-[auto_1fr_1fr]" : "grid-rows-[auto_1fr]";
+  const cell = "flex items-center justify-center px-2";
+  const label = "text-[0.75rem] leading-none font-bold tracking-[.1em] uppercase whitespace-nowrap";
   return (
-    // One row of three, as tall as the person's card beside it, each opening
-    // the page that lists what it counts. The social counts are under the
-    // photo (PeopleCounts).
-    <div className="flex-1 grid grid-cols-3 gap-1.5">
-      {tiles.map(([label, page, all, year]) => (
-        <Link key={label} href={`/u/${v.username}/${page}`} className={TILE}>
-          <Tile label={label} all={all} year={year} />
+    // A small table, as tall as the person's card beside it: the three
+    // counts across, this year's over all time's, hairlines between the
+    // rows. Each column opens the page listing what it counts. The social
+    // counts are under the photo (PeopleCounts).
+    <div className="flex-1 flex min-w-0 py-1">
+      {dated && (
+        <div className={`grid ${rows} divide-y divide-hair`}>
+          <div className={`${cell} justify-start py-2`} aria-hidden>
+            <span className={`${label} invisible`}>Movies</span>
+          </div>
+          <div className={`${cell} justify-start`}>
+            <span className={`${label} text-dim`}>This year</span>
+          </div>
+          <div className={`${cell} justify-start`}>
+            <span className={`${label} text-dim`}>All time</span>
+          </div>
+        </div>
+      )}
+      {cols.map(([name, page, all, year]) => (
+        <Link key={name} href={`/u/${v.username}/${page}`} className={`group flex-1 min-w-0 grid ${rows} divide-y divide-hair no-underline text-ink`}>
+          <div className={`${cell} py-2`}>
+            <span className={`${label} text-ink group-hover:text-accent transition-colors`}>{name}</span>
+          </div>
+          {dated && (
+            <div className={cell}>
+              <span className="display text-[2.1667rem] leading-none text-accent pt-[2px]">{n(year ?? 0)}</span>
+            </div>
+          )}
+          <div className={cell}>
+            <span className={`display leading-none pt-[2px] ${dated ? "text-[1.8333rem] text-ink" : "text-[2.3333rem] text-accent"}`}>{n(all)}</span>
+          </div>
         </Link>
       ))}
     </div>
-  );
-}
-
-const TILE = "min-w-0 rounded-shell bg-card-hi border border-hair hover:border-accent transition-colors no-underline text-ink pt-2 pb-1.5 px-1 text-center flex flex-col items-center justify-center";
-const SMALL = "text-[0.75rem] leading-none font-bold tracking-[.08em] uppercase text-dim whitespace-nowrap";
-
-// This year's count over the all-time one when the library has dates to
-// tell; just the total when it hasn't. 2px more above than below: Bebas
-// keeps room under its figures, so this is what centres the lettering itself
-// in the tile.
-function Tile({ label, all, year }: { label: string; all: number; year?: number }) {
-  const n = (x: number) => x.toLocaleString("en");
-  if (year === undefined)
-    return (
-      <>
-        <div className="display text-[2.3333rem] leading-none text-accent">{n(all)}</div>
-        <div className="text-[0.875rem] leading-none font-bold tracking-[.08em] uppercase text-dim mt-1 whitespace-nowrap">{label}</div>
-      </>
-    );
-  return (
-    <>
-      <div className={SMALL}>This year</div>
-      <div className="display text-[2.3333rem] leading-none text-accent mt-1">{n(year)}</div>
-      <div className={`${SMALL} mt-1.5`}>All time</div>
-      <div className="display text-[1.6667rem] leading-none text-ink mt-1">{n(all)}</div>
-      <div className="text-[0.875rem] leading-none font-bold tracking-[.08em] uppercase text-ink mt-1.5 whitespace-nowrap">{label}</div>
-    </>
   );
 }
 
