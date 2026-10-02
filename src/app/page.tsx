@@ -10,15 +10,19 @@ import { optionalLibrary } from "@/lib/library";
 import { markLookup } from "@/lib/marks";
 import { regionName, visitorRegion } from "@/lib/region";
 import { AdSlot } from "@/components/AdSlot";
+import { Landing } from "@/components/Landing";
+import { APP_STORE_URL } from "@/lib/stores";
 
-// The front door, Netflix-shaped: a billboard of what the world is watching
-// this week, then rows of wide cards to wander through. The pitch for the app
-// itself sits at the foot and in full at /about.
+// The front door for someone signed in, Netflix-shaped: a billboard of what
+// the world is watching this week, then rows of wide cards to wander through.
+// Signed out (everyone, while accounts are closed) it's the landing page
+// instead (components/Landing.tsx); the same rows stay open at /explore.
 
 export default async function Home() {
-  // The library only decides whether the watchlist chip reads "added". While
+  // The library also decides whether the watchlist chip reads "added". While
   // the accounts side is closed nobody is signed in, so skip the lookup.
-  const lib = accountsOpen ? await optionalLibrary() : { archive: null };
+  const lib = accountsOpen ? await optionalLibrary() : { signedIn: false, archive: null };
+  if (!lib.signedIn) return <Landing />;
   const region = await visitorRegion();
   const marks = markLookup(lib.archive);
 
@@ -68,10 +72,12 @@ export default async function Home() {
             <span className="text-accent">Tell your friends what&apos;s good.</span>
           </p>
           <div className="flex flex-wrap justify-center gap-3 mt-6">
-            <a className="btn !inline-flex items-center gap-2 !py-2.5 !px-5 !text-[1.25rem]" href="#">
-              <AppleMark />
-              Get the app
-            </a>
+            {APP_STORE_URL && (
+              <a className="btn !inline-flex items-center gap-2 !py-2.5 !px-5 !text-[1.25rem]" href={APP_STORE_URL}>
+                <AppleMark />
+                Get the app
+              </a>
+            )}
             <Link className="btn ghost !py-2.5 !px-5 !text-[1.25rem]" href="/about">
               What Kodigo does
             </Link>

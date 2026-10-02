@@ -5,8 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ThemeRow } from "@/components/ThemeRow";
 import { LandingFrame, type FrameSlide } from "@/components/LandingFrame";
 import { PosterFrame } from "@/components/PosterFrame";
-import { AndroidMark, AppleMark } from "@/components/StoreIcons";
-import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/stores";
+import { StoreButtons } from "@/components/StoreButtons";
 import { movieRails, showRails, image } from "@/lib/tmdb";
 import { year } from "@/lib/archive";
 
@@ -90,27 +89,7 @@ export default async function About() {
                   know the day the next one lands.
                 </p>
                 <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 mt-7">
-                  {/* Each store's button links once its listing is live
-                      (lib/stores); until then it says it's coming, here
-                      rather than in the FAQ, because "is it on my phone" is
-                      the first thing people reading this want to know. */}
-                  {[
-                    { label: "App Store", href: APP_STORE_URL, mark: <AppleMark /> },
-                    { label: "Android", href: PLAY_STORE_URL, mark: <AndroidMark /> },
-                  ].map((st, i) =>
-                    st.href ? (
-                      <a key={st.label} className={`btn ${i ? "ghost !text-white !border-white/40" : ""} !inline-flex items-center gap-2 !py-2.5 !px-4 !text-[1.25rem] whitespace-nowrap`} href={st.href}>
-                        {st.mark}
-                        {st.label}
-                      </a>
-                    ) : (
-                      <span key={st.label} className="btn ghost !inline-flex items-center gap-2 !py-2.5 !px-4 !text-[1.25rem] whitespace-nowrap !text-white/60 !border-white/25 cursor-default" aria-disabled="true">
-                        {st.mark}
-                        {st.label}
-                        <span className="text-[0.9167rem] font-bold tracking-[.12em] uppercase text-white/40">Soon</span>
-                      </span>
-                    ),
-                  )}
+                  <StoreButtons />
                   <a className="btn ghost !py-2.5 !px-4 !text-[1.25rem] whitespace-nowrap !text-white !border-white/40" href="#import">Import</a>
                 </div>
               </div>
