@@ -91,9 +91,11 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
     );
 
   return (
-    <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-2 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" : ""}`}>
+    <section ref={root} className={`scroll-mt-24 ${className} ${flat ? "flex flex-col gap-2" : ""} ${aside ? "grid gap-2 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:grid-rows-[auto_1fr]" : ""}`}>
       {aside && (
         // On the left, from the tab bar's line down, as tall as it needs.
+        // (The rows are the bar's height and then the rest, so a tall
+        // column here never pushes the shell away from the bar.)
         <div className="lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:self-start flex flex-col">{aside}</div>
       )}
       <div className="lg:col-start-2 lg:row-start-1 min-w-0">
@@ -103,7 +105,7 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
         aria-label={label}
         // Flat, in a narrower column: the bar fills it, and the tabs share a
         // second line rather than any hiding off its end.
-        className={`${flat ? "flex w-full flex-wrap rounded-shell bg-piece" : "inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-full bg-card border border-hair"} items-center gap-1 p-1`}
+        className={`${flat ? "flex w-full flex-wrap rounded-shell bg-piece" : aside ? "flex w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-full bg-card border border-hair" : "inline-flex max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-full bg-card border border-hair"} items-center gap-1 p-1`}
       >
         {sections.map((s) => {
           const on = s.id === shown.id;
@@ -116,7 +118,7 @@ export function ProfileSections({ sections: all, className = "mt-10", aside, lab
               aria-selected={on}
               aria-controls={`panel-${s.id}`}
               onClick={() => choose(s.id)}
-              className={`shrink-0 inline-flex items-center gap-1.5 ${flat ? "grow justify-center px-2 tracking-[.07em]" : "px-4 tracking-[.12em]"} py-2 rounded-full text-[0.875rem] leading-none font-bold uppercase cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
+              className={`shrink-0 inline-flex items-center gap-1.5 ${flat ? "grow justify-center px-2 tracking-[.07em]" : aside ? "grow justify-center px-4 tracking-[.12em]" : "px-4 tracking-[.12em]"} py-2 rounded-full text-[0.875rem] leading-none font-bold uppercase cursor-pointer transition-colors ${on ? "bg-ink text-page" : "text-dim hover:text-ink"}`}
             >
               {s.label}
               {hidden.has(s.id) && (
