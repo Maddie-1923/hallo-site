@@ -10,7 +10,7 @@ import { PinReview } from "./PinReview";
 // all round, the heading (who, title, stars) set close as a group, and 16px
 // between every group under it.
 // On its owner's own profile (`owner`) the card can be pinned to the top.
-export function ReviewCard({ r, username, avatar, onTitlePage = false, owner = false }: { r: ReviewEntry; username: string; avatar: string | null; onTitlePage?: boolean; owner?: boolean }) {
+export function ReviewCard({ r, username, avatar, onTitlePage = false, onProfile = false, owner = false }: { r: ReviewEntry; username: string; avatar: string | null; onTitlePage?: boolean; onProfile?: boolean; owner?: boolean }) {
   const paragraphs = r.text.split(/\n\s*\n/);
   const body = (
     <div className="mt-4 grid gap-2 text-[1.0417rem] leading-[1.6] text-bone max-w-[80ch]">
@@ -38,7 +38,7 @@ export function ReviewCard({ r, username, avatar, onTitlePage = false, owner = f
             {owner && <PinReview reviewKey={r.key} pinned={!!r.pinned} />}
           </div>
         )}
-        <ReviewHeading username={username} avatar={avatar} r={{ ...r, episodes: r.episode }} titleHref={r.href} hideTitle={onTitlePage} />
+        <ReviewHeading username={username} avatar={avatar} r={{ ...r, episodes: r.episode }} titleHref={r.href} hideTitle={onTitlePage} byline={!onProfile} />
 
         {r.spoilers ? (
           <details className="mt-4 group/sp">

@@ -139,6 +139,7 @@ export function ReviewHeading({
   r,
   titleHref,
   hideTitle = false,
+  byline = true,
 }: {
   username: string;
   avatar?: string | null;
@@ -146,10 +147,16 @@ export function ReviewHeading({
   titleHref?: string;
   /** On the title's own page the title is already the page's heading. */
   hideTitle?: boolean;
+  /** Who wrote it. Off on their own profile, where every review is theirs:
+      the line then just says it's a review. */
+  byline?: boolean;
 }) {
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
+        {!byline ? (
+          <div className="text-[1.0417rem] leading-none text-dim">{r.rewatch ? "Reviewed a rewatch" : "Reviewed"}</div>
+        ) : (
         <div className="flex items-center gap-2 text-[1.0417rem] leading-none text-dim">
           {/* Their photo, or their initial on the accent when they have none,
               as the profile draws it. */}
@@ -168,6 +175,7 @@ export function ReviewHeading({
             {r.rewatch ? "rewatched" : "watched"}
           </span>
         </div>
+        )}
         <h3 className={hideTitle ? "sr-only" : "!mt-2 !text-[clamp(26px,2.4vw,34px)] !leading-[.95]"}>
           {titleHref ? (
             <Link href={titleHref} className="no-underline text-ink hover:text-accent transition-colors">

@@ -35,7 +35,10 @@ const AVATAR = "clamp(92px, 9vw, 128px)";
 const AVATAR_LEFT = "clamp(16px, 2.2vw, 28px)";
 
 export function ProfilePage({ view: v }: { view: PublicProfileView }) {
-  const bannerArt = v.banner ?? v.favorites[0]?.backdrop ?? v.diary[0]?.backdrop ?? null;
+  // Their chosen banner; until they choose one, the still of a favourite, of
+  // what they rate highest, or of what they watched last. A profile with none
+  // of those draws a short gradient rather than a big empty one.
+  const bannerArt = v.banner ?? [...v.favorites, ...v.topFilms, ...v.topShows, ...v.diary].find((t) => t.backdrop)?.backdrop ?? null;
 
   return (
     <main className={`w-full ${GUTTER} pt-[clamp(12px,2.2vw,32px)] pb-20`}>
@@ -67,7 +70,9 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
             privateProfile={!!v.isPrivate && !v.owner}
             hiddenSections={v.owner ? [] : (v.hiddenSections ?? [])}
             className="lg:col-span-2"
-            aside={<MiniTracker shows={v.tracker.shows} films={v.tracker.films} owner={!!v.owner} />}
+            // Someone else's Tracker shows only the series they're partway into,
+            // not every show waiting at its first episode.
+            aside={<MiniTracker shows={v.owner ? v.tracker.shows : v.tracker.shows.filter((s) => s.seen.length > 0)} films={v.tracker.films} owner={!!v.owner} />}
             sections={[
               {
                 id: "reviews",
@@ -77,7 +82,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                   v.reviews.length > 0 ? (
                     <div className="grid gap-2">
                       {v.reviews.map((r) => (
-                        <ReviewCard key={r.key} r={r} username={v.username} avatar={v.avatar} owner={v.viewerFollow === "self"} />
+                        <ReviewCard key={r.key} r={r} username={v.username} avatar={v.avatar} owner={v.viewerFollow === "self"} onProfile />
                       ))}
                     </div>
                   ) : (
@@ -146,7 +151,7 @@ function Banner({ v, art }: { v: PublicProfileView; art: string | null }) {
   return (
     <section id="top" className="relative scroll-mt-24">
       <div
-        className="relative overflow-hidden h-[clamp(420px,40vw,540px)]"
+        className={`relative overflow-hidden ${art ? "h-[clamp(420px,40vw,540px)]" : "h-[clamp(140px,14vw,200px)]"}`}
         style={{ borderRadius: "var(--shell-radius)", ...nightTokens }}
       >
         {art ? (
@@ -338,7 +343,16 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
       >
         <div className="flex items-start gap-4 min-w-0">
         <div className="min-w-0 flex-1">
-          <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.9] truncate">@{v.username}</div>
+          {/* Their name in the display face with the handle under it; just
+              the handle, in lowercase as it's typed, until they set a name. */}
+          {v.displayName && v.displayName !== v.username ? (
+            <>
+              <div className="display text-[clamp(20px,1.8vw,26px)] leading-[.9] truncate">{v.displayName}</div>
+              <div className="mt-1 text-[1.0417rem] text-dim truncate">@{v.username}</div>
+            </>
+          ) : (
+            <div className="text-[clamp(17px,1.5vw,21px)] font-semibold leading-tight truncate">@{v.username}</div>
+          )}
         </div>
         {/* Follow, its top level with the top of the handle (a pixel down, to
             where the capitals start; FollowPill sizes itself to the handle's
