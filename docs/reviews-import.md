@@ -169,7 +169,7 @@ meh → disappointed; hot/sexy/steamy/attractive → hot; shocked/shocking/
 mind-blown/mindblown/twist/wow → shocked; scared/scary/creepy/terrifying/
 horror → scared; confused/confusing/lost/weird → confused. Emoji: 😍❤️→lovedIt,
 😡🤬→hatedIt, 🙂😊👍→likedIt, 😭😢→sad, 😬🫣→onEdge, 🥱😴→boring, 😤→frustrated,
-😞😕→disappointed, 🥵🔥→hot, 🤯😱(shock)→shocked, 😨👻→scared, 🤔😵‍💫🙃→confused.
+😞😕→disappointed, 🥵🔥❤️‍🔥→hot, 🤯→shocked, 😨👻😱→scared (as the app's own mood grid draws them), 🤔😵‍💫🙃→confused.
 Unknown tags are skipped. At most 3 moods per title (the app's cap), first
 three distinct in file order. Only where the title has no moods yet (never
 overwrite). Count them in the summary ("N moods").

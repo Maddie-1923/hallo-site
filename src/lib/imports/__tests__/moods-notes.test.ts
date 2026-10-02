@@ -29,7 +29,7 @@ async function universal(catalog: FakeCatalog, library: LibraryArchive, files: I
 test("tags are matched by what they say, in words or emoji", () => {
   assert.deepEqual(readMoodTags("Loved it, ON EDGE; mind-blown | let down / Cried"), { moods: ["lovedIt", "onEdge", "shocked", "disappointed", "sad"], unknown: 0 });
   assert.deepEqual(readMoodTags("😍😭, ❤️, 🤯"), { moods: ["lovedIt", "sad", "shocked"], unknown: 0 });
-  assert.deepEqual(readMoodTags("😵‍💫 / 🔥 / 😱(shock)"), { moods: ["confused", "hot", "shocked"], unknown: 0 });
+  assert.deepEqual(readMoodTags("😵‍💫 / 🔥 / 😱"), { moods: ["confused", "hot", "scared"], unknown: 0 });
   // The raw values themselves, as a Kodigo file would hold them.
   assert.deepEqual(readMoodTags("hatedIt,likedIt,boring,frustrated,scared"), { moods: ["hatedIt", "likedIt", "boring", "frustrated", "scared"], unknown: 0 });
   assert.deepEqual(readMoodTags("cozy, sad, sad, 🍕"), { moods: ["sad"], unknown: 2 });

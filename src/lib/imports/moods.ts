@@ -34,9 +34,10 @@ const EMOJI: Record<string, string[]> = {
   boring: ["🥱", "😴"],
   frustrated: ["😤"],
   disappointed: ["😞", "😕"],
-  hot: ["🥵", "🔥"],
-  shocked: ["🤯", "😱"],
-  scared: ["😨", "👻"],
+  // ❤️‍🔥 and 😱 as the app's own mood grid draws hot and scared.
+  hot: ["🥵", "🔥", "\u2764\uFE0F\u200D\u{1F525}", "\u2764\u200D\u{1F525}"],
+  shocked: ["🤯"],
+  scared: ["😨", "👻", "😱"],
   confused: ["🤔", "😵‍💫", "🙃"],
 };
 
