@@ -220,7 +220,8 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 }
 
 // Under the photo, in the space the card leaves beside it: a small box with
-// the follower and following counts, each opening the list of people.
+// the follower and following counts, each opening the list of people, and
+// for a visitor + Follow in its top right corner.
 function PeopleCounts({ v }: { v: PublicProfileView }) {
   const line = "block w-full text-left px-3 py-0.5 text-[0.9167rem] leading-[1.35] text-dim hover:text-ink hover:font-semibold cursor-pointer";
   const n = (x: number) => <b className="font-semibold text-ink">{x.toLocaleString("en")}</b>;
@@ -228,6 +229,12 @@ function PeopleCounts({ v }: { v: PublicProfileView }) {
     // From the column's left edge (the banner's and Favourites') to the card,
     // and from under the photo down to the card's foot.
     <div className="absolute left-0 bottom-0 rounded-shell bg-card border border-hair flex flex-col justify-center py-1.5 ![font-family:var(--font-body)]" style={{ width: "calc(var(--card-in) - 0.5rem)", top: `calc(${AVATAR} * 0.5 + 0.5rem)` }}>
+      {(v.owner || v.allowFollows !== false) && (
+        // A phone's box is too narrow for it: there it's in the card.
+        <div className="absolute top-1.5 right-1.5 max-sm:hidden">
+          <FollowPill owner={!!v.owner} username={v.username} state={v.viewerFollow} small />
+        </div>
+      )}
       <FollowList kind="followers" owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={line} plain>
         {n(v.followers)} {v.followers === 1 ? "follower" : "followers"}
       </FollowList>
@@ -358,11 +365,14 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
             <div className="text-[1.6667rem] font-semibold leading-tight truncate">@{v.username}</div>
           )}
         </div>
-        {/* Follow, its top level with the top of the handle (a pixel down, to
-            where the capitals start; FollowPill sizes itself to the handle's
-            line). The follower counts are with the numbers beside the card. */}
+        {/* The profile's menu; Follow is with the counts under the photo, but
+            here on a phone, where that box is too narrow for it. */}
         <div className="shrink-0 mt-px flex items-start gap-2">
-          {(v.owner || v.allowFollows !== false) && <FollowPill owner={!!v.owner} username={v.username} state={v.viewerFollow} />}
+          {(v.owner || v.allowFollows !== false) && (
+            <span className="sm:hidden">
+              <FollowPill owner={!!v.owner} username={v.username} state={v.viewerFollow} small />
+            </span>
+          )}
           <ProfileMenu username={v.username} owner={!!v.owner} />
         </div>
         </div>

@@ -17,7 +17,7 @@ import { setFollow } from "@/lib/social-actions";
 // preview it only changes what it shows.
 // `owner`: on their own profile, seen as others do with follows turned off
 // (Settings, Privacy), there's no Follow to press.
-export function FollowPill({ initial = false, owner = false, username, state }: { initial?: boolean; owner?: boolean; username?: string; state?: "none" | "pending" | "following" | "self" }) {
+export function FollowPill({ initial = false, owner = false, username, state, small = false }: { initial?: boolean; owner?: boolean; username?: string; state?: "none" | "pending" | "following" | "self"; /** A small pill sized for itself, not for a handle's line (the profile's people box). */ small?: boolean }) {
   const [now, setNow] = useState<"none" | "pending" | "following">(state && state !== "self" ? state : initial ? "following" : "none");
   const [said, setSaid] = useState<string | null>(null);
   const privacy = usePrivacy(owner);
@@ -38,9 +38,11 @@ export function FollowPill({ initial = false, owner = false, username, state }: 
       }
     } else if (r.state && r.state !== "self") setNow(r.state);
   };
+  const size = small ? { height: "1.8333rem" } : { height: LINE, marginTop: `calc(${HANDLE} * -0.1)` };
+  const text = small ? "text-[0.9167rem]" : "text-[1.0833rem]";
   if (now === "pending")
     return (
-      <button type="button" onClick={press} title="Waiting for them to accept. Press to withdraw." className="inline-flex items-center justify-center rounded-full px-3 bg-card border border-hair text-dim text-[1.0833rem] font-semibold cursor-pointer" style={{ height: LINE, marginTop: `calc(${HANDLE} * -0.1)` }}>
+      <button type="button" onClick={press} title="Waiting for them to accept. Press to withdraw." className={`inline-flex items-center justify-center rounded-full px-3 bg-card border border-hair text-dim ${text} font-semibold cursor-pointer`} style={size}>
         Requested
       </button>
     );
@@ -55,12 +57,12 @@ export function FollowPill({ initial = false, owner = false, username, state }: 
       // all, only the mark itself in the accent. Inside a filled circle the
       // mark's own disc read as a second, slightly off-centre ring.
       className={`relative inline-flex items-center justify-center rounded-full cursor-pointer transition-[filter] hover:brightness-110 ${
-        following ? "text-accent-fill" : "px-3 bg-accent-fill text-on-accent text-[1.0833rem] font-semibold"
+        following ? "text-accent-fill" : `px-3 bg-accent-fill text-on-accent ${text} font-semibold`
       }`}
       // Both states stand as tall as the handle's line and are centred on its
       // capitals: the line is 0.9 of the handle's size and the capitals 0.7,
       // so the box starts 0.1 above the capitals' top, where this sits.
-      style={{ height: LINE, marginTop: `calc(${HANDLE} * -0.1)` }}
+      style={size}
     >
       {following ? <FollowingGlyph /> : "+ Follow"}
       {said && (
