@@ -233,34 +233,40 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+// Under the photo, in the space the card leaves beside it: a small box with
+// the follower and following counts, each opening the list of people.
+function PeopleCounts({ v }: { v: PublicProfileView }) {
+  const line = "block w-full text-left px-2.5 py-0.5 text-[0.9167rem] leading-[1.35] text-dim hover:text-ink cursor-pointer";
+  const n = (x: number) => <b className="font-semibold text-ink">{x.toLocaleString("en")}</b>;
+  return (
+    <div className="absolute rounded-[10px] bg-card border border-hair py-1.5 ![font-family:var(--font-body)]" style={{ left: AVATAR_LEFT, width: AVATAR, top: `calc(${AVATAR} * 0.5 + 0.5rem)` }}>
+      <FollowList kind="followers" owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={line}>
+        {n(v.followers)} {v.followers === 1 ? "follower" : "followers"}
+      </FollowList>
+      <FollowList kind="following" owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={line}>
+        {n(v.following)} following
+      </FollowList>
+    </div>
+  );
+}
+
 function NumberTiles({ v }: { v: PublicProfileView }) {
   const s = v.stats;
   const tiles: [string, string | number][] = [
     ["Movies", s.films.toLocaleString("en")],
     ["Shows", s.shows.toLocaleString("en")],
     ["Episodes", s.episodes.toLocaleString("en")],
-    // The social counts sit with the rest of the numbers, last, as
-    // Letterboxd sets them.
-    ["Followers", v.followers.toLocaleString("en")],
-    ["Following", v.following.toLocaleString("en")],
   ];
   return (
-    // Three over two (the titles, then the people), as tall as the person's
-    // card beside it, so the labels have room to be read.
-    <div className="flex-1 grid grid-cols-6 gap-1.5 [&>*:nth-child(-n+3)]:col-span-2 [&>*:nth-child(n+4)]:col-span-3">
+    // One row of three, as tall as the person's card beside it. The social
+    // counts are under the photo (PeopleCounts).
+    <div className="flex-1 grid grid-cols-3 gap-1.5">
       {tiles.map(([label, value]) => (
         // 2px more above than below: Bebas keeps room under its figures, so
         // this is what centres the lettering itself in the tile.
-        label === "Followers" || label === "Following" ? (
-          // Pressed, the people (FollowList).
-          <FollowList key={label} kind={label === "Followers" ? "followers" : "following"} owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={TILE}>
-            <Tile label={label} value={value} />
-          </FollowList>
-        ) : (
-          <div key={label} className={TILE}>
-            <Tile label={label} value={value} />
-          </div>
-        )
+        <div key={label} className={TILE}>
+          <Tile label={label} value={value} />
+        </div>
       ))}
     </div>
   );
@@ -341,15 +347,16 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
           (v.displayName[0] ?? "?").toUpperCase()
         )}
       </div>
+      <PeopleCounts v={v} />
       <div
         // The card starts past the photo, so the photo stands on its own
         // hanging from the banner with no shell under it; on a wide screen
         // its right edge is level with the tab bar's (--tabs-w, set by the
         // bar).
         className="flex-1 lg:flex-none lg:w-[calc(var(--tabs-w,100%)-var(--card-in))] rounded-shell bg-card border border-hair px-4 py-3 min-w-0"
-        // At least as tall as the photo's lower half, so the photo never
-        // drops below the card's foot when there's only a handle to show.
-        style={{ marginLeft: "var(--card-in)", minHeight: `calc(${AVATAR} * 0.5 + 0.75rem)` }}
+        // At least as tall as the photo's lower half and the people box
+        // under it, so neither drops below the card's foot.
+        style={{ marginLeft: "var(--card-in)", minHeight: `calc(${AVATAR} * 0.5 + 4.75rem)` }}
       >
         <div className="flex items-start gap-4 min-w-0">
         <div className="min-w-0 flex-1">
