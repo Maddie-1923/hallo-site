@@ -380,15 +380,10 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
   );
 }
 
-// The Favourites card (FavouritesCard): top films and series, editable by
-// the owner, and the five most recent watches worked out from the diary.
+// The Favourites card (FavouritesCard): top films and shows, editable by the
+// owner.
 function FavouriteCard({ v }: { v: PublicProfileView }) {
-  const recent: ProfileTitle[] = [];
-  for (const e of v.diary) {
-    if (recent.length === 5) break;
-    if (!recent.some((r) => r.key === e.key)) recent.push(e);
-  }
-  return <FavouritesCard username={v.username} autoFilms={v.topFilms} autoShows={v.topShows} recent={recent} owner={v.owner} />;
+  return <FavouritesCard username={v.username} autoFilms={v.topFilms} autoShows={v.topShows} owner={v.owner} />;
 }
 
 function Empty({ children }: { children: React.ReactNode }) {

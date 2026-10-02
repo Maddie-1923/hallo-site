@@ -9,14 +9,12 @@ import { searchForFavourites } from "@/lib/favourites-actions";
 
 type Kind = "movie" | "show";
 
-// The profile's Favourites: top five films, top five series, and the five
-// most recent watches. The first two are filled automatically (hearts, then
-// ratings) until the owner chooses their own; Recent watches is a record and
-// is never edited.
+// The profile's Favourites: top five films and top five shows, filled
+// automatically (hearts, then ratings) until the owner chooses their own.
 //
 // The owner gets an Edit button. In edit mode each poster has a remove mark,
 // an empty slot opens a picker (their library first, then a search of every
-// film or series), and posters drag to reorder. Reset goes back to automatic.
+// film or show), and posters drag to reorder. Reset goes back to automatic.
 //
 // Where the choice is kept: until accounts exist it is this browser's
 // localStorage, keyed by the profile, so the preview keeps it across
@@ -26,13 +24,11 @@ export function FavouritesCard({
   username,
   autoFilms,
   autoShows,
-  recent,
   owner,
 }: {
   username: string;
   autoFilms: ProfileTitle[];
   autoShows: ProfileTitle[];
-  recent: ProfileTitle[];
   owner?: { films: ProfileTitle[]; shows: ProfileTitle[] };
 }) {
   const storeKey = `kodigo.favourites.${username}`;
@@ -112,9 +108,8 @@ export function FavouritesCard({
       {/* A visitor sees only what's there: no empty slots, and no row with
           nothing in it. */}
       {(owner || films.length > 0) && <Row label="Top 5 films" kind="movie" titles={films} editing={editing} owner={!!owner} onRemove={remove} onMove={move} onAdd={(slot) => setPicker({ kind: "movie", slot })} />}
-      {(owner || shows.length > 0) && <Row label="Top 5 series" kind="show" titles={shows} editing={editing} owner={!!owner} onRemove={remove} onMove={move} onAdd={(slot) => setPicker({ kind: "show", slot })} />}
-      {recent.length > 0 && <Row label="Recent watches" titles={recent} editing={false} owner={false} />}
-      {!owner && films.length + shows.length + recent.length === 0 && <p className="m-0 px-1 text-[1.0417rem] text-dim">Nothing here yet.</p>}
+      {(owner || shows.length > 0) && <Row label="Top 5 shows" kind="show" titles={shows} editing={editing} owner={!!owner} onRemove={remove} onMove={move} onAdd={(slot) => setPicker({ kind: "show", slot })} />}
+      {!owner && films.length + shows.length === 0 && <p className="m-0 px-1 text-[1.0417rem] text-dim">Nothing here yet.</p>}
 
       {picker && owner && (
         <Picker
@@ -213,7 +208,7 @@ function Row({
 }
 
 // Choosing a title for a slot: the owner's own library first (hearts and
-// best-rated at the top), and a search of every film or series for anything
+// best-rated at the top), and a search of every film or show for anything
 // they haven't logged.
 function Picker({ kind, library, onChoose, onClose }: { kind: Kind; library: ProfileTitle[]; onChoose: (t: ProfileTitle) => void; onClose: () => void }) {
   const [query, setQuery] = useState("");
@@ -241,7 +236,7 @@ function Picker({ kind, library, onChoose, onClose }: { kind: Kind; library: Pro
   }, [query, kind]);
 
   const shown = results ?? library;
-  const noun = kind === "movie" ? "film" : "series";
+  const noun = kind === "movie" ? "film" : "show";
 
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`Choose a ${noun}`} className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
@@ -262,7 +257,7 @@ function Picker({ kind, library, onChoose, onClose }: { kind: Kind; library: Pro
           {results ? (pending ? "Searching…" : `Results for “${query.trim()}”`) : "From your library"}
         </div>
         <div className="p-4 overflow-y-auto grid grid-cols-4 sm:grid-cols-6 gap-3">
-          {shown.length === 0 && <p className="col-span-full text-sm text-dim m-0">{results ? "Nothing found." : `No ${noun === "film" ? "films" : "series"} in your library yet. Search above.`}</p>}
+          {shown.length === 0 && <p className="col-span-full text-sm text-dim m-0">{results ? "Nothing found." : `No ${noun}s in your library yet. Search above.`}</p>}
           {shown.map((t) => (
             <button key={t.key} type="button" onClick={() => onChoose(t)} className="text-left cursor-pointer group">
               <div className="aspect-[2/3] rounded-[8px] overflow-hidden bg-card-hi border border-hair group-hover:border-accent transition-colors">
