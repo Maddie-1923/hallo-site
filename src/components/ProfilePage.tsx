@@ -338,7 +338,7 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 }
 
 // The person's card, beside the photo hanging from the banner, always as
-// tall as the numbers beside it (the quote is two lines at most, so the
+// tall as the numbers beside it (the quote is three lines at most, so the
 // card never needs to be taller). On the left,
 // the handle, then where they are and a line in their own words (both theirs
 // to set, and only there when set); on the right, Follow.

@@ -60,7 +60,7 @@ export function ProfileAbout({ location, quote, links = [], owner, username }: {
           <span className="truncate text-ink">{place}</span>
         </div>
       )}
-      {line && <p className="m-0 text-bone italic line-clamp-2">“{line}”</p>}
+      {line && <p className="m-0 text-bone italic line-clamp-3">“{line}”</p>}
       {shownLinks.length > 0 && (
         <ul className="m-0 p-0 list-none flex flex-wrap gap-x-3 gap-y-1">
           {shownLinks.map((href) => {
@@ -112,7 +112,7 @@ function AboutSheet({ location, quote, links, onSave, onClose }: { location: str
         </label>
         <label className="grid gap-1.5 text-[1.0417rem] text-dim">
           Quote
-          <textarea value={line} onChange={(e) => setLine(e.target.value)} placeholder="A line about you, or one you love" maxLength={140} rows={2} className={`${field} resize-none`} />
+          <textarea value={line} onChange={(e) => setLine(e.target.value)} placeholder="A line about you, or one you love" maxLength={210} rows={3} className={`${field} resize-none`} />
         </label>
         <fieldset className="m-0 p-0 border-0 grid gap-1.5 text-[1.0417rem] text-dim">
           <legend className="mb-1.5">Links</legend>
