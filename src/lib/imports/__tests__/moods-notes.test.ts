@@ -182,6 +182,23 @@ test("a tags column is read as moods only when every tag is one", () => {
   assert.deepEqual(read("Heat,1995,scary\nArrival,2016,to rewatch"), [[], []]);
 });
 
+test("a list's note on an entry is the list's, never the title's note", () => {
+  // Refract's list_items.csv, as in the real export, with entries in it.
+  const refract = describeImportFile({
+    name: "refract.zip",
+    data: zip(["readable/list_items.csv", "list_id,list_title,title,year,media_type,tmdb_id,sort_order,note,added_at\nl1,Heists,Heat,1995,movie,949,1,The best one on here,2024-01-01T00:00:00Z"]),
+  });
+  assert.equal(refract[0].entries.length, 1);
+  assert.equal(refract[0].entries[0].note, null);
+  assert.equal(refract[0].entries[0].review, null);
+  // Any file the guesser reads with a list column; its moods are still the title's.
+  for (const header of ["list", "List Title", "list_id"]) {
+    const [part] = describeImportFile({ name: "lists.csv", data: bytes(`${header},Title,Year,Notes,Review,Mood\nFavourites,Heat,1995,Top of the list,Ranked first,tense`) });
+    assert.equal(part.format, null);
+    assert.deepEqual(part.entries.map((e) => [e.note, e.review, e.moods]), [[null, null, ["onEdge"]]], header);
+  }
+});
+
 // ---- Never overwriting ----
 
 test("a title's own note and moods stand, and a second run changes nothing", async () => {

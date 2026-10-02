@@ -355,6 +355,9 @@ const TAKE_COLUMNS = {
   writtenAt: ["reviewdate", "reviewed", "reviewedat", "createdat", "written"],
 };
 
+/** A column naming the list a row is on, which makes the file a list's entries. */
+const LIST_COLUMNS = ["listname", "list", "listtitle", "listid"];
+
 /**
  * What reads a review, a private note, spoilers and moods off a guessed
  * file's rows, or nothing when it has none of those columns. A column the
@@ -362,6 +365,10 @@ const TAKE_COLUMNS = {
  * can be both the night and the day a review was written. A row bringing
  * only these, with no date, standing, rating or heart, is a take on a title
  * rather than a sign it was watched, and doesn't add the title.
+ *
+ * A file of list entries (a list-name column: Refract's `list_items.csv`,
+ * anybody's `list_name`) keeps a note about the title's place on that list,
+ * not on the title, so its note and review columns are left alone.
  */
 export function guessTakeReader(table: ImportTable, mapping: ImportMapping): ((entry: ImportedEntry, row: string[]) => void) | undefined {
   const mapped = new Set(mapping.columns.values());
@@ -372,8 +379,9 @@ export function guessTakeReader(table: ImportTable, mapping: ImportMapping): ((e
     }
     return -1;
   };
-  const review = find(TAKE_COLUMNS.review);
-  const note = find(TAKE_COLUMNS.note);
+  const listed = LIST_COLUMNS.some((name) => table.foldedHeaders.includes(name));
+  const review = listed ? -1 : find(TAKE_COLUMNS.review);
+  const note = listed ? -1 : find(TAKE_COLUMNS.note);
   const spoilers = find(TAKE_COLUMNS.spoilers);
   const written = find(TAKE_COLUMNS.writtenAt, false);
   let moods = find(TAKE_COLUMNS.moods);
