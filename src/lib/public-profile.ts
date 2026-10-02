@@ -137,6 +137,8 @@ export interface PublicProfileView {
   bio: string | null;
   /** Where they say they are, as they wrote it ("San Francisco, CA"). */
   location: string | null;
+  /** Their own links (YouTube, X, a website…), up to three, on the card. */
+  links?: string[];
   followers: number;
   following: number;
   stats: { films: number; shows: number; episodes: number; hours: number; ratings: number; average: number | null };

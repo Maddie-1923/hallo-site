@@ -3,16 +3,17 @@
 import { useEffect, useState } from "react";
 import { checkText } from "@/lib/word-filter";
 import { saveAbout } from "@/lib/account-settings";
+import { cleanLink, describeLink, MAX_LINKS, type LinkKind } from "@/lib/profile-links";
 import { createPortal } from "react-dom";
 
-// Under the handle on the profile card: where the person is, with a map pin,
-// and a line in their own words, in quotation marks. Both are theirs to set
-// and neither shows when empty. The owner sees a quiet "Add your location"
+// Under the name on the profile card: where the person is, with a map pin,
+// a line in their own words, in quotation marks, and up to three links of
+// their own (lib/profile-links). All theirs to set; none shows when empty. The owner sees a quiet "Add your location"
 // and "Add a quote" in their place, and a pencil to change them; until
 // accounts exist what they write is kept in this browser.
-export function ProfileAbout({ location, quote, owner, username }: { location: string | null; quote: string | null; owner: boolean; username: string }) {
+export function ProfileAbout({ location, quote, links = [], owner, username }: { location: string | null; quote: string | null; links?: string[]; owner: boolean; username: string }) {
   const key = `kodigo.profile-about.${username}`;
-  const [mine, setMine] = useState<{ location: string; quote: string } | null>(null);
+  const [mine, setMine] = useState<{ location: string; quote: string; links?: string[] } | null>(null);
   const [editing, setEditing] = useState(false);
   useEffect(() => {
     if (!owner) return;
@@ -24,7 +25,8 @@ export function ProfileAbout({ location, quote, owner, username }: { location: s
   }, [owner, key]);
   const place = (mine ? mine.location : location) || "";
   const line = (mine ? mine.quote : quote) || "";
-  function save(next: { location: string; quote: string }) {
+  const shownLinks = mine?.links ?? links;
+  function save(next: { location: string; quote: string; links: string[] }) {
     setMine(next);
     try {
       localStorage.setItem(key, JSON.stringify(next));
@@ -64,14 +66,35 @@ export function ProfileAbout({ location, quote, owner, username }: { location: s
           </button>
         )
       )}
-      {editing && <AboutSheet location={place} quote={line} onSave={save} onClose={() => setEditing(false)} />}
+      {shownLinks.length > 0 && (
+        <ul className="m-0 p-0 list-none flex flex-wrap gap-x-3 gap-y-1">
+          {shownLinks.map((href) => {
+            const { kind, label } = describeLink(href);
+            return (
+              <li key={href} className="min-w-0">
+                <a href={href} target="_blank" rel="nofollow ugc noopener noreferrer" className="inline-flex items-center gap-1.5 max-w-full text-dim no-underline hover:text-ink">
+                  <LinkMark kind={kind} />
+                  <span className="truncate">{label}</span>
+                </a>
+              </li>
+            );
+          })}
+          {owner && !line && !place && <EditButton onClick={() => setEditing(true)} />}
+        </ul>
+      )}
+      {owner && shownLinks.length === 0 && (
+        <button type="button" onClick={() => setEditing(true)} className={`${add} text-left`}>
+          Add links
+        </button>
+      )}
+      {editing && <AboutSheet location={place} quote={line} links={shownLinks} onSave={save} onClose={() => setEditing(false)} />}
     </div>
   );
 }
 
 function EditButton({ onClick }: { onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} aria-label="Edit your location and quote" title="Edit" className="inline-flex align-middle ml-1.5 text-dim hover:text-ink cursor-pointer not-italic">
+    <button type="button" onClick={onClick} aria-label="Edit your location, quote and links" title="Edit" className="inline-flex align-middle ml-1.5 text-dim hover:text-ink cursor-pointer not-italic">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
       </svg>
@@ -79,9 +102,10 @@ function EditButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-function AboutSheet({ location, quote, onSave, onClose }: { location: string; quote: string; onSave: (v: { location: string; quote: string }) => void; onClose: () => void }) {
+function AboutSheet({ location, quote, links, onSave, onClose }: { location: string; quote: string; links: string[]; onSave: (v: { location: string; quote: string; links: string[] }) => void; onClose: () => void }) {
   const [place, setPlace] = useState(location);
   const [line, setLine] = useState(quote);
+  const [urls, setUrls] = useState<string[]>(() => Array.from({ length: MAX_LINKS }, (_, i) => links[i] ?? ""));
   const [problem, setProblem] = useState<string | null>(null);
   useEffect(() => {
     const onKey = (k: KeyboardEvent) => k.key === "Escape" && onClose();
@@ -96,9 +120,10 @@ function AboutSheet({ location, quote, onSave, onClose }: { location: string; qu
         onClick={(x) => x.stopPropagation()}
         onSubmit={(e) => {
           e.preventDefault();
-          const p = checkText(`${place}\n${line}`);
+          const cleaned = urls.filter((u) => u.trim()).map((u) => cleanLink(u));
+          const p = cleaned.includes(null) ? "One of those links isn't a web address." : checkText(`${place}\n${line}\n${cleaned.join("\n")}`);
           setProblem(p);
-          if (!p) onSave({ location: place.trim(), quote: line.trim() });
+          if (!p) onSave({ location: place.trim(), quote: line.trim(), links: cleaned as string[] });
         }}
       >
         <h3 className="!text-[clamp(26px,3vw,34px)] !leading-[.95]">About you</h3>
@@ -110,6 +135,12 @@ function AboutSheet({ location, quote, onSave, onClose }: { location: string; qu
           Quote
           <textarea value={line} onChange={(e) => setLine(e.target.value)} placeholder="A line about you, or one you love" maxLength={140} rows={2} className={`${field} resize-none`} />
         </label>
+        <fieldset className="m-0 p-0 border-0 grid gap-1.5 text-[1.0417rem] text-dim">
+          <legend className="mb-1.5">Links</legend>
+          {urls.map((u, i) => (
+            <input key={i} value={u} onChange={(e) => setUrls((all) => all.map((x, j) => (j === i ? e.target.value : x)))} placeholder={["youtube.com/@you", "x.com/you", "yourwebsite.com"][i]} inputMode="url" autoCapitalize="off" spellCheck={false} maxLength={200} aria-label={`Link ${i + 1}`} className={field} />
+          ))}
+        </fieldset>
         {problem && (
           <p role="alert" className="m-0 text-[1.0417rem] text-loved">
             {problem}
@@ -126,5 +157,52 @@ function AboutSheet({ location, quote, onSave, onClose }: { location: string; qu
       </form>
     </div>,
     document.body,
+  );
+}
+
+// A link's mark: the service's initial shape where it's one people know, a
+// globe for anything else. Drawn as simple glyphs on currentColor, not the
+// services' own logos.
+function LinkMark({ kind }: { kind: LinkKind }) {
+  const common = { width: 13, height: 13, viewBox: "0 0 24 24", "aria-hidden": true, className: "shrink-0" } as const;
+  if (kind === "youtube")
+    return (
+      <svg {...common} fill="currentColor">
+        <path d="M21.6 7.2a2.7 2.7 0 0 0-1.9-1.9C18 4.8 12 4.8 12 4.8s-6 0-7.7.5a2.7 2.7 0 0 0-1.9 1.9C2 8.9 2 12 2 12s0 3.1.4 4.8a2.7 2.7 0 0 0 1.9 1.9c1.7.5 7.7.5 7.7.5s6 0 7.7-.5a2.7 2.7 0 0 0 1.9-1.9c.4-1.7.4-4.8.4-4.8s0-3.1-.4-4.8zM10 15.1V8.9l5.2 3.1L10 15.1z" />
+      </svg>
+    );
+  if (kind === "x")
+    return (
+      <svg {...common} fill="currentColor">
+        <path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L2 3h6.4l4.4 5.8L17.8 3zm-1.1 16.2h1.7L7.4 4.7H5.6l11.1 14.5z" />
+      </svg>
+    );
+  if (kind === "instagram")
+    return (
+      <svg {...common} fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    );
+  if (kind === "letterboxd")
+    return (
+      <svg {...common} fill="currentColor">
+        <circle cx="5" cy="12" r="3.5" />
+        <circle cx="12" cy="12" r="3.5" />
+        <circle cx="19" cy="12" r="3.5" />
+      </svg>
+    );
+  if (kind === "tiktok")
+    return (
+      <svg {...common} fill="currentColor">
+        <path d="M16.5 3c.4 2.2 1.8 3.7 4 4v3.1c-1.5 0-2.9-.4-4-1.2v6.3a6 6 0 1 1-6-6h.6v3.2a2.9 2.9 0 1 0 2.3 2.8V3h3.1z" />
+      </svg>
+    );
+  return (
+    <svg {...common} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" />
+    </svg>
   );
 }

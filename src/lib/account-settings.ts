@@ -1,5 +1,6 @@
 "use server";
 
+import { cleanLink, MAX_LINKS } from "@/lib/profile-links";
 import { accountsOpen } from "@/lib/accounts";
 import { cleanSettings, PROFILE_SETTINGS, type Settings } from "@/lib/settings-shape";
 import { createClient } from "@/lib/supabase/server";
@@ -89,17 +90,27 @@ export async function saveAccountTheme(id: string): Promise<boolean> {
   return !!me && (await mergeOwn(me, { theme: id }));
 }
 
-/** Location and quote, shown on the profile. */
-export async function saveAbout(about: { location: string; quote: string }): Promise<{ ok: boolean; error?: string }> {
+/** Location, quote and (when given) links, shown on the profile card. */
+export async function saveAbout(about: { location: string; quote: string; links?: string[] }): Promise<{ ok: boolean; error?: string }> {
   const location = about.location.trim().slice(0, 60);
   // One line on the card: breaks and runs of spaces fold to single spaces, so
   // a quote can't stretch the card down the page however it's typed.
   const quote = about.quote.replace(/\s+/g, " ").trim().slice(0, 140);
-  const problem = checkText(`${location}\n${quote}`);
+  let links: string[] | undefined;
+  if (about.links) {
+    links = [];
+    for (const raw of about.links.slice(0, MAX_LINKS)) {
+      if (!raw.trim()) continue;
+      const clean = cleanLink(raw);
+      if (!clean) return { ok: false, error: "One of those links isn't a web address." };
+      links.push(clean);
+    }
+  }
+  const problem = checkText(`${location}\n${quote}\n${(links ?? []).join("\n")}`);
   if (problem) return { ok: false, error: problem };
   const me = await signedIn();
   if (!me) return { ok: false };
-  const { error } = await me.supabase.from("profiles").upsert({ user_id: me.user.id, location: location || null, quote: quote || null }, { onConflict: "user_id" });
+  const { error } = await me.supabase.from("profiles").upsert({ user_id: me.user.id, location: location || null, quote: quote || null, ...(links ? { links } : {}) }, { onConflict: "user_id" });
   return error ? { ok: false, error: "That didn't save to your account." } : { ok: true };
 }
 

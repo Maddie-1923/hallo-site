@@ -354,13 +354,14 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
       >
         <div className="flex items-start gap-4 min-w-0">
         <div className="min-w-0 flex-1">
-          {/* Their name in the display face with the handle under it; just
-              the handle, in lowercase as it's typed, until they set a name. */}
+          {/* Their name in the display face with the handle beside it, the two
+              sitting on one baseline; just the handle, in lowercase as it's
+              typed, until they set a name. */}
           {v.displayName && v.displayName !== v.username ? (
-            <>
-              <div className="display text-[2.1667rem] leading-[.9] truncate">{v.displayName}</div>
-              <div className="mt-1 text-[1.0417rem] text-dim truncate">@{v.username}</div>
-            </>
+            <div className="flex items-baseline gap-2 min-w-0">
+              <div className="display text-[2.1667rem] leading-[.9] truncate shrink-0 max-w-[70%]">{v.displayName}</div>
+              <div className="text-[1.0417rem] text-dim truncate min-w-0">@{v.username}</div>
+            </div>
           ) : (
             <div className="text-[1.6667rem] font-semibold leading-tight truncate">@{v.username}</div>
           )}
@@ -378,7 +379,7 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
         </div>
         {/* Under the handle and Follow, across the card's full width, so the
             quote has the whole line to run on. */}
-        <ProfileAbout location={v.location} quote={v.bio} owner={!!v.owner} username={v.username} />
+        <ProfileAbout location={v.location} quote={v.bio} links={v.links} owner={!!v.owner} username={v.username} />
       </div>
     </div>
   );

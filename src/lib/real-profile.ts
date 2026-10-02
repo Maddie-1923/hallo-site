@@ -25,7 +25,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   const supabase = await createClient();
   const { data: p } = await supabase
     .from("profiles")
-    .select(`user_id, display_name, ${PICTURE_COLUMNS}, location, quote, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, category_privacy, pinned_reviews`)
+    .select(`user_id, display_name, ${PICTURE_COLUMNS}, location, quote, links, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, category_privacy, pinned_reviews`)
     .eq("username", username.toLowerCase())
     .maybeSingle();
   if (!p?.username) return null;
@@ -56,7 +56,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   ]);
   // "none" for a signed-out visitor too, so Follow asks them to sign in.
   const viewerFollow = !user ? ("none" as const) : user.id === p.user_id ? ("self" as const) : mine.data ? (mine.data.status === "pending" ? ("pending" as const) : ("following" as const)) : ("none" as const);
-  const social = { followers: followers.count ?? 0, following: following.count ?? 0, viewerFollow, liked };
+  const social = { followers: followers.count ?? 0, following: following.count ?? 0, viewerFollow, liked, links: (p.links as string[] | null) ?? [] };
 
   if (user && user.id === p.user_id) {
     const { data: row } = await supabase.from("libraries").select("archive").eq("user_id", user.id).maybeSingle();
