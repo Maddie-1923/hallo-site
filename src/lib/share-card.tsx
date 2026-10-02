@@ -75,6 +75,8 @@ interface Poster {
 export interface ShareData {
   username: string;
   name: string;
+  /** Whether they set a name; without one the card leads with the @handle, as the profile does. */
+  named: boolean;
   location: string | null;
   quote: string | null;
   photo: string | null;
@@ -102,6 +104,7 @@ export async function shareData(v: PublicProfileView, origin: string, shape: "wi
   return {
     username: v.username,
     name: v.displayName,
+    named: !!v.displayName && v.displayName !== v.username,
     location: v.location?.trim() || null,
     quote: v.bio?.replace(/\s*\n\s*/g, " ").trim() || null,
     photo,
@@ -235,8 +238,14 @@ export function WideCard({ d }: { d: ShareData }): ReactElement {
         <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
           <Photo d={d} size={260} ring={0} />
           <div style={{ display: "flex", flexDirection: "column", marginLeft: 48, maxWidth: 620 }}>
-            <span style={{ fontFamily: "Bebas", fontSize: 96, lineHeight: 1, paddingTop: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</span>
-            <span style={{ fontSize: 30, color: DIM, marginTop: 6, marginBottom: 26 }}>@{d.username}</span>
+            {d.named ? (
+              <>
+                <span style={{ fontFamily: "Bebas", fontSize: 96, lineHeight: 1, paddingTop: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</span>
+                <span style={{ fontSize: 30, color: DIM, marginTop: 6, marginBottom: 26 }}>@{d.username}</span>
+              </>
+            ) : (
+              <span style={{ fontSize: 60, fontWeight: 600, lineHeight: 1.1, marginBottom: 26, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>@{d.username}</span>
+            )}
             <div style={{ display: "flex" }}>
               <PrivatePill k={1} />
             </div>
@@ -268,8 +277,14 @@ export function WideCard({ d }: { d: ShareData }): ReactElement {
         {/* About and the numbers. */}
         <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 16, minWidth: 0 }}>
           <Box style={{ flex: 1, flexDirection: "column", padding: "22px 26px", minHeight: 0 }}>
-            <span style={{ fontFamily: "Bebas", fontSize: 68, lineHeight: 1, paddingTop: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</span>
-            <span style={{ fontSize: 22, color: DIM, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>@{d.username}</span>
+            {d.named ? (
+              <>
+                <span style={{ fontFamily: "Bebas", fontSize: 68, lineHeight: 1, paddingTop: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</span>
+                <span style={{ fontSize: 22, color: DIM, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>@{d.username}</span>
+              </>
+            ) : (
+              <span style={{ fontSize: 40, fontWeight: 600, lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>@{d.username}</span>
+            )}
             {d.location && <span style={{ fontSize: 22, color: DIM, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.location}</span>}
             {d.quote && <div style={{ display: "block", marginTop: 14, fontSize: 22, lineHeight: 1.4, color: INK, lineClamp: 3 }}>{`“${d.quote}”`}</div>}
           </Box>
@@ -309,11 +324,16 @@ export function StoryCard({ d }: { d: ShareData }): ReactElement {
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, padding: `${BANNER - PHOTO / 2}px 48px 40px` }}>
         <Photo d={d} size={PHOTO} ring={10} />
-        <span style={{ fontFamily: "Bebas", fontSize: 100, lineHeight: 1, marginTop: 12, flexShrink: 0, paddingTop: 8, maxWidth: 980, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</span>
-        <span style={{ fontSize: 34, color: DIM, marginTop: 2, flexShrink: 0, maxWidth: 980, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          @{d.username}
-          {!d.isPrivate && d.location ? `  ·  ${d.location}` : ""}
-        </span>
+        {d.named ? (
+          <span style={{ fontFamily: "Bebas", fontSize: 100, lineHeight: 1, marginTop: 12, flexShrink: 0, paddingTop: 8, maxWidth: 980, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</span>
+        ) : (
+          <span style={{ fontSize: 64, fontWeight: 600, lineHeight: 1.15, marginTop: 16, flexShrink: 0, maxWidth: 980, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>@{d.username}</span>
+        )}
+        {(d.named || (!d.isPrivate && d.location)) && (
+          <span style={{ fontSize: 34, color: DIM, marginTop: 2, flexShrink: 0, maxWidth: 980, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {[d.named ? `@${d.username}` : null, !d.isPrivate && d.location ? d.location : null].filter(Boolean).join("  ·  ")}
+          </span>
+        )}
 
         {d.isPrivate ? (
           <div style={{ display: "flex", flex: 1, alignItems: "flex-start", marginTop: 40 }}>
