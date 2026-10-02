@@ -205,7 +205,8 @@ function FileCard({ r }: { r: ImportSummary }) {
 function adds(o: ImportOutcome) {
   if (o.kind === "backup") return o.counts.shows + o.counts.movies + o.counts.reviews > 0;
   const r = o.result;
-  return r.showsAdded + r.episodesAdded + r.moviesAdded + r.reviewsAdded > 0 || Object.keys(o.plan.ratings).length > 0 || o.plan.loved.length > 0 || r.showsAlreadyTracked + r.moviesAlreadyTracked > 0;
+  const takes = o.kind === "universal" ? o.result.moodsAdded + o.result.notesAdded : 0;
+  return r.showsAdded + r.episodesAdded + r.moviesAdded + r.reviewsAdded + takes > 0 || Object.keys(o.plan.ratings).length > 0 || o.plan.loved.length > 0 || r.showsAlreadyTracked + r.moviesAlreadyTracked > 0;
 }
 
 /** The numbers, and the titles that couldn't be placed or were a guess. */
@@ -226,6 +227,8 @@ function Result({ outcome: o, done }: { outcome: ImportOutcome; done: boolean })
           ["ratings", Object.keys(o.plan.ratings).length],
           ["reviews", o.result.reviewsAdded],
           ["kept, already reviewed here", o.result.reviewsKept],
+          ["moods", o.kind === "universal" ? o.result.moodsAdded : 0],
+          ["private notes", o.kind === "universal" ? o.result.notesAdded : 0],
         ];
   const unmatched = o.kind === "universal" ? o.result.unmatched : o.kind === "tvtime" ? [...o.result.unmatchedShows, ...o.result.unmatchedMovies] : [];
   const guessed = o.kind === "universal" ? o.result.ambiguous : o.kind === "tvtime" ? o.result.ambiguous.map((a) => (a.takenAs ? `${a.title} (taken as ${a.takenAs})` : a.title)) : [];

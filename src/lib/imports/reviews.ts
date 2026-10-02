@@ -2,7 +2,8 @@ import type { LibraryArchive, Review } from "../archive";
 import { canonicalDate, formatSwiftDate, parseSwiftDate } from "./swift";
 
 // Reviews brought over from another app — Letterboxd's `reviews.csv`, Trakt's
-// comments, TV Time's comment files — and the rules every reader shares for
+// comments, TV Time's comment files, Refract's reviews, a review column in any
+// file — and the rules every reader shares for
 // them, which the apps follow too (docs/reviews-import.md): how the text is
 // cleaned, how several texts for one title become one review, and that a
 // title already reviewed here keeps its own.
@@ -15,7 +16,7 @@ import { canonicalDate, formatSwiftDate, parseSwiftDate } from "./swift";
 export const REVIEW_LIMIT = 10_000;
 
 /** The apps a review can be imported from — what `Review.source` says. */
-export type ReviewSource = "letterboxd" | "tvtime" | "trakt";
+export type ReviewSource = "letterboxd" | "tvtime" | "trakt" | "refract";
 
 /** A review as a reader found it, riding on its row until the row's title is known. */
 export interface ImportedReview {
@@ -25,7 +26,8 @@ export interface ImportedReview {
   writtenAt: Date | null;
   spoilers: boolean;
   rewatch: boolean;
-  source: ReviewSource;
+  /** Null for a file nobody recognised, whose app isn't known. */
+  source: ReviewSource | null;
 }
 
 /** One text waiting to be placed, with the night its row says the title was watched. */
@@ -65,8 +67,8 @@ export function cleanReviewText(raw: string): { text: string; spoilers: boolean 
   return { text, spoilers };
 }
 
-/** At most the limit, never ending on half of a surrogate pair. */
-function cut(text: string): string {
+/** At most the limit, never ending on half of a surrogate pair. A private note is held to it too. */
+export function cut(text: string): string {
   if (text.length <= REVIEW_LIMIT) return text;
   let out = text.slice(0, REVIEW_LIMIT);
   const last = out.charCodeAt(out.length - 1);
@@ -95,6 +97,7 @@ export function combineReviews(pieces: ReviewPiece[], importedAt: string): Revie
   for (const p of ordered) if (!texts.includes(p.review.text)) texts.push(p.review.text);
   const written = pieces.flatMap((p) => (p.review.writtenAt ? [p.review.writtenAt.getTime()] : []));
   const watched = pieces.flatMap((p) => (p.watchedAt ? [p.watchedAt.getTime()] : []));
+  const source = ordered[ordered.length - 1].review.source;
 
   // Absent rather than false, as a review written here leaves them.
   return {
@@ -103,7 +106,7 @@ export function combineReviews(pieces: ReviewPiece[], importedAt: string): Revie
     ...(pieces.some((p) => p.review.rewatch) ? { rewatch: true } : {}),
     ...(pieces.some((p) => p.review.spoilers) ? { spoilers: true } : {}),
     modified: written.length > 0 ? formatSwiftDate(Math.max(...written)) : importedAt,
-    source: ordered[ordered.length - 1].review.source,
+    ...(source ? { source } : {}),
   };
 }
 
@@ -162,6 +165,21 @@ export function cleanArchiveReviews(value: unknown): Record<string, Review> | un
       modified: canonicalDate(modified),
       ...(typeof source === "string" && source ? { source } : {}),
     };
+  }
+  return out;
+}
+
+/**
+ * Private notes arriving from the browser, checked as reviews are: a key of
+ * one of the three shapes and text with something in it, cut at the limit.
+ * A note is never shown to anybody else, so it doesn't meet the word filter.
+ */
+export function cleanArchiveNotes(value: unknown): Record<string, string> | undefined {
+  if (!isObject(value)) return undefined;
+  const out: Record<string, string> = {};
+  for (const [key, text] of Object.entries(value)) {
+    if (!REVIEW_KEY.test(key) || typeof text !== "string" || !text.trim()) continue;
+    out[key] = cut(text.trim());
   }
   return out;
 }

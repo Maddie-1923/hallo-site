@@ -119,12 +119,17 @@ export interface ImportDeps {
  * calls folded into one. `ratings` and `loved` are what it sets through the
  * library's own setters afterwards, keyed like reactions ("movie:1",
  * "show:1", "episode:1-2-3"), and are applied only where the library holds
- * no rating or no reaction of its own when the plan lands.
+ * no rating or no reaction of its own when the plan lands. `notes` and
+ * `moods` are kept out of the archive for the same reason: the merge would
+ * let them replace a title's own, and an import only fills gaps. A backup's
+ * notes and moods travel in its archive and merge as the app merges them.
  */
 export interface ImportPlan {
   archive: LibraryArchive;
   ratings: Record<string, number>;
   loved: string[];
+  notes?: Record<string, string>;
+  moods?: Record<string, string[]>;
 }
 
 export interface ImportRun<R> {
@@ -159,12 +164,15 @@ export interface UniversalImportResult {
   reviewsAdded: number;
   /** Reviews for a title already reviewed here, left alone. */
   reviewsKept: number;
+  /** Titles given moods, and private notes, where they had none. */
+  moodsAdded: number;
+  notesAdded: number;
   unmatched: string[];
   ambiguous: string[];
 }
 
 export function universalLanded(r: UniversalImportResult) {
-  return r.showsAdded > 0 || r.episodesAdded > 0 || r.moviesAdded > 0 || r.ratingsApplied > 0 || r.reviewsAdded > 0;
+  return r.showsAdded > 0 || r.episodesAdded > 0 || r.moviesAdded > 0 || r.ratingsApplied > 0 || r.reviewsAdded > 0 || r.moodsAdded > 0 || r.notesAdded > 0;
 }
 
 /** A title matched on its name when more than one fitted, and what it was taken as. */

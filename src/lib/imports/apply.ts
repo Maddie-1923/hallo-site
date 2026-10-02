@@ -29,9 +29,10 @@ function carriesSomething(a: LibraryArchive) {
 
 /**
  * The library with the plan folded in: the plan's archive merged onto it as
- * the phones merge an import, then each rating and heart set only where the
- * library holds none of its own — an import fills gaps and never overwrites
- * a verdict given here. Returns a new archive and leaves `library` alone.
+ * the phones merge an import, then each rating, heart, private note and set
+ * of moods set only where the library holds none of its own — an import
+ * fills gaps and never overwrites a verdict given here. Returns a new archive
+ * and leaves `library` alone.
  *
  * `exported` and `device` come out as the merge leaves them (the import's
  * moment and "Import"); whoever saves the result stamps its own, as every
@@ -49,6 +50,10 @@ export function applyImportPlan(library: LibraryArchive, plan: ImportPlan, now: 
   for (const key of plan.loved) if (reactions[key] == null) reactions[key] = "loved";
   if (Object.keys(ratings).length > 0 || out.ratings) out.ratings = ratings;
   if (Object.keys(reactions).length > 0 || out.reactions) out.reactions = reactions;
+  const notes = Object.entries(plan.notes ?? {}).filter(([key]) => !out.notes?.[key]);
+  if (notes.length > 0) out.notes = { ...(out.notes ?? {}), ...Object.fromEntries(notes) };
+  const moods = Object.entries(plan.moods ?? {}).filter(([key]) => !out.moods?.[key]?.length);
+  if (moods.length > 0) out.moods = { ...(out.moods ?? {}), ...Object.fromEntries(moods) };
   out.importedAt = swiftNow(now);
   return out;
 }

@@ -6,7 +6,8 @@ import { applyDeleteList, applyDeleteRewatch, applyEpisodeSkipped, applyEpisodeW
 import { tickID } from "@/lib/imports/merge";
 import { checkText } from "@/lib/word-filter";
 import { applyImportPlan, type ImportPlan } from "@/lib/imports";
-import { cleanArchiveReviews } from "@/lib/imports/reviews";
+import { cleanArchiveMoods } from "@/lib/imports/moods";
+import { cleanArchiveNotes, cleanArchiveReviews } from "@/lib/imports/reviews";
 import { isArchive, type LibraryArchive, type Movie, type MovieStatus, type Show, type WatchStatus } from "./archive";
 
 // Every change the website makes to a library goes through here, and each one
@@ -388,10 +389,22 @@ export async function importIntoLibrary(plan: ImportPlan) {
   const archive = { ...plan.archive };
   if (reviews && Object.keys(reviews).length) archive.reviews = reviews;
   else delete archive.reviews;
+  // Notes and moods, a backup's in its archive and an import's beside it.
+  // No word filter (a note is private, a mood one of twelve), but only the
+  // shapes the apps can read.
+  const some = <T,>(v: Record<string, T> | undefined) => (v && Object.keys(v).length ? v : undefined);
+  const archiveNotes = some(cleanArchiveNotes(plan.archive.notes));
+  const archiveMoods = some(cleanArchiveMoods(plan.archive.moods));
+  if (archiveNotes) archive.notes = archiveNotes;
+  else delete archive.notes;
+  if (archiveMoods) archive.moods = archiveMoods;
+  else delete archive.moods;
   const clean: ImportPlan = {
     archive,
     ratings: Object.fromEntries(Object.entries(plan.ratings ?? {}).filter(([k, v]) => /^(movie|show|episode):[\d-]+$/.test(k) && typeof v === "number" && v >= 0.5 && v <= 10)),
     loved: (plan.loved ?? []).filter((k) => /^(movie|show|episode):[\d-]+$/.test(k)),
+    notes: some(cleanArchiveNotes(plan.notes)),
+    moods: some(cleanArchiveMoods(plan.moods)),
   };
   return withArchive(
     (a) => {

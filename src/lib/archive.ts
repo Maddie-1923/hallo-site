@@ -62,7 +62,8 @@ export interface CustomList {
 
 /**
  * A review of a title — what the web's "Review & catalogue" writes and what an
- * import from Letterboxd, TV Time or Trakt brings over. Keyed like reactions
+ * import from Letterboxd, TV Time, Trakt, Refract or any file with a review
+ * column brings over. Keyed like reactions
  * ("show:ID" / "movie:ID" / "episode:showID-s-e"), one per title; a rewatch
  * replaces the text rather than stacking entries. Public, unlike a note. The
  * spec both apps follow is docs/reviews-import.md.
@@ -76,7 +77,7 @@ export interface Review {
   spoilers?: boolean;
   /** When it was written, or for an imported one when the other app says it was. */
   modified: string;
-  /** Where an imported review came from: "letterboxd", "tvtime" or "trakt". Absent for one written here. */
+  /** Where an imported review came from: "letterboxd", "tvtime", "trakt" or "refract". Absent for one written here, or from a file whose app wasn't known. */
   source?: string;
 }
 

@@ -2,10 +2,11 @@ import type { LibraryArchive, Movie, MovieStatus, Show, TrackedMovie, TrackedSho
 import { mergeArchives } from "./merge";
 import { jsonEntries, recogniseJsonFormat } from "./json";
 import { letterboxdIgnored, presetEntries, recognisePreset } from "./presets";
-import { addReviewPiece, placeReviews, type ReviewPiece } from "./reviews";
+import { MOOD_LIMIT } from "./moods";
+import { addReviewPiece, cut, placeReviews, type ReviewPiece } from "./reviews";
 import { attempt, checkAborted, importArchive, reporter } from "./run-parts";
 import { formatSwiftDate, swiftNow, utf16Compare } from "./swift";
-import { guessMapping, ImportTable, isEpisode, readEntries, type ImportedEntry } from "./table";
+import { guessMapping, guessTakeReader, ImportTable, isEpisode, readEntries, type ImportedEntry } from "./table";
 import { titleKey } from "./text";
 import { episodeKey, NothingReadable, type ImportDeps, type ImportFile, type ImportFileOutcome, type ImportPlan, type ImportRun, type UniversalImportResult } from "./types";
 import { looksLikeZip, readZip } from "./zip";
@@ -25,15 +26,22 @@ import { looksLikeZip, readZip } from "./zip";
 // exactly what Android's run would have.
 
 /**
- * A zip becomes its CSV and JSON files; anything else, or a zip that won't
- * open, is itself. Every export that arrives as an archive holds several
- * files that each say something different, and reading one would take
- * somebody's ratings and leave their history behind.
+ * A zip becomes its CSV, JSON and JSON Lines files; anything else, or a zip
+ * that won't open, is itself. Every export that arrives as an archive holds
+ * several files that each say something different, and reading one would
+ * take somebody's ratings and leave their history behind.
+ *
+ * Refract writes everything twice, `data/reviews.jsonl` and
+ * `readable/reviews.csv`: a JSON Lines file is read only where no CSV of the
+ * same name came with it, so nothing arrives doubled.
  */
 function unpack(file: ImportFile): ImportFile[] {
   if (!looksLikeZip(file.data)) return [file];
   try {
-    return readZip(file.data, [".csv", ".json"]).payloads;
+    const payloads = readZip(file.data, [".csv", ".json", ".jsonl"]).payloads;
+    const base = (name: string) => name.toLowerCase().replace(/^.*\//, "").replace(/\.[^.]+$/, "");
+    const tables = new Set(payloads.filter((p) => /\.csv$/i.test(p.name)).map((p) => base(p.name)));
+    return payloads.filter((p) => !/\.jsonl$/i.test(p.name) || !tables.has(base(p.name)));
   } catch {
     return [file];
   }
@@ -41,9 +49,12 @@ function unpack(file: ImportFile): ImportFile[] {
 
 /** One file as rows, and what it was recognised as. The nested exports go first. */
 function read(name: string, data: Uint8Array): [ImportedEntry[], string | null] {
-  const format = recogniseJsonFormat(data);
+  // One object a line is never one of the nested exports, though a file of
+  // one line would parse as one.
+  const lines = /\.jsonl$/i.test(name);
+  const format = lines ? null : recogniseJsonFormat(data);
   if (format) return [jsonEntries(format, data, name), format];
-  const table = ImportTable.read(data);
+  const table = lines ? ImportTable.readJsonLines(data) : ImportTable.read(data);
   if (!table) return [[], null];
   const preset = recognisePreset(name, table);
   if (preset) return [presetEntries(preset, table), preset.name];
@@ -51,12 +62,13 @@ function read(name: string, data: Uint8Array): [ImportedEntry[], string | null] 
   // people's reviews), which its presets turn down: left to the guesser they
   // would come back as films watched.
   if (letterboxdIgnored(name, table.foldedHeaders)) return [[], null];
-  // Nothing recognised it, so the columns are guessed at. A file naming
-  // nothing is reported as read but empty — usually the account details or
-  // settings that came in the same archive.
+  // Nothing recognised it, so the columns are guessed at — and a review, a
+  // note or moods read off any column named for one. A file naming nothing
+  // is reported as read but empty — usually the account details or settings
+  // that came in the same archive.
   const mapping = guessMapping(table);
   if (!mapping.isUsable) return [[], null];
-  return [readEntries(table, mapping), null];
+  return [readEntries(table, mapping, null, guessTakeReader(table, mapping)), null];
 }
 
 /**
@@ -178,7 +190,7 @@ export function movieStatus(rows: ImportedEntry[], watched: boolean): MovieStatu
 function emptyResult(files: ImportFileOutcome[]): UniversalImportResult {
   return {
     files, showsAdded: 0, showsAlreadyTracked: 0, episodesAdded: 0, moviesAdded: 0, moviesAlreadyTracked: 0,
-    ratingsApplied: 0, ratingsKept: 0, ratingsUnplaced: 0, reviewsAdded: 0, reviewsKept: 0, unmatched: [], ambiguous: [],
+    ratingsApplied: 0, ratingsKept: 0, ratingsUnplaced: 0, reviewsAdded: 0, reviewsKept: 0, moodsAdded: 0, notesAdded: 0, unmatched: [], ambiguous: [],
   };
 }
 
@@ -254,7 +266,7 @@ export async function runUniversalImport(files: ImportFile[], deps: ImportDeps):
 /**
  * Only the rows that say something about the library, and only the titles
  * left with any: a title that arrived with nothing but a review (a Trakt
- * comment) gets its review and isn't added.
+ * comment) or moods (a Refract vibe) gets them and isn't added.
  */
 function tracking<T extends { rows: ImportedEntry[] }>(titles: Map<number, T>): Map<number, T> {
   const out = new Map<number, T>();
@@ -283,23 +295,46 @@ async function write(
   const plan: ImportPlan = { archive, ratings: {}, loved: [] };
   let applied = false;
 
-  // Reviews first, for every matched title whether or not anything else
-  // lands — a film already tracked here still gains the review it lacked.
-  // An episode's goes under the episode's own key, which needs no listing.
+  // Reviews, notes and moods first, for every matched title whether or not
+  // anything else lands — a film already tracked here still gains the review
+  // it lacked. An episode's go under the episode's own key, which needs no
+  // listing.
   const pieces = new Map<string, ReviewPiece[]>();
-  for (const entry of matchedMovies.values()) {
-    for (const row of entry.rows) if (row.review) addReviewPiece(pieces, `movie:${entry.movie.id}`, row.review, row.watchedAt);
-  }
+  const notes = new Map<string, string[]>();
+  const moods = new Map<string, string[]>();
+  const take = (key: string, row: ImportedEntry) => {
+    if (row.review) addReviewPiece(pieces, key, row.review, row.watchedAt);
+    if (row.note) notes.set(key, [...new Set([...(notes.get(key) ?? []), row.note])]);
+    if (row.moods.length > 0) moods.set(key, [...new Set([...(moods.get(key) ?? []), ...row.moods])]);
+  };
+  for (const entry of matchedMovies.values()) for (const row of entry.rows) take(`movie:${entry.movie.id}`, row);
   for (const entry of matchedShows.values()) {
-    for (const row of entry.rows) {
-      if (!row.review) continue;
-      const key = isEpisode(row) ? `episode:${episodeKey(entry.show.id, row.season!, row.episode!)}` : `show:${entry.show.id}`;
-      addReviewPiece(pieces, key, row.review, row.watchedAt);
-    }
+    for (const row of entry.rows) take(isEpisode(row) ? `episode:${episodeKey(entry.show.id, row.season!, row.episode!)}` : `show:${entry.show.id}`, row);
   }
   const reviews = placeReviews(pieces, before, archive, now);
   result.reviewsAdded = reviews.added;
   result.reviewsKept = reviews.kept;
+
+  // A note or moods only where the title has none here, as with a rating:
+  // several notes for one title joined in the order read, and the first
+  // three distinct moods in file order, the app's cap. Loved it and the
+  // heart are one statement in the app, so the mood brings the heart.
+  const loved = new Set<string>();
+  for (const [key, texts] of notes) {
+    if (before.notes?.[key]) continue;
+    plan.notes = { ...(plan.notes ?? {}), [key]: cut(texts.join("\n\n")) };
+    result.notesAdded++;
+  }
+  for (const [key, list] of moods) {
+    if ((before.moods?.[key]?.length ?? 0) > 0) continue;
+    const kept = list.slice(0, MOOD_LIMIT);
+    plan.moods = { ...(plan.moods ?? {}), [key]: kept };
+    result.moodsAdded++;
+    if (kept.includes("lovedIt") && before.reactions?.[key] == null && !loved.has(key)) {
+      loved.add(key);
+      plan.loved.push(key);
+    }
+  }
 
   const shows = tracking(matchedShows);
   const movies = tracking(matchedMovies);
@@ -355,7 +390,6 @@ async function write(
 
   // "Does the library hold a verdict here" as Android asks it after each
   // setter: the snapshot, with what this plan has already set laid on top.
-  const loved = new Set<string>();
   const verdicts = (rows: ImportedEntry[], key: string) => {
     // The highest rating when a title is rated in two files of one archive —
     // the kinder reading of somebody's own verdict.

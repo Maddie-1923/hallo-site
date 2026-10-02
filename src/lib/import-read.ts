@@ -35,7 +35,7 @@ function kodigo(a: LibraryArchive, file: string): ImportSummary {
 
 /** The app's name out of what the reader called the file: "Refract library" → "Refract". */
 function appName(format: string): string {
-  return format.replace(/\s*\(.*\)$/, "").replace(/ (library|history|ratings|episodes|favourites|diary|watched|watchlist|likes|lists|reviews|shows|movies|csv|json)$/i, "");
+  return format.replace(/\s*\(.*\)$/, "").replace(/ (library|history|ratings|episodes|favourites|diary|watched|watchlist|likes|lists|reviews|vibes|comments|shows|movies|csv|json)$/i, "");
 }
 
 /** A title once, however many rows name it: by its id, else its folded name. */
@@ -83,7 +83,9 @@ export async function readImport(f: File): Promise<ImportSummary> {
   if (!used.length) return { file: name, source: zip ? "A zip file" : "Unknown file", counts: [], note: zip ? "Nothing inside looked like a watch history." : "Kodigo couldn't find a watch history in this file." };
   const all = used.flatMap((p) => p.entries);
   const reviews = all.filter((e) => e.review).length;
-  // A row with only a review (a Trakt comment) adds no title.
+  const moods = all.filter((e) => e.moods.length > 0).length;
+  const notes = all.filter((e) => e.note).length;
+  // A row with only a review (a Trakt comment) or moods (a Refract vibe) adds no title.
   const entries = all.filter((e) => !e.reviewOnly);
   const series = new Set(entries.filter((e) => isEpisode(e) || e.kind === "shows").map(titleOf));
   const films = new Set(entries.filter((e) => !isEpisode(e) && e.kind === "movies").map(titleOf));
@@ -92,7 +94,7 @@ export async function readImport(f: File): Promise<ImportSummary> {
   return {
     file: name,
     source: named ? `${appName(named)} export` : "Another app's export",
-    counts: ([["Series", series.size], ["Films", films.size], ["Titles", other.size], ["Episodes watched", entries.filter(isEpisode).length], ["Reviews", reviews]] as [string, number][]).filter(([, n]) => n > 0),
+    counts: ([["Series", series.size], ["Films", films.size], ["Titles", other.size], ["Episodes watched", entries.filter(isEpisode).length], ["Reviews", reviews], ["Moods", moods], ["Private notes", notes]] as [string, number][]).filter(([, n]) => n > 0),
     note: zip && parts.length > 1 ? `${parts.length} files inside, ${used.length} with history or reviews in them.` : named || zip ? undefined : "Kodigo couldn't tell which app this came from, so it read the columns.",
   };
 }

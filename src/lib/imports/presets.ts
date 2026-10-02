@@ -1,4 +1,5 @@
-import { cleanReviewText, type ReviewSource } from "./reviews";
+import { moodsIn } from "./moods";
+import { cleanReviewText, cut, type ReviewSource } from "./reviews";
 import { fold, ktTrim, parseDate, truthy } from "./text";
 import { FIELD_ORDER, ImportMapping, readEntries, type ImportField, type ImportTable, type ImportTitleKind, type ImportedEntry, type RatingScale } from "./table";
 
@@ -39,7 +40,31 @@ export interface ImportPreset {
    * mapping rather than through it, so the guesser never takes a column of
    * free text in a file nobody recognised for a review.
    */
-  review?: { source: ReviewSource; text: string; writtenAt?: string; rewatch?: string };
+  review?: {
+    source: ReviewSource;
+    text: string;
+    writtenAt?: string;
+    /** When it was last edited, which dates it instead where later. */
+    editedAt?: string;
+    rewatch?: string;
+    spoilers?: string;
+    /**
+     * Who could read it there. Anything but public, followers or nothing
+     * makes the text the title's private note here instead of a review.
+     */
+    visibility?: string;
+    /** What the row is about, where a review can be left on things Kodigo doesn't have (a post, a list): only a film, show or episode is kept. */
+    target?: string;
+  };
+  /** Where the file keeps the moods somebody gave the row's title, by column name. */
+  moods?: string;
+  /**
+   * A file whose rows are somebody's take on a title and nothing else — a
+   * review, a vibe — which says nothing about watching it. Its titles are
+   * matched for the take's sake and aren't added; a row left with no take
+   * is dropped.
+   */
+  takeOnly?: boolean;
 }
 
 export function presetMapping(preset: ImportPreset, table: ImportTable): ImportMapping {
@@ -61,9 +86,11 @@ export function presetMapping(preset: ImportPreset, table: ImportTable): ImportM
 }
 
 export function presetEntries(preset: ImportPreset, table: ImportTable): ImportedEntry[] {
-  const rows = readEntries(table, presetMapping(preset, table), preset.ratingScale ?? null, reviewReader(preset, table));
+  let rows = readEntries(table, presetMapping(preset, table), preset.ratingScale ?? null, takeReader(preset, table));
+  if (preset.takeOnly) rows = rows.filter((r) => r.review !== null || r.note !== null || r.moods.length > 0);
   const kind = preset.kind ?? "either";
   for (const row of rows) {
+    if (preset.takeOnly) row.reviewOnly = true;
     if (preset.everyRowIsFavorite) row.isFavorite = true;
     if (preset.standing != null) row.status = row.status ?? preset.standing;
     // A file that holds one kind says so by being that file.
@@ -72,20 +99,50 @@ export function presetEntries(preset: ImportPreset, table: ImportTable): Importe
   return rows;
 }
 
-/** What reads a preset's review off a row, or nothing when the file has no review column. */
-function reviewReader(preset: ImportPreset, table: ImportTable) {
-  const columns = preset.review;
-  if (!columns) return undefined;
+/**
+ * What reads a preset's review and moods off a row, or nothing when the file
+ * has neither column. A review its app kept private arrives as the title's
+ * private note; one left on a season, which Kodigo doesn't review, goes on
+ * the show saying which season, as Trakt's does.
+ */
+function takeReader(preset: ImportPreset, table: ImportTable) {
   const index = (name: string | undefined) => (name === undefined ? -1 : table.foldedHeaders.indexOf(fold(name)));
-  const text = index(columns.text);
-  if (text < 0) return undefined;
-  const written = index(columns.writtenAt);
-  const rewatch = index(columns.rewatch);
+  const columns = preset.review;
+  const text = index(columns?.text);
+  const moods = index(preset.moods);
+  if (text < 0 && moods < 0) return undefined;
+  const written = index(columns?.writtenAt);
+  const edited = index(columns?.editedAt);
+  const rewatch = index(columns?.rewatch);
+  const spoilers = index(columns?.spoilers);
+  const visibility = index(columns?.visibility);
+  const target = index(columns?.target);
   const cell = (row: string[], at: number) => (at >= 0 && at < row.length ? ktTrim(row[at]) : null);
   return (entry: ImportedEntry, row: string[]) => {
+    entry.moods = moodsIn(cell(row, moods));
+    if (!columns) return;
+    const about = cell(row, target)?.toLowerCase();
+    if (about && !["movie", "film", "show", "tv", "series", "episode", "season"].includes(about)) return;
     const cleaned = cleanReviewText(cell(row, text) ?? "");
     if (!cleaned.text) return;
-    entry.review = { text: cleaned.text, writtenAt: parseDate(cell(row, written)), spoilers: cleaned.spoilers, rewatch: truthy(cell(row, rewatch)), source: columns.source };
+    const seen = (cell(row, visibility) ?? "").toLowerCase();
+    if (seen && seen !== "public" && seen !== "followers") {
+      entry.note = cut(cleaned.text);
+      return;
+    }
+    let body = cleaned.text;
+    if (entry.season !== null && entry.episode === null) {
+      body = `Season ${entry.season}: ${body}`;
+      entry.season = null;
+    }
+    const at = [parseDate(cell(row, written)), parseDate(cell(row, edited))].filter((d): d is Date => d !== null);
+    entry.review = {
+      text: cut(body),
+      writtenAt: at.length > 0 ? new Date(Math.max(...at.map((d) => d.getTime()))) : null,
+      spoilers: cleaned.spoilers || truthy(cell(row, spoilers)),
+      rewatch: truthy(cell(row, rewatch)),
+      source: columns.source,
+    };
   };
 }
 
@@ -116,7 +173,10 @@ const bingersLibrary: ImportPreset = {
   },
 };
 
-/** `ratings.csv`: five stars and no halves, which the app itself settles. */
+/**
+ * `ratings.csv`: five stars and no halves, which the app itself settles.
+ * `emotions` are moods; `favorite_character` has nowhere to go here.
+ */
 const bingersRatings: ImportPreset = {
   id: "bingers.ratings",
   name: "Bingers ratings",
@@ -127,6 +187,7 @@ const bingersRatings: ImportPreset = {
     tmdbID: ["tmdb_id"], tvdbID: ["tvdb_id"], rating: ["rating"],
   },
   ratingScale: "fivePoint",
+  moods: "emotions",
 };
 
 /** `lists.csv`: titles carrying the name of the list they were on. */
@@ -153,6 +214,7 @@ const refractEpisodes: ImportPreset = {
     watched: ["watched"], watchedAt: ["watched_at"], rating: ["rating"],
   },
   ratingScale: "tenPoint",
+  moods: "mood_tags",
 };
 
 /**
@@ -170,6 +232,7 @@ const refractLibrary: ImportPreset = {
     watchedAt: ["last_watched_at"],
   },
   ratingScale: "tenPoint",
+  moods: "mood_tags",
 };
 
 /** `readable/ratings.csv`: a verdict on a film, a series or one episode. */
@@ -179,10 +242,11 @@ const refractRatings: ImportPreset = {
   matches: (_, h) => h.includes("targettype") && h.includes("value"),
   columns: {
     title: ["title"], year: ["year"], kind: ["media_type"],
-    tmdbID: ["tmdb_id"], season: ["season"], episode: ["episode"],
+    tmdbID: ["tmdb_id"], season: ["season", "seasonNumber"], episode: ["episode", "episodeNumber"],
     rating: ["value"],
   },
   ratingScale: "tenPoint",
+  moods: "mood_tags",
 };
 
 /** `readable/favorites.csv`: every row a heart; hearts on people carry no title id and fall out. */
@@ -207,6 +271,55 @@ const refractDiary: ImportPreset = {
   name: "Refract diary (activity log, not imported)",
   matches: (_, h) => h.includes("actiontype") && h.includes("actiondatetz"),
   columns: {},
+};
+
+/**
+ * The columns Refract's reviews, vibes and comments share: the title and its
+ * TMDB id, and an episode's numbers — `season` in `readable/`, `seasonNumber`
+ * in `data/`, read when the CSV isn't there (the other names fold the same).
+ */
+const refractTarget = {
+  title: ["title"], year: ["year"], kind: ["media_type"],
+  tmdbID: ["tmdb_id"], season: ["season", "seasonNumber"], episode: ["episode", "episodeNumber"],
+};
+
+/**
+ * `readable/reviews.csv`: placed exactly by the TMDB id, an episode's by its
+ * numbers. Dated by the later of written and edited. A review Refract kept
+ * private is a private note here.
+ */
+const refractReviews: ImportPreset = {
+  id: "refract.reviews",
+  name: "Refract reviews",
+  matches: (_, h) => h.includes("body") && h.includes("visibility") && h.includes("targettype"),
+  columns: refractTarget,
+  review: { source: "refract", text: "body", spoilers: "is_spoiler", writtenAt: "created_at", editedAt: "edited_at", visibility: "visibility" },
+  takeOnly: true,
+};
+
+/** `readable/vibes.csv`: moods on a title, in Refract's own words. */
+const refractVibes: ImportPreset = {
+  id: "refract.vibes",
+  name: "Refract vibes",
+  matches: (_, h) => h.includes("moodtags") && h.includes("targettype") && !h.includes("value") && !h.includes("body"),
+  columns: refractTarget,
+  moods: "mood_tags",
+  takeOnly: true,
+};
+
+/**
+ * `readable/comments.csv`: mostly replies on other people's posts, which
+ * Kodigo has no place for. Only a comment left on a film, show or episode
+ * is kept, as a review — and only where the row names one, which the
+ * export so far doesn't.
+ */
+const refractComments: ImportPreset = {
+  id: "refract.comments",
+  name: "Refract comments",
+  matches: (_, h) => h.includes("body") && h.includes("targettype") && !h.includes("visibility"),
+  columns: refractTarget,
+  review: { source: "refract", text: "body", spoilers: "is_spoiler", writtenAt: "created_at", editedAt: "edited_at", target: "target_type" },
+  takeOnly: true,
 };
 
 // ---- Letterboxd — films only, no id of any kind, a preset per file ----
@@ -378,6 +491,7 @@ const simklCsv: ImportPreset = {
 
 export const IMPORT_PRESETS = {
   refractEpisodes, refractLibrary, refractRatings, refractFavorites, refractDiary,
+  refractReviews, refractVibes, refractComments,
   bingersWatches, bingersLibrary, bingersRatings, bingersLists,
   letterboxdDiary, letterboxdRatings, letterboxdWatched, letterboxdWatchlist, letterboxdLikes,
   imdbV3, imdbV2, imdbV1,

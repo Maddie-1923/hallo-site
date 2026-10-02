@@ -1,5 +1,6 @@
 import { parseCsv } from "./csv";
-import type { ImportedReview } from "./reviews";
+import { moodsIn, readMoodTags } from "./moods";
+import { cleanReviewText, cut, type ImportedReview } from "./reviews";
 import { fold, ktTrim, parseDate, toDoubleOrNull, toIntOrNull, trimSpaces, truthy } from "./text";
 
 // Reading an export from any app as a table — Android's UniversalImport.kt,
@@ -116,6 +117,43 @@ export class ImportTable {
     const keys = new Set<string>();
     for (const entry of objects.slice(0, 200)) for (const key of Object.keys(entry).sort()) keys.add(key);
     if (keys.size === 0) return null;
+    const columns = [...keys];
+    return new ImportTable(
+      columns,
+      objects.map((entry) => columns.map((c) => cell(Object.prototype.hasOwnProperty.call(entry, c) ? entry[c] : undefined))),
+    );
+  }
+
+  /**
+   * JSON Lines — one object to a line, Refract's `data/*.jsonl` — into a
+   * table the same way. An object inside a record (Refract's `item`, which
+   * holds the title and its ids) has its plain values lifted up beside the
+   * record's own, which win a clash; a list of plain values (`moodTags`)
+   * becomes one cell, comma-separated. A line that isn't an object is
+   * skipped, and a file with none is no table.
+   */
+  static readJsonLines(data: Uint8Array): ImportTable | null {
+    const objects: JsonObject[] = [];
+    for (const line of keepBom.decode(data).replace(/^\uFEFF/, "").split("\n")) {
+      if (!line.trim()) continue;
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(line);
+      } catch {
+        continue;
+      }
+      if (!isJsonObject(parsed)) continue;
+      const flat: JsonObject = {};
+      for (const [key, value] of Object.entries(parsed)) {
+        if (isJsonObject(value)) for (const [inner, v] of Object.entries(value)) if (!isJsonObject(v) && !Array.isArray(v) && !(inner in parsed)) flat[inner] = v;
+        if (Array.isArray(value) && value.every((v) => !isJsonObject(v) && !Array.isArray(v))) flat[key] = value.map(cell).filter((v) => v).join(", ");
+        else if (!isJsonObject(value) && !Array.isArray(value)) flat[key] = value;
+      }
+      objects.push(flat);
+    }
+    if (objects.length === 0) return null;
+    const keys = new Set<string>();
+    for (const entry of objects.slice(0, 200)) for (const key of Object.keys(entry).sort()) keys.add(key);
     const columns = [...keys];
     return new ImportTable(
       columns,
@@ -303,6 +341,60 @@ export function guessMapping(table: ImportTable): ImportMapping {
   return mapping;
 }
 
+/**
+ * Where a file nobody recognised keeps somebody's own take on a title, by
+ * column name (case and punctuation folded) — never by what's in a column,
+ * so a column of free text is only a review when it says so. `tags` is read
+ * as moods only when every tag in it is one.
+ */
+const TAKE_COLUMNS = {
+  review: ["review", "reviews", "reviewtext", "comment", "comments", "body", "myreview"],
+  note: ["note", "notes", "memo", "privatenote", "privatenotes"],
+  spoilers: ["spoiler", "spoilers", "isspoiler", "containsspoilers", "hasspoilers"],
+  moods: ["mood", "moods", "vibe", "vibes", "emotion", "emotions"],
+  writtenAt: ["reviewdate", "reviewed", "reviewedat", "createdat", "written"],
+};
+
+/**
+ * What reads a review, a private note, spoilers and moods off a guessed
+ * file's rows, or nothing when it has none of those columns. A column the
+ * mapping already took is left to it — except the date, since `created_at`
+ * can be both the night and the day a review was written. A row bringing
+ * only these, with no date, standing, rating or heart, is a take on a title
+ * rather than a sign it was watched, and doesn't add the title.
+ */
+export function guessTakeReader(table: ImportTable, mapping: ImportMapping): ((entry: ImportedEntry, row: string[]) => void) | undefined {
+  const mapped = new Set(mapping.columns.values());
+  const find = (names: string[], free = true) => {
+    for (const name of names) {
+      const index = table.foldedHeaders.indexOf(name);
+      if (index >= 0 && (!free || !mapped.has(index))) return index;
+    }
+    return -1;
+  };
+  const review = find(TAKE_COLUMNS.review);
+  const note = find(TAKE_COLUMNS.note);
+  const spoilers = find(TAKE_COLUMNS.spoilers);
+  const written = find(TAKE_COLUMNS.writtenAt, false);
+  let moods = find(TAKE_COLUMNS.moods);
+  if (moods < 0) {
+    const tags = find(["tags"]);
+    const values = tags < 0 ? [] : table.rows.map((r) => (tags < r.length ? ktTrim(r[tags]) : "")).filter((v) => v);
+    if (values.length > 0 && values.every((v) => readMoodTags(v).unknown === 0)) moods = tags;
+  }
+  if (review < 0 && note < 0 && moods < 0) return undefined;
+  const at = (row: string[], index: number) => (index >= 0 && index < row.length ? ktTrim(row[index]) : null);
+  return (entry, row) => {
+    const text = cleanReviewText(at(row, review) ?? "");
+    if (text.text) entry.review = { text: text.text, writtenAt: parseDate(at(row, written)), spoilers: text.spoilers || truthy(at(row, spoilers)), rewatch: false, source: null };
+    const kept = cleanReviewText(at(row, note) ?? "").text;
+    if (kept) entry.note = cut(kept);
+    entry.moods = moodsIn(at(row, moods));
+    const took = entry.review !== null || entry.note !== null || entry.moods.length > 0;
+    if (took && entry.watchedAt === null && entry.status === null && entry.rating === null && !entry.isFavorite && entry.watchedFlag !== true) entry.reviewOnly = true;
+  };
+}
+
 const DIGIT = /\p{Nd}/u;
 
 function looksLikeImdbID(text: string) {
@@ -345,10 +437,15 @@ export interface ImportedEntry {
   tvdbID: number | null;
   /** What somebody wrote about the row's title — a film, the show, or the row's episode. */
   review: ImportedReview | null;
+  /** A private note on the row's title, already cleaned as a review's text is. */
+  note: string | null;
+  /** Kodigo's mood ids for the row's title, each once, in the order the file gave them. */
+  moods: string[];
   /**
-   * A row that brings a review and nothing else — a Trakt comment, which
-   * says somebody wrote about a title, not that they watched it or meant to.
-   * Its title is matched for the review's sake and isn't added to the library.
+   * A row that brings a review, a note or moods and nothing else — a Trakt
+   * comment, a Refract vibe — which says somebody felt something about a
+   * title, not that they watched it or meant to. Its title is matched for
+   * the review's sake and isn't added to the library.
    */
   reviewOnly: boolean;
 }
@@ -371,6 +468,8 @@ export function importedEntry(fields: Partial<ImportedEntry> = {}): ImportedEntr
     tmdbID: null,
     tvdbID: null,
     review: null,
+    note: null,
+    moods: [],
     reviewOnly: false,
     ...fields,
   };
