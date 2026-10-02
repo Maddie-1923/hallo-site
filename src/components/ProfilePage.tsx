@@ -219,28 +219,32 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-// Under the photo, in the space the card leaves beside it: a small box with
-// the follower and following counts, each opening the list of people, and
-// for a visitor + Follow in its top right corner.
+// Under the photo, in the space the card leaves beside it: a small box of
+// four counts in two rows, followers and following (each opening the list of
+// people), then lists and reviews (each opening its tab).
 function PeopleCounts({ v }: { v: PublicProfileView }) {
-  const line = "block w-full text-left px-3 py-0.5 text-[0.9167rem] leading-[1.35] text-dim hover:text-ink hover:font-semibold cursor-pointer";
+  const cell = "block min-w-0 truncate text-left text-[0.9167rem] leading-[1.35] text-dim no-underline hover:text-ink hover:font-semibold cursor-pointer";
   const n = (x: number) => <b className="font-semibold text-ink">{x.toLocaleString("en")}</b>;
+  const lists = v.categories.filter((c) => c.id.startsWith("list:")).length;
+  const reviews = v.reviews.length;
+  const who = v.viewerFollow !== undefined ? v.username : undefined;
   return (
     // From the column's left edge (the banner's and Favourites') to the card,
-    // and from under the photo down to the card's foot.
-    <div className="absolute left-0 bottom-0 rounded-shell bg-card border border-hair flex flex-col justify-center py-1.5 ![font-family:var(--font-body)]" style={{ width: "calc(var(--card-in) - 0.5rem)", top: `calc(${AVATAR} * 0.5 + 0.5rem)` }}>
-      {(v.owner || v.allowFollows !== false) && (
-        // A phone's box is too narrow for it: there it's in the card.
-        <div className="absolute top-1.5 right-1.5 max-sm:hidden">
-          <FollowPill owner={!!v.owner} username={v.username} state={v.viewerFollow} small />
-        </div>
-      )}
-      <FollowList kind="followers" owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={line} plain>
+    // and from under the photo down to the card's foot. A phone has no room
+    // there for two columns, so it's a row of four under the card instead.
+    <div className="sm:absolute sm:left-0 sm:bottom-0 sm:top-[calc(var(--avatar)*0.5+0.5rem)] sm:w-[calc(var(--card-in)-0.5rem)] max-sm:order-2 max-sm:mt-2 rounded-shell bg-card border border-hair grid grid-cols-2 max-sm:grid-cols-4 content-center gap-x-2 gap-y-0.5 px-3 py-1.5 ![font-family:var(--font-body)]">
+      <FollowList kind="followers" owner={!!v.owner} username={who} className={cell} plain>
         {n(v.followers)} {v.followers === 1 ? "follower" : "followers"}
       </FollowList>
-      <FollowList kind="following" owner={!!v.owner} username={v.viewerFollow !== undefined ? v.username : undefined} className={line} plain>
+      <FollowList kind="following" owner={!!v.owner} username={who} className={cell} plain>
         {n(v.following)} following
       </FollowList>
+      <a href="#categories" className={cell}>
+        {n(lists)} {lists === 1 ? "list" : "lists"}
+      </a>
+      <a href="#reviews" className={cell}>
+        {n(reviews)} {reviews === 1 ? "review" : "reviews"}
+      </a>
     </div>
   );
 }
@@ -325,7 +329,7 @@ function TopGenres({ genres }: { genres: { name: string; share: number }[] }) {
 // to set, and only there when set); on the right, Follow.
 function ProfileCard({ v }: { v: PublicProfileView }) {
   return (
-    <div className="relative flex self-stretch [--avatar:10.6667rem] max-sm:[--avatar:7.5rem] [--card-in:calc(2.3333rem+var(--avatar)+0.5rem)]">
+    <div className="relative flex max-sm:flex-col self-stretch [--avatar:10.6667rem] max-sm:[--avatar:7.5rem] [--card-in:calc(2.3333rem+var(--avatar)+0.5rem)]">
       {/* The photo, as the app draws it: a circle in a ring of the page's own
           colour, crossing the banner's bottom edge so the ring reads as the
           banner being interrupted by the person in front of it. Anchored to
@@ -358,22 +362,18 @@ function ProfileCard({ v }: { v: PublicProfileView }) {
               sitting on one baseline; just the handle, in lowercase as it's
               typed, until they set a name. */}
           {v.displayName && v.displayName !== v.username ? (
-            <div className="flex items-baseline gap-2 min-w-0">
-              <div className="display text-[2.1667rem] leading-[.9] truncate shrink-0 max-w-[70%]">{v.displayName}</div>
+            // On a phone there's no room for both on a line: the handle goes under.
+            <div className="flex max-sm:flex-col items-baseline max-sm:items-start gap-x-2 gap-y-1 min-w-0">
+              <div className="display text-[2.1667rem] leading-[.9] truncate shrink-0 sm:max-w-[70%] max-w-full">{v.displayName}</div>
               <div className="text-[1.0417rem] text-dim truncate min-w-0">@{v.username}</div>
             </div>
           ) : (
             <div className="text-[1.6667rem] font-semibold leading-tight truncate">@{v.username}</div>
           )}
         </div>
-        {/* The profile's menu; Follow is with the counts under the photo, but
-            here on a phone, where that box is too narrow for it. */}
+        {/* Follow, then the profile's menu, at the card's top right. */}
         <div className="shrink-0 mt-px flex items-start gap-2">
-          {(v.owner || v.allowFollows !== false) && (
-            <span className="sm:hidden">
-              <FollowPill owner={!!v.owner} username={v.username} state={v.viewerFollow} small />
-            </span>
-          )}
+          {(v.owner || v.allowFollows !== false) && <FollowPill owner={!!v.owner} username={v.username} state={v.viewerFollow} />}
           <ProfileMenu username={v.username} owner={!!v.owner} />
         </div>
         </div>
