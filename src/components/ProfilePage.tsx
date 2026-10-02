@@ -232,7 +232,7 @@ function PeopleCounts({ v }: { v: PublicProfileView }) {
     // From the column's left edge (the banner's and Favourites') to the card,
     // and from under the photo down to the card's foot. A phone has no room
     // there for two columns, so it's a row of four under the card instead.
-    <div className="sm:absolute sm:left-0 sm:bottom-0 sm:top-[calc(var(--avatar)*0.5+0.5rem)] sm:w-[calc(var(--card-in)-0.5rem)] max-sm:order-2 max-sm:mt-2 rounded-shell bg-card border border-hair grid grid-cols-2 max-sm:grid-cols-4 content-center gap-x-2 gap-y-0.5 px-3 py-1.5 ![font-family:var(--font-body)]">
+    <div className="sm:absolute sm:left-0 sm:bottom-0 sm:top-[calc(var(--avatar)*0.5+0.5rem)] sm:w-[calc(var(--card-in)-0.5rem)] max-sm:order-2 max-sm:mt-2 rounded-shell bg-card border border-hair grid grid-cols-[auto_auto] max-sm:grid-cols-4 justify-center max-sm:justify-between content-center gap-x-4 gap-y-0.5 px-3 py-1.5 ![font-family:var(--font-body)]">
       <FollowList kind="followers" owner={!!v.owner} username={who} className={cell} plain>
         {n(v.followers)} {v.followers === 1 ? "follower" : "followers"}
       </FollowList>
