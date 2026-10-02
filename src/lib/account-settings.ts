@@ -92,7 +92,9 @@ export async function saveAccountTheme(id: string): Promise<boolean> {
 /** Location and quote, shown on the profile. */
 export async function saveAbout(about: { location: string; quote: string }): Promise<{ ok: boolean; error?: string }> {
   const location = about.location.trim().slice(0, 60);
-  const quote = about.quote.trim().slice(0, 140);
+  // One line on the card: breaks and runs of spaces fold to single spaces, so
+  // a quote can't stretch the card down the page however it's typed.
+  const quote = about.quote.replace(/\s+/g, " ").trim().slice(0, 140);
   const problem = checkText(`${location}\n${quote}`);
   if (problem) return { ok: false, error: problem };
   const me = await signedIn();
