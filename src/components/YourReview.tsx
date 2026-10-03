@@ -49,6 +49,7 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
   const [tagDraft, setTagDraft] = useState<string | null>(null);
   const [text, setText] = useState(from?.text ?? "");
   const [spoilers, setSpoilers] = useState(from?.spoilers ?? false);
+  const [noReplies, setNoReplies] = useState(from?.noReplies ?? false);
   const [watchedOn, setWatchedOn] = useState(from?.watchedOn ?? "");
   const [rewatch, setRewatch] = useState(from?.rewatch ?? false);
   const [note, setNote] = useState(from?.note ?? "");
@@ -75,7 +76,7 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
       setBusy(true);
       setProblem(null);
       setSaid(false);
-      const input: TakeInput = { rating, moods: moods.map((m) => MOOD_IDS[MOODS.findIndex(([, label]) => label === m)]).filter(Boolean), tags, text, spoilers, watchedOn, rewatch, note };
+      const input: TakeInput = { rating, moods: moods.map((m) => MOOD_IDS[MOODS.findIndex(([, label]) => label === m)]).filter(Boolean), tags, text, spoilers, noReplies, watchedOn, rewatch, note };
       const r = await saveTake(target, input).catch(() => ({ error: "That didn't save. Try again." }));
       setBusy(false);
       if (r.error) return setProblem(r.error);
@@ -228,6 +229,25 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
             <MarkRewatched size={22} />
             Rewatched
           </button>
+          {/* Replies, on unless turned off: the app's review sheet has the
+              same switch, and the database refuses a reply to a review that
+              has it off. Only for a signed-in review, since a review kept in
+              this browser has nobody to reply to it. */}
+          {live && target && (
+            <button
+              type="button"
+              aria-pressed={!noReplies}
+              onClick={() => setNoReplies((n) => !n)}
+              className={`inline-flex items-center gap-2 h-9 rounded-full border pl-2.5 pr-3.5 text-[1.0417rem] cursor-pointer transition-colors ${noReplies ? "border-hair text-dim hover:text-ink" : "border-transparent"}`}
+              style={noReplies ? undefined : { background: "var(--accent-fill)", color: "var(--on-accent)" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 5h16v11H9l-4 3.5V16H4z" />
+                {noReplies ? <path d="M3 3l18 18" strokeLinecap="round" /> : <path d="M8 9.5h8M8 12.5h5" strokeLinecap="round" />}
+              </svg>
+              {noReplies ? "Replies off" : "Replies on"}
+            </button>
+          )}
           <span className="inline-flex items-center gap-2">
             <span className="text-dim">Watched on</span>
             <WatchedOn value={watchedOn} onChange={setWatchedOn} out={out ? { label: kind === "movie" ? "Release day" : kind === "episode" ? "Air date" : "First aired", date: out } : null} />

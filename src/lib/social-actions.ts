@@ -208,6 +208,18 @@ export async function loadComments(kind: TargetKind, owner: string, target: stri
   );
 }
 
+/** Whether the writer of a review has turned replies off. Asked as the
+    reader, so a review they can't see answers false rather than giving
+    anything away (supabase/migrations/20261003100000_review_replies.sql). */
+export async function repliesClosed(owner: string, target: string): Promise<boolean> {
+  const m = await me();
+  if (!m) return false;
+  const id = await idOf(m.supabase, owner);
+  if (!id) return false;
+  const { data } = await m.supabase.rpc("review_replies_closed", { p_owner: id, p_target: target });
+  return data === true;
+}
+
 export async function postComment(kind: TargetKind, owner: string, target: string, body: string): Promise<{ ok: boolean; comment?: CommentView; error?: string; preview?: boolean }> {
   const m = await me();
   if (!m) return { ok: false, preview: true };
@@ -225,6 +237,12 @@ export async function postComment(kind: TargetKind, owner: string, target: strin
       ? await m.supabase.from("public_entries").select("key").eq("user_id", id).eq("key", `${target[0] === "m" ? "movie" : "show"}:${target.slice(1)}`).not("review", "is", null).maybeSingle()
       : await m.supabase.from("public_lists").select("id").eq("user_id", id).eq("id", target).maybeSingle();
   if (!seen.data) return { ok: false, error: "You can't comment on this." };
+  // Turned off by the writer. The database refuses the insert as well; this
+  // is the check that gets a sentence back to the person instead of a failure.
+  if (kind === "review") {
+    const closed = await m.supabase.rpc("review_replies_closed", { p_owner: id, p_target: target });
+    if (closed.data === true) return { ok: false, error: "Replies are off for this review." };
+  }
   const db = admin();
   if (!db) return { ok: false, error: "Comments can't be posted right now." };
   // A brake on floods: 30 an hour.

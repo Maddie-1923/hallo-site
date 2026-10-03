@@ -81,6 +81,8 @@ export interface TakeInput {
   tags: string[];
   text: string;
   spoilers: boolean;
+  /** Replies turned off on the review (the library's `noReplies`). */
+  noReplies: boolean;
   /** "YYYY-MM-DD", or empty. */
   watchedOn: string;
   rewatch: boolean;
@@ -103,6 +105,7 @@ export function readTake(a: LibraryArchive, key: string): TakeInput | null {
     tags: a.tags?.[key] ?? [],
     text: review?.text ?? "",
     spoilers: !!review?.spoilers,
+    noReplies: !!review?.noReplies,
     watchedOn: review?.watchedOn ?? "",
     rewatch: !!review?.rewatch,
     note: a.notes?.[key] ?? "",
@@ -155,7 +158,7 @@ export function applyTake(a: LibraryArchive, t: TakeTarget, input: TakeInput, st
   if (!text && !day && rating == null && !moods.length && !tags.length && !note) return clearTake(a, t, stamp);
 
   a.reviews ??= {};
-  if (text || day) a.reviews[key] = { text, watchedOn: day || undefined, rewatch: input.rewatch || undefined, spoilers: (text && input.spoilers) || undefined, modified: stamp };
+  if (text || day) a.reviews[key] = { text, watchedOn: day || undefined, rewatch: input.rewatch || undefined, spoilers: (text && input.spoilers) || undefined, noReplies: (text && input.noReplies) || undefined, modified: stamp };
   else delete a.reviews[key];
   a.ratings ??= {};
   if (rating == null) delete a.ratings[key];

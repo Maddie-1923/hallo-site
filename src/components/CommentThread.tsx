@@ -6,7 +6,7 @@ import { MoreButton } from "./SafetySheets";
 import { useDateFormat } from "./Day";
 import { useSafety } from "@/lib/safety";
 import { checkText } from "@/lib/word-filter";
-import { deleteComment, loadComments, postComment, type CommentView, type TargetKind } from "@/lib/social-actions";
+import { deleteComment, loadComments, postComment, repliesClosed, type CommentView, type TargetKind } from "@/lib/social-actions";
 
 // Comments on a review or a list (docs/social-plan.md, step 4.3). On a real
 // member's review or list they come from the account: the box posts through
@@ -21,12 +21,18 @@ export function CommentThread({ kind, owner, target, href }: { kind: TargetKind;
   const [draft, setDraft] = useState("");
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // A review's writer can turn replies off; the comments already there stay.
+  const [closed, setClosed] = useState(false);
 
   useEffect(() => {
     let stale = false;
     loadComments(kind, owner, target)
       .then((r) => !stale && r && setLive(r))
       .catch(() => {});
+    if (kind === "review")
+      repliesClosed(owner, target)
+        .then((c) => !stale && setClosed(c))
+        .catch(() => {});
     return () => {
       stale = true;
     };
@@ -83,6 +89,8 @@ export function CommentThread({ kind, owner, target, href }: { kind: TargetKind;
           </Link>{" "}
           to comment.
         </p>
+      ) : closed ? (
+        <p className="m-0 p-3 text-[1.0417rem] text-dim">Replies are off for this review.</p>
       ) : (
       <form
         className="p-3 grid gap-1.5"

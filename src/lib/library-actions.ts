@@ -260,6 +260,9 @@ export async function saveReview(target: { kind: "show"; show: Show } | { kind: 
         watchedOn: /^\d{4}-\d{2}-\d{2}$/.test(input.watchedOn) ? input.watchedOn : undefined,
         rewatch: input.rewatch || undefined,
         spoilers: input.spoilers || undefined,
+        // The review dialog has no replies switch, so it keeps whatever the
+        // review already said.
+        noReplies: a.reviews[key]?.noReplies || undefined,
         modified: stamp,
       };
     } else {
@@ -321,6 +324,7 @@ export async function setRewatched(target: { kind: "show"; show: Show } | { kind
         watchedOn: existing?.watchedOn ?? stamp.slice(0, 10),
         rewatch: true,
         spoilers: existing?.spoilers,
+        noReplies: existing?.noReplies,
         modified: stamp,
       };
       ensureTracked(a, target, stamp);

@@ -75,6 +75,8 @@ export interface Review {
   watchedOn?: string;
   rewatch?: boolean;
   spoilers?: boolean;
+  /** True when the writer has turned replies off; absent means replies are on. */
+  noReplies?: boolean;
   /** When it was written, or for an imported one when the other app says it was. */
   modified: string;
   /** Where an imported review came from: "letterboxd", "tvtime", "trakt" or "refract". Absent for one written here, or from a file whose app wasn't known. */

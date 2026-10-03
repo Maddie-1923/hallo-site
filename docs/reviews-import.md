@@ -20,6 +20,7 @@ interface Review {
   watchedOn?: string;      // "YYYY-MM-DD", the day it was watched, when known
   rewatch?: boolean;       // absent = false
   spoilers?: boolean;      // absent = false
+  noReplies?: boolean;     // NEW (3 Oct 2026): true = the writer turned replies off; absent = replies on
   modified: string;        // ISO-8601 UTC, no fractional seconds ("2026-10-02T09:15:00Z"); when written
   source?: string;         // NEW, optional: "letterboxd" | "tvtime" | "trakt" when imported
 }
