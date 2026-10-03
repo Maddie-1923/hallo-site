@@ -1,12 +1,14 @@
 import Link from "next/link";
 
-// Community is one tab in the bar and two pages under it, Members and Lists,
-// the way Explore is one tab over Shows and Movies. The switch is links, so
-// each half keeps its own address to share.
+// Community is one tab in the bar and two pages under it, Members and
+// Collections, the way Explore is one tab over Shows and Movies. The switch is
+// links, so each half keeps its own address to share. "Collections" since
+// 3 Oct 2026, the app's name for public lists; the address stays /lists so
+// links already shared keep working.
 export function CommunitySwitch({ on }: { on: "members" | "lists" }) {
   const tabs: [string, string, boolean][] = [
     ["/members", "Members", on === "members"],
-    ["/lists", "Lists", on === "lists"],
+    ["/lists", "Collections", on === "lists"],
   ];
   return (
     <nav aria-label="Community" className="inline-flex gap-1 p-[0.25rem] mb-3 rounded-full bg-card border border-hair">
