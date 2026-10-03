@@ -1,7 +1,7 @@
 import "server-only";
 import { accountsOpen } from "@/lib/accounts";
 import { isArchive, type LibraryArchive } from "@/lib/archive";
-import { profileFromArchive, watchedLists, withAiredEpisodes, withMissingTitles, withUpToDate, type LikedItem, type PublicProfileView, type ReviewEntry, type WatchedLists } from "@/lib/public-profile";
+import { profileFromArchive, watchedLists, withAiredEpisodes, withMissingTitles, withUpToDate, type LikedItem, type ProfileTitle, type PublicProfileView, type ReviewEntry, type WatchedLists } from "@/lib/public-profile";
 import { avatarUrl, bannerUrl, PICTURE_COLUMNS } from "@/lib/pictures";
 import { createClient } from "@/lib/supabase/server";
 import { image } from "@/lib/tmdb";
@@ -25,12 +25,20 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   const supabase = await createClient();
   const { data: p } = await supabase
     .from("profiles")
-    .select(`user_id, display_name, ${PICTURE_COLUMNS}, location, quote, links, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, category_privacy, pinned_reviews`)
+    .select(`user_id, display_name, ${PICTURE_COLUMNS}, location, quote, links, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, category_privacy, pinned_reviews, favourites`)
     .eq("username", username.toLowerCase())
     .maybeSingle();
   if (!p?.username) return null;
   // The reviews they pinned, first on the tab in the order pinned.
   const pins = (p.pinned_reviews as string[] | null) ?? [];
+  // Hand-picked favourites, where the member chose them (app or card), in
+  // place of the automatic five a side.
+  const picked = favouritesFrom(p.favourites);
+  const withPicks = <T extends { topFilms: ProfileTitle[]; topShows: ProfileTitle[] }>(v: T): T => ({
+    ...v,
+    topFilms: picked.movie ?? v.topFilms,
+    topShows: picked.show ?? v.topShows,
+  });
   const pinFirst = <T extends { reviews: ReviewEntry[] }>(v: T): T => ({
     ...v,
     reviews: [...pins.flatMap((k) => v.reviews.filter((r) => r.key === k).map((r) => ({ ...r, pinned: true }))), ...v.reviews.filter((r) => !pins.includes(r.key))],
@@ -61,7 +69,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   if (user && user.id === p.user_id) {
     const archive = await archiveFor(supabase, p.user_id, true);
     const view = profileFromArchive(archive, meta, true);
-    return { ...pinFirst(await withAiredEpisodes(await withUpToDate(view, archive))), ...social, isPrivate: p.is_private, categoryPrivacy: (p.category_privacy as Record<string, boolean>) ?? {} };
+    return { ...withPicks(pinFirst(await withAiredEpisodes(await withUpToDate(view, archive)))), ...social, isPrivate: p.is_private, categoryPrivacy: (p.category_privacy as Record<string, boolean>) ?? {} };
   }
   // Everyone else: their public copy, drawn by the same code as the owner's
   // view. None for a private profile unless the viewer is an approved
@@ -74,7 +82,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   // aren't even in the public copy.
   const hiddenCategories = (p.category_privacy as Record<string, boolean>) ?? {};
   return {
-    ...pinFirst(view),
+    ...withPicks(pinFirst(view)),
     ...social,
     categories: view.categories.filter((c) => !hiddenCategories[c.id]),
     // Private, and the viewer isn't an approved follower: only the card.
@@ -156,4 +164,20 @@ async function likedBy(supabase: Client, userID: string): Promise<LikedItem[]> {
     const first = (l?.titles as { poster_path: string | null }[] | undefined)?.[0];
     return l ? [{ key: `list:${owner}:${r.target}`, kind: "list", title: l.name, poster: image.poster(first?.poster_path ?? null, "w342"), href: `/u/${owner}/list/${r.target}`, owner }] : [];
   });
+}
+
+/** A profile's `favourites` column as the card's titles: null a side that
+    wasn't chosen, so it stays automatic. */
+function favouritesFrom(raw: unknown): { movie: ProfileTitle[] | null; show: ProfileTitle[] | null } {
+  const side = (kind: "movie" | "show") => {
+    const list = (raw as Record<string, unknown> | null)?.[kind];
+    if (!Array.isArray(list) || !list.length) return null;
+    return list.flatMap((x): ProfileTitle[] => {
+      const t = x as { key?: unknown; title?: unknown; poster?: unknown; year?: unknown };
+      if (typeof t.key !== "string" || !/^[ms]\d+$/.test(t.key) || typeof t.title !== "string") return [];
+      const id = t.key.slice(1);
+      return [{ key: t.key, kind, title: t.title, href: `/${kind}/${id}`, poster: typeof t.poster === "string" ? t.poster : null, backdrop: null, year: typeof t.year === "string" ? t.year : "" }];
+    }).slice(0, 5);
+  };
+  return { movie: side("movie"), show: side("show") };
 }

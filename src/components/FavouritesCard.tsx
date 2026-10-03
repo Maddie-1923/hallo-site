@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import type { ProfileTitle } from "@/lib/public-profile";
 import { searchForFavourites } from "@/lib/favourites-actions";
+import { saveFavourites } from "@/lib/profile-actions";
 
 type Kind = "movie" | "show";
 
@@ -52,6 +53,8 @@ export function FavouritesCard({
       if (next.movie || next.show) localStorage.setItem(storeKey, JSON.stringify(next));
       else localStorage.removeItem(storeKey);
     } catch {}
+    // And to the account, so visitors and the app see the same five.
+    if (owner) void saveFavourites(next).catch(() => {});
   }
 
   const films = picked.movie ?? autoFilms;

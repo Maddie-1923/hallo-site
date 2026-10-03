@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { checkName } from "@/lib/word-filter";
 import { createClient } from "@/lib/supabase/server";
+import type { ProfileTitle } from "@/lib/public-profile";
 
 // Only TMDB paths are accepted for the banner and avatar — "/abc123.jpg" —
 // so the page can never be pointed at an arbitrary image host.
@@ -47,4 +48,23 @@ export async function setPinnedReview(key: string, on: boolean): Promise<{ error
   if (error) return { error: "That didn't save. Try again." };
   if (data?.username) revalidatePath(`/u/${data.username}`);
   return {};
+}
+
+/** The Favourites card's choice, kept on the profile where every visitor and
+    the app read it (supabase/migrations/20261003120000_profile_favourites.sql).
+    Null a side goes back to automatic. Only TMDB's own titles and posters go
+    in, so there's nothing for the word filter to look at. */
+export async function saveFavourites(picked: { movie: ProfileTitle[] | null; show: ProfileTitle[] | null }): Promise<boolean> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+  const lite = (list: ProfileTitle[] | null) =>
+    list?.slice(0, 5).filter((t) => /^[ms]\d+$/.test(t.key)).map((t) => ({ key: t.key, title: t.title.slice(0, 200), poster: t.poster, year: t.year })) ?? null;
+  const movie = lite(picked.movie);
+  const show = lite(picked.show);
+  const favourites = movie || show ? { ...(movie ? { movie } : {}), ...(show ? { show } : {}) } : null;
+  const { error } = await supabase.from("profiles").upsert({ user_id: user.id, favourites }, { onConflict: "user_id" });
+  return !error;
 }
