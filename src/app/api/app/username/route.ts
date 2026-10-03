@@ -40,7 +40,10 @@ export async function GET(request: Request) {
   const problem = checkUsername(name);
   if (problem) return NextResponse.json({ ok: false, message: problem });
   const db = admin();
-  if (!appSocialOpen || !db) return NextResponse.json({ ok: false, message: "Usernames are paused for now. Try again later." });
+  if (!appSocialOpen) return NextResponse.json({ ok: false, message: "Usernames are paused for now. Try again later." });
+  // Said apart from the brake: no service key is a deployment fault, and the
+  // two sharing one sentence once sent a whole afternoon after the wrong flag.
+  if (!db) return NextResponse.json({ ok: false, message: "Usernames can't be checked right now. Try again later." });
   const user = await member(request);
   const { data } = await db.from("profiles").select("user_id").eq("username", name).maybeSingle();
   if (data && data.user_id !== user?.id) return NextResponse.json({ ok: false, message: "That one's taken. Try another." });
