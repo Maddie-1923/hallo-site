@@ -130,10 +130,33 @@ function tracked(a: LibraryArchive, t: TakeTarget, stamp: string, filmStatus?: "
   }
 }
 
+/** Dates the tags a write adds to a title and the ones it takes off, so a
+    sync can't bring a removed tag back (archive.ts, tagAdded / tagRemoved).
+    Compared without case, as the app does: "Cozy" for "cozy" is a respelling,
+    dated as both at once, which a merge keeps. */
+function datedTagChange(a: LibraryArchive, key: string, before: string[], after: string[], stamp: string) {
+  const fold = (list: string[]) => new Map(list.map((t) => [t.toLowerCase(), t]));
+  const was = fold(before);
+  const now = fold(after);
+  a.tagAdded ??= {};
+  a.tagRemoved ??= {};
+  for (const [low, tag] of was) {
+    if (now.get(low) === tag) continue;
+    a.tagRemoved[`${key}|${low}`] = stamp;
+    delete a.tagAdded[`${key}|${low}`];
+  }
+  for (const [low, tag] of now) {
+    if (was.get(low) === tag) continue;
+    a.tagAdded[`${key}|${low}`] = stamp;
+    if (!was.has(low)) delete a.tagRemoved[`${key}|${low}`];
+  }
+}
+
 /** Takes the whole of someone's take off a title: review, rating, moods,
     heart, tags and note. What they watched stays watched. */
 export function clearTake(a: LibraryArchive, t: TakeTarget, stamp: string) {
   const key = takeKey(t);
+  datedTagChange(a, key, a.tags?.[key] ?? [], [], stamp);
   for (const store of [a.reviews, a.ratings, a.moods, a.tags, a.notes]) if (store) delete (store as Record<string, unknown>)[key];
   if (a.reactions?.[key] === "loved") delete a.reactions[key];
   if (t.kind === "movie" ? a.movies.some((x) => x.movie.id === t.movie.id) : a.shows.some((x) => x.show.id === t.show.id)) tracked(a, t, stamp);
@@ -171,6 +194,7 @@ export function applyTake(a: LibraryArchive, t: TakeTarget, input: TakeInput, st
   if (moods.includes("lovedIt")) a.reactions[key] = "loved";
   else if (a.reactions[key] === "loved") delete a.reactions[key];
   a.tags ??= {};
+  datedTagChange(a, key, a.tags[key] ?? [], tags, stamp);
   if (tags.length) a.tags[key] = tags;
   else delete a.tags[key];
   a.notes ??= {};

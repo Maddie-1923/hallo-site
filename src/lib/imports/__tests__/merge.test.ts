@@ -201,6 +201,30 @@ test("watch dates follow the episodes that survived", () => {
   assert.deepEqual(Object.keys(merged(mine, theirs).watchedDates!), ["1-1-2"]);
 });
 
+// ==== Tags with dates (kodigoTests/TagSyncTests.swift) ====
+
+test("a deleted tag stays deleted against a copy that still has it", () => {
+  const phone = archive({ tagRemoved: { "show:1|horror": nowText } });
+  const web = archive({ tags: { "show:1": ["horror"] } });
+  const m = merged(phone, web);
+  assert.equal(m.tags!["show:1"], undefined);
+});
+
+test("a tag added after its deletion comes back", () => {
+  const phone = archive({ tags: { "show:1": ["horror"] }, tagAdded: { "show:1|horror": day(2) } });
+  const web = archive({ tagRemoved: { "show:1|horror": day(1) } });
+  const m = merged(phone, web, new Date(dayMs(2)));
+  assert.deepEqual(m.tags!["show:1"], ["horror"]);
+});
+
+test("a rename replaces the old name, and a casing-only rename keeps the tag", () => {
+  const renamed = archive({ tags: { "show:1": ["cozy"], "show:2": ["Cozy"] }, tagAdded: { "show:1|cozy": nowText, "show:2|cozy": nowText }, tagRemoved: { "show:1|comfy": nowText, "show:2|cozy": nowText } });
+  const old = archive({ tags: { "show:1": ["comfy"], "show:2": ["cozy"] } });
+  const m = merged(renamed, old);
+  assert.deepEqual(m.tags!["show:1"], ["cozy"]);
+  assert.deepEqual(m.tags!["show:2"], ["Cozy"]);
+});
+
 test("moods replace and tags union", () => {
   const mine = archive({ moods: { "episode:1-1-1": ["sad"] }, tags: { "show:1": ["cosy"] } });
   const theirs = archive({

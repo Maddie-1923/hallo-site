@@ -157,6 +157,13 @@ export interface LibraryArchive {
   notes?: Record<string, string>;
   reviews?: Record<string, Review>;
   tags?: Record<string, string[]>;
+  /** When each tag went onto each title and when one came off, keyed
+      "show:1|horror" (the title's key and the tag in lower case). The later
+      wins in a merge, so a renamed or deleted tag can't come back from a
+      copy that still has it; an undated tag counts as the oldest there is.
+      Added with the app's master tag list, 3 Oct 2026. */
+  tagAdded?: Record<string, string>;
+  tagRemoved?: Record<string, string>;
   customLists?: CustomList[];
   customListOrder?: string[];
   showOrder?: number[] | null;

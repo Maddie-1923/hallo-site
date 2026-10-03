@@ -124,7 +124,47 @@ export function pruneArchive(archive: LibraryArchive, asOf: Date): LibraryArchiv
     rewatchRunTombstones: liveStones(archive.rewatchRunTombstones, now),
     rewatchTickTombstones: ticks(archive.rewatchTickTombstones),
     movieRewatchTickTombstones: ticks(archive.movieRewatchTickTombstones),
+    tagRemoved: Object.fromEntries(Object.entries(archive.tagRemoved ?? {}).filter(([, at]) => tombstoneIsLive(moment(at), now))),
   };
+}
+
+/** "show:1|horror": how a tag's dates are filed. */
+export const tagPair = (titleKey: string, tag: string) => `${titleKey}|${tag.toLowerCase()}`;
+
+/** Both copies' tags settled tag by tag (iOS LibraryArchive.mergeTags). A tag
+    stays unless a removal is newer than the newest addition either side knows
+    of; an equal date keeps it (a rename that only changed the casing). Where
+    the two spell a tag differently, the spelling added later wins, and the
+    incoming side wins a tie. */
+export function mergeTags(mine: LibraryArchive, theirs: LibraryArchive) {
+  const removed: Record<string, number> = {};
+  for (const side of [theirs, mine]) for (const [pair, at] of Object.entries(side.tagRemoved ?? {})) removed[pair] = Math.max(removed[pair] ?? DISTANT_PAST, moment(at));
+  const added: Record<string, number> = {};
+  const spelling = new Map<string, { tag: string; at: number }>();
+  for (const side of [theirs, mine]) {
+    for (const [key, list] of Object.entries(side.tags ?? {})) {
+      for (const tag of list) {
+        const pair = tagPair(key, tag);
+        const at = moment(side.tagAdded?.[pair]);
+        added[pair] = Math.max(added[pair] ?? DISTANT_PAST, at);
+        const held = spelling.get(pair);
+        if (held && held.at > at) continue;
+        spelling.set(pair, { tag, at });
+      }
+    }
+  }
+  const tags: Record<string, string[]> = {};
+  const tagAdded: Record<string, string> = {};
+  for (const [pair, choice] of spelling) {
+    const at = added[pair] ?? DISTANT_PAST;
+    if (removed[pair] != null && removed[pair] > at) continue;
+    const key = pair.slice(0, pair.lastIndexOf("|"));
+    (tags[key] ??= []).push(choice.tag);
+    if (at > DISTANT_PAST) tagAdded[pair] = new Date(at).toISOString().replace(/\.\d{3}Z$/, "Z");
+  }
+  const tagRemoved: Record<string, string> = {};
+  for (const [pair, at] of Object.entries(removed)) tagRemoved[pair] = new Date(at).toISOString().replace(/\.\d{3}Z$/, "Z");
+  return { tags, tagAdded, tagRemoved };
 }
 
 // ---- The resolver ----
@@ -367,12 +407,10 @@ export function mergeArchives(incoming: LibraryArchive, onto: LibraryArchive, as
   for (const rail of incoming.savedRails ?? []) rails.set(uuidKey(rail.id), rail);
   const byCreated = <T extends { created?: string }>(a: T, b: T) => moment(a.created) - moment(b.created);
 
-  // Unioned, unlike moods. A tag is a label somebody added, and one device's
-  // silence shouldn't erase the other's word.
-  const tags: Record<string, string[]> = {};
-  for (const key of distinct([...Object.keys(theirs.tags ?? {}), ...Object.keys(mine.tags ?? {})])) {
-    tags[key] = distinct([...(theirs.tags?.[key] ?? []), ...(mine.tags?.[key] ?? [])]);
-  }
+  // Unioned, unlike moods, except where a dated removal is newer: one
+  // device's silence still erases nothing, but a rename or a delete now
+  // outlasts the copies that hadn't heard. The app's mergeTags, kept identical.
+  const { tags, tagAdded, tagRemoved } = mergeTags(mine, theirs);
 
   const pick = <T>(mineValue: T | null | undefined, theirValue: T | null | undefined) => mineValue ?? theirValue ?? undefined;
   const incomingIsNewer = moment(incoming.exported) >= moment(onto.exported);
@@ -423,6 +461,8 @@ export function mergeArchives(incoming: LibraryArchive, onto: LibraryArchive, as
     reviews: mergeReviews(mine.reviews, theirs.reviews),
     importedAt,
     tags,
+    tagAdded,
+    tagRemoved,
     catchUpOptOuts: distinct([...(theirs.catchUpOptOuts ?? []), ...(mine.catchUpOptOuts ?? [])]),
     mutedShows: distinct([...(theirs.mutedShows ?? []), ...(mine.mutedShows ?? [])]),
     hiddenShows: distinct([...(theirs.hiddenShows ?? []), ...(mine.hiddenShows ?? [])]),
