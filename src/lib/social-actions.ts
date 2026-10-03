@@ -1,12 +1,11 @@
 "use server";
 
-import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { accountsOpen } from "@/lib/accounts";
 import { avatarUrl, PICTURE_COLUMNS } from "@/lib/pictures";
 import { createClient } from "@/lib/supabase/server";
 import { image } from "@/lib/tmdb";
-import { checkText } from "@/lib/word-filter";
+import { writeComment } from "@/lib/comment-core";
 
 // The social side from the site (docs/social-plan.md, step 4): following,
 // likes and comments on reviews and lists, follower lists, notifications
@@ -40,12 +39,6 @@ async function me() {
     data: { user },
   } = await supabase.auth.getUser();
   return { supabase, user };
-}
-
-function admin() {
-  const key = (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY);
-  if (!key) return null;
-  return createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
 
 type Client = NonNullable<Awaited<ReturnType<typeof me>>>["supabase"];
@@ -224,34 +217,12 @@ export async function postComment(kind: TargetKind, owner: string, target: strin
   const m = await me();
   if (!m) return { ok: false, preview: true };
   if (!m.user) return { ok: false, error: "Sign in to comment." };
-  const text = body.trim().slice(0, 1000);
-  if (!text) return { ok: false, error: "Write something first." };
-  const problem = checkText(text);
-  if (problem) return { ok: false, error: problem };
   const id = await idOf(m.supabase, owner);
   if (!id) return { ok: false, error: "That isn't there any more." };
-  // Only on something this person can see: read it as them, so blocks and
-  // private profiles decide.
-  const seen =
-    kind === "review"
-      ? await m.supabase.from("public_entries").select("key").eq("user_id", id).eq("key", `${target[0] === "m" ? "movie" : "show"}:${target.slice(1)}`).not("review", "is", null).maybeSingle()
-      : await m.supabase.from("public_lists").select("id").eq("user_id", id).eq("id", target).maybeSingle();
-  if (!seen.data) return { ok: false, error: "You can't comment on this." };
-  // Turned off by the writer. The database refuses the insert as well; this
-  // is the check that gets a sentence back to the person instead of a failure.
-  if (kind === "review") {
-    const closed = await m.supabase.rpc("review_replies_closed", { p_owner: id, p_target: target });
-    if (closed.data === true) return { ok: false, error: "Replies are off for this review." };
-  }
-  const db = admin();
-  if (!db) return { ok: false, error: "Comments can't be posted right now." };
-  // A brake on floods: 30 an hour.
-  const { count } = await db.from("comments").select("id", { count: "exact", head: true }).eq("author", m.user.id).gte("created_at", new Date(Date.now() - 3600_000).toISOString());
-  if ((count ?? 0) >= 30) return { ok: false, error: "That's a lot of comments in an hour. Take a break and try again later." };
-  const { data, error } = await db.from("comments").insert({ author: m.user.id, kind, owner: id, target, body: text }).select("id, created_at").single();
-  if (error || !data) return { ok: false, error: "That didn't post. Try again." };
+  const r = await writeComment(m.supabase, m.user.id, kind, id, target, body);
+  if (!r.ok) return { ok: false, error: r.error };
   const who = await people(m.supabase, [m.user.id]);
-  return { ok: true, comment: { id: data.id, author: who.get(m.user.id) ?? { username: "you", displayName: "You", avatar: null }, body: text, at: data.created_at, mine: true, canDelete: true } };
+  return { ok: true, comment: { id: r.id, author: who.get(m.user.id) ?? { username: "you", displayName: "You", avatar: null }, body: r.text, at: r.at, mine: true, canDelete: true } };
 }
 
 export async function deleteComment(commentID: string): Promise<{ ok: boolean }> {
