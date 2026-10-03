@@ -126,33 +126,8 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
           then the moods, the review and the note each across; narrow, each
           card under the last. */}
       <div className="take-grid grid gap-2">
-      {/* The rating: ten stars, a press on a star's left half sets the half. */}
-      <div className={card + " content-start take-rate"}>
-        <div className="flex items-center justify-between">
-          <span className={heading}>Rate this {what}</span>
-          {rating != null && (
-            <button type="button" onClick={() => setRating(null)} className="text-[1.0417rem] font-semibold text-ink cursor-pointer">
-              Clear
-            </button>
-          )}
-        </div>
-        {/* Close together, as the ratings read elsewhere on the site, rather
-            than spread across the card. */}
-        <div className="flex">
-          {Array.from({ length: 10 }, (_, i) => {
-            const fill = rating == null ? 0 : Math.max(0, Math.min(1, rating - i));
-            return (
-              <span key={i} className="relative h-9 w-[1.75rem] flex items-center justify-center">
-                <Star fill={fill} />
-                <button type="button" aria-label={`${i + 0.5} out of 10`} onClick={() => setRating(i + 0.5)} className="absolute inset-y-0 left-0 w-1/2 cursor-pointer" />
-                <button type="button" aria-label={`${i + 1} out of 10`} onClick={() => setRating(i + 1)} className="absolute inset-y-0 right-0 w-1/2 cursor-pointer" />
-              </span>
-            );
-          })}
-        </div>
-        <div className="text-[1rem] text-dim -mt-1">{rating != null ? `${rating} out of 10` : "Not rated yet"}</div>
-      </div>
-
+      {/* The app's order since 3 Oct 2026: how it made them feel, the score,
+          the words, the private note, then tags — filing, not a verdict. */}
       {/* How it made them feel: the app's twelve moods, up to three. */}
       <div className={card + " take-moods"}>
         <div className={heading}>How did it make you feel?</div>
@@ -182,32 +157,31 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
         </div>
       </div>
 
-      {/* Tags: chips, and a dashed one to add another. */}
-      <div className={card + " content-start take-tags"}>
-        <div className={heading}>Tags</div>
-        <div className="soft-scroll flex flex-wrap content-start gap-2 max-h-[8rem] overflow-y-auto p-[2px] -m-[2px]">
-          {tags.map((t) => (
-            <button key={t} type="button" onClick={() => setTags((ts) => ts.filter((x) => x !== t))} title="Remove" className="rounded-full border border-[color:color-mix(in_srgb,var(--ink)_18%,transparent)] px-[0.8333rem] py-[0.5rem] text-[1rem] font-semibold text-ink leading-none cursor-pointer">
-              {t}
+      {/* The rating: ten stars, a press on a star's left half sets the half. */}
+      <div className={card + " content-start take-rate"}>
+        <div className="flex items-center justify-between">
+          <span className={heading}>Rate this {what}</span>
+          {rating != null && (
+            <button type="button" onClick={() => setRating(null)} className="text-[1.0417rem] font-semibold text-ink cursor-pointer">
+              Clear
             </button>
-          ))}
-          {tagDraft == null ? (
-            <button type="button" onClick={() => setTagDraft("")} className="rounded-full border border-dashed border-[color:color-mix(in_srgb,var(--dim)_50%,transparent)] px-[0.8333rem] py-[0.5rem] text-[1rem] text-dim leading-none cursor-pointer inline-flex items-center gap-1">
-              <span className="font-bold">+</span> {tags.length ? "Tag" : "Add a tag"}
-            </button>
-          ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const t = tagDraft.trim();
-                if (t && !tags.includes(t)) setTags([...tags, t]);
-                setTagDraft(null);
-              }}
-            >
-              <input autoFocus value={tagDraft} onChange={(e) => setTagDraft(e.target.value)} onBlur={() => setTagDraft(null)} placeholder="New tag" maxLength={30} className="rounded-full bg-card border border-hair px-3 py-[0.4167rem] text-[1rem] text-ink w-[11.6667rem] focus:outline-none focus:border-accent" />
-            </form>
           )}
         </div>
+        {/* Close together, as the ratings read elsewhere on the site, rather
+            than spread across the card. */}
+        <div className="flex">
+          {Array.from({ length: 10 }, (_, i) => {
+            const fill = rating == null ? 0 : Math.max(0, Math.min(1, rating - i));
+            return (
+              <span key={i} className="relative h-9 w-[1.75rem] flex items-center justify-center">
+                <Star fill={fill} />
+                <button type="button" aria-label={`${i + 0.5} out of 10`} onClick={() => setRating(i + 0.5)} className="absolute inset-y-0 left-0 w-1/2 cursor-pointer" />
+                <button type="button" aria-label={`${i + 1} out of 10`} onClick={() => setRating(i + 1)} className="absolute inset-y-0 right-0 w-1/2 cursor-pointer" />
+              </span>
+            );
+          })}
+        </div>
+        <div className="text-[1rem] text-dim -mt-1">{rating != null ? `${rating} out of 10` : "Not rated yet"}</div>
       </div>
 
       {/* The review itself: what everyone else reads. */}
@@ -266,6 +240,34 @@ export function YourReview({ kind, title, out, target, initial = null, live = fa
         </div>
       </div>
       </div>
+      {/* Tags: chips, and a dashed one to add another. */}
+      <div className={card + " content-start take-tags"}>
+        <div className={heading}>Tags</div>
+        <div className="soft-scroll flex flex-wrap content-start gap-2 max-h-[8rem] overflow-y-auto p-[2px] -m-[2px]">
+          {tags.map((t) => (
+            <button key={t} type="button" onClick={() => setTags((ts) => ts.filter((x) => x !== t))} title="Remove" className="rounded-full border border-[color:color-mix(in_srgb,var(--ink)_18%,transparent)] px-[0.8333rem] py-[0.5rem] text-[1rem] font-semibold text-ink leading-none cursor-pointer">
+              {t}
+            </button>
+          ))}
+          {tagDraft == null ? (
+            <button type="button" onClick={() => setTagDraft("")} className="rounded-full border border-dashed border-[color:color-mix(in_srgb,var(--dim)_50%,transparent)] px-[0.8333rem] py-[0.5rem] text-[1rem] text-dim leading-none cursor-pointer inline-flex items-center gap-1">
+              <span className="font-bold">+</span> {tags.length ? "Tag" : "Add a tag"}
+            </button>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const t = tagDraft.trim();
+                if (t && !tags.includes(t)) setTags([...tags, t]);
+                setTagDraft(null);
+              }}
+            >
+              <input autoFocus value={tagDraft} onChange={(e) => setTagDraft(e.target.value)} onBlur={() => setTagDraft(null)} placeholder="New tag" maxLength={30} className="rounded-full bg-card border border-hair px-3 py-[0.4167rem] text-[1rem] text-ink w-[11.6667rem] focus:outline-none focus:border-accent" />
+            </form>
+          )}
+        </div>
+      </div>
+
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-3 pt-1">

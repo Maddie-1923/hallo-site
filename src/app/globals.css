@@ -427,8 +427,8 @@ section.band p + p { margin-top: 1em; }
 .take-note { height: 132px; }
 @container (min-width: 560px) {
   .take-grid {
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas: "rate tags" "moods moods" "review review" "note note";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "moods" "rate" "review" "note" "tags";
   }
   .take-rate { grid-area: rate; }
   .take-tags { grid-area: tags; }
@@ -438,8 +438,8 @@ section.band p + p { margin-top: 1em; }
 }
 @container (min-width: 1000px) {
   .take-grid {
-    grid-template-columns: auto minmax(0, 5fr) minmax(0, 4fr);
-    grid-template-areas: "rate moods tags" "review review note";
+    grid-template-columns: minmax(0, 5fr) minmax(0, 4fr);
+    grid-template-areas: "moods rate" "review note" "tags tags";
   }
   .take-note { height: auto; }
 }
