@@ -13,7 +13,9 @@ export const dynamic = "force-dynamic";
 const FROM = "Kodigo <notifications@kodigo.pro>";
 
 function allowed(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
+  // Trimmed because the value is pasted into Vercel by hand, and a line break
+  // carried along with the paste is invisible there yet fails every call.
+  const secret = process.env.CRON_SECRET?.trim();
   if (secret) return request.headers.get("authorization") === `Bearer ${secret}`;
   // Without a secret only a development server runs it, by hand.
   return process.env.NODE_ENV === "development";
