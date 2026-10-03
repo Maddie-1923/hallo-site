@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { accountsOpen } from "@/lib/accounts";
+import { appSocialOpen } from "@/lib/accounts";
 import { writeComment } from "@/lib/comment-core";
 
 // Replies from the iPhone app. The app signs in to the same Supabase project
@@ -12,7 +12,7 @@ import { writeComment } from "@/lib/comment-core";
 // POST { kind: "review" | "list", owner: <user id>, target, body }
 //   201 { id, at, body }   400/403/429/503 { error }
 export async function POST(request: Request) {
-  if (!accountsOpen) return NextResponse.json({ error: "Replies open with accounts." }, { status: 503 });
+  if (!appSocialOpen) return NextResponse.json({ error: "Replies are paused for now. Try again later." }, { status: 503 });
   const token = request.headers.get("authorization")?.match(/^Bearer (.+)$/)?.[1];
   if (!token) return NextResponse.json({ error: "Sign in to reply." }, { status: 401 });
   const reader = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {

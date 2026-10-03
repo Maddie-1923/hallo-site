@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { accountsOpen } from "@/lib/accounts";
+import { appSocialOpen } from "@/lib/accounts";
 import { cleanLink, MAX_LINKS } from "@/lib/profile-links";
 import { checkText } from "@/lib/word-filter";
 
@@ -11,7 +11,7 @@ import { checkText } from "@/lib/word-filter";
 //
 // POST { location, quote, links } → 200 { location, quote, links } | 4xx { error }
 export async function POST(request: Request) {
-  if (!accountsOpen) return NextResponse.json({ error: "Profiles open with accounts." }, { status: 503 });
+  if (!appSocialOpen) return NextResponse.json({ error: "Profile changes are paused for now. Try again later." }, { status: 503 });
   const token = request.headers.get("authorization")?.match(/^Bearer (.+)$/)?.[1];
   if (!token) return NextResponse.json({ error: "Sign in first." }, { status: 401 });
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {

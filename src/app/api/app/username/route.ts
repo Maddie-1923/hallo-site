@@ -1,6 +1,6 @@
 import { createClient, createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { accountsOpen } from "@/lib/accounts";
+import { appSocialOpen } from "@/lib/accounts";
 import { checkUsername } from "@/lib/word-filter";
 
 // Usernames from the iPhone app. The database takes a username from the
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
   const problem = checkUsername(name);
   if (problem) return NextResponse.json({ ok: false, message: problem });
   const db = admin();
-  if (!accountsOpen || !db) return NextResponse.json({ ok: false, message: "Usernames open with accounts." });
+  if (!appSocialOpen || !db) return NextResponse.json({ ok: false, message: "Usernames are paused for now. Try again later." });
   const user = await member(request);
   const { data } = await db.from("profiles").select("user_id").eq("username", name).maybeSingle();
   if (data && data.user_id !== user?.id) return NextResponse.json({ ok: false, message: "That one's taken. Try another." });
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!accountsOpen) return NextResponse.json({ error: "Usernames open with accounts." }, { status: 503 });
+  if (!appSocialOpen) return NextResponse.json({ error: "Usernames are paused for now. Try again later." }, { status: 503 });
   const user = await member(request);
   if (!user) return NextResponse.json({ error: "Sign in first." }, { status: 401 });
   const input = (await request.json().catch(() => null)) as { username?: unknown } | null;

@@ -30,6 +30,21 @@
 // be written when it goes on.
 export const accountsOpen = process.env.SITE_ACCOUNTS === "on";
 
+// The apps' own doors — /api/app/username, /api/app/comments and
+// /api/app/about — answer to this instead, and not to `accountsOpen`. They
+// were behind the website's flag at first, which tied two unrelated questions
+// together: whether the site's signed-in pages are ready, and whether
+// Community in the apps works. With the site closed, nobody in either app
+// could take a username, post a reply or save their About.
+//
+// On unless APP_SOCIAL=off. It's the brake for a bad day — a wave of spam, a
+// filter letting something through — and pulling it stops new usernames,
+// replies, comments and About text from the apps without a release of either.
+// Reading, likes, follows, reports and blocks go to the database directly and
+// carry on. Each door still needs a member's bearer token and still runs the
+// word filter and the hourly cap. Like the flag above, it takes a redeploy.
+export const appSocialOpen = process.env.APP_SOCIAL !== "off";
+
 /// The routes that need a session. Kept here rather than spelled out in the
 /// proxy so the nav and the proxy cannot disagree about what is closed.
 export function needsAccount(path: string): boolean {
