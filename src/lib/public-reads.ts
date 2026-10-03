@@ -32,7 +32,25 @@ function titleOf(kind: "show" | "movie", id: number, t: { title: string; poster_
   return { key: `${kind[0]}${id}`, kind, title: t.title, href: `/${kind}/${id}`, poster: image.poster(t.poster_path, "w780"), backdrop: image.backdrop(t.backdrop_path), year: t.year ?? "" };
 }
 
-/** Members' written reviews of a film or series, newest first. */
+/** How many likes each owner's review of one title has, for ordering.
+    One query for the lot, counted here: there's no count column, and a
+    title's reviews are capped at fifty. */
+async function likesByOwner(target: string, owners: string[]): Promise<Map<string, number>> {
+  const counts = new Map<string, number>();
+  if (!owners.length) return counts;
+  const { data } = await (await createClient()).from("likes").select("owner").eq("kind", "review").eq("target", target).in("owner", owners).limit(20000);
+  for (const l of data ?? []) counts.set(l.owner, (counts.get(l.owner) ?? 0) + 1);
+  return counts;
+}
+
+/** Most liked first, and among equals the newest, so the ten a title page
+    shows are its most popular once there are likes to go by — the order the
+    app's Popular reviews uses. */
+function popularFirst<T extends { updated_at: string; user_id: string }>(rows: T[], likes: Map<string, number>): T[] {
+  return [...rows].sort((a, b) => (likes.get(b.user_id) ?? 0) - (likes.get(a.user_id) ?? 0) || b.updated_at.localeCompare(a.updated_at));
+}
+
+/** Members' written reviews of a film or series, most liked first. */
 export async function publicReviewsOfTitle(kind: "movie" | "show", id: number): Promise<{ review: ReviewEntry; username: string; avatar: string | null }[]> {
   if (!accountsOpen) return [];
   const { data } = await (await createClient())
@@ -43,8 +61,9 @@ export async function publicReviewsOfTitle(kind: "movie" | "show", id: number): 
     .not("review", "is", null)
     .order("updated_at", { ascending: false })
     .limit(50);
-  const who = await members((data ?? []).map((r) => r.user_id));
-  return (data ?? []).flatMap((r) => {
+  const ids = (data ?? []).map((r) => r.user_id);
+  const [who, likes] = await Promise.all([members(ids), likesByOwner(`${kind[0]}${id}`, ids)]);
+  return popularFirst(data ?? [], likes).flatMap((r) => {
     const w = who.get(r.user_id);
     if (!w || !r.review) return [];
     const review: ReviewEntry = {
@@ -60,7 +79,7 @@ export async function publicReviewsOfTitle(kind: "movie" | "show", id: number): 
   });
 }
 
-/** Members' reviews of one episode, for its page. */
+/** Members' reviews of one episode, for its page, most liked first. */
 export async function publicReviewsOfEpisode(showID: number, season: number, episode: number): Promise<{ review: ReviewEntry; username: string; avatar: string | null }[]> {
   if (!accountsOpen) return [];
   const { data } = await (await createClient())
@@ -72,8 +91,9 @@ export async function publicReviewsOfEpisode(showID: number, season: number, epi
     .not("review", "is", null)
     .order("updated_at", { ascending: false })
     .limit(50);
-  const who = await members((data ?? []).map((r) => r.user_id));
-  return (data ?? []).flatMap((r) => {
+  const ids = (data ?? []).map((r) => r.user_id);
+  const [who, likes] = await Promise.all([members(ids), likesByOwner(`e${showID}-${season}-${episode}`, ids)]);
+  return popularFirst(data ?? [], likes).flatMap((r) => {
     const w = who.get(r.user_id);
     if (!w || !r.review) return [];
     const review: ReviewEntry = {
