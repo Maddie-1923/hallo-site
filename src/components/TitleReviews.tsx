@@ -9,6 +9,17 @@ import { Section, SectionCard } from "./TitleParts";
 // Members' reviews of the title, above the cast: each as the profile's review
 // card without the poster and title (the page is already about them). Until
 // accounts open, only the development previews' reviews are here.
+/** How many reviews a title page shows before "See all". */
+const SHOWN = 10;
+
+function card({ review, username, avatar }: { review: ReviewEntry; username: string; avatar: string | null }) {
+  return (
+    <Unblocked key={`${username}-${review.key}`} username={username}>
+      <ReviewCard r={review} username={username} avatar={avatar} onTitlePage />
+    </Unblocked>
+  );
+}
+
 export function ReviewsSection({ reviews, ratings = null }: { reviews: { review: ReviewEntry; username: string; avatar: string | null }[]; ratings?: TitleRatings | null }) {
   return (
     <Section title={reviews.length ? `Reviews · ${reviews.length}` : "Reviews"} small>
@@ -16,11 +27,21 @@ export function ReviewsSection({ reviews, ratings = null }: { reviews: { review:
         {ratings && <RatingsSummary r={ratings} />}
         {reviews.length ? (
           <div className="grid gap-2">
-            {reviews.map(({ review, username, avatar }) => (
-              <Unblocked key={`${username}-${review.key}`} username={username}>
-                <ReviewCard r={review} username={username} avatar={avatar} onTitlePage />
-              </Unblocked>
-            ))}
+            {reviews.slice(0, SHOWN).map(card)}
+            {/* The first ten, then the rest behind one press, so a title with
+                fifty reviews doesn't push the cast and everything under it a
+                long scroll down (the app shows three, decided 3 Oct 2026).
+                A details element rather than a script: the rest is already
+                on the page, only folded, and opening it needs nothing more. */}
+            {reviews.length > SHOWN && (
+              <details className="group grid gap-2">
+                <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer rounded-[10px] bg-piece px-3 py-3 text-[1.0417rem] font-semibold text-ink hover:text-accent group-open:hidden flex items-center justify-between">
+                  See all {reviews.length} reviews
+                  <span aria-hidden className="text-dim">›</span>
+                </summary>
+                <div className="grid gap-2">{reviews.slice(SHOWN).map(card)}</div>
+              </details>
+            )}
           </div>
         ) : (
           <p className="m-0 px-3 py-4 text-[1.0417rem] text-dim">No reviews yet. Yours can be the first, in Your take.</p>
