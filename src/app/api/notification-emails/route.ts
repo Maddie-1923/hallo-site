@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { adminClient, unsubscribeQuery } from "@/lib/email-links";
+import { cronAllowed } from "@/lib/cron-auth";
 import { notificationEmail, type EmailItem } from "@/lib/notification-email";
 
 // Sends the notification emails that are due (docs/social-plan.md, step 4).
@@ -12,19 +13,10 @@ export const dynamic = "force-dynamic";
 
 const FROM = "Kodigo <notifications@kodigo.pro>";
 
-function allowed(request: Request): boolean {
-  // Trimmed because the value is pasted into Vercel by hand, and a line break
-  // carried along with the paste is invisible there yet fails every call.
-  const secret = process.env.CRON_SECRET?.trim();
-  if (secret) return request.headers.get("authorization") === `Bearer ${secret}`;
-  // Without a secret only a development server runs it, by hand.
-  return process.env.NODE_ENV === "development";
-}
-
 type Due = { recipient: string; email: string; username: string; items: EmailItem[] };
 
 export async function POST(request: Request) {
-  if (!allowed(request)) return NextResponse.json({ error: "Not allowed." }, { status: 401 });
+  if (!(await cronAllowed(request))) return NextResponse.json({ error: "Not allowed." }, { status: 401 });
   const key = process.env.RESEND_API_KEY;
   const db = adminClient();
   if (!key || !db) return NextResponse.json({ error: "Email isn't set up here (RESEND_API_KEY and SUPABASE_SERVICE_ROLE_KEY)." }, { status: 503 });

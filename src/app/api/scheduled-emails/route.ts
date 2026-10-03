@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { adminClient, unsubscribeQuery } from "@/lib/email-links";
+import { cronAllowed } from "@/lib/cron-auth";
 import { alertsEmail, digestEmail, type Email } from "@/lib/digest-email";
 import { gatherAlerts, gatherDigest } from "@/lib/scheduled-emails";
 import { dueNow, localClock, type Due } from "@/lib/email-schedule";
@@ -20,12 +21,6 @@ export const maxDuration = 60;
 const FROM = "Kodigo <notifications@kodigo.pro>";
 const testing = () => process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
 
-function allowed(request: Request): boolean {
-  // Trimmed for the reason notification-emails/route.ts gives.
-  const secret = process.env.CRON_SECRET?.trim();
-  if (secret && request.headers.get("authorization") === `Bearer ${secret}`) return true;
-  return !secret && process.env.NODE_ENV === "development";
-}
 
 type Person = { user_id: string; settings: Partial<Settings> };
 
@@ -95,7 +90,7 @@ export async function POST(request: Request) {
   }
 
   // The hourly run.
-  if (!allowed(request)) return NextResponse.json({ error: "Not allowed." }, { status: 401 });
+  if (!(await cronAllowed(request))) return NextResponse.json({ error: "Not allowed." }, { status: 401 });
   if (!process.env.RESEND_API_KEY) return NextResponse.json({ error: "Needs RESEND_API_KEY." }, { status: 503 });
   const { data: people } = await db.from("user_settings").select("user_id, settings").limit(5000);
   let sent = 0;
