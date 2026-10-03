@@ -138,8 +138,16 @@ someone else, and a block reads both ways. `.env.local` now points at
 kodigo-dev (live commented out beside it). Left for the user: dev's
 service-role key in `.env.local`, and dev's Authentication → URL
 configuration (Site URL `http://localhost:3000`, redirect
-`http://localhost:3000/auth/callback`). Live still has only its original
-tables; entitlements and safety go there when accounts open.
+`http://localhost:3000/auth/callback`).
+
+Live brought up to dev 3 Oct 2026, while it held no libraries or profiles:
+every migration from `20260929000000_entitlements.sql` through
+`20261002130000_longer_quote.sql`, applied as four migrations
+(`open_site_1`…`open_site_4`) with each function in its final form only.
+Checked against dev object by object (functions, columns, constraints,
+policies, indexes, triggers, grants, the member-stats timer): identical
+apart from `public_lists.titles` sitting at a different column position. The
+two email timers in `supabase/cron/` are still to run, after the deploy.
 
 ### 1. Accounts and profiles
 
