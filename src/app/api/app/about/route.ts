@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
   const input = (await request.json().catch(() => null)) as { location?: unknown; quote?: unknown; links?: unknown } | null;
   const location = (typeof input?.location === "string" ? input.location : "").trim().slice(0, 60);
-  const quote = (typeof input?.quote === "string" ? input.quote : "").replace(/\s+/g, " ").trim().slice(0, 210);
+  const quote = (typeof input?.quote === "string" ? input.quote : "").replace(/\s+/g, " ").trim().slice(0, 1000);
   const links: string[] = [];
   for (const raw of (Array.isArray(input?.links) ? input!.links : []).slice(0, MAX_LINKS)) {
     if (typeof raw !== "string" || !raw.trim()) continue;

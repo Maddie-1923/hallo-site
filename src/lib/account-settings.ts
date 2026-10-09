@@ -95,7 +95,7 @@ export async function saveAbout(about: { location: string; quote: string; links?
   const location = about.location.trim().slice(0, 60);
   // One line on the card: breaks and runs of spaces fold to single spaces, so
   // a quote can't stretch the card down the page however it's typed.
-  const quote = about.quote.replace(/\s+/g, " ").trim().slice(0, 210);
+  const quote = about.quote.replace(/\s+/g, " ").trim().slice(0, 1000);
   let links: string[] | undefined;
   if (about.links) {
     links = [];

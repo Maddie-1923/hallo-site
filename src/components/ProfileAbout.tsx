@@ -113,7 +113,7 @@ function AboutSheet({ location, quote, links, onSave, onClose }: { location: str
         </label>
         <label className="grid gap-1.5 text-[1.0417rem] text-dim">
           Quote
-          <textarea value={line} onChange={(e) => setLine(e.target.value)} placeholder="A line about you, or one you love" maxLength={210} rows={3} className={`${field} resize-none`} />
+          <textarea value={line} onChange={(e) => setLine(e.target.value)} placeholder="A line about you, or one you love" maxLength={1000} rows={3} className={`${field} resize-none`} />
         </label>
         <fieldset className="m-0 p-0 border-0 grid gap-1.5 text-[1.0417rem] text-dim">
           <legend className="mb-1.5">Links</legend>
