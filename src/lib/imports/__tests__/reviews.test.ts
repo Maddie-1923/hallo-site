@@ -95,6 +95,15 @@ test("reviews from the browser are checked before they're saved", () => {
   assert.equal(cleanArchiveReviews(undefined), undefined);
 });
 
+test("a backup keeps a review's replies switched off", () => {
+  const out = cleanArchiveReviews({
+    "movie:1": { text: "Quiet, please.", modified: nowText, noReplies: true },
+    "movie:2": { text: "Talk to me.", modified: nowText, noReplies: "yes" },
+  })!;
+  assert.equal(out["movie:1"].noReplies, true);
+  assert.equal("noReplies" in out["movie:2"], false);
+});
+
 // ---- Cleaning the text ----
 
 test("reviews come out as plain text", () => {

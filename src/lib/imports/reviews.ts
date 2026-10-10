@@ -155,13 +155,17 @@ export function cleanArchiveReviews(value: unknown): Record<string, Review> | un
   const out: Record<string, Review> = {};
   for (const [key, raw] of Object.entries(value)) {
     if (!REVIEW_KEY.test(key) || !isObject(raw)) continue;
-    const { text, watchedOn, rewatch, spoilers, modified, source } = raw;
+    const { text, watchedOn, rewatch, spoilers, noReplies, modified, source } = raw;
     if (typeof text !== "string" || !text.trim() || typeof modified !== "string" || parseSwiftDate(modified) === null) continue;
     out[key] = {
       text: cut(text.trim()),
       ...(typeof watchedOn === "string" && DAY.test(watchedOn) ? { watchedOn } : {}),
       ...(rewatch === true ? { rewatch: true } : {}),
       ...(spoilers === true ? { spoilers: true } : {}),
+      // Kept, or restoring a backup turned replies back on: the incoming copy
+      // wins a tie on `modified` in the merge, and without this it arrived
+      // without the switch the member had turned off.
+      ...(noReplies === true ? { noReplies: true } : {}),
       modified: canonicalDate(modified),
       ...(typeof source === "string" && source ? { source } : {}),
     };
