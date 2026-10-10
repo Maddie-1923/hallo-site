@@ -42,9 +42,10 @@ const SLUR_RE = wordRe(SLURS);
 const NAME_RE = wordRe([...SLURS, ...NAME_ONLY]);
 
 /** Joins letters split up with dots, dashes or spaces ("f.a.g", "f a g") so
-    they're read as one word. */
+    they're read as one word. One separator throughout, so "what a f.a.g"
+    joins "f.a.g" and not the "a" before it, which made "afag" and passed. */
 function joinSpelled(text: string): string {
-  return text.replace(/\b(?:[a-z][\s._\-*]){2,}[a-z]\b/g, (m) => m.replace(/[\s._\-*]/g, ""));
+  return text.replace(/\b[a-z]([\s._\-*])(?:[a-z]\1)+[a-z]\b/g, (m) => m.replace(/[\s._\-*]/g, ""));
 }
 
 const MESSAGE = "That includes a word Kodigo doesn't allow. Please reword it.";
