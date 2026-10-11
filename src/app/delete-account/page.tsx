@@ -4,6 +4,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/delete-account" },
   title: "Delete your account — Kodigo",
   description: "How to delete your Kodigo account and what is deleted with it.",
 };

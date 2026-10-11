@@ -11,7 +11,7 @@ import { hasPro } from "@/lib/pro";
 import { loadProfile } from "@/lib/profile";
 import { statsInput, watchMinutes } from "@/lib/stats-data";
 
-export const metadata: Metadata = { title: "Stats — Kodigo" };
+export const metadata: Metadata = { title: "Stats — Kodigo", robots: { index: false } };
 
 // Stats (docs/social-plan.md, step 2.5): the full numbers behind the
 // profile's panels, as the app's stat pages have them. Pro, like the

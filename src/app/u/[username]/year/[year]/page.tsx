@@ -13,7 +13,7 @@ type Params = PageProps<"/u/[username]/year/[year]">;
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { username, year } = await params;
-  return { title: `@${username}'s ${year} in review — Kodigo` };
+  return { title: `@${username}'s ${year} in review — Kodigo`, alternates: { canonical: `/u/${username.toLowerCase()}/year/${year}` } };
 }
 
 // Year in Review at /u/<name>/year/<year>: the year in numbers, the shows and

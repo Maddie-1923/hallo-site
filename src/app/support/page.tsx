@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 
-export const metadata: Metadata = { title: "Support — Kodigo" };
+export const metadata: Metadata = { title: "Support — Kodigo", alternates: { canonical: "/support" } };
 
 export default function Support() {
   return (

@@ -18,7 +18,7 @@ import { Day } from "@/components/Day";
 export async function generateMetadata({ params }: PageProps<"/person/[id]">): Promise<Metadata> {
   const { id } = await params;
   const p = await personPage(Number(id));
-  return { title: p ? `${p.name} — Kodigo` : "Person — Kodigo" };
+  return { title: p ? `${p.name} — Kodigo` : "Person — Kodigo", alternates: { canonical: `/person/${id}` } };
 }
 
 export default async function PersonPage({ params }: PageProps<"/person/[id]">) {

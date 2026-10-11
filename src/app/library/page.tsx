@@ -10,7 +10,7 @@ import { libraryItems } from "@/lib/library-view";
 import { hasPro } from "@/lib/pro";
 import { visitorRegion } from "@/lib/region";
 
-export const metadata: Metadata = { title: "Library — Kodigo" };
+export const metadata: Metadata = { title: "Library — Kodigo", robots: { index: false } };
 
 // The Library: everything someone tracks, series and films, with the app's
 // tools for it (docs/social-plan.md, step 2.3): status tabs, search, genre,

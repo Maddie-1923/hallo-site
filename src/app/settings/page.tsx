@@ -7,7 +7,7 @@ import { regionServices, watchRegions } from "@/lib/tmdb";
 import { signedInSubscription } from "@/lib/entitlement";
 import { loadProfile } from "@/lib/profile";
 
-export const metadata: Metadata = { title: "Settings — Kodigo" };
+export const metadata: Metadata = { title: "Settings — Kodigo", robots: { index: false } };
 
 // Settings. Drawn for the preview profile until accounts exist; the country
 // starts as the visitor's own, with its streaming services.

@@ -7,6 +7,7 @@ import { ProInApp } from "@/components/ProCheckout";
 import { signedInSubscription } from "@/lib/entitlement";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/pro" },
   title: "Kodigo Pro — Kodigo",
   description: "Kodigo Pro: the tracker on your phone and on the web, for $1.99 a month or $15.99 a year.",
 };

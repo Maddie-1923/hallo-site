@@ -4,6 +4,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacy" },
   title: "Privacy Policy — Kodigo",
   description: "What Kodigo, the app and kodigo.pro, keeps about you, what's public, who else is involved, and how to delete it.",
 };

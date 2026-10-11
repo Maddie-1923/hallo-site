@@ -29,7 +29,7 @@ import { AdSlot } from "@/components/AdSlot";
 export async function generateMetadata({ params }: PageProps<"/movie/[id]">): Promise<Metadata> {
   const { id } = await params;
   const d = await filmPage(Number(id));
-  return { title: d ? `${d.movie.title} — Kodigo` : "Movie — Kodigo" };
+  return { title: d ? `${d.movie.title} — Kodigo` : "Movie — Kodigo", alternates: { canonical: `/movie/${id}` } };
 }
 
 export default async function MoviePage({ params }: PageProps<"/movie/[id]">) {

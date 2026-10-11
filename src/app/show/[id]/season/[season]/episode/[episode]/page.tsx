@@ -46,7 +46,8 @@ async function load(params: Params["params"]) {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const d = await load(params);
-  return { title: d ? `${d.show.show.name} ${code(d.ep.season, d.ep.episode)} · ${d.ep.name} — Kodigo` : "Episode — Kodigo" };
+  const { id, season, episode } = await params;
+  return { title: d ? `${d.show.show.name} ${code(d.ep.season, d.ep.episode)} · ${d.ep.name} — Kodigo` : "Episode — Kodigo", alternates: { canonical: `/show/${id}/season/${season}/episode/${episode}` } };
 }
 
 export default async function EpisodePage({ params }: Params) {

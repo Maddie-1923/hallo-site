@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps<"/u/[username]">): 
   // The picture itself is opengraph-image.tsx beside this file; the large
   // card asks X to show it wide rather than as a thumbnail.
   const title = `@${username} — Kodigo`;
-  return { title, openGraph: { title }, twitter: { card: "summary_large_image", title } };
+  return { title, alternates: { canonical: `/u/${username.toLowerCase()}` }, openGraph: { title }, twitter: { card: "summary_large_image", title } };
 }
 
 export default async function UserProfile({ params }: PageProps<"/u/[username]">) {

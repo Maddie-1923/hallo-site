@@ -31,7 +31,8 @@ export async function generateMetadata({ params }: PageProps<"/u/[username]/revi
   const title = `@${view.username}'s review of ${review.title} (${review.year}) — Kodigo`;
   // A spoiler review keeps its words out of the preview as well as off the page.
   const description = review.spoilers ? "This review contains spoilers." : review.text.split(/\n\s*\n/)[0].slice(0, 200);
-  return { title, description, openGraph: { title, description, type: "article" }, twitter: { card: "summary_large_image", title, description } };
+  const { key } = await params;
+  return { title, description, alternates: { canonical: `/u/${view.username}/review/${key}` }, openGraph: { title, description, type: "article" }, twitter: { card: "summary_large_image", title, description } };
 }
 
 export default async function ReviewPage({ params }: PageProps<"/u/[username]/review/[key]">) {

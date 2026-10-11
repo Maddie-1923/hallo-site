@@ -30,7 +30,7 @@ async function findRail(id: string) {
 
 export async function generateMetadata({ params }: PageProps<"/explore/category/[id]">): Promise<Metadata> {
   const found = await findRail((await params).id);
-  return { title: found ? `${found.rail.name} — Kodigo` : "Category — Kodigo" };
+  return { title: found ? `${found.rail.name} — Kodigo` : "Category — Kodigo", robots: { index: false } };
 }
 
 export default async function CategoryPage({ params }: PageProps<"/explore/category/[id]">) {

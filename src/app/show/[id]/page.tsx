@@ -31,7 +31,7 @@ import { AdSlot } from "@/components/AdSlot";
 export async function generateMetadata({ params }: PageProps<"/show/[id]">): Promise<Metadata> {
   const { id } = await params;
   const d = await seriesPage(Number(id));
-  return { title: d ? `${d.show.name} — Kodigo` : "Show — Kodigo" };
+  return { title: d ? `${d.show.name} — Kodigo` : "Show — Kodigo", alternates: { canonical: `/show/${id}` } };
 }
 
 export default async function ShowPage({ params }: PageProps<"/show/[id]">) {

@@ -11,7 +11,7 @@ import { listGroups } from "@/lib/list-groups";
 import { CommunitySwitch } from "@/components/CommunitySwitch";
 import { Chevron, H, SHELL } from "@/components/ListsChrome";
 
-export const metadata: Metadata = { title: "Lists — Kodigo" };
+export const metadata: Metadata = { title: "Lists — Kodigo", alternates: { canonical: "/lists" } };
 
 // The Lists hub: the lists a moderator featured, the most liked this week
 // and of all time, the recently updated, the ones with the most in them to

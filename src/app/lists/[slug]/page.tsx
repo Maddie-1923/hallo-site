@@ -20,8 +20,9 @@ async function section(slug: string) {
 }
 
 export async function generateMetadata({ params }: PageProps<"/lists/[slug]">): Promise<Metadata> {
-  const g = await section((await params).slug);
-  return { title: `${g?.title ?? "Lists"} — Kodigo` };
+  const { slug } = await params;
+  const g = await section(slug);
+  return { title: `${g?.title ?? "Lists"} — Kodigo`, alternates: { canonical: `/lists/${slug}` } };
 }
 
 export default async function ListSection({ params }: PageProps<"/lists/[slug]">) {

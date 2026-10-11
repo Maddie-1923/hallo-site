@@ -10,7 +10,7 @@ import { libraryItems } from "@/lib/library-view";
 import { hasPro } from "@/lib/pro";
 import { visitorRegion } from "@/lib/region";
 
-export const metadata: Metadata = { title: "Watchlist — Kodigo" };
+export const metadata: Metadata = { title: "Watchlist — Kodigo", robots: { index: false } };
 
 // The Watchlist: what someone means to watch, on its own page (Pro, like the
 // Library): series they're tracking with nothing watched yet (the app's

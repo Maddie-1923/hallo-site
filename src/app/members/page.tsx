@@ -5,7 +5,7 @@ import { MembersPage } from "@/components/MembersPage";
 import { memberDirectory } from "@/lib/member-directory";
 import { accountsOpen } from "@/lib/accounts";
 
-export const metadata: Metadata = { title: "Members — Kodigo" };
+export const metadata: Metadata = { title: "Members — Kodigo", alternates: { canonical: "/members" } };
 
 // Members: everyone with a public profile (lib/member-directory.ts).
 export default async function Members() {

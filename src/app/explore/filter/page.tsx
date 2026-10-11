@@ -11,7 +11,7 @@ import { visitorRegion } from "@/lib/region";
 import { regionServices } from "@/lib/tmdb";
 import { activeCount, criteriaLine, emptyFilter, filterParam, railCounts, readFilterParam } from "@/lib/saved-rails";
 
-export const metadata: Metadata = { title: "Results — Kodigo" };
+export const metadata: Metadata = { title: "Results — Kodigo", robots: { index: false } };
 
 // What Explore's Filter finds: the app's filter results, as a grid of
 // posters. The filter is the link (`?f=`), so the page renders on the server

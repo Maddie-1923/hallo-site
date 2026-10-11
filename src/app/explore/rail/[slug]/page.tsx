@@ -12,8 +12,9 @@ import { regionName, visitorRegion } from "@/lib/region";
 // More load by themselves as the visitor scrolls (InfiniteGrid).
 
 export async function generateMetadata({ params }: PageProps<"/explore/rail/[slug]">): Promise<Metadata> {
-  const rail = EXPLORE_RAILS[(await params).slug];
-  return { title: rail ? `${rail.title(regionName(await visitorRegion()))} — Kodigo` : "Explore — Kodigo" };
+  const { slug } = await params;
+  const rail = EXPLORE_RAILS[slug];
+  return { title: rail ? `${rail.title(regionName(await visitorRegion()))} — Kodigo` : "Explore — Kodigo", alternates: { canonical: `/explore/rail/${slug}` } };
 }
 
 export default async function RailPage({ params }: PageProps<"/explore/rail/[slug]">) {

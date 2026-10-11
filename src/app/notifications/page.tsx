@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { NotificationsPage } from "@/components/Notifications";
 import { myNotifications } from "@/lib/my-notifications";
 
-export const metadata: Metadata = { title: "Notifications — Kodigo" };
+export const metadata: Metadata = { title: "Notifications — Kodigo", robots: { index: false } };
 
 export default async function Notifications() {
   // Signed in, their own; signed out, none.

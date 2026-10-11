@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ExplorePage } from "@/components/ExplorePage";
 
-export const metadata: Metadata = { title: "Explore — Kodigo" };
+export const metadata: Metadata = { title: "Explore — Kodigo", alternates: { canonical: "/explore" } };
 
 // Explore's front: series and films together. Old links that named a half
 // (?kind=movie, ?kind=show) still land in it.

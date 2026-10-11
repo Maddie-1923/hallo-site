@@ -13,6 +13,8 @@ import { AdSlot } from "@/components/AdSlot";
 import { Landing } from "@/components/Landing";
 import { APP_STORE_URL } from "@/lib/stores";
 
+export const metadata = { alternates: { canonical: "/" } };
+
 // The front door for someone signed in, Netflix-shaped: a billboard of what
 // the world is watching this week, then rows of wide cards to wander through.
 // Signed out (everyone, while accounts are closed) it's the landing page

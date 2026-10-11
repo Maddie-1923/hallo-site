@@ -6,7 +6,7 @@ import { FeedList } from "@/components/FeedList";
 import { accountsOpen } from "@/lib/accounts";
 import { loadFeed, type FeedItem } from "@/lib/social-actions";
 
-export const metadata: Metadata = { title: "Feed — Kodigo" };
+export const metadata: Metadata = { title: "Feed — Kodigo", robots: { index: false } };
 
 // The friends' feed (docs/social-plan.md, step 4.1): what the people you
 // follow reviewed, rated, loved and listed, newest first, from their public

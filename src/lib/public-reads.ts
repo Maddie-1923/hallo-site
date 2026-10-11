@@ -240,3 +240,36 @@ export async function titleRatings(kind: "movie" | "show", id: number): Promise<
   if (!row?.ratings && !row?.loved && !friends.length) return null;
   return { average: row?.average == null ? null : Number(row.average), count: row?.ratings ?? 0, loved: row?.loved ?? 0, spread: row?.spread ?? Array(10).fill(0), friends };
 }
+
+/** The members' pages worth a search engine's time, for sitemap.ts: every
+    public list and every written review, each with its owner's profile and
+    the title it's about. The same visibility rules as the pages themselves,
+    since it reads the same tables as an anonymous visitor would. */
+export async function sitemapEntries(): Promise<{ path: string; at: string }[]> {
+  if (!accountsOpen) return [];
+  const supabase = await createClient();
+  const [{ data: lists }, { data: reviews }] = await Promise.all([
+    supabase.from("public_lists").select("user_id, id, updated_at").neq("titles", "[]").order("updated_at", { ascending: false }).limit(5000),
+    supabase.from("public_entries").select("user_id, kind, tmdb_id, episode, updated_at").not("review", "is", null).order("updated_at", { ascending: false }).limit(5000),
+  ]);
+  const who = await members([...(lists ?? []), ...(reviews ?? [])].map((r) => r.user_id));
+  const out = new Map<string, string>();
+  // Newest first, so a page that turns up twice keeps its latest date.
+  const add = (path: string, at: string) => { if (!out.has(path)) out.set(path, at); };
+  for (const l of lists ?? []) {
+    const w = who.get(l.user_id);
+    if (!w) continue;
+    add(`/u/${w.username}/list/${l.id}`, l.updated_at);
+    add(`/u/${w.username}`, l.updated_at);
+  }
+  for (const r of reviews ?? []) {
+    const w = who.get(r.user_id);
+    if (!w) continue;
+    const ep = r.kind === "episode" && r.episode ? r.episode.split("-") : null;
+    const key = ep ? `e${r.tmdb_id}-${ep[0]}-${ep[1]}` : `${r.kind === "movie" ? "m" : "s"}${r.tmdb_id}`;
+    add(`/u/${w.username}/review/${key}`, r.updated_at);
+    add(`/u/${w.username}`, r.updated_at);
+    add(ep ? `/show/${r.tmdb_id}/season/${ep[0]}/episode/${ep[1]}` : `/${r.kind}/${r.tmdb_id}`, r.updated_at);
+  }
+  return [...out].map(([path, at]) => ({ path, at }));
+}

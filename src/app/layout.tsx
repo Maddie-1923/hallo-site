@@ -30,6 +30,10 @@ const runde = localFont({
 const wide = Unbounded({ weight: ["700", "800"], subsets: ["latin"], variable: "--font-wide", display: "swap" });
 
 export const metadata: Metadata = {
+  // The live address, so each page's canonical link (set page by page, never
+  // here: a layout's would be inherited by every page that doesn't set its
+  // own) and its share pictures point at kodigo.pro from previews too.
+  metadataBase: new URL("https://kodigo.pro"),
   title: "Kodigo — Track your shows and movies",
   description:
     "A fast, private tracker for TV and film. Your library lives on your device, and a Kodigo account keeps it in step across devices when you want that.",

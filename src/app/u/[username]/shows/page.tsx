@@ -7,7 +7,7 @@ type Params = PageProps<"/u/[username]/shows">;
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { username } = await params;
-  return { title: `@${username}'s shows — Kodigo` };
+  return { title: `@${username}'s shows — Kodigo`, alternates: { canonical: `/u/${username.toLowerCase()}/shows` } };
 }
 
 // The series in their library, behind the Shows number on their profile;

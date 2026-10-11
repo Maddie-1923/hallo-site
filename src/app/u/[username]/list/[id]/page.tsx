@@ -12,7 +12,7 @@ type Params = PageProps<"/u/[username]/list/[id]">;
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { username, id } = await params;
   const l = await listFor(username, id);
-  return { title: l ? `${l.name} by @${l.owner} — Kodigo` : "List — Kodigo", description: l?.detail ?? undefined };
+  return { title: l ? `${l.name} by @${l.owner} — Kodigo` : "List — Kodigo", description: l?.detail ?? undefined, alternates: { canonical: `/u/${l?.owner ?? username.toLowerCase()}/list/${id}` } };
 }
 
 // A list's own page, made for sharing.

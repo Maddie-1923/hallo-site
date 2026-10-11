@@ -4,6 +4,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/terms" },
   title: "Terms of Use — Kodigo",
   description: "The terms for using Kodigo, the app and kodigo.pro: accounts, Kodigo Pro, what you post, and the community rules.",
 };

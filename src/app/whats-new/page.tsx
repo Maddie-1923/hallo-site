@@ -7,6 +7,7 @@ import { updates, type Update } from "@/lib/updates";
 import { Day } from "@/components/Day";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/whats-new" },
   title: "What's new — Kodigo",
   description: "New features and updates in the Kodigo app and on the website.",
 };

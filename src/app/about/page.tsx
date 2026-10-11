@@ -51,7 +51,7 @@ async function framePosters() {
   return out.slice(0, 6);
 }
 
-export const metadata = { title: "About the app — Kodigo" };
+export const metadata = { title: "About the app — Kodigo", alternates: { canonical: "/about" } };
 
 export default async function About() {
   const [slides, posters] = await Promise.all([frameSlides(), framePosters()]);

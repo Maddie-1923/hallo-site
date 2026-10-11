@@ -12,7 +12,7 @@ import { searchReviews } from "@/lib/public-reads";
 import type { ReviewEntry } from "@/lib/public-profile";
 import { image, searchEverything } from "@/lib/tmdb";
 
-export const metadata: Metadata = { title: "Search — Kodigo" };
+export const metadata: Metadata = { title: "Search — Kodigo", robots: { index: false } };
 
 // Search (docs/social-plan.md, step 5.4): one box, and the results in tabs:
 // titles and people from TMDB, and from Kodigo members, lists and reviews.
