@@ -1,6 +1,6 @@
 # GIFs in replies and comments: the plan
 
-For after Kodigo 1.1 is approved. Nothing here is built. Written 4 Oct 2026;
+For after Kodigo 1.1 is approved. Written 4 Oct 2026;
 KLIPY's API docs read and folded in 12 Oct 2026.
 
 ## The decision
@@ -87,6 +87,22 @@ a comment on a collection, on the website, iOS and Android.
 - **Checking an attached GIF:** `items?slugs=` can confirm a GIF exists
   before a comment is saved. That's a server-side call, so it's part of the
   approval question above.
+
+## Where it stands (12 Oct 2026, branch `gifs`)
+
+Built on the website, switched off until `GIFS=on`:
+- Migration `20261012130000_comment_gifs.sql` (applied to **kodigo-dev only**).
+- `lib/klipy.ts` (search, trending and the slug check, server-side).
+- `writeComment`, which takes an optional slug.
+- `/api/app/gifs` for the apps, and `gif` on `/api/app/comments`.
+- The website's picker and the GIF in a thread (`components/GifPicker.tsx`, `CommentThread.tsx`).
+- Tested against KLIPY with the test key. Not yet clicked through signed in.
+
+Not built: the iOS and Android pickers, and showing GIFs in the apps' threads.
+
+**Don't set `GIFS=on` in production until app versions that draw GIFs are
+out.** Today's apps read only a comment's text, so a GIF-only reply would
+show as an empty reply there.
 
 ## Build order
 

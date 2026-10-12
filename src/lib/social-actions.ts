@@ -6,6 +6,7 @@ import { avatarUrl, PICTURE_COLUMNS } from "@/lib/pictures";
 import { createClient } from "@/lib/supabase/server";
 import { image } from "@/lib/tmdb";
 import { writeComment } from "@/lib/comment-core";
+import { findGifs, gifsOpen, type Gif } from "@/lib/klipy";
 
 // The social side from the site (docs/social-plan.md, step 4): following,
 // likes and comments on reviews and lists, follower lists, notifications
@@ -26,6 +27,8 @@ export interface CommentView {
   id: string;
   author: Person;
   body: string;
+  /** A GIF from KLIPY, when the comment carries one (lib/klipy.ts). */
+  gif: Gif | null;
   at: string;
   mine: boolean;
   /** The review's or list's owner may delete any comment on it. */
@@ -194,10 +197,10 @@ export async function loadComments(kind: TargetKind, owner: string, target: stri
   if (!m) return null;
   const id = await idOf(m.supabase, owner);
   if (!id) return [];
-  const { data } = await m.supabase.from("comments").select("id, author, body, created_at").eq("kind", kind).eq("owner", id).eq("target", target).order("created_at").limit(500);
+  const { data } = await m.supabase.from("comments").select("id, author, body, gif, created_at").eq("kind", kind).eq("owner", id).eq("target", target).order("created_at").limit(500);
   const who = await people(m.supabase, (data ?? []).map((c) => c.author));
   return (data ?? []).flatMap((c) =>
-    who.get(c.author) ? [{ id: c.id, author: who.get(c.author)!, body: c.body, at: c.created_at, mine: c.author === m.user?.id, canDelete: c.author === m.user?.id || id === m.user?.id }] : [],
+    who.get(c.author) ? [{ id: c.id, author: who.get(c.author)!, body: c.body, gif: (c.gif as Gif | null) ?? null, at: c.created_at, mine: c.author === m.user?.id, canDelete: c.author === m.user?.id || id === m.user?.id }] : [],
   );
 }
 
@@ -213,16 +216,16 @@ export async function repliesClosed(owner: string, target: string): Promise<bool
   return data === true;
 }
 
-export async function postComment(kind: TargetKind, owner: string, target: string, body: string): Promise<{ ok: boolean; comment?: CommentView; error?: string; preview?: boolean }> {
+export async function postComment(kind: TargetKind, owner: string, target: string, body: string, gifSlug?: string | null): Promise<{ ok: boolean; comment?: CommentView; error?: string; preview?: boolean }> {
   const m = await me();
   if (!m) return { ok: false, preview: true };
   if (!m.user) return { ok: false, error: "Sign in to comment." };
   const id = await idOf(m.supabase, owner);
   if (!id) return { ok: false, error: "That isn't there any more." };
-  const r = await writeComment(m.supabase, m.user.id, kind, id, target, body);
+  const r = await writeComment(m.supabase, m.user.id, kind, id, target, body, gifSlug);
   if (!r.ok) return { ok: false, error: r.error };
   const who = await people(m.supabase, [m.user.id]);
-  return { ok: true, comment: { id: r.id, author: who.get(m.user.id) ?? { username: "you", displayName: "You", avatar: null }, body: r.text, at: r.at, mine: true, canDelete: true } };
+  return { ok: true, comment: { id: r.id, author: who.get(m.user.id) ?? { username: "you", displayName: "You", avatar: null }, body: r.text, gif: r.gif, at: r.at, mine: true, canDelete: true } };
 }
 
 export async function deleteComment(commentID: string): Promise<{ ok: boolean }> {
@@ -230,6 +233,22 @@ export async function deleteComment(commentID: string): Promise<{ ok: boolean }>
   if (!m?.user) return { ok: false };
   const { error } = await m.supabase.from("comments").delete().eq("id", commentID);
   return { ok: !error };
+}
+
+/** Whether the comment box offers GIFs: switched on, and signed in. */
+export async function gifsAvailable(): Promise<boolean> {
+  if (!gifsOpen) return false;
+  const m = await me();
+  return !!m?.user;
+}
+
+/** The picker's results: a search, or trending when the words are empty.
+    Signed-in members only, so the key's hourly allowance isn't anybody's. */
+export async function searchGifs(query: string, page = 1): Promise<Gif[]> {
+  if (!gifsOpen) return [];
+  const m = await me();
+  if (!m?.user) return [];
+  return findGifs(query, page);
 }
 
 // ---- Notifications ----

@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient as createAdminClient, type SupabaseClient } from "@supabase/supabase-js";
+import { gifBySlug, gifsOpen, type Gif } from "@/lib/klipy";
 import { checkText } from "@/lib/word-filter";
 
 // Writing one comment, shared by the site's postComment and the app's
@@ -32,11 +33,20 @@ export async function writeComment(
   ownerID: string,
   target: string,
   body: string,
-): Promise<{ ok: true; id: string; at: string; text: string } | { ok: false; error: string }> {
+  gifSlug?: string | null,
+): Promise<{ ok: true; id: string; at: string; text: string; gif: Gif | null } | { ok: false; error: string }> {
   const text = body.trim().slice(0, 1000);
-  if (!text) return { ok: false, error: "Write something first." };
-  const problem = checkText(text);
-  if (problem) return { ok: false, error: problem };
+  // A GIF is checked against KLIPY rather than taken as sent, so a reply
+  // can only carry one of theirs, at the addresses they gave for it now.
+  let gif: Gif | null = null;
+  if (gifSlug) {
+    if (!gifsOpen) return { ok: false, error: "GIFs aren't available right now." };
+    gif = await gifBySlug(gifSlug);
+    if (!gif) return { ok: false, error: "That GIF isn't available any more. Pick another." };
+  }
+  if (!text && !gif) return { ok: false, error: "Write something first." };
+  const problem = checkText(text) ?? (gif?.title ? checkText(gif.title) : null);
+  if (problem) return { ok: false, error: gif && !checkText(text) ? "Pick a different GIF." : problem };
   const key = kind === "review" ? reviewKey(target) : null;
   if (kind === "review" && !key) return { ok: false, error: "You can't comment on this." };
   const seen =
@@ -55,7 +65,7 @@ export async function writeComment(
   // A brake on floods: 30 an hour.
   const { count } = await db.from("comments").select("id", { count: "exact", head: true }).eq("author", userID).gte("created_at", new Date(Date.now() - 3600_000).toISOString());
   if ((count ?? 0) >= 30) return { ok: false, error: "That's a lot of comments in an hour. Take a break and try again later." };
-  const { data, error } = await db.from("comments").insert({ author: userID, kind, owner: ownerID, target, body: text }).select("id, created_at").single();
+  const { data, error } = await db.from("comments").insert({ author: userID, kind, owner: ownerID, target, body: text, gif }).select("id, created_at").single();
   if (error || !data) return { ok: false, error: "That didn't post. Try again." };
-  return { ok: true, id: data.id, at: data.created_at, text };
+  return { ok: true, id: data.id, at: data.created_at, text, gif };
 }
