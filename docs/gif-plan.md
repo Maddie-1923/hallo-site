@@ -1,6 +1,7 @@
 # GIFs in replies and comments: the plan
 
-For after Kodigo 1.1 is approved. Nothing here is built. Written 4 Oct 2026.
+For after Kodigo 1.1 is approved. Nothing here is built. Written 4 Oct 2026;
+KLIPY's API docs read and folded in 12 Oct 2026.
 
 ## The decision
 
@@ -32,17 +33,51 @@ a comment on a collection, on the website, iOS and Android.
 
 - **Keys.** A test key allows 100 calls an hour, which is enough to build
   against. A production key with unlimited calls is asked for in KLIPY's
-  Partner Panel and approved by them. **Ask for it first, before any of the
-  build starts**, as the wait is theirs.
+  Partner Panel, and only **once the integration is tested** (their docs,
+  read 12 Oct 2026). So: test key first, build, then ask for production.
 - **Attribution is required.** The picker's search field says "Search KLIPY",
   and the picker shows the "Powered by KLIPY" mark. Follow their guidelines
   exactly, as they're a condition of the key.
 - **Content filter.** This is set in the Partner Panel. Choose the strictest
   rating, and block the categories a film-and-TV community has no use for.
   Write down what was chosen, here, once it's set.
-- **The key stays on the server.** The apps don't hold KLIPY's key: searches
-  go through the website (below), so the key can be changed or revoked
-  without a release.
+- **Where requests come from needs KLIPY's approval.** Their integration
+  requirements (docs.klipy.com/gifs-api, read 12 Oct 2026) say API requests
+  must come from the member's app or browser, and that routing them through
+  our own server needs their **prior written approval**. Our plan routes
+  searches through the website, so the key stays off the phones and nothing
+  identifying reaches KLIPY. **Ask developers@klipy.com for that approval
+  before building.** If they say no, the apps call KLIPY directly. Then the
+  key ships inside the apps, KLIPY sees each member's IP address, and the
+  privacy answers and policy need to say so.
+
+## KLIPY's API, as documented (12 Oct 2026)
+
+- **Base:** `https://api.klipy.com/api/v1/{app_key}/gifs/…`, with `trending`,
+  `search?q=`, `categories`, `items?slugs=` (fetch specific GIFs),
+  `share/{slug}` and `report/{slug}`.
+- **Search:** `per_page` is 8 to 50 (24 by default). `locale` is a country
+  code. Set `content_filter=high`, alongside the Partner Panel's filter.
+  `format_filter` can ask for `webp,mp4` only, which are far smaller than
+  `gif`.
+- **Sizes:** each result comes in `hd`, `md`, `sm` and `xs`, and each has
+  `gif`, `webp`, `jpg`, `mp4` and `webm`. Store the `slug` with a comment,
+  with `sm` webp/mp4 for the thread and the `jpg` as the still for Reduce
+  Motion.
+- **`customer_id` is optional.** Leave it out, as planned.
+- **Rules that shape the build:**
+  - Use KLIPY's media URLs exactly as given, and load them straight from
+    KLIPY. Never copy or cache them on our side.
+  - Show search and trending results in KLIPY's order, without reordering or
+    filtering them ourselves. Filtering is only done in the Partner Panel.
+  - Keep KLIPY's results in their own grid, never mixed with another
+    provider's.
+- **Reports:** `report/{slug}` takes a reason (`nudity`, `violence`,
+  `hate_speech`, `harassment`, `spam`, `offensive`…). When a moderator
+  removes a reply for its GIF, send KLIPY the report too.
+- **Checking an attached GIF:** `items?slugs=` can confirm a GIF exists
+  before a comment is saved. That's a server-side call, so it's part of the
+  approval question above.
 
 ## Build order
 
@@ -106,8 +141,9 @@ a comment on a collection, on the website, iOS and Android.
 
 ## Open questions for when it starts
 
-- KLIPY's production key: how long approval takes, and whether their terms
-  allow a paid app with no ads.
+- **Ask KLIPY (developers@klipy.com) before building:** may searches and the
+  GIF check go through our server? Is a paid app with no ads fine? How long
+  does production approval take?
 - Should GIFs autoplay on cellular data, or only on Wi-Fi?
 - Should a member be able to switch GIFs off for themselves, so that others'
   GIFs show as a still with a play button? This is a small setting, and
