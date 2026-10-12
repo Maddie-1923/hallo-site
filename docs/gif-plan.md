@@ -40,7 +40,16 @@ a comment on a collection, on the website, iOS and Android.
   exactly, as they're a condition of the key.
 - **Content filter.** This is set in the Partner Panel. Choose the strictest
   rating, and block the categories a film-and-TV community has no use for.
-  Write down what was chosen, here, once it's set.
+  Set 12 Oct 2026 in the Partner Panel (platform "Kodigo", key "Kodigo-Web",
+  ads off):
+  - **Rating:** High: G, the strictest.
+  - **Content containing** (CONTAINS): nsfw, nude, sexy, gore, blood,
+    drugs, suicide, self harm.
+  - **Blocked searches:** nsfw, porn, nude, gore.
+  - **Country settings:** none.
+  - If testing shows too few film and TV GIFs, relax the rating to
+    Medium: G, PG here; it needs no code change. Each request also sends
+    `content_filter=high`.
 - **Where requests come from needs KLIPY's approval.** Their integration
   requirements (docs.klipy.com/gifs-api, read 12 Oct 2026) say API requests
   must come from the member's app or browser, and that routing them through
