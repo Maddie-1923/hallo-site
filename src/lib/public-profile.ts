@@ -193,6 +193,8 @@ export interface PublicProfileView {
   allowFollows?: boolean;
   /** For the owner: each category's eye as their account keeps it. */
   categoryPrivacy?: Record<string, boolean>;
+  /** The built-in shelves the owner has shared (both views). */
+  sharedShelves?: string[];
   /** Whether the person viewing follows them (real profiles, signed in). */
   viewerFollow?: "none" | "pending" | "following" | "self";
   /** Reviews and lists they've liked, newest first. */
@@ -233,8 +235,11 @@ export function profileFromArchive(
   meta: { username: string; displayName: string; avatar: string | null; banner: string | null; bio: string | null; location: string | null },
   forOwner = false,
 ): PublicProfileView {
-  const shows = new Map(a.shows.map((t) => [t.show.id, t.show]));
-  const movies = new Map(a.movies.map((t) => [t.movie.id, t.movie]));
+  // A visitor's copy also names the titles their reviews and public lists
+  // need but no shared shelf brought (refShows, refMovies): looked up here,
+  // never counted as tracked.
+  const shows = new Map([...(a.refShows ?? []), ...a.shows].map((t) => [t.show.id, t.show]));
+  const movies = new Map([...(a.refMovies ?? []), ...a.movies].map((t) => [t.movie.id, t.movie]));
   const ratings = a.ratings ?? {};
   const reactions = a.reactions ?? {};
   const reviews = a.reviews ?? {};
@@ -482,8 +487,11 @@ export function reviewFor(view: PublicProfileView, key: string): SheetReview | n
  * aired, so it is added afterwards by `withUpToDate`; it sits third.
  */
 function categoriesFromArchive(a: LibraryArchive): CategoryEntry[] {
-  const shows = new Map(a.shows.map((t) => [t.show.id, t.show]));
-  const movies = new Map(a.movies.map((t) => [t.movie.id, t.movie]));
+  // A visitor's copy also names the titles their reviews and public lists
+  // need but no shared shelf brought (refShows, refMovies): looked up here,
+  // never counted as tracked.
+  const shows = new Map([...(a.refShows ?? []), ...a.shows].map((t) => [t.show.id, t.show]));
+  const movies = new Map([...(a.refMovies ?? []), ...a.movies].map((t) => [t.movie.id, t.movie]));
   const reactions = a.reactions ?? {};
   const byShowStatus = (st: string) => a.shows.filter((t) => t.status === st).map((t) => showTitle(t.show));
   const byMovieStatus = (st: string) => a.movies.filter((t) => t.status === st).map((t) => movieTitle(t.movie));

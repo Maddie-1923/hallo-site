@@ -166,6 +166,15 @@ export interface LibraryArchive {
   tagRemoved?: Record<string, string>;
   customLists?: CustomList[];
   customListOrder?: string[];
+  /** Only in a member's public copy (public_libraries), never the app's
+      library: the shelves they shared, the titles their reviews, ratings and
+      public lists need but no shared shelf brought (title fields only), and
+      how many titles they track. supabase/migrations/
+      20261012120000_private_library.sql. */
+  sharedShelves?: string[];
+  refShows?: { show: Show }[];
+  refMovies?: { movie: Movie }[];
+  titleCount?: number;
   showOrder?: number[] | null;
   movieOrder?: number[] | null;
   /** Keyed like `watched`; a key here that isn't in `watched` is an uncheck. */
