@@ -32,6 +32,7 @@ export function SiteFooter() {
           <div className="flex flex-col gap-1">
             <Link href="/about#features" className="hover:text-ink">Features</Link>
             <Link href="/pro" className="hover:text-ink">Kodigo Pro</Link>
+            <Link href="/guides" className="hover:text-ink">Guides</Link>
             <Link href="/whats-new" className="hover:text-ink">What&apos;s new</Link>
             <Link href="/about#faq" className="hover:text-ink">FAQ</Link>
           </div>
