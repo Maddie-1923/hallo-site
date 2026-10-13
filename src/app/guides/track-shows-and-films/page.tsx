@@ -35,6 +35,23 @@ export default function TrackShowsAndFilms() {
           need one tap.
         </p>
 
+        <h2>Why I built Kodigo</h2>
+        <p>
+          I used TV trackers for years before making one. The thing that finally pushed me was a well-known tracker
+          wiping my entire watch history with no warning. Years of episodes, gone overnight, and nobody seemed to think
+          that was a big deal.
+        </p>
+        <p>
+          When I went looking for somewhere else to go, nothing quite fit. The other trackers were missing features I
+          had come to rely on, some cost far more than a tracker should, and I am honestly picky about layout: I wanted
+          something I actually enjoyed opening every day.
+        </p>
+        <p>
+          So Kodigo is built around those lessons. Your library lives on your own phone first, and you can export the
+          whole thing whenever you like, so no company, including this one, can make it disappear. The rest of this
+          guide is how I use it.
+        </p>
+
         <h2>1. Start with what you are watching now</h2>
         <p>
           The first time you open Kodigo, it asks <strong>What are you watching?</strong> Pick the shows you are in the
