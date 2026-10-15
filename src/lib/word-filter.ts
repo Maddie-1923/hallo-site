@@ -37,6 +37,15 @@ function normalise(text: string): string {
 }
 
 const ENDINGS = "(?:s|es|z|ed|ing|y)?";
+
+/** Ordinary words that a short slur plus one of the endings above happens to
+    spell ("spicy" is a slur and a "y"), cleared before the test so a review
+    of a curry or a plot "retarding" the second act isn't refused. Kept to
+    words with no other reading; extend it when a real one turns up. Mirrored
+    in the iOS and Android ports. */
+const ALLOWED = ["spicy", "spicier", "spiciest", "spiced", "spices", "spicing", "retarding"];
+const ALLOWED_RE = new RegExp(`(^|[^a-z])(?:${ALLOWED.join("|")})(?=$|[^a-z])`, "g");
+const allow = (text: string) => text.replace(ALLOWED_RE, "$1");
 const wordRe = (words: string[]) => new RegExp(`(?:^|[^a-z])(?:${words.join("|")})${ENDINGS}(?=$|[^a-z])`);
 const SLUR_RE = wordRe(SLURS);
 const NAME_RE = wordRe([...SLURS, ...NAME_ONLY]);
@@ -53,13 +62,13 @@ const MESSAGE = "That includes a word Kodigo doesn't allow. Please reword it.";
 /** For anything people write: null if it's fine, else what to tell them. */
 export function checkText(text: string): string | null {
   const n = normalise(text);
-  return SLUR_RE.test(n) || SLUR_RE.test(joinSpelled(n)) ? MESSAGE : null;
+  return SLUR_RE.test(allow(n)) || SLUR_RE.test(allow(joinSpelled(n))) ? MESSAGE : null;
 }
 
 /** For a display name: stricter, as it goes everywhere the person does. */
 export function checkName(name: string): string | null {
   const n = normalise(name);
-  return NAME_RE.test(n) || NAME_RE.test(joinSpelled(n)) ? "That name includes a word Kodigo doesn't allow." : null;
+  return NAME_RE.test(allow(n)) || NAME_RE.test(allow(joinSpelled(n))) ? "That name includes a word Kodigo doesn't allow." : null;
 }
 
 /** For a username: its shape, the reserved names, and the word lists, also
