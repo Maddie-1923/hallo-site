@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { saveCategoryPrivacy } from "@/lib/account-settings";
+import { setListHidden, setShelfShared } from "@/lib/account-settings";
 import { useRouter } from "next/navigation";
 import { removeList, saveList, setListPicture } from "@/lib/library-actions";
 import { useEffect, useRef, useState } from "react";
@@ -21,11 +21,13 @@ import { Menu } from "./Menu";
 // (The app still draws a four-poster collage; this is to try on the web
 // first and carry over after.)
 //
-// The owner decides who sees each category with the button on its tile: an
-// eye, everyone; a lock, only them. Everything starts public except On
-// Hold and Stopped Watching, which start private. Kept in this browser until
-// accounts exist; then it is stored with the library and the server leaves
-// private categories out of everyone else's page.
+// Two sections, each folding under its heading: Your library (the eight
+// built-in shelves) and Your lists. The owner sees a badge on every tile, a
+// globe for public and a lock for private, and changes it from the badge's
+// menu. Shelves start private and lists public (docs/profile-privacy-plan.md);
+// On Hold and Stopped Watching are always private. Signed in, each change is
+// saved on the server one key at a time (setShelfShared, setListHidden), and
+// the server leaves what's private out of everyone else's page.
 //
 // The owner also gets a New category tile at the end, the app's "Create
 // Custom List": a name, a line about it, and titles picked from their
@@ -41,14 +43,14 @@ import { Menu } from "./Menu";
 // mouse. From the keyboard, the arrow keys move the focused tile a step.
 // Until accounts exist all of this is kept in this browser; a reader's
 // choice of order is kept in theirs.
-// `accountPrivacy`: signed in, each category's eye as the account keeps it,
-// which is where changes are saved too.
+// `accountPrivacy`: signed in, the lists the account has locked
+// (category_privacy); `sharedShelves`, the built-in shelves it has shared.
 // `live`: the owner's own real profile, where their lists are the library's
 // (the app's custom lists): making one, editing its name, description and
 // titles, its picture and deleting it all save there (saveList, removeList,
 // setListPicture), so the app has them too. The built-in categories' pictures
 // and the grid's order stay in the browser, as the app keeps them on the phone.
-export function ProfileCategories({ categories: given, owner = false, username = "", library = [], accountPrivacy, live = false }: { categories: CategoryEntry[]; owner?: boolean; username?: string; library?: ProfileTitle[]; accountPrivacy?: Record<string, boolean>; live?: boolean }) {
+export function ProfileCategories({ categories: given, owner = false, username = "", library = [], accountPrivacy, sharedShelves, live = false }: { categories: CategoryEntry[]; owner?: boolean; username?: string; library?: ProfileTitle[]; accountPrivacy?: Record<string, boolean>; sharedShelves?: string[]; live?: boolean }) {
   const router = useRouter();
   const [problem, setProblem] = useState<string | null>(null);
   const [editing, setEditing] = useState<CategoryEntry | null>(null);
@@ -134,14 +136,49 @@ export function ProfileCategories({ categories: given, owner = false, username =
       setPrivacy(accountPrivacy ?? JSON.parse(localStorage.getItem(privacyKey) ?? "{}"));
     } catch {}
   }, [owner, privacyKey, accountPrivacy]);
-  const isPrivate = (c: CategoryEntry) => privacy[c.id] ?? !!c.ownerOnly;
-  function togglePrivate(c: CategoryEntry) {
-    const next = { ...privacy, [c.id]: !isPrivate(c) };
-    setPrivacy(next);
+  const [shared, setShared] = useState<string[]>(sharedShelves ?? []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (sharedShelves) setShared(sharedShelves);
+  }, [sharedShelves]);
+  const signedIn = !!accountPrivacy;
+  // A list is public unless locked; a shelf private unless shared.
+  const isPrivate = (c: CategoryEntry) => (c.ownerOnly ? true : c.custom ? (privacy[c.id] ?? false) : signedIn ? !shared.includes(c.id) : (privacy[c.id] ?? true));
+  async function setPublic(c: CategoryEntry, makePublic: boolean) {
+    if (c.ownerOnly || isPrivate(c) === !makePublic) return;
+    setProblem(null);
+    if (!signedIn) {
+      const next = { ...privacy, [c.id]: !makePublic };
+      setPrivacy(next);
+      try {
+        localStorage.setItem(privacyKey, JSON.stringify(next));
+      } catch {}
+      return;
+    }
+    // Drawn at once, put back if the server says no.
+    const before = { privacy, shared };
+    if (c.custom) setPrivacy({ ...privacy, [c.id]: !makePublic });
+    else setShared(makePublic ? [...shared, c.id] : shared.filter((x) => x !== c.id));
+    const ok = await (c.custom ? setListHidden(listID(c) ?? c.id, !makePublic) : setShelfShared(c.id, makePublic)).catch(() => false);
+    if (ok) return router.refresh();
+    setPrivacy(before.privacy);
+    setShared(before.shared);
+    setProblem("That didn't save. Try again.");
+  }
+  const [folded, setFolded] = useState<string[]>([]);
+  const foldedKey = "kodigo.profile-folded";
+  useEffect(() => {
     try {
-      localStorage.setItem(privacyKey, JSON.stringify(next));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFolded(JSON.parse(localStorage.getItem(foldedKey) ?? "[]"));
     } catch {}
-    if (accountPrivacy) void saveCategoryPrivacy(next).catch(() => {});
+  }, []);
+  function toggleFold(id: string) {
+    const next = folded.includes(id) ? folded.filter((x) => x !== id) : [...folded, id];
+    setFolded(next);
+    try {
+      localStorage.setItem(foldedKey, JSON.stringify(next));
+    } catch {}
   }
 
   useEffect(() => {
@@ -227,7 +264,7 @@ export function ProfileCategories({ categories: given, owner = false, username =
     <div>
       <div className="flex items-center justify-between gap-3 mb-4">
         <span className="text-[1.0417rem] text-dim">
-          {arranging ? "Drag to rearrange. Tap the eye to make one private." : `${visible.length} ${visible.length === 1 ? "category" : "categories"}`}
+          {arranging ? "Drag to rearrange." : `${visible.length} ${visible.length === 1 ? "category" : "categories"}`}
         </span>
         <div className="flex items-center gap-2">
           {!arranging && <SortMenu sort={sort} onChoose={chooseSort} />}
@@ -245,47 +282,76 @@ export function ProfileCategories({ categories: given, owner = false, username =
           )}
         </div>
       </div>
-      <div className="grid gap-2 grid-cols-2 md:grid-cols-3">
-        {shown.map((c, i) =>
-          arranging ? (
-            <div
-              key={c.id}
-              data-cat={c.id}
-              role="button"
-              tabIndex={0}
-              aria-label={`${c.name}. Drag to move it, or use the arrow keys.`}
-              onPointerDown={(e) => {
-                e.preventDefault();
-                setDragging(c.id);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowLeft" || e.key === "ArrowUp") move(c.id, i - 1);
-                else if (e.key === "ArrowRight" || e.key === "ArrowDown") move(c.id, i + 1);
-                else return;
-                e.preventDefault();
-              }}
-              className={`relative rounded-shell outline-2 outline-dashed outline-accent outline-offset-2 touch-none select-none transition-transform ${dragging === c.id ? "z-10 scale-[1.04] shadow-[0_18px_40px_rgba(0,0,0,.45)] cursor-grabbing" : "cursor-grab"}`}
-            >
-              {/* The tile can't be opened while editing; the wrapper takes
-                  every press except those on the controls. */}
-              <div className="pointer-events-none">
-                <CategoryTile
-                  c={c}
-                  picture={pictureFor(c, pictures[c.id])}
-                  hidden={isPrivate(c)}
-                  editing
-                  onToggleHidden={() => togglePrivate(c)}
-                  onChoose={() => setChoosing(c)}
-                  onDelete={c.custom ? () => remove(c) : undefined}
-                />
-              </div>
-            </div>
-          ) : (
-            <CategoryTile key={c.id} c={c} picture={pictureFor(c, pictures[c.id])} onOpen={() => setOpen(c)} hidden={isPrivate(c)} showLock={owner} />
-          ),
-        )}
-        {owner && !arranging && <NewCategoryTile onClick={() => setCreating(true)} />}
-      </div>
+      {(
+        [
+          { id: "library", name: owner ? "Your library" : "Library", note: "Private unless you share a shelf", group: shown.filter((c) => !c.custom) },
+          { id: "lists", name: owner ? "Your lists" : "Lists", note: "Public unless you lock a list", group: shown.filter((c) => c.custom) },
+        ] as const
+      )
+        .filter((sec) => sec.group.length > 0 || (owner && sec.id === "lists"))
+        .map(({ id, name, note, group }) => {
+          const isFolded = folded.includes(id) && !arranging;
+          const publicCount = group.filter((c) => !isPrivate(c)).length;
+          return (
+            <section key={id} className="mb-5">
+              <button type="button" onClick={() => toggleFold(id)} aria-expanded={!isFolded} className="w-full flex items-center gap-2 mb-2 text-left cursor-pointer group/h">
+                <span className="display text-[1.5rem] leading-none tracking-[.02em] uppercase group-hover/h:text-accent transition-colors">{name}</span>
+                <span className="flex-1 text-[1.0417rem] text-dim">
+                  {group.length}
+                  {owner && ` · ${publicCount} public`}
+                </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className={`text-dim transition-transform ${isFolded ? "-rotate-90" : ""}`}>
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+              {!isFolded && (
+                <>
+                  {owner && <p className="m-0 mb-2 text-[.9375rem] text-dim">{note}</p>}
+                  <div className="grid gap-2 grid-cols-2 md:grid-cols-3">
+        {group.map((c) =>
+                      arranging ? (
+                        <div
+                          key={c.id}
+                          data-cat={c.id}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`${c.name}. Drag to move it, or use the arrow keys.`}
+                          onPointerDown={(e) => {
+                            e.preventDefault();
+                            setDragging(c.id);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "ArrowLeft" || e.key === "ArrowUp") move(c.id, shown.indexOf(c) - 1);
+                            else if (e.key === "ArrowRight" || e.key === "ArrowDown") move(c.id, shown.indexOf(c) + 1);
+                            else return;
+                            e.preventDefault();
+                          }}
+                          className={`relative rounded-shell outline-2 outline-dashed outline-accent outline-offset-2 touch-none select-none transition-transform ${dragging === c.id ? "z-10 scale-[1.04] shadow-[0_18px_40px_rgba(0,0,0,.45)] cursor-grabbing" : "cursor-grab"}`}
+                        >
+                          {/* The tile can't be opened while editing; the wrapper takes
+                              every press except those on the controls. */}
+                          <div className="pointer-events-none">
+                            <CategoryTile
+                              c={c}
+                              picture={pictureFor(c, pictures[c.id])}
+                              hidden={isPrivate(c)}
+                              editing
+                              onChoose={() => setChoosing(c)}
+                              onDelete={c.custom ? () => remove(c) : undefined}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <CategoryTile key={c.id} c={c} picture={pictureFor(c, pictures[c.id])} onOpen={() => setOpen(c)} hidden={isPrivate(c)} showLock={owner} onSetPublic={owner ? (v) => void setPublic(c, v) : undefined} />
+                      ),
+                    )}
+                    {owner && !arranging && id === "lists" && <NewCategoryTile onClick={() => setCreating(true)} />}
+                  </div>
+                </>
+              )}
+            </section>
+          );
+        })}
       {open && (
         <CategorySheet
           username={username}
@@ -368,6 +434,7 @@ function CategoryTile({
   editing = false,
   onChoose,
   onToggleHidden,
+  onSetPublic,
   onDelete,
 }: {
   c: CategoryEntry;
@@ -380,6 +447,8 @@ function CategoryTile({
   editing?: boolean;
   onChoose?: () => void;
   onToggleHidden?: () => void;
+  /** The owner's badge menu: share it on the profile, or keep it private. */
+  onSetPublic?: (makePublic: boolean) => void;
   onDelete?: () => void;
 }) {
   const chip = "w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center cursor-pointer";
@@ -399,12 +468,32 @@ function CategoryTile({
           </span>
         </span>
       </button>
-      {/* Outside Edit, the owner is told which categories only they can see. */}
-      {showLock && hidden && !editing && (
-        <span className={`absolute top-3 right-3 ${chip} cursor-default`} title="Private: only you can see it">
-          <LockGlyph />
-          <span className="sr-only">Private</span>
-        </span>
+      {/* Outside Edit, the owner sees on every tile who can see it, and
+          changes it from the badge's menu rather than a single tap. */}
+      {showLock && !editing && (
+        <div className="absolute top-3 right-3">
+          {c.ownerOnly || !onSetPublic ? (
+            <span className={`${chip} cursor-default`} title={c.ownerOnly ? "Always private" : "Private: only you can see it"}>
+              <LockGlyph />
+              <span className="sr-only">{c.ownerOnly ? "Always private" : "Private"}</span>
+            </span>
+          ) : (
+            <Menu label={`${c.name} is ${hidden ? "private" : "public"}. Change who sees it`} width={240} button={<span className={chip}>{hidden ? <LockGlyph /> : <GlobeGlyph />}</span>}>
+              <div className="py-1.5">
+                <button type="button" role="menuitemradio" aria-checked={!hidden} data-menu-close onClick={() => onSetPublic(true)} className="w-full flex items-center gap-3 px-4 py-2 text-[1.0417rem] hover:bg-card-hi cursor-pointer text-ink text-left">
+                  <GlobeGlyph />
+                  <span className="flex-1">Share on your profile</span>
+                  {!hidden && <span aria-hidden>✓</span>}
+                </button>
+                <button type="button" role="menuitemradio" aria-checked={hidden} data-menu-close onClick={() => onSetPublic(false)} className="w-full flex items-center gap-3 px-4 py-2 text-[1.0417rem] hover:bg-card-hi cursor-pointer text-ink text-left">
+                  <LockGlyph />
+                  <span className="flex-1">Keep private</span>
+                  {hidden && <span aria-hidden>✓</span>}
+                </button>
+              </div>
+            </Menu>
+          )}
+        </div>
       )}
       {/* In Edit: who can see it (an eye for everyone, a lock for only the
           owner), its picture, and, for the person's own categories, delete.
@@ -447,6 +536,15 @@ function CategoryTile({
         </div>
       )}
     </div>
+  );
+}
+
+function GlobeGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+    </svg>
   );
 }
 

@@ -25,7 +25,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   const supabase = await createClient();
   const { data: p } = await supabase
     .from("profiles")
-    .select(`user_id, display_name, ${PICTURE_COLUMNS}, location, quote, links, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, category_privacy, pinned_reviews, favourites`)
+    .select(`user_id, display_name, ${PICTURE_COLUMNS}, location, quote, links, is_private, show_activity, show_watchlog, allow_follows, category_privacy, shared_shelves, pinned_reviews, favourites`)
     .eq("username", username.toLowerCase())
     .maybeSingle();
   if (!p?.username) return null;
@@ -69,7 +69,7 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   if (user && user.id === p.user_id) {
     const archive = await archiveFor(supabase, p.user_id, true);
     const view = profileFromArchive(archive, meta, true);
-    return { ...withPicks(pinFirst(await withAiredEpisodes(await withUpToDate(view, archive)))), ...social, isPrivate: p.is_private, categoryPrivacy: (p.category_privacy as Record<string, boolean>) ?? {} };
+    return { ...withPicks(pinFirst(await withAiredEpisodes(await withUpToDate(view, archive)))), ...social, isPrivate: p.is_private, categoryPrivacy: (p.category_privacy as Record<string, boolean>) ?? {}, sharedShelves: (p.shared_shelves as string[] | null) ?? [] };
   }
   // Everyone else: their public copy, drawn by the same code as the owner's
   // view. None for a private profile unless the viewer is an approved
@@ -77,17 +77,22 @@ export async function realProfile(username: string): Promise<PublicProfileView |
   const archive = await archiveFor(supabase, p.user_id, false);
   const drawn = profileFromArchive(archive, meta, false);
   const view = archive === EMPTY ? drawn : await withAiredEpisodes(await withUpToDate(drawn, archive));
-  // What the owner has switched off (Settings → Privacy, and each category's
-  // eye) isn't shown. Hidden lists and, with both of these off, watch dates
-  // aren't even in the public copy.
-  const hiddenCategories = (p.category_privacy as Record<string, boolean>) ?? {};
+  // A built-in shelf shows only once the owner has shared it; a list unless
+  // they've locked it. Neither a private shelf's titles nor a locked list is
+  // in the public copy at all (20261012120000_private_library.sql); this
+  // keeps the page from drawing an empty or partial shelf from what's left.
+  const lockedLists = (p.category_privacy as Record<string, boolean>) ?? {};
+  const shared = new Set(archive.sharedShelves ?? (p.shared_shelves as string[] | null) ?? []);
   return {
     ...withPicks(pinFirst(view)),
     ...social,
-    categories: view.categories.filter((c) => !hiddenCategories[c.id]),
+    categories: view.categories.filter((c) => (c.custom ? !lockedLists[c.id] : shared.has(c.id))),
+    sharedShelves: [...shared],
     // Private, and the viewer isn't an approved follower: only the card.
     isPrivate: p.is_private && viewerFollow !== "following",
-    hiddenSections: [!p.show_activity && "activity", !p.show_watchlog && "watchlog", !p.show_watchlist && "watchlist", !p.show_watching && "watching"].filter((x): x is string => !!x),
+    // The watchlist is part of the Shows and Movies shelves now, so it shows
+    // when either is shared (Settings' old switch is gone).
+    hiddenSections: [!p.show_activity && "activity", !p.show_watchlog && "watchlog", !shared.has("shows") && !shared.has("movies") && "watchlist"].filter((x): x is string => !!x),
     allowFollows: p.allow_follows,
   };
 }

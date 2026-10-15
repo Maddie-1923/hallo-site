@@ -61,6 +61,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
         </div>
           <ProfileSections
             owner={!!v.owner}
+            sharedShelves={v.sharedShelves}
             privateProfile={!!v.isPrivate && !v.owner}
             hiddenSections={v.owner ? [] : (v.hiddenSections ?? [])}
             className="lg:col-span-2"
@@ -120,7 +121,7 @@ export function ProfilePage({ view: v }: { view: PublicProfileView }) {
                 id: "categories",
                 label: "Categories",
                 count: v.categories.length,
-                content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} library={v.owner ? [...v.owner.shows, ...v.owner.films] : []} accountPrivacy={v.categoryPrivacy} live={v.viewerFollow === "self"} /> : <Empty>Nothing in any category yet.</Empty>,
+                content: v.categories.length > 0 ? <ProfileCategories categories={v.categories} owner={!!v.owner} username={v.username} library={v.owner ? [...v.owner.shows, ...v.owner.films] : []} accountPrivacy={v.categoryPrivacy} sharedShelves={v.sharedShelves} live={v.viewerFollow === "self"} /> : <Empty>Nothing in any category yet.</Empty>,
               },
               // No Favourites tab: the loved titles are the Favorites category.
               { id: "stats", label: "Stats", content: <Dashboard v={v} /> },
@@ -252,6 +253,19 @@ function PeopleCounts({ v }: { v: PublicProfileView }) {
 function NumberTiles({ v }: { v: PublicProfileView }) {
   const s = v.stats;
   const n = (x: number) => x.toLocaleString("en");
+  // A visitor to a library nobody has shared gets one plain line rather than
+  // three zeros that read as "watched nothing".
+  if (!v.owner && v.sharedShelves && v.sharedShelves.length === 0) {
+    return (
+      <div className={`flex-1 ${TILE} !flex-row gap-2 hover:!border-hair`}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="text-dim">
+          <rect x="5" y="11" width="14" height="10" rx="2" />
+          <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </svg>
+        <span className="text-[1.0417rem] text-dim">Library is private</span>
+      </div>
+    );
+  }
   const tiles: [string, string, number, number | undefined][] = [
     ["Movies", "movies", s.films, s.year?.films],
     ["Shows", "shows", s.shows, s.year?.shows],

@@ -35,7 +35,7 @@ export async function loadAccountSettings(): Promise<AccountSettings | null> {
   const me = await signedIn();
   if (!me) return null;
   const [{ data: p }, { data: u }] = await Promise.all([
-    me.supabase.from("profiles").select("display_name, is_private, show_activity, show_watchlog, show_watchlist, show_watching, allow_follows, location, quote, category_privacy").eq("user_id", me.user.id).maybeSingle(),
+    me.supabase.from("profiles").select("display_name, is_private, show_activity, show_watchlog, allow_follows, location, quote, category_privacy").eq("user_id", me.user.id).maybeSingle(),
     me.supabase.from("user_settings").select("settings").eq("user_id", me.user.id).maybeSingle(),
   ]);
   const own = (u?.settings ?? {}) as Record<string, unknown>;
@@ -45,8 +45,6 @@ export async function loadAccountSettings(): Promise<AccountSettings | null> {
     settings.publicProfile = !p.is_private;
     settings.showActivity = p.show_activity;
     settings.showWatchlog = p.show_watchlog;
-    settings.showWatchlist = p.show_watchlist;
-    settings.showWatching = p.show_watching;
     settings.allowFollows = p.allow_follows;
   }
   return {
@@ -112,6 +110,24 @@ export async function saveAbout(about: { location: string; quote: string; links?
   if (!me) return { ok: false };
   const { error } = await me.supabase.from("profiles").upsert({ user_id: me.user.id, location: location || null, quote: quote || null, ...(links ? { links } : {}) }, { onConflict: "user_id" });
   return error ? { ok: false, error: "That didn't save to your account." } : { ok: true };
+}
+
+/** Shares one built-in shelf on the public profile, or makes it private
+    again. On the server one key at a time, so quick taps can't undo each
+    other. On Hold and Stopped Watching are refused there. */
+export async function setShelfShared(shelf: string, shared: boolean): Promise<boolean> {
+  const me = await signedIn();
+  if (!me) return false;
+  const { error } = await me.supabase.rpc("set_shelf_shared", { shelf, shared });
+  return !error;
+}
+
+/** Locks one list (only its owner sees it) or puts it back on the profile. */
+export async function setListHidden(listID: string, hidden: boolean): Promise<boolean> {
+  const me = await signedIn();
+  if (!me) return false;
+  const { error } = await me.supabase.rpc("set_list_hidden", { list_id: listID, hidden });
+  return !error;
 }
 
 /** Each category's eye: { "list:ID": true } for hidden. */

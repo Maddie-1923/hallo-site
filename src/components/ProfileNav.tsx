@@ -31,9 +31,12 @@ export interface ProfileSection {
 // `privateProfile`: someone else's private profile, which a visitor sees only
 // the card of (until follows let approved followers in).
 // `hiddenSections`: on someone else's profile, the tabs they've turned off.
-export function ProfileSections({ sections: all, className = "mt-10", aside, label = "Profile sections", flat = false, owner = false, privateProfile = false, hiddenSections = [] }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode; label?: string; flat?: boolean; owner?: boolean; privateProfile?: boolean; hiddenSections?: string[] }) {
+// `sharedShelves`: the owner's shared built-in shelves; the Watchlist tab is
+// public only while Shows or Movies is.
+export function ProfileSections({ sections: all, className = "mt-10", aside, label = "Profile sections", flat = false, owner = false, privateProfile = false, hiddenSections = [], sharedShelves = [] }: { sections: ProfileSection[]; className?: string; aside?: React.ReactNode; label?: string; flat?: boolean; owner?: boolean; privateProfile?: boolean; hiddenSections?: string[]; sharedShelves?: string[] }) {
   const privacy = usePrivacy(owner);
-  const hidden = new Set<string>(privacy ? [!privacy.showActivity && "activity", !privacy.showWatchlog && "watchlog", !privacy.showWatchlist && "watchlist", !privacy.showWatching && "watching"].filter(Boolean) as string[] : hiddenSections);
+  const watchlistShared = sharedShelves.includes("shows") || sharedShelves.includes("movies");
+  const hidden = new Set<string>(privacy ? [!privacy.showActivity && "activity", !privacy.showWatchlog && "watchlog", !watchlistShared && "watchlist"].filter(Boolean) as string[] : hiddenSections);
   // Seen as others see it, a tab with nothing in it isn't there at all
   // (Watching 0); the owner keeps every tab, with the way to fill it.
   const sections = privacy?.others || !owner ? all.filter((s) => !hidden.has(s.id) && s.count !== 0) : all;

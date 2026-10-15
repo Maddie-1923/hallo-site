@@ -7,8 +7,6 @@ export interface Settings {
   publicProfile: boolean;
   showActivity: boolean;
   showWatchlog: boolean;
-  showWatchlist: boolean;
-  showWatching: boolean;
   allowFollows: boolean;
   // Notifications, by email.
   notifyFollows: boolean;
@@ -50,8 +48,6 @@ export const DEFAULTS: Settings = {
   publicProfile: true,
   showActivity: true,
   showWatchlog: true,
-  showWatchlist: true,
-  showWatching: true,
   allowFollows: true,
   notifyFollows: true,
   notifyLikes: true,
@@ -84,8 +80,6 @@ export const PROFILE_SETTINGS = {
   publicProfile: "is_private",
   showActivity: "show_activity",
   showWatchlog: "show_watchlog",
-  showWatchlist: "show_watchlist",
-  showWatching: "show_watching",
   allowFollows: "allow_follows",
 } as const satisfies Partial<Record<keyof Settings, string>>;
 

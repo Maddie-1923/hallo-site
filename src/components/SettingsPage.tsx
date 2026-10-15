@@ -181,13 +181,12 @@ export function SettingsPage({ username, detected, regions, initialServices, sig
             {toggle("showActivity")}
           </Field>
           <Field label="Show your Watchlog">{toggle("showWatchlog")}</Field>
-          <Field label="Show your watchlist" hint="What you mean to watch, as a tab on your profile.">{toggle("showWatchlist")}</Field>
           <Field label="Let people follow you">{toggle("allowFollows")}</Field>
           <Field label="Blocked people" hint="They can't see your profile or anything you post, and you don't see theirs.">
             <BlockedPeople />
           </Field>
-          <Field label="Categories" hint="Each category's eye on your profile sets whether others see it.">
-            <LinkButton href={username ? `/u/${username}#categories` : "/profile/setup"}>Open categories</LinkButton>
+          <Field label="Shelves and lists" hint="Your shelves start private and your lists public. The badge on each one on your profile changes who sees it.">
+            <LinkButton href={username ? `/u/${username}#categories` : "/profile/setup"}>Open your profile</LinkButton>
           </Field>
         </Group>
 
