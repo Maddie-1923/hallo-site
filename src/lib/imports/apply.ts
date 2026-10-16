@@ -1,5 +1,5 @@
 import type { LibraryArchive } from "../archive";
-import { mergeArchives } from "./merge";
+import { laterErase, mergeArchives } from "./merge";
 import { swiftNow } from "./swift";
 import type { ImportPlan } from "./types";
 
@@ -43,7 +43,10 @@ function carriesSomething(a: LibraryArchive) {
  * and keeps what it changed out of followers' feeds and the digest.
  */
 export function applyImportPlan(library: LibraryArchive, plan: ImportPlan, now: Date): LibraryArchive {
-  const out: LibraryArchive = carriesSomething(plan.archive) ? mergeArchives(plan.archive, library, now) : { ...library };
+  // An import is a decision made now, so it passes through an earlier erase
+  // whole rather than losing its undated ratings to it, as the apps' `apply` does.
+  const incoming = { ...plan.archive, erasedAt: laterErase(plan.archive.erasedAt, library.erasedAt) };
+  const out: LibraryArchive = carriesSomething(plan.archive) ? mergeArchives(incoming, library, now) : { ...library };
   const ratings = { ...(out.ratings ?? {}) };
   for (const [key, score] of Object.entries(plan.ratings)) if (ratings[key] == null) ratings[key] = score;
   const reactions = { ...(out.reactions ?? {}) };

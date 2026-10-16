@@ -211,6 +211,14 @@ export interface LibraryArchive {
    * The database reads it to keep that write's changes out of feeds.
    */
   importedAt?: string;
+  /**
+   * When this library was last erased while signed in. Ratings, notes, lists
+   * and the rest merge as a union with no tombstones, so a copy that hadn't
+   * heard of the erase would hand them all back; the merge drops whatever
+   * such a copy holds from before this moment (`survivingErase` in
+   * imports/merge.ts). Added 16 Oct 2026 with the apps' erase-sync layer 2.
+   */
+  erasedAt?: string;
   [extra: string]: unknown;
 }
 

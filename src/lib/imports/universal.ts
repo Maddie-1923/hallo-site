@@ -1,5 +1,5 @@
 import type { LibraryArchive, Movie, MovieStatus, Show, TrackedMovie, TrackedShow, WatchStatus } from "../archive";
-import { mergeArchives } from "./merge";
+import { laterErase, mergeArchives } from "./merge";
 import { jsonEntries, recogniseJsonFormat } from "./json";
 import { letterboxdIgnored, presetEntries, recognisePreset } from "./presets";
 import { MOOD_LIMIT } from "./moods";
@@ -440,7 +440,7 @@ async function write(
     // progress is somebody's own. Undated, since the file has no dates to
     // give; specials left alone. "Already ticked" is asked of the library as
     // the first merge left it, as Android asks it.
-    const state: LibraryArchive = applied ? mergeArchives(archive, before, deps.now()) : before;
+    const state: LibraryArchive = applied ? mergeArchives({ ...archive, erasedAt: laterErase(archive.erasedAt, before.erasedAt) }, before, deps.now()) : before;
     const ticked = new Set(state.watched ?? []);
     const finished: string[] = [];
     for (const entry of shows.values()) {

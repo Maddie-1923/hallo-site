@@ -128,6 +128,108 @@ export function pruneArchive(archive: LibraryArchive, asOf: Date): LibraryArchiv
   };
 }
 
+/**
+ * This copy less whatever an erase at `cutoff` took, when it hasn't heard of
+ * that erase itself — iOS `survivingErase(at:)` and Android's, kept identical.
+ *
+ * A copy whose own `erasedAt` is that erase or a later one has been through
+ * it already, so everything it holds came after, dated or not, and it passes
+ * through whole. In the copy still holding the library from before, a thing
+ * survives if its own date is after the erase: a review's `modified`, a
+ * list's or a rail's `created`, a skip's or a film's date, a tag's
+ * `tagAdded`, an episode's stamp, a record's `modified`.
+ *
+ * Undated things go — a rating or a note carries no date — unless the title
+ * they hang off was tracked or changed after the erase, or the episode
+ * checked off after it. Shows, films, episodes and runs are filtered too,
+ * since tombstones only name what the erasing phone held. Orders are left
+ * alone.
+ */
+export function survivingErase(archive: LibraryArchive, cutoff: number | null): LibraryArchive {
+  if (cutoff === null || moment(archive.erasedAt) >= cutoff) return archive;
+  const after = (text: string | null | undefined) => moment(text) > cutoff;
+
+  const showsAfter = new Set((archive.shows ?? []).filter((r) => after(r.modified)).map((r) => r.show.id));
+  const moviesAfter = new Set((archive.movies ?? []).filter((r) => after(r.modified)).map((r) => r.movie.id));
+  const stamps = archive.watchedStamps ?? {};
+  // "12-1-3": an episode's show is the number before the first dash.
+  const episodeTouched = (id: string) => after(stamps[id]) || showsAfter.has(Number(id.split("-")[0]));
+  // A reaction key — "show:1", "movie:2", "episode:1-1-1".
+  const titleTouched = (key: string) => {
+    const colon = key.indexOf(":");
+    if (colon < 0) return false;
+    const kind = key.slice(0, colon);
+    const rest = key.slice(colon + 1);
+    if (kind === "show") return showsAfter.has(Number(rest));
+    if (kind === "movie") return moviesAfter.has(Number(rest));
+    if (kind === "episode") return episodeTouched(rest);
+    return false;
+  };
+  const filmDates = archive.movieWatchedDates ?? {};
+  const filmKept = (id: number) => moviesAfter.has(id) || after(filmDates[String(id)]);
+  const keep = <V>(map: Record<string, V> | undefined, ok: (key: string, value: V) => boolean) =>
+    map === undefined ? undefined : Object.fromEntries(Object.entries(map).filter(([k, v]) => ok(k, v)));
+
+  const watched = (archive.watched ?? []).filter((k) => after(stamps[k]));
+  const stillWatched = new Set(watched);
+  const skippedDates = archive.skippedDates ?? {};
+  const skipped = archive.skipped?.filter((k) => after(skippedDates[k]) || episodeTouched(k));
+  const stillSkipped = new Set(skipped ?? []);
+  // An art pick's key is the title's key, then the role and the surface.
+  const chosenArt = keep(archive.chosenArt, (k) => titleTouched(k.split("#")[0]));
+  const stillPicked = new Set(Object.values(chosenArt ?? {}));
+  const tagAdded = archive.tagAdded ?? {};
+  const tags =
+    archive.tags === undefined
+      ? undefined
+      : Object.fromEntries(
+          Object.entries(archive.tags)
+            .map(([key, list]): [string, string[]] => [key, list.filter((tag) => after(tagAdded[tagPair(key, tag)]) || titleTouched(key))])
+            .filter(([, list]) => list.length > 0),
+        );
+
+  return {
+    ...archive,
+    shows: (archive.shows ?? []).filter((r) => showsAfter.has(r.show.id)),
+    movies: (archive.movies ?? []).filter((r) => moviesAfter.has(r.movie.id)),
+    watched,
+    watchedStamps: keep(archive.watchedStamps, (_, at) => after(at)),
+    watchedDates: keep(archive.watchedDates, (k) => stillWatched.has(k)),
+    skipped,
+    skippedDates: keep(archive.skippedDates, (k) => stillSkipped.has(k)),
+    watchedMovies: archive.watchedMovies?.filter(filmKept),
+    movieWatchedDates: keep(archive.movieWatchedDates, (k) => filmKept(Number(k))),
+
+    reactions: keep(archive.reactions, titleTouched),
+    ratings: keep(archive.ratings, titleTouched),
+    moods: keep(archive.moods, titleTouched),
+    notes: keep(archive.notes, titleTouched),
+    reviews: keep(archive.reviews, (k, review) => after(review.modified) || titleTouched(k)),
+    tags,
+    // "show:1|horror" — the title is everything before the last bar.
+    tagAdded: keep(archive.tagAdded, (pair, at) => after(at) || (pair.includes("|") && titleTouched(pair.slice(0, pair.lastIndexOf("|"))))),
+    catchUpOptOuts: archive.catchUpOptOuts?.filter((id) => showsAfter.has(id)),
+    mutedShows: archive.mutedShows?.filter((id) => showsAfter.has(id)),
+    hiddenShows: archive.hiddenShows?.filter((id) => showsAfter.has(id)),
+    hiddenRecs: archive.hiddenRecs?.filter(titleTouched),
+    customLists: archive.customLists?.filter((l) => after(l.created)),
+    savedRails: archive.savedRails?.filter((r) => after(r.created)),
+    chosenArt,
+    uploadedArt: keep(archive.uploadedArt, (k) => stillPicked.has(k)),
+
+    rewatchRuns: archive.rewatchRuns?.filter((r) => after(r.modified)),
+    rewatchCounts: archive.rewatchCounts?.filter((c) => showsAfter.has(c.id)),
+    rewatchLog: archive.rewatchLog?.filter((t) => after(t.watched) || showsAfter.has(t.showID)),
+    movieRewatchLog: archive.movieRewatchLog?.filter((t) => after(t.watched) || moviesAfter.has(t.movieID)),
+  };
+}
+
+/** The later of two erase stamps as the apps write it, or undefined where neither side has a readable one. */
+export function laterErase(a: string | undefined, b: string | undefined): string | undefined {
+  const known = [a, b].filter((t): t is string => typeof t === "string" && parseSwiftDate(t) !== null);
+  return known.length > 0 ? known.map(stamp).reduce((x, y) => later(x, y)).text : undefined;
+}
+
 /** "show:1|horror": how a tag's dates are filed. */
 export const tagPair = (titleKey: string, tag: string) => `${titleKey}|${tag.toLowerCase()}`;
 
@@ -322,7 +424,9 @@ function mergeReviews(mine: Record<string, Review> | undefined, theirs: Record<s
  *
  * Still additive, on purpose: reactions, ratings, notes, art picks, opt-outs,
  * mutes and the watched-film memory. Those are things you set rather than
- * remove, and a stale one costs a few bytes and gives an old verdict back.
+ * remove, and a stale one costs a few bytes and gives an old verdict back. The
+ * one thing they lose to is an erase the other copy hasn't heard of — see
+ * `survivingErase`.
  *
  * Where the two sides are indistinguishable the incoming one wins. `asOf` is
  * what the deletion window is measured against. Anything in `onto` this site
@@ -331,8 +435,12 @@ function mergeReviews(mine: Record<string, Review> | undefined, theirs: Record<s
 export function mergeArchives(incoming: LibraryArchive, onto: LibraryArchive, asOf: Date): LibraryArchive {
   // Expired deletions are dropped from both sides before anything is
   // compared, so "too old to matter" and "never happened" are one answer.
-  const mine = pruneArchive(incoming, asOf);
-  const theirs = pruneArchive(onto, asOf);
+  // Then whichever side hasn't heard of the later erase loses what that
+  // erase took, before any rule below can union it back in.
+  const erasedAt = laterErase(incoming.erasedAt, onto.erasedAt);
+  const cutoff = erasedAt === undefined ? null : moment(erasedAt);
+  const mine = survivingErase(pruneArchive(incoming, asOf), cutoff);
+  const theirs = survivingErase(pruneArchive(onto, asOf), cutoff);
 
   const shows = resolve<TrackedShow>(
     mine.shows ?? [], stonesByID(mine.showTombstones ?? []), theirs.shows ?? [], stonesByID(theirs.showTombstones ?? []),
@@ -400,11 +508,11 @@ export function mergeArchives(incoming: LibraryArchive, onto: LibraryArchive, as
   // has tombstones, so one deleted on one device comes back from the other —
   // a known limitation on iOS, kept so every copy behaves alike.
   const lists = new Map<string, CustomList>();
-  for (const list of onto.customLists ?? []) if (!lists.has(uuidKey(list.id))) lists.set(uuidKey(list.id), list);
-  for (const list of incoming.customLists ?? []) lists.set(uuidKey(list.id), list);
+  for (const list of theirs.customLists ?? []) if (!lists.has(uuidKey(list.id))) lists.set(uuidKey(list.id), list);
+  for (const list of mine.customLists ?? []) lists.set(uuidKey(list.id), list);
   const rails = new Map<string, SavedRail>();
-  for (const rail of onto.savedRails ?? []) if (!rails.has(uuidKey(rail.id))) rails.set(uuidKey(rail.id), rail);
-  for (const rail of incoming.savedRails ?? []) rails.set(uuidKey(rail.id), rail);
+  for (const rail of theirs.savedRails ?? []) if (!rails.has(uuidKey(rail.id))) rails.set(uuidKey(rail.id), rail);
+  for (const rail of mine.savedRails ?? []) rails.set(uuidKey(rail.id), rail);
   const byCreated = <T extends { created?: string }>(a: T, b: T) => moment(a.created) - moment(b.created);
 
   // Unioned, unlike moods, except where a dated removal is newer: one
@@ -460,6 +568,7 @@ export function mergeArchives(incoming: LibraryArchive, onto: LibraryArchive, as
     notes: { ...(theirs.notes ?? {}), ...(mine.notes ?? {}) },
     reviews: mergeReviews(mine.reviews, theirs.reviews),
     importedAt,
+    erasedAt,
     tags,
     tagAdded,
     tagRemoved,
@@ -489,7 +598,7 @@ export function mergeArchives(incoming: LibraryArchive, onto: LibraryArchive, as
     movieRewatchTickTombstones: tickStoneList(movieNightStones),
   };
   // Swift leaves a nil optional out of the file rather than writing null.
-  for (const key of ["showOrder", "movieOrder", "savedRailOrder", "profileAvatar", "profileBanner", "profilePicturesChanged", "reviews", "importedAt"] as const) {
+  for (const key of ["showOrder", "movieOrder", "savedRailOrder", "profileAvatar", "profileBanner", "profilePicturesChanged", "reviews", "importedAt", "erasedAt"] as const) {
     if (merged[key] === undefined || merged[key] === null) delete merged[key];
   }
   return merged;
