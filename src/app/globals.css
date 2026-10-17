@@ -130,6 +130,10 @@
 .scheme-dark {
   --logo-ink: #eeeff2;
   --page: #17191c;
+  --well: #202327;
+  --piece: #33373d;
+  --lit-edge: #4f555f;
+  --mid-tone: #babec4;
   --ink: #eeeff2;
   --card: #2a2d32;
   --card-hi: #353a41;
@@ -533,3 +537,7 @@ section.band p + p { margin-top: 1em; }
 @media (prefers-reduced-motion: reduce) {
   .poster-wall-row { animation: none; }
 }
+
+/* A page drawn as a picture (components/ScaledPage.tsx): nothing in it sticks,
+   since the window it would stick to is the landing page's. */
+.scaled-page .sticky { position: relative !important; top: auto !important; }

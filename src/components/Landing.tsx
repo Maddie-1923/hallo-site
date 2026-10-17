@@ -1,7 +1,16 @@
 import Link from "next/link";
-import { accountsOpen } from "@/lib/accounts";
 import { SiteFooter } from "./SiteFooter";
 import { PosterWall, type WallPoster } from "./PosterWall";
+import { BrowserFrame, PhoneFrame, Showcase } from "./Showcase";
+import { ScaledPage } from "./ScaledPage";
+import { TrackerBoard } from "./TrackerBoard";
+import { sampleLibrary } from "@/lib/sample-library";
+import { trackerFromArchive } from "@/lib/tracker";
+import { Row, asMovies, asShows, interleave } from "./TitleRows";
+import { markLookup } from "@/lib/marks";
+import { visitorRegion } from "@/lib/region";
+import { AndroidWidgets, IPhoneWidgets, type WidgetTitle } from "./WidgetHomes";
+import { ExploreScreen, UpNextScreen, type AppEpisode, type AppPoster } from "./AppScreens";
 import { image, movieRails, showRails } from "@/lib/tmdb";
 
 // kodigo.pro for someone who isn't signed in: the front door to the whole of
@@ -11,12 +20,6 @@ import { image, movieRails, showRails } from "@/lib/tmdb";
 // for (track, review, people), and the two questions left: can I bring my
 // history, and what does it cost. Signed in, the poster home is the front
 // page instead (app/page.tsx), and Explore keeps the rows open to everyone.
-
-const blocks = [
-  ["Track", "Never lose your place", "Every show you're partway through in one queue, the next episode at the top, and a reminder the day a new one airs or a film you're waiting on opens."],
-  ["Review", "Say what you thought", "Rate in half stars, pick a mood, and write as much or as little as you like. Spoilers stay hidden until a reader asks to see them."],
-  ["People", "Find your kind of taste", "Follow friends and strangers with good taste, browse their lists, and see what they're watching this week."],
-] as const;
 
 const sources = ["Letterboxd", "Trakt", "TV Time", "IMDb", "Simkl"];
 
@@ -46,118 +49,204 @@ function wall(lists: { id: number; poster_path?: string | null; name?: string; t
   return out.slice(0, 60);
 }
 
+// The widgets' titles, from the week's real artwork. Up Next's places in
+// each show are made up for the picture — a visitor has no library — and
+// laid out the way the widgets print them.
+type Titled = { id: number; backdrop_path?: string | null; name?: string; title?: string; first_air_date?: string | null; release_date?: string | null };
+const places: [number, number, number][] = [[2, 5, 8], [1, 3, 10], [3, 8, 10], [1, 2, 6], [4, 6, 12]];
+const two = (n: number) => String(n).padStart(2, "0");
+
+function upNext(list: Titled[]): WidgetTitle[] {
+  return list.filter((t) => t.backdrop_path).slice(0, 5).map((t, i) => {
+    const [season, episode, of] = places[i];
+    return { key: `u${t.id}`, title: t.name ?? t.title ?? "", backdrop: image.still(t.backdrop_path), sub: `S${two(season)} | E${two(episode)}\u2003${episode}/${of}` };
+  });
+}
+
+function films(list: Titled[]): WidgetTitle[] {
+  return list.filter((t) => t.backdrop_path).slice(0, 3).map((t) => ({ key: `f${t.id}`, title: t.title ?? t.name ?? "", backdrop: image.still(t.backdrop_path), sub: (t.release_date ?? "").slice(0, 4) }));
+}
+
+/** Titles still to come, with the days until each and its date. */
+function dated(list: Titled[], show = false): WidgetTitle[] {
+  const today = Date.now();
+  return list.filter((t) => t.backdrop_path).slice(0, 3).map((t) => {
+    const when = show ? t.first_air_date : t.release_date;
+    const at = when ? Date.parse(when) : NaN;
+    const days = Number.isFinite(at) ? Math.max(1, Math.ceil((at - today) / 86_400_000)) : 7;
+    const date = Number.isFinite(at) ? new Date(at).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }) : "";
+    return { key: `d${t.id}`, title: t.name ?? t.title ?? "", backdrop: image.still(t.backdrop_path), sub: show ? "S01 | E01" : date, days };
+  });
+}
+
+/** Posters for the apps' Explore rails, as the cards print them. */
+function appPosters(list: Titled[]): AppPoster[] {
+  return list
+    .filter((t) => (t as { poster_path?: string | null }).poster_path)
+    .slice(0, 3)
+    .map((t) => ({ key: `p${t.id}`, title: t.name ?? t.title ?? "", year: (t.first_air_date ?? t.release_date ?? "").slice(0, 4), poster: image.poster((t as { poster_path?: string | null }).poster_path, "w342") }));
+}
+
+/** Up Next rows: real shows at made-up places, the way the app prints them. */
+function appEpisodes(list: Titled[]): AppEpisode[] {
+  return list.filter((t) => t.backdrop_path).slice(0, 4).map((t, i) => {
+    const [season, episode, of] = places[i];
+    return {
+      key: `e${t.id}`,
+      title: t.name ?? t.title ?? "",
+      art: image.still(t.backdrop_path),
+      code: `S${two(season)} | E${two(episode)}`,
+      name: `Episode ${episode}`,
+      left: of - episode + 1 === 1 ? "last one" : `${of - episode + 1} left`,
+      progress: Math.round(((episode - 1) / of) * 100),
+      badge: i === 1 ? "NEW" : undefined,
+    };
+  });
+}
+
 export async function Landing() {
-  const [shows, movies, bestShows, bestMovies] = await Promise.all([showRails.trending(), movieRails.trending(), showRails.topRated(), movieRails.topRated()]);
+  const region = await visitorRegion();
+  const [shows, movies, bestShows, bestMovies, soonShows, soonMovies] = await Promise.all([
+    showRails.trending(),
+    movieRails.trending(),
+    showRails.topRated(),
+    movieRails.topRated(),
+    showRails.anticipated(),
+    movieRails.anticipated(region),
+  ]);
+
+  const trending = interleave(asMovies(movies), asShows(shows));
+  // The real tracker, drawn from a made-up library of this week's shows.
+  const tracker = await trackerFromArchive(sampleLibrary(shows, movies));
 
   return (
-    <div className="min-h-screen flex flex-col">
+    // Night colours top to bottom whatever the theme, and one black for the
+    // whole page, so the wall, the showcases and the bands below meet
+    // without a seam.
+    <div className="scheme-dark min-h-screen flex flex-col" style={{ ["--page" as string]: "#0b0c0e" }}>
       <header id="top">
         <PosterWall posters={wall([shows, movies, bestShows, bestMovies])} />
       </header>
 
       <main className="flex-1">
-        <section id="features" className="band">
-          <div className="wrap">
-            <div className="rule" />
-            <div className="eyebrow">What it&apos;s for</div>
-            <h2>
-              Watch it, keep it,
-              <br />
-              talk about it
-            </h2>
-            <div className="grid gap-[clamp(24px,4vw,48px)] mt-11 md:grid-cols-3">
-              {blocks.map(([tag, title, body]) => (
-                <div key={tag} className="grid gap-1 content-start">
-                  <div className="text-[0.9167rem] font-bold tracking-[.14em] uppercase text-accent transition-colors duration-500">{tag}</div>
-                  <h3 className="m-0">{title}</h3>
-                  <p className="text-[1.25rem] text-dim m-0">{body}</p>
+        <div id="features">
+          <Showcase
+            eyebrow="Explore"
+            stripe="#FFCB14"
+            title="Find your next favourite."
+            body="What's trending this week, new episodes, what's in cinemas near you, and the best of all time. The same posters on the website and in the app."
+          >
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center">
+              <div className="min-w-0 lg:col-span-7">
+                <BrowserFrame>
+                  <div className="px-4 pt-2 pb-5">
+                    <Row title="Trending this week" href="/explore/rail/trending" items={trending} marks={markLookup(null)} />
+                  </div>
+                </BrowserFrame>
+              </div>
+              <div className="lg:col-span-5 flex justify-center gap-4">
+                <PhoneFrame label="Kodigo's Explore tab on iPhone, with new series coming and trending shows" className="w-[46%] max-w-[250px]">
+                  <ExploreScreen platform="ios" kind="shows" firstName="NEW SERIES COMING" first={appPosters(soonShows)} second={appPosters(shows.slice(3))} />
+                </PhoneFrame>
+                <PhoneFrame label="Kodigo's Explore tab on Android, with highly anticipated and trending films" className="w-[46%] max-w-[250px]">
+                  <ExploreScreen platform="android" kind="movies" firstName="HIGHLY ANTICIPATED" first={appPosters(soonMovies)} second={appPosters(movies)} />
+                </PhoneFrame>
+              </div>
+            </div>
+          </Showcase>
+
+          <Showcase
+            eyebrow="Track"
+            stripe="#FF69C4"
+            title="Never lose your place."
+            body="Check off an episode and the next one is waiting. Up Next, a calendar of what's airing, and stats on everything you've watched, the same on your phone and on the web."
+          >
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center">
+              <div className="lg:col-span-5 flex justify-center gap-4 order-2 lg:order-1">
+                <PhoneFrame label="Kodigo's Up Next on iPhone, each show at its next episode" className="w-[46%] max-w-[250px]">
+                  <UpNextScreen platform="ios" episodes={appEpisodes(shows)} />
+                </PhoneFrame>
+                <PhoneFrame label="Kodigo's Up Next on Android, each show at its next episode" className="w-[46%] max-w-[250px]">
+                  <UpNextScreen platform="android" episodes={appEpisodes(bestShows)} />
+                </PhoneFrame>
+              </div>
+              <div className="min-w-0 lg:col-span-7 order-1 lg:order-2">
+                <BrowserFrame>
+                  <ScaledPage width={960} height={600}>
+                    <div className="px-7 pt-6 pb-10">
+                      <TrackerBoard data={tracker} />
+                    </div>
+                  </ScaledPage>
+                </BrowserFrame>
+              </div>
+            </div>
+          </Showcase>
+
+          <Showcase
+            eyebrow="Widgets"
+            stripe="#38B6FF"
+            title="Your shows, right on your home screen."
+            body="Up Next, Coming Soon and films to watch, plus a search card, on iPhone and Android."
+          >
+            <div className="flex justify-center gap-4">
+              <PhoneFrame label="An iPhone home screen with Kodigo's Up Next, Coming Soon, Search and To Watch widgets" className="w-[46%] max-w-[250px]">
+                <IPhoneWidgets upNext={upNext(shows)} soonFilms={dated(soonMovies)} toWatch={films(bestMovies)} />
+              </PhoneFrame>
+              <PhoneFrame label="An Android home screen with Kodigo's Quick actions, Coming Soon and Up Next widgets and the Search tile" className="w-[46%] max-w-[250px]">
+                <AndroidWidgets soonShows={dated(soonShows, true)} upNext={upNext(bestShows)} />
+              </PhoneFrame>
+            </div>
+          </Showcase>
+        </div>
+
+        {/* The questions left once the showcases have been seen, in the
+            same dress as them and the stripes carrying on in order. */}
+        <Showcase
+          id="import"
+          eyebrow="Moving in"
+          stripe="#FFCB14"
+          title="Bring your history with you."
+          body="Hand Kodigo the export from the app you used before. What you watched, your ratings, your lists and your reviews come across, matched title by title, and anything that couldn't be matched is listed rather than lost."
+        >
+          <ul className="m-0 p-0 list-none flex flex-wrap gap-2.5">
+            {sources.map((s) => (
+              <li key={s} className="inline-flex items-center h-11 px-5 rounded-full bg-[#202327] border border-white/15 text-[clamp(15px,1.15vw,18px)] font-semibold text-white">
+                {s}
+              </li>
+            ))}
+          </ul>
+        </Showcase>
+
+        <Showcase id="pricing" eyebrow="Free and Pro" stripe="#FF69C4" title={<>Start free.<br />Go Pro to track.</>}>
+          <div className="grid gap-4 max-w-[760px] sm:grid-cols-2">
+            {[
+              { name: "Free", price: "$0", text: "Rate, review and log what you watched. Lists, a profile, and following people." },
+              { name: "Pro", price: "$1.99 a month or $15.99 a year", text: "Episode tracking, Up Next and the calendar, stats, import and export, and no ads." },
+            ].map((plan) => (
+              <div key={plan.name} className="rounded-[16px] p-2 bg-[#202327] border border-white/15 shadow-[0_4px_9px_rgba(0,0,0,.35)]">
+                <div className="h-full rounded-[12px] bg-[#2a2d32] ring-1 ring-inset ring-white/10 p-[clamp(18px,1.8vw,26px)]">
+                  <div className="display text-[clamp(40px,3.6vw,56px)] leading-none text-white">{plan.name}</div>
+                  <div className="text-[clamp(13px,1vw,15px)] text-white/60 mt-1">{plan.price}</div>
+                  <p className="text-[clamp(15px,1.2vw,18px)] text-white/75 mt-4 mb-0 leading-relaxed">{plan.text}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="import" className="band">
-          <div className="wrap grid gap-[clamp(28px,5vw,72px)] items-center md:grid-cols-2">
-            <div>
-              <div className="rule" />
-              <div className="eyebrow">Moving in</div>
-              <h2>
-                Bring your
-                <br />
-                history with you
-              </h2>
-              <p className="text-dim mt-6">
-                Hand Kodigo the export from the app you used before. What you watched, your ratings, your lists and your reviews come across, matched title by title, and anything that couldn&apos;t be matched is listed rather than lost.
-              </p>
-            </div>
-            <ul className="m-0 p-0 list-none flex flex-wrap gap-2.5 md:justify-end">
-              {sources.map((s) => (
-                <li key={s} className="inline-flex items-center h-11 px-5 rounded-full bg-card border border-hair text-[1.25rem] font-semibold text-ink">
-                  {s}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section id="pricing" className="band">
-          <div className="wrap">
-            <div className="rule" />
-            <div className="eyebrow">Free and Pro</div>
-            <h2>
-              Start free.
-              <br />
-              Go Pro to track.
-            </h2>
-            <div className="grid gap-4 mt-11 max-w-[53.3333rem] sm:grid-cols-2">
-              <div className="card">
-                <div className="display text-[4.3333rem] leading-none">Free</div>
-                <p className="text-dim mt-3 mb-0">Rate, review and log what you watched. Lists, a profile, and following people.</p>
               </div>
-              <div className="card !bg-card-hi !border-accent transition-colors duration-500">
-                <div className="display text-[4.3333rem] leading-none">Pro</div>
-                <div className="text-sm text-dim">$1.99 a month or $15.99 a year</div>
-                <p className="text-dim mt-3 mb-0">Episode tracking, Up next and the calendar, stats, import and export, and no ads.</p>
-              </div>
-            </div>
-            <p className="text-sm mt-4">
-              <Link href="/pro" className="text-accent">Everything Pro adds →</Link>
-            </p>
+            ))}
           </div>
-        </section>
+          <p className="mt-5 mb-0 text-[clamp(15px,1.15vw,18px)]">
+            <Link href="/pro" className="text-white/80 hover:text-white">Everything Pro adds →</Link>
+          </p>
+        </Showcase>
 
-        <section id="faq" className="band">
-          <div className="wrap">
-            <div className="rule" />
-            <div className="eyebrow">Questions</div>
-            <h2>Good to know</h2>
-            <div className="mt-9 max-w-[63.3333rem]">
-              {faq.map(([q, a]) => (
-                <details key={q} className="faq">
-                  <summary>{q}</summary>
-                  <p>{a}</p>
-                </details>
-              ))}
-            </div>
-            <div className="flex flex-wrap items-center gap-3 mt-10">
-              {accountsOpen ? (
-                <>
-                  <Link className="btn !py-2.5 !px-5 !text-[1.25rem]" href="/login">
-                    Create a free account
-                  </Link>
-                  <Link className="btn ghost !py-2.5 !px-5 !text-[1.25rem]" href="/login">
-                    Sign in
-                  </Link>
-                </>
-              ) : (
-                <Link className="btn !py-2.5 !px-5 !text-[1.25rem]" href="/explore">
-                  Explore what&apos;s on
-                </Link>
-              )}
-            </div>
+        <Showcase id="faq" eyebrow="Questions" stripe="#38B6FF" title="Good to know.">
+          <div className="max-w-[760px]">
+            {faq.map(([q, a]) => (
+              <details key={q} className="faq">
+                <summary>{q}</summary>
+                <p>{a}</p>
+              </details>
+            ))}
           </div>
-        </section>
+        </Showcase>
       </main>
 
       <SiteFooter />
