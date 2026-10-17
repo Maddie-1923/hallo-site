@@ -508,3 +508,28 @@ section.band p + p { margin-top: 1em; }
 :is([class*="--font-body"], :not(h1, h2, h3, .display)).uppercase.items-center:is([class^="h-"], [class*=" h-"]):not([class*="py-"], [class*="pt-"], [class^="p-"], [class*=" p-"]) {
   padding-top: 1px;
 }
+
+/* The signed-out front door's poster wall (components/PosterWall.tsx): the
+   posters laid flat like a wall of tickets, each row half a poster out from
+   the one above, the corners bitten out where four tickets meet. Each row
+   drifts slowly sideways, alternate rows the other way. Still for anyone who
+   has asked for less motion. */
+.ticket {
+  --bite: clamp(9px, 0.95vw, 16px);
+  -webkit-mask:
+    radial-gradient(circle at 0 0, #0000 var(--bite), #000 calc(var(--bite) + .5px)) top left / 51% 51% no-repeat,
+    radial-gradient(circle at 100% 0, #0000 var(--bite), #000 calc(var(--bite) + .5px)) top right / 51% 51% no-repeat,
+    radial-gradient(circle at 0 100%, #0000 var(--bite), #000 calc(var(--bite) + .5px)) bottom left / 51% 51% no-repeat,
+    radial-gradient(circle at 100% 100%, #0000 var(--bite), #000 calc(var(--bite) + .5px)) bottom right / 51% 51% no-repeat;
+  mask:
+    radial-gradient(circle at 0 0, #0000 var(--bite), #000 calc(var(--bite) + .5px)) top left / 51% 51% no-repeat,
+    radial-gradient(circle at 100% 0, #0000 var(--bite), #000 calc(var(--bite) + .5px)) top right / 51% 51% no-repeat,
+    radial-gradient(circle at 0 100%, #0000 var(--bite), #000 calc(var(--bite) + .5px)) bottom left / 51% 51% no-repeat,
+    radial-gradient(circle at 100% 100%, #0000 var(--bite), #000 calc(var(--bite) + .5px)) bottom right / 51% 51% no-repeat;
+}
+.poster-wall-row { animation: poster-drift 120s linear infinite alternate; }
+.poster-wall-row-back { animation-direction: alternate-reverse; }
+@keyframes poster-drift { from { transform: translateX(0); } to { transform: translateX(-15%); } }
+@media (prefers-reduced-motion: reduce) {
+  .poster-wall-row { animation: none; }
+}
