@@ -39,8 +39,8 @@ const table: [string, boolean, boolean, boolean][] = [
 
 const faq: [string, string][] = [
   ["How does the free trial work?", "New subscribers on iPhone get 7 days free through the App Store. After that the plan you picked renews automatically, unless you cancel at least 24 hours before the trial ends."],
-  ["Is the website free to use?", "Reading is free for everyone: title pages, profiles, reviews and lists. A free account lets you rate, review and follow. Tracking is Pro."],
-  ["Can I subscribe on the website?", "Not yet. Pro is sold in the app, through the App Store or Google Play. Sign in to the app with your Kodigo account and Pro works on the website too."],
+  ["Is the website free to use?", "Yes, with ads. Reading is free for everyone: title pages, profiles, reviews and lists, and a free account lets you rate, review and follow. Tracking is Pro, and Pro members see no ads."],
+  ["Can I subscribe on the website?", "Not yet. Pro is sold in the iPhone app through the App Store, and on Google Play once the Android app arrives. Sign in to the app with your Kodigo account and Pro works on the website too."],
   ["Can I cancel?", "Any time, in your Apple Account or Google Play subscriptions. Pro lasts to the end of the period you paid for."],
   ["What currency is it in?", "Your own. The App Store and Google Play show the price in your local currency."],
   ["What happens to my library if I stop?", "It stays on your phone. Nothing is deleted, and backup and export keep working whether or not you subscribe."],

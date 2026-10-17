@@ -24,8 +24,8 @@ import { image, movieRails, showRails } from "@/lib/tmdb";
 const sources = ["Letterboxd", "Trakt", "TV Time", "IMDb", "Simkl"];
 
 const faq = [
-  ["Is Kodigo free?", "Browsing is free for everyone, and a free account lets you rate, review, make lists and follow people. Tracking what you're watching, the calendar and stats are Kodigo Pro, $1.99 a month or $15.99 a year."],
-  ["Do I need the app?", "No. The website works on its own. Pro is bought in the app, and once you have it, the same library is on your phone and here."],
+  ["Is Kodigo free?", "The website is, with ads: browse, rate, review, make lists and follow people with a free account. The apps come with Kodigo Pro, $1.99 a month or $15.99 a year, and new subscribers on iPhone get 7 days free. Pro also takes the ads off the website and adds tracking, the calendar and stats there."],
+  ["Do I need the app?", "Not for the website, which works on its own. Pro is bought in the app, and once you have it the same library is on your phone and here, with no ads."],
   ["Can I keep my profile private?", "Yes. Turn off your public profile in Settings and only people you approve can see what you watch and write."],
   ["Where does the show and film information come from?", "TMDB provides titles, episodes and artwork, and air times come from TVmaze."],
 ];
@@ -159,7 +159,7 @@ export async function Landing() {
             eyebrow="Track"
             stripe="#FF69C4"
             title="Never lose your place."
-            body="Check off an episode and the next one is waiting. Up Next, a calendar of what's airing, and stats on everything you've watched, the same on your phone and on the web."
+            body="Check off an episode and the next one is waiting. Up Next, a calendar of what's airing, and stats on everything you've watched, the same on your phone and, with Kodigo Pro, on the web."
           >
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center">
               <div className="lg:col-span-5 flex justify-center gap-4 order-2 lg:order-1">
@@ -217,11 +217,13 @@ export async function Landing() {
           </ul>
         </Showcase>
 
-        <Showcase id="pricing" eyebrow="Free and Pro" stripe="#FF69C4" title={<>Start free.<br />Go Pro to track.</>}>
+        {/* Who pays for what, said plainly: the website is free with ads, the
+            apps are Kodigo Pro, and Pro takes the ads off the website too. */}
+        <Showcase id="pricing" eyebrow="Free and Pro" stripe="#FF69C4" title={<>Free on the web.<br />Pro in the apps.</>}>
           <div className="grid gap-4 max-w-[760px] sm:grid-cols-2">
             {[
-              { name: "Free", price: "$0", text: "Rate, review and log what you watched. Lists, a profile, and following people." },
-              { name: "Pro", price: "$1.99 a month or $15.99 a year", text: "Episode tracking, Up Next and the calendar, stats, import and export, and no ads." },
+              { name: "Website", price: "Free, with ads", text: "Browse every show and film, rate and review, make lists and follow people. The ads keep it free." },
+              { name: "Kodigo Pro", price: "$1.99 a month or $15.99 a year", text: "The iPhone app, with Android coming soon: episode tracking, Up Next, the calendar, widgets and stats. And the website with tracking and no ads." },
             ].map((plan) => (
               <div key={plan.name} className="rounded-[16px] p-2 bg-[#202327] border border-white/15 shadow-[0_4px_9px_rgba(0,0,0,.35)]">
                 <div className="h-full rounded-[12px] bg-[#2a2d32] ring-1 ring-inset ring-white/10 p-[clamp(18px,1.8vw,26px)]">
@@ -232,7 +234,8 @@ export async function Landing() {
               </div>
             ))}
           </div>
-          <p className="mt-5 mb-0 text-[clamp(15px,1.15vw,18px)]">
+          <p className="mt-5 mb-0 text-[clamp(15px,1.15vw,18px)] text-white/65">New subscribers on iPhone get 7 days free. Pro is bought in the app.</p>
+          <p className="mt-2 mb-0 text-[clamp(15px,1.15vw,18px)]">
             <Link href="/pro" className="text-white/80 hover:text-white">Everything Pro adds →</Link>
           </p>
         </Showcase>

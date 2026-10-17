@@ -6,7 +6,7 @@ import Link from "next/link";
 export function ProGate({ why, page = "calendar" }: { why: "signin" | "pro" | "empty" | "closed"; page?: "calendar" | "library" | "stats" | "watchlist" }) {
   const copy = {
     signin: ["Your tracker, on the web", "Everything you're watching, what's up next and what's coming, checked off on a computer and in step with the app. Sign in to open it.", `/login?next=/${page}`, "Sign in"],
-    pro: ["The tracker is part of Kodigo Pro", "Up next, the calendar and checking off episodes on the web come with Pro, the same subscription as the app. Reading, rating and reviewing stay free.", "/pro", "See Kodigo Pro"],
+    pro: ["The tracker is part of Kodigo Pro", "Up next, the calendar and checking off episodes on the web come with Pro, the same subscription as the app. Reading, rating and reviewing stay free, with ads.", "/pro", "See Kodigo Pro"],
     empty: ["Nothing to track yet", "Add a series or a film from its page, or bring your library over from the app or a backup, and it shows here.", "/settings#data", "Import a library"],
     closed: ["Your tracker, on the web", "Everything you're watching, what's up next and what's coming, checked off on a computer and in step with the app. It opens with accounts, as part of Kodigo Pro.", "/pro", "See Kodigo Pro"],
   }[why];

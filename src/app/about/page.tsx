@@ -17,8 +17,8 @@ const features = [
 
 const faq = [
   ["Where is my data kept?", "On your device. If you sign in to a Kodigo account, a copy of your library is kept on Kodigo's server so your other devices and this website stay in step. Sync is optional and off until you turn it on."],
-  ["Is there an Android version?", "Not yet. Android is next after the iOS launch settles, and it is a full rebuild rather than a port, so it will take a while."],
-  ["Can I use it without paying?", "The trial runs for seven days with everything unlocked. After that a subscription keeps the app running."],
+  ["Is there an Android version?", "It's coming soon to Google Play."],
+  ["Can I use it without paying?", "The website, yes: it's free to use, with ads. The app comes with Kodigo Pro: new subscribers get seven days free with everything unlocked, and after that a subscription keeps it running and takes the ads off the website too."],
   ["Where does the show data come from?", "TMDB provides titles, seasons, episodes and artwork, and air times come from TVmaze."],
   ["What happens to my library if I stop subscribing?", "It stays on your device. Nothing is deleted and nothing is held hostage, and backup and export keep working."],
 ];
