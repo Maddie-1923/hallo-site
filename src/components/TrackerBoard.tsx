@@ -32,7 +32,10 @@ import { GENRES } from "@/lib/saved-rails";
 // (lib/library-actions.ts, the app's own rules); without it, the preview,
 // where the keys only change the page. A save that fails is undone on the
 // page and says why.
-export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?: boolean }) {
+// `picture`: drawn as an illustration inside another page (the front door's
+// Track showcase), where the page isn't the tracker's to move — the magnet
+// that eases a row under the bar would pull the whole landing page back to it.
+export function TrackerBoard({ data, live = false, picture = false }: { data: TrackerPage; live?: boolean; picture?: boolean }) {
   const router = useRouter();
   const [problem, setProblem] = useState<string | null>(null);
   const persist = (save: () => Promise<{ error?: string }>, undo: () => void) => {
@@ -359,7 +362,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
     return () => ro.disconnect();
   });
   useEffect(() => {
-    if (!withPanel) return;
+    if (!withPanel || picture) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const settle = () => {
       const line = navH + headerH + 4;
@@ -389,7 +392,7 @@ export function TrackerBoard({ data, live = false }: { data: TrackerPage; live?:
       clearTimeout(timer);
       window.removeEventListener("scroll", onScroll);
     };
-  }, [withPanel, navH, headerH]);
+  }, [withPanel, picture, navH, headerH]);
   // Picking a row by clicking: show it, and glide it up under the bar.
   const pickRow = (key: string) => {
     setPickKey(key);

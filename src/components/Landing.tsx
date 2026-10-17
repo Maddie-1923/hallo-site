@@ -174,7 +174,7 @@ export async function Landing() {
                 <BrowserFrame>
                   <ScaledPage width={960} height={600}>
                     <div className="px-7 pt-6 pb-10">
-                      <TrackerBoard data={tracker} />
+                      <TrackerBoard data={tracker} picture />
                     </div>
                   </ScaledPage>
                 </BrowserFrame>
