@@ -6,7 +6,7 @@ import { AndroidMark, AppleMark } from "./StoreIcons";
 
 // The signed-out front door (Laura, 17 Oct 2026): one screen, a wall of this
 // week's posters laid like tickets, one line saying what Kodigo is, and the
-// three ways in — iPhone, Android, and the website — each on the app's shell.
+// three ways in — the App Store, Google Play, and the website — each on the app's shell.
 // Everything that explains more sits below the fold.
 //
 // Dark whatever the theme, like the frame it replaced: the posters are the
@@ -44,11 +44,11 @@ function Globe() {
 export function PosterWall({ posters }: { posters: WallPoster[] }) {
   // The logo's three stripes, one per way in.
   const ways = [
-    { title: "iPhone", line: "Free on the App Store", action: "Download", href: APP_STORE_URL, external: true, stripe: "#FFCB14", mark: <AppleMark size={24} /> },
-    { title: "Android", line: "Coming to Google Play", action: "Soon", href: PLAY_STORE_URL, external: true, stripe: "#FF69C4", mark: <AndroidMark size={24} /> },
+    { title: "App Store", line: "For iPhone", action: "Download", href: APP_STORE_URL, external: true, stripe: "#FFCB14", mark: <AppleMark size={24} /> },
+    { title: "Google Play", line: "For Android", action: "Soon", href: PLAY_STORE_URL, external: true, stripe: "#FF69C4", mark: <AndroidMark size={24} /> },
     accountsOpen
-      ? { title: "On the web", line: "Free to rate and review", action: "Create Account", href: "/login", external: false, stripe: "#38B6FF", mark: <Globe /> }
-      : { title: "On the web", line: "Browse it all, free", action: "Explore", href: "/explore", external: false, stripe: "#38B6FF", mark: <Globe /> },
+      ? { title: "Web", line: "Free to rate and review", action: "Create Account", href: "/login", external: false, stripe: "#38B6FF", mark: <Globe /> }
+      : { title: "Web", line: "Browse it all, free", action: "Explore", href: "/explore", external: false, stripe: "#38B6FF", mark: <Globe /> },
   ];
 
   return (
